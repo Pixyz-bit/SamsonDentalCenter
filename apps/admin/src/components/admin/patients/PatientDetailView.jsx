@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Mail, Phone, User, Loader2 } from 'lucide-react';
-import { Button } from '../../ui';
+import { ArrowLeft, Mail, Phone, User, Loader2, Camera } from 'lucide-react';
+import { Button } from '../../../components/ui';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../../../utils/api';
 import { useAuth } from '../../../context/AuthContext';
@@ -16,6 +16,7 @@ import SecurityTab from './PatientDetail/SecurityTab';
 import EditProfileModal from './PatientDetail/EditProfileModal';
 import EditContactModal from './PatientDetail/EditContactModal';
 import LinkDependentModal from './PatientDetail/LinkDependentModal';
+import EditAvatarModal from './PatientDetail/EditAvatarModal';
 
 const PatientDetailView = ({ patientId, onBack, activeTab }) => {
     const { token } = useAuth();
@@ -30,6 +31,7 @@ const PatientDetailView = ({ patientId, onBack, activeTab }) => {
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [isEditContactModalOpen, setIsEditContactModalOpen] = useState(false);
     const [isLinkModalOpen, setIsLinkModalOpen] = useState(false);
+    const [isAvatarModalOpen, setIsAvatarModalOpen] = useState(false);
     
     // Action States
     const [loadingLink, setLoadingLink] = useState(false);
@@ -100,6 +102,18 @@ const PatientDetailView = ({ patientId, onBack, activeTab }) => {
             setIsEditContactModalOpen(false);
         } catch (err) {
             alert(err.message);
+        }
+    };
+
+    const handleSaveAvatar = async (avatarUrl) => {
+        try {
+            const updated = await api.patch(`/admin/patients/${patientId}`, {
+                avatar_url: avatarUrl
+            }, token);
+            setPatient(prev => ({ ...prev, avatar_url: updated.patient.avatar_url }));
+        } catch (err) {
+            alert(err.message);
+            throw err;
         }
     };
 
@@ -211,17 +225,27 @@ const PatientDetailView = ({ patientId, onBack, activeTab }) => {
 
             <div className='grow overflow-y-auto no-scrollbar'>
                 <div className='p-4 sm:p-6 lg:p-8 space-y-6'>
-                    {/* Identity Header Card */}
+                    {/* Identity Header Card - The SINGLE location for identity actions */}
                     <div className='p-6 border border-gray-200 rounded-xl dark:border-gray-800 lg:p-7 bg-white dark:bg-white/[0.03]'>
                         <div className='flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between'>
                             <div className='flex flex-col items-center w-full gap-6 xl:flex-row xl:items-center'>
                                 <div className='shrink-0'>
-                                    <div className='w-20 h-20 overflow-hidden border border-gray-200 rounded-2xl dark:border-gray-800 flex items-center justify-center bg-gray-50 dark:bg-white/5'>
+                                    <div 
+                                        onClick={() => setIsAvatarModalOpen(true)}
+                                        className='w-20 h-20 overflow-hidden border border-gray-200 rounded-2xl dark:border-gray-800 flex items-center justify-center bg-gray-50 dark:bg-white/5 relative group cursor-pointer'
+                                    >
                                         {patient.avatar_url ? (
                                             <img src={patient.avatar_url} alt={patient.full_name} className="w-full h-full object-cover" />
                                         ) : (
-                                            <User className='text-gray-400' size={32} />
+                                            <div className='w-full h-full flex items-center justify-center bg-gradient-to-br from-brand-400 to-brand-600 text-white font-bold text-xl'>
+                                                {(patient.first_name?.[0] || 'U') + (patient.last_name?.[0] || '')}
+                                            </div>
                                         )}
+                                        <div className='absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity'>
+                                            <div className='bg-white/20 backdrop-blur-sm p-1.5 rounded-lg border border-white/30'>
+                                                <Camera size={18} className='text-white' />
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                                 <div className='text-center xl:text-left'>
@@ -244,15 +268,13 @@ const PatientDetailView = ({ patientId, onBack, activeTab }) => {
                                     </div>
                                 </div>
                             </div>
-                            {(!activeTab || activeTab === 'profile') && (
-                                <Button
-                                    variant='outline'
-                                    onClick={() => setIsEditModalOpen(true)}
-                                    className='h-11 px-6 text-sm font-bold shadow-sm'
-                                >
-                                    Edit Basic Information
-                                </Button>
-                            )}
+                            <Button
+                                variant='outline'
+                                onClick={() => setIsAvatarModalOpen(true)}
+                                className='h-11 px-6 text-[11px] font-black uppercase tracking-widest hover:border-brand-500 hover:text-brand-500 transition-all shadow-sm shrink-0'
+                            >
+                                <Camera size={16} className='mr-2' /> Edit Avatar
+                            </Button>
                         </div>
 
                         {/* Contact Meta */}
@@ -265,19 +287,18 @@ const PatientDetailView = ({ patientId, onBack, activeTab }) => {
                                     <Phone size={16} className='text-gray-400' /> {patient.phone || 'No phone set'}
                                 </div>
                             </div>
-                            <Button
-                                variant='outline'
-                                onClick={() => setIsEditContactModalOpen(true)}
-                                className='h-11 px-6 text-sm font-bold shadow-sm'
-                            >
-                                <Mail size={16} className='mr-2' /> Update Records
-                            </Button>
                         </div>
                     </div>
 
                     {/* Tab Content Router */}
                     <div className='min-h-120 md:min-h-140'>
-                        {(!activeTab || activeTab === 'profile') && <ProfileTab patient={patient} />}
+                        {(!activeTab || activeTab === 'profile') && (
+                            <ProfileTab 
+                                patient={patient} 
+                                onEditProfile={() => setIsEditModalOpen(true)}
+                                onEditContact={() => setIsEditContactModalOpen(true)}
+                            />
+                        )}
                         {activeTab === 'records' && <RecordsTab />}
                         {activeTab === 'financial' && <FinancialTab patient={patient} />}
                         {activeTab === 'family' && (
@@ -328,6 +349,13 @@ const PatientDetailView = ({ patientId, onBack, activeTab }) => {
                 patientEmail={patient.email}
                 token={token}
                 onSuccess={fetchPatient}
+            />
+
+            <EditAvatarModal 
+                isOpen={isAvatarModalOpen}
+                onClose={() => setIsAvatarModalOpen(false)}
+                currentAvatar={patient.avatar_url}
+                onSave={handleSaveAvatar}
             />
         </div>
     );
