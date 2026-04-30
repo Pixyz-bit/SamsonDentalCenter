@@ -8,6 +8,7 @@ import { useAuth } from '../../../context/AuthContext';
 // Modular Components
 import ProfileTab from './PatientDetail/ProfileTab';
 import RecordsTab from './PatientDetail/RecordsTab';
+import AppointmentsTab from './PatientDetail/AppointmentsTab';
 import FinancialTab from './PatientDetail/FinancialTab';
 import FamilyTab from './PatientDetail/FamilyTab';
 import SecurityTab from './PatientDetail/SecurityTab';
@@ -165,6 +166,7 @@ const PatientDetailView = ({ patientId, onBack, activeTab }) => {
 
     const tabs = [
         { id: 'profile', label: 'Profile' },
+        { id: 'appointments', label: 'Appointments' },
         { id: 'records', label: 'Records' },
         { id: 'financial', label: 'Financial' },
         { id: 'family', label: 'Family' },
@@ -194,11 +196,11 @@ const PatientDetailView = ({ patientId, onBack, activeTab }) => {
                             <ArrowLeft size={20} />
                         </button>
                         <div>
-                            <h3 className='text-sm font-bold text-gray-900 dark:text-white uppercase tracking-tight font-outfit leading-none'>
+                            <h3 className='text-sm font-bold text-gray-900 dark:text-white uppercase tracking-tight font-outfit'>
                                 {patient.full_name}
                             </h3>
-                            <p className='text-[10px] font-bold text-gray-400 uppercase tracking-widest leading-none mt-1.5'>
-                                Patient Registry
+                            <p className='text-[10px] font-bold text-gray-400 uppercase tracking-widest leading-none mt-1'>
+                                Patient Directory
                             </p>
                         </div>
                     </div>
@@ -236,6 +238,7 @@ const PatientDetailView = ({ patientId, onBack, activeTab }) => {
                                 onEditContact={() => setIsEditContactModalOpen(true)}
                             />
                         )}
+                        {activeTab === 'appointments' && <AppointmentsTab patient={patient} token={token} />}
                         {activeTab === 'records' && <RecordsTab />}
                         {activeTab === 'financial' && <FinancialTab patient={patient} />}
                         {activeTab === 'family' && (

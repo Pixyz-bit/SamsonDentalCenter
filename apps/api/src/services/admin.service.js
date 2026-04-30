@@ -1091,16 +1091,27 @@ export const bulkCancelForBlock = async (
  * @param {string} patientId - Patient's profile UUID
  */
 export const getPatientAppointmentHistory = async (patientId) => {
+    // ── 1. Find all family members (Primary + Dependents) ──
+    const { data: familyProfiles, error: profilesError } = await supabaseAdmin
+        .from('profiles')
+        .select('id')
+        .or(`id.eq.${patientId},primary_profile_id.eq.${patientId}`);
+
+    if (profilesError) throw new AppError(profilesError.message, 500);
+    const familyIds = familyProfiles.map(p => p.id);
+
+    // ── 2. Get appointments for all family members ──
     const { data, error } = await supabaseAdmin
         .from('appointments')
         .select(
             `
                     *,
+                    patient: profiles!appointments_patient_id_fkey(full_name, email, phone),
                     service: services(name, price, tier),
-                        dentist: dentists(profile: profiles(full_name, first_name, last_name, middle_name, suffix))
-    `,
+                    dentist: dentists(profile: profiles(full_name, first_name, last_name, middle_name, suffix))
+            `,
         )
-        .eq('patient_id', patientId)
+        .in('patient_id', familyIds)
         .order('appointment_date', { ascending: false })
         .order('start_time', { ascending: false });
 

@@ -6,13 +6,18 @@ import { AppError } from '../utils/errors.js';
  */
 export const getPatientProfiles = async (profileId) => {
     const { data, error } = await supabaseAdmin
-        .from('patient_profiles')
-        .select('*')
-        .eq('profile_id', profileId)
+        .from('profiles')
+        .select('id, first_name, last_name, middle_name, suffix, date_of_birth, relationship_to_primary, full_name')
+        .eq('primary_profile_id', profileId)
         .order('first_name', { ascending: true });
 
     if (error) throw new AppError(error.message, 500);
-    return data || [];
+    
+    // Map relationship_to_primary back to relationship for frontend compatibility
+    return (data || []).map(p => ({
+        ...p,
+        relationship: p.relationship_to_primary
+    }));
 };
 
 /**
@@ -20,18 +25,22 @@ export const getPatientProfiles = async (profileId) => {
  */
 export const getPatientProfileById = async (id, profileId) => {
     const { data, error } = await supabaseAdmin
-        .from('patient_profiles')
-        .select('*')
+        .from('profiles')
+        .select('id, first_name, last_name, middle_name, suffix, date_of_birth, relationship_to_primary, full_name')
         .eq('id', id)
-        .eq('profile_id', profileId)
+        .eq('primary_profile_id', profileId)
         .single();
 
     if (error || !data) throw new AppError('Patient profile not found.', 404);
-    return data;
+    
+    return {
+        ...data,
+        relationship: data.relationship_to_primary
+    };
 };
 
 /**
- * Create a new patient profile.
+ * Create a new patient profile (Stub profile linked to primary).
  */
 export const createPatientProfile = async (profileId, profileData) => {
     const { first_name, last_name, middle_name, suffix, date_of_birth, relationship } = profileData;
@@ -40,16 +49,21 @@ export const createPatientProfile = async (profileId, profileData) => {
         throw new AppError('First name, last name, DOB, and relationship are required.', 400);
     }
 
+    const full_name = `${first_name} ${last_name}`.trim();
+
     const { data, error } = await supabaseAdmin
-        .from('patient_profiles')
+        .from('profiles')
         .insert({
-            profile_id: profileId,
+            primary_profile_id: profileId,
             first_name,
             last_name,
             middle_name,
             suffix,
+            full_name,
             date_of_birth,
-            relationship
+            relationship_to_primary: relationship,
+            role: 'patient',
+            is_registered: false // It's a stub profile
         })
         .select()
         .single();
@@ -61,26 +75,41 @@ export const createPatientProfile = async (profileId, profileData) => {
         throw new AppError(error.message, 500);
     }
 
-    return data;
+    return {
+        ...data,
+        relationship: data.relationship_to_primary
+    };
 };
 
 /**
  * Update an existing patient profile.
  */
 export const updatePatientProfile = async (id, profileId, profileData) => {
+    const { relationship, ...otherData } = profileData;
+    
+    const updates = {
+        ...otherData,
+        updated_at: new Date().toISOString()
+    };
+    
+    if (relationship) {
+        updates.relationship_to_primary = relationship;
+    }
+
     const { data, error } = await supabaseAdmin
-        .from('patient_profiles')
-        .update({
-            ...profileData,
-            updated_at: new Date().toISOString()
-        })
+        .from('profiles')
+        .update(updates)
         .eq('id', id)
-        .eq('profile_id', profileId)
+        .eq('primary_profile_id', profileId)
         .select()
         .single();
 
     if (error) throw new AppError(error.message, 500);
-    return data;
+    
+    return {
+        ...data,
+        relationship: data.relationship_to_primary
+    };
 };
 
 /**
@@ -88,10 +117,10 @@ export const updatePatientProfile = async (id, profileId, profileData) => {
  */
 export const deletePatientProfile = async (id, profileId) => {
     const { error } = await supabaseAdmin
-        .from('patient_profiles')
+        .from('profiles')
         .delete()
         .eq('id', id)
-        .eq('profile_id', profileId);
+        .eq('primary_profile_id', profileId);
 
     if (error) throw new AppError(error.message, 500);
     return { success: true };
