@@ -61,6 +61,9 @@
   gradients). Stick to standard, functional components that feel human-designed and honest (e.g.,
   Linear, GitHub). Do not invent new layouts; replicate clean components without unnecessary
   decoration.
+- **UI-UX Pro Max Skills:** For advanced design intelligence, color palettes, typography pairings,
+  and UX best practices, refer to the local toolkit in `ui-ux-pro-max-skill/`. 
+  that directory to find specific guidance for the current stack (React/Tailwind).
 
 ## Documentation & Markdown Standards
 

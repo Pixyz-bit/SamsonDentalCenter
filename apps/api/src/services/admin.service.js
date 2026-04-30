@@ -1714,58 +1714,90 @@ export const quickRegisterPatient = async (patientData) => {
     const { 
         full_name, email, phone, 
         first_name, last_name, middle_name, suffix, 
-        date_of_birth 
+        date_of_birth, resolution, otp, primary_profile_id
     } = patientData;
 
     if (!full_name && (!first_name || !last_name)) {
         throw new AppError('Patient name is required.', 400);
     }
 
-    // Check if patient already exists by email or phone (if provided)
-    // We use separate queries to avoid complex OR filter issues
-    if (email) {
+    let finalEmail = email;
+    let finalPrimaryId = primary_profile_id || null;
+
+    if (resolution === 'FORCE_OFFLINE') {
+        finalEmail = null;
+    } else if (resolution === 'LINK_DEPENDENT') {
+        if (!primary_profile_id || !otp) {
+            throw new AppError('Primary profile ID and OTP are required to link as dependent.', 400);
+        }
+        
+        // Verify OTP
+        const { data: tokenData } = await supabaseAdmin
+            .from('dependency_consent_tokens')
+            .select('id, status, expires_at')
+            .eq('primary_profile_id', primary_profile_id)
+            .eq('token', otp)
+            .eq('status', 'active')
+            .maybeSingle();
+            
+        if (!tokenData) {
+            throw new AppError('Invalid or expired OTP for dependency consent.', 400);
+        }
+        
+        if (new Date(tokenData.expires_at) < new Date()) {
+            await supabaseAdmin.from('dependency_consent_tokens').update({ status: 'expired' }).eq('id', tokenData.id);
+            throw new AppError('OTP has expired.', 400);
+        }
+        
+        // Mark as used
+        await supabaseAdmin.from('dependency_consent_tokens').update({ status: 'used', used_at: new Date().toISOString() }).eq('id', tokenData.id);
+        
+        finalEmail = null; // Dependents shouldn't strictly require the same email, they live under the parent
+        finalPrimaryId = primary_profile_id;
+    } else if (email) {
+        // Standard flow: Check if email exists
         const { data: byEmail, error: emailErr } = await supabaseAdmin.from('profiles').select('id, full_name, is_registered').eq('email', email).maybeSingle();
         if (emailErr) {
             console.error('Email check error:', emailErr);
             throw new AppError('Error checking existing email.', 500);
         }
         if (byEmail) {
-            throw new AppError(`A patient with email ${email} already exists.`, 409);
+            throw { status: 409, message: 'CONFLICT_RESOLUTION_REQUIRED', profile: byEmail, conflictType: 'EMAIL' };
         }
     }
 
-    if (phone) {
+    if (phone && !resolution) {
         const { data: byPhone, error: phoneErr } = await supabaseAdmin.from('profiles').select('id, full_name, is_registered').eq('phone', phone).maybeSingle();
         if (phoneErr) {
             console.error('Phone check error:', phoneErr);
             throw new AppError('Error checking existing phone.', 500);
         }
         if (byPhone) {
-            throw new AppError(`A patient with phone ${phone} already exists.`, 409);
+            throw { status: 409, message: 'CONFLICT_RESOLUTION_REQUIRED', profile: byPhone, conflictType: 'PHONE' };
         }
     }
 
     const finalFullName = full_name || `${first_name} ${last_name}`.trim();
     console.log('Final Full Name:', finalFullName);
 
-        const { data, error } = await supabaseAdmin
-            .from('profiles')
-            .insert({
-                full_name: finalFullName,
-                first_name: first_name || null,
-                last_name: last_name || null,
-                middle_name: middle_name || null,
-                suffix: suffix || null,
-                date_of_birth: date_of_birth || null,
-                email: email || null,
-                phone: phone || null,
-                role: 'patient',
-                primary_profile_id: patientData.primary_profile_id || null,
-                is_registered: false,
-                created_at: new Date().toISOString(),
-            })
-            .select()
-            .single();
+    const { data, error } = await supabaseAdmin
+        .from('profiles')
+        .insert({
+            full_name: finalFullName,
+            first_name: first_name || null,
+            last_name: last_name || null,
+            middle_name: middle_name || null,
+            suffix: suffix || null,
+            date_of_birth: date_of_birth || null,
+            email: finalEmail || null,
+            phone: phone || null,
+            role: 'patient',
+            primary_profile_id: finalPrimaryId,
+            is_registered: false,
+            created_at: new Date().toISOString(),
+        })
+        .select()
+        .single();
 
     if (error) {
         console.error('Quick registration insert failed:', error);
@@ -1891,11 +1923,68 @@ export const mergePatientRecords = async (sourceId, targetId, asDependent = fals
             if (delErr) throw delErr;
         }
 
-        return { success: true };
+        return { success: true, message: 'Records merged successfully' };
     } catch (err) {
-        throw new AppError(`Action failed: ${err.message}`, 500);
+        console.error('Merge error:', err);
+        throw new AppError('Failed to merge patient records.', 500);
     }
 };
+
+/**
+ * Generate and send an OTP for dependency consent
+ * @param {string} primaryProfileId - The ID of the owner of the email
+ * @returns {object} { message: 'OTP sent' }
+ */
+export const sendDependencyConsentOTP = async (primaryProfileId) => {
+    // 1. Get the primary profile email
+    const { data: profile, error } = await supabaseAdmin.from('profiles').select('email, full_name').eq('id', primaryProfileId).single();
+    if (error || !profile) {
+        throw new AppError('Primary profile not found.', 404);
+    }
+    if (!profile.email) {
+        throw new AppError('Primary profile has no email to send OTP to.', 400);
+    }
+
+    // 2. Rate limit check (e.g., no active token requested in last 1 minute)
+    const oneMinuteAgo = new Date(Date.now() - 60 * 1000).toISOString();
+    const { data: recentToken } = await supabaseAdmin
+        .from('dependency_consent_tokens')
+        .select('id')
+        .eq('primary_profile_id', primaryProfileId)
+        .eq('status', 'active')
+        .gte('created_at', oneMinuteAgo)
+        .maybeSingle();
+
+    if (recentToken) {
+        throw new AppError('Please wait a minute before requesting another OTP.', 429);
+    }
+
+    // 3. Generate a 6-digit OTP
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
+    // 4. Save to db with 15-minute expiration
+    const expiresAt = new Date(Date.now() + 15 * 60 * 1000).toISOString();
+    const { error: insertErr } = await supabaseAdmin
+        .from('dependency_consent_tokens')
+        .insert({
+            primary_profile_id: primaryProfileId,
+            token: otp,
+            expires_at: expiresAt,
+            status: 'active'
+        });
+
+    if (insertErr) {
+        throw new AppError('Failed to generate OTP.', 500);
+    }
+
+    // 5. Trigger email dispatch
+    // In a real implementation, you would call your email service here.
+    // Example: await emailService.sendDependencyConsentEmail(profile.email, profile.full_name, otp);
+    console.log(`[EMAIL MOCK] Dependency Consent OTP for ${profile.email}: ${otp}`);
+
+    return { message: `Consent OTP sent to ${profile.email}.` };
+};
+
 
 // ═══════════════════════════════════════════════
 // DENTIST SLOT & ASSIGNMENT FUNCTIONS
