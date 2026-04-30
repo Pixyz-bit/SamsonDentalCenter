@@ -3,7 +3,7 @@ import { Calendar, Plus, Loader2, ChevronRight, Clock, User } from 'lucide-react
 import Button from '../../../ui/Button';
 import { api } from '../../../../utils/api';
 
-const AppointmentsTab = ({ patient, token }) => {
+const AppointmentsTab = ({ patient, token, filterMode = 'request' }) => {
     const [appointments, setAppointments] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -27,6 +27,18 @@ const AppointmentsTab = ({ patient, token }) => {
         }
     }, [patient?.id]);
 
+    const filteredAppointments = appointments.filter(app => {
+        const status = app.status?.toUpperCase();
+        
+        if (filterMode === 'request') {
+            return status === 'PENDING';
+        }
+        if (filterMode === 'attendance') {
+            return status === 'CONFIRMED';
+        }
+        return false;
+    });
+
     const getStatusStyle = (status) => {
         switch (status?.toUpperCase()) {
             case 'CONFIRMED':
@@ -49,19 +61,21 @@ const AppointmentsTab = ({ patient, token }) => {
             <div className='flex items-center justify-between'>
                 <div className='flex flex-col'>
                     <h4 className='text-xs font-black uppercase tracking-[0.2em] text-gray-400'>
-                        Family Appointment Schedule
+                        {filterMode === 'request' ? 'Pending Requests' : 'Approved Attendance'}
                     </h4>
                     <p className='text-[10px] font-bold text-gray-400 mt-1 uppercase tracking-widest'>
-                        Showing history for {patient.full_name} and linked members
+                        {filterMode === 'request' ? 'Awaiting administrative approval' : 'Confirmed family appointments'}
                     </p>
                 </div>
-                <Button
-                    variant='outline'
-                    className='h-9 px-4 text-[10px] font-black uppercase tracking-widest border-brand-500/20 text-brand-600 hover:bg-brand-50'
-                    onClick={() => alert('Add Appointment Placeholder')}
-                >
-                    <Plus size={14} className='mr-2' /> Add New Appointment
-                </Button>
+                {filterMode === 'attendance' && (
+                    <Button
+                        variant='outline'
+                        className='h-9 px-4 text-[10px] font-black uppercase tracking-widest border-brand-500/20 text-brand-600 hover:bg-brand-50'
+                        onClick={() => alert('Add Appointment Placeholder')}
+                    >
+                        <Plus size={14} className='mr-2' /> Add New Appointment
+                    </Button>
+                )}
             </div>
 
             {loading ? (
@@ -69,7 +83,7 @@ const AppointmentsTab = ({ patient, token }) => {
                     <Loader2 className='animate-spin text-brand-500 mb-4' size={32} />
                     <p className='text-xs font-bold text-gray-400 uppercase tracking-widest'>Synchronizing family records...</p>
                 </div>
-            ) : appointments.length > 0 ? (
+            ) : filteredAppointments.length > 0 ? (
                 <div className='overflow-hidden rounded-2xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-white/[0.02]'>
                     <div className='overflow-x-auto'>
                         <table className='w-full text-left border-collapse'>
@@ -83,7 +97,7 @@ const AppointmentsTab = ({ patient, token }) => {
                                 </tr>
                             </thead>
                             <tbody className='divide-y divide-gray-50 dark:divide-gray-800/50'>
-                                {appointments.map((app) => (
+                                {filteredAppointments.map((app) => (
                                     <tr key={app.id} className='group hover:bg-gray-50/50 dark:hover:bg-white/[0.02] transition-colors cursor-pointer'>
                                         <td className='px-6 py-4'>
                                             <div className='flex flex-col'>
@@ -120,7 +134,7 @@ const AppointmentsTab = ({ patient, token }) => {
                                         </td>
                                         <td className='px-6 py-4 text-right'>
                                             <span className={`inline-flex px-2 py-1 text-[9px] font-black rounded-lg uppercase tracking-widest shadow-sm ${getStatusStyle(app.status)}`}>
-                                                {app.status}
+                                                {app.approval_status === 'rejected' ? 'REJECTED' : app.status}
                                             </span>
                                         </td>
                                     </tr>
@@ -134,9 +148,13 @@ const AppointmentsTab = ({ patient, token }) => {
                     <div className='w-16 h-16 bg-white dark:bg-gray-800 rounded-2xl shadow-sm flex items-center justify-center text-gray-200 dark:text-gray-700 mb-4'>
                         <Calendar size={32} />
                     </div>
-                    <h5 className='text-sm font-bold text-gray-900 dark:text-white uppercase tracking-tight'>No Appointment History</h5>
+                    <h5 className='text-sm font-bold text-gray-900 dark:text-white uppercase tracking-tight'>
+                        {filterMode === 'request' ? 'No Pending Requests' : 'No Approved Appointments'}
+                    </h5>
                     <p className='text-xs text-gray-500 dark:text-gray-400 mt-1 max-w-xs'>
-                        This patient and their family members have no recorded or upcoming appointments in the system.
+                        {filterMode === 'request' 
+                            ? 'All appointment requests for this family have been processed.' 
+                            : 'There are no confirmed appointments scheduled for this family.'}
                     </p>
                 </div>
             )}

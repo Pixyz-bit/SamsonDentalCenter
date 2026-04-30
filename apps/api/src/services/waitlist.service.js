@@ -138,7 +138,7 @@ export const joinWaitlist = async (
     const { data, error } = await supabaseAdmin
         .from('waitlist')
         .insert({
-            patient_id: patientId,
+            patient_id: patientProfileId || patientId, // ✅ Use dependent ID if provided
             service_id: serviceId,
             preferred_date: date,
             preferred_time: time,
@@ -151,9 +151,6 @@ export const joinWaitlist = async (
             last_name: lastName,
             middle_name: middleName,
             suffix: suffix,
-            patient_profile_id: patientProfileId, // ✅ Store the linked profile ID
-            patient_birthday: finalBookedForBirthday,
-            patient_relationship: finalBookedForRelationship,
         })
         .select(
             `

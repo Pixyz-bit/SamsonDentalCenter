@@ -368,7 +368,7 @@ export const bookAppointment = async (
         const { data: appointment, error } = await supabaseAdmin
             .from('appointments')
             .insert({
-                patient_id: patientId,
+                patient_id: patientProfileId || patientId, // ✅ Use dependent ID if provided
                 dentist_id: finalDentistId, // ✅ Auto-assigned or preferred
                 service_id: serviceId,
                 appointment_date: date,
@@ -385,9 +385,6 @@ export const bookAppointment = async (
                 last_name: lastName,
                 middle_name: middleName,
                 suffix: suffix,
-                patient_profile_id: patientProfileId, // ✅ Store the linked profile ID
-                patient_birthday: finalBookedForBirthday,
-                patient_relationship: finalBookedForRelationship,
                 // ✅ User is booking from their own account, auto-confirm their intent
                 patient_confirmed: true,
                 confirmed_at: new Date().toISOString(),
@@ -501,7 +498,7 @@ export const bookAppointment = async (
     const { data: appointment, error } = await supabaseAdmin
         .from('appointments')
         .insert({
-            patient_id: patientId,
+            patient_id: patientProfileId || patientId, // ✅ Use dependent ID if provided
             dentist_id: finalDentistId,
             service_id: serviceId,
             appointment_date: date,
@@ -519,9 +516,6 @@ export const bookAppointment = async (
             last_name: lastName,
             middle_name: middleName,
             suffix: suffix,
-            patient_profile_id: patientProfileId, // ✅ Store the linked profile ID
-            patient_birthday: finalBookedForBirthday,
-            patient_relationship: finalBookedForRelationship,
             // ✅ User is booking from their own account, auto-confirm their intent
             patient_confirmed: true,
             confirmed_at: new Date().toISOString(),
@@ -632,7 +626,7 @@ export const getPatientAppointments = async (
         .select(
             `
       *,
-      patient:profiles!patient_id(full_name, first_name, last_name, relationship, primary_profile_id),
+      patient:profiles!patient_id(full_name, first_name, last_name, relationship_to_primary, primary_profile_id),
       service:services(name, duration_minutes, price),
       dentist:dentists(
         profile:profiles(full_name, first_name, last_name, middle_name, suffix)
@@ -701,7 +695,7 @@ export const getPatientAppointments = async (
         dentist: appt.dentist?.profile?.first_name ? `Dr. ${appt.dentist.profile.last_name}, ${appt.dentist.profile.first_name}` : (appt.dentist?.profile?.full_name || 'TBD'),
         booked_for_name: appt.booked_for_name || appt.patient?.full_name,
         patient_name: appt.patient?.full_name,
-        relationship: appt.patient?.relationship || (appt.patient?.primary_profile_id ? 'Dependent' : 'Self'),
+        relationship: appt.patient?.relationship_to_primary || (appt.patient?.primary_profile_id ? 'Dependent' : 'Self'),
         is_walk_in: appt.is_walk_in,
         notes: appt.notes,
         created_at: appt.created_at,

@@ -165,12 +165,12 @@ const PatientDetailView = ({ patientId, onBack, activeTab }) => {
     };
 
     const tabs = [
-        { id: 'profile', label: 'Profile' },
-        { id: 'appointments', label: 'Appointments' },
-        { id: 'records', label: 'Records' },
-        { id: 'financial', label: 'Financial' },
-        { id: 'family', label: 'Family' },
-        { id: 'security', label: 'Security' },
+        { id: 'profile', label: 'User Profile' },
+        { id: 'upcoming', label: 'Upcoming Appointments' },
+        { id: 'request', label: 'Pending Request' },
+        { id: 'history', label: 'Past Appointments' },
+        { id: 'family', label: 'Linked Profiles' },
+        { id: 'security', label: 'Account Security' },
     ];
 
     if (loading) {
@@ -238,9 +238,9 @@ const PatientDetailView = ({ patientId, onBack, activeTab }) => {
                                 onEditContact={() => setIsEditContactModalOpen(true)}
                             />
                         )}
-                        {activeTab === 'appointments' && <AppointmentsTab patient={patient} token={token} />}
-                        {activeTab === 'records' && <RecordsTab />}
-                        {activeTab === 'financial' && <FinancialTab patient={patient} />}
+                        {activeTab === 'request' && <AppointmentsTab patient={patient} token={token} filterMode="request" />}
+                        {activeTab === 'upcoming' && <AppointmentsTab patient={patient} token={token} filterMode="attendance" />}
+                        {(activeTab === 'history' || activeTab === 'records') && <RecordsTab patient={patient} token={token} />}
                         {activeTab === 'family' && (
                             <FamilyTab 
                                 patient={patient} 
