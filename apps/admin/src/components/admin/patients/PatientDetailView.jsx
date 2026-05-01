@@ -164,14 +164,22 @@ const PatientDetailView = ({ patientId, onBack, activeTab }) => {
         }
     };
 
+    const [subLabel, setSubLabel] = useState(null);
+
     const tabs = [
         { id: 'profile', label: 'Demographics' },
         { id: 'upcoming', label: 'Scheduled Visits' },
         { id: 'request', label: 'Inbox / Requests' },
         { id: 'history', label: 'Clinical History' },
         { id: 'family', label: 'Dependents' },
-        { id: 'security', label: 'Permissions' },
+        { id: 'account', label: 'Account' },
     ];
+
+    const activeTabLabel = tabs.find(t => t.id === (activeTab || 'profile'))?.label;
+
+    useEffect(() => {
+        setSubLabel(null);
+    }, [activeTab]);
 
     if (loading) {
         return (
@@ -196,12 +204,12 @@ const PatientDetailView = ({ patientId, onBack, activeTab }) => {
                             <ArrowLeft size={20} />
                         </button>
                         <div>
+                            <p className='text-[9px] font-black text-gray-400 uppercase tracking-[0.2em] leading-none mb-1.5'>
+                                Patient Directory <span className='mx-1 text-gray-300'>/</span> {activeTabLabel} {subLabel && <><span className='mx-1 text-gray-300'>/</span> {subLabel}</>}
+                            </p>
                             <h3 className='text-sm font-black text-gray-900 dark:text-white uppercase tracking-tight font-outfit'>
                                 {patient.full_name}
                             </h3>
-                            <p className='text-[10px] font-bold text-gray-400 uppercase tracking-widest leading-none mt-1'>
-                                Patient Directory
-                            </p>
                         </div>
                     </div>
                 </div>
@@ -241,9 +249,9 @@ const PatientDetailView = ({ patientId, onBack, activeTab }) => {
                                 onEditContact={() => setIsEditContactModalOpen(true)}
                             />
                         )}
-                        {activeTab === 'request' && <AppointmentsTab patient={patient} token={token} filterMode="request" />}
-                        {activeTab === 'upcoming' && <AppointmentsTab patient={patient} token={token} filterMode="attendance" />}
-                        {activeTab === 'history' && <AppointmentsTab patient={patient} token={token} filterMode="history" />}
+                        {activeTab === 'request' && <AppointmentsTab patient={patient} token={token} filterMode="request" onSubViewChange={setSubLabel} />}
+                        {activeTab === 'upcoming' && <AppointmentsTab patient={patient} token={token} filterMode="attendance" onSubViewChange={setSubLabel} />}
+                        {activeTab === 'history' && <AppointmentsTab patient={patient} token={token} filterMode="history" onSubViewChange={setSubLabel} />}
                         {activeTab === 'records' && <RecordsTab patient={patient} token={token} />}
                         {activeTab === 'family' && (
                             <FamilyTab 
@@ -253,7 +261,7 @@ const PatientDetailView = ({ patientId, onBack, activeTab }) => {
                                 onAddDependent={() => setIsAddDependencyModalOpen(true)}
                             />
                         )}
-                        {activeTab === 'security' && (
+                        {activeTab === 'account' && (
                             <SecurityTab 
                                 patient={patient}
                                 loadingLink={loadingLink}
