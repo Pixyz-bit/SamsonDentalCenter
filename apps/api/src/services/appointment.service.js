@@ -1355,4 +1355,148 @@ export const rescheduleGuestAppointment = async (oldAppt, date, time, userSessio
     };
 };
 
+/**
+ * Admin/Staff initiated booking for a patient.
+ * Status is automatically set to CONFIRMED.
+ * 
+ * @param {string} staffId - The ID of the staff member booking the appointment
+ * @param {string} patientId - The ID of the patient (Primary or Dependent)
+ * @param {string} serviceId - The service UUID
+ * @param {string} date - 'YYYY-MM-DD'
+ * @param {string} time - 'HH:MM'
+ * @param {string} userSessionId - For slot hold resolution
+ * @param {string} preferredDentistId - Optional preferred doctor
+ * @returns {object} Appointment details
+ */
+export const bookAppointmentAdmin = async (
+    staffId,
+    patientId,
+    serviceId,
+    date,
+    time,
+    userSessionId = null,
+    preferredDentistId = null
+) => {
+    // ── 0. Validate date ──
+    const todayPH = getTodayPH();
+    if (date < todayPH) {
+        throw new AppError('Cannot book appointments in the past.', 400);
+    }
+
+    // ── 1. Get service info ──
+    const { data: service } = await supabaseAdmin
+        .from('services')
+        .select('*')
+        .eq('id', serviceId)
+        .single();
+
+    if (!service) {
+        throw new AppError('Service not found.', 404);
+    }
+
+    const endTime = addMinutesToTime(time, service.duration_minutes);
+
+    // ── 2. Get Patient Info (for email/logging) ──
+    const { data: patient } = await supabaseAdmin
+        .from('profiles')
+        .select('full_name, email, first_name, last_name, middle_name, suffix')
+        .eq('id', patientId)
+        .single();
+
+    if (!patient) {
+        throw new AppError('Patient not found.', 404);
+    }
+
+    // ── 3. Check Availability ──
+    const availability = await getAvailableSlots(date, serviceId, userSessionId);
+    const slotData = availability.all_slots.find((s) => s.time === time);
+    const isAvailable = slotData && slotData.available > 0;
+
+    if (!isAvailable) {
+        throw new AppError('The selected slot is no longer available.', 409);
+    }
+
+    // ── 4. Assign Dentist ──
+    let finalDentistId = preferredDentistId;
+
+    if (!finalDentistId && userSessionId) {
+        const { data: hold } = await supabaseAdmin
+            .from('slot_holds')
+            .select('dentist_id')
+            .eq('user_session_id', userSessionId)
+            .eq('appointment_date', date)
+            .eq('start_time', time)
+            .eq('status', 'active')
+            .gt('expires_at', new Date().toISOString())
+            .single();
+
+        if (hold?.dentist_id) {
+            finalDentistId = hold.dentist_id;
+        }
+    }
+
+    if (!finalDentistId) {
+        finalDentistId = await assignDentist(date, time, endTime, service.tier, userSessionId);
+    }
+
+    if (!finalDentistId) {
+        throw new AppError('No dentist available for this slot.', 409);
+    }
+
+    // ── 5. Create Confirmed Appointment ──
+    const { data: appointment, error } = await supabaseAdmin
+        .from('appointments')
+        .insert({
+            patient_id: patientId,
+            dentist_id: finalDentistId,
+            service_id: serviceId,
+            appointment_date: date,
+            start_time: time,
+            end_time: endTime,
+            status: APPOINTMENT_STATUS.CONFIRMED,
+            service_tier: service.tier,
+            approval_status: APPROVAL_STATUS.APPROVED,
+            source: APPOINTMENT_SOURCE.WALK_IN,
+            booked_by: staffId,
+            is_walk_in: true,
+            patient_confirmed: true,
+            confirmed_at: new Date().toISOString(),
+            approved_by: staffId,
+            approved_at: new Date().toISOString(),
+            first_name: patient.first_name,
+            last_name: patient.last_name,
+            middle_name: patient.middle_name,
+            suffix: patient.suffix,
+        })
+        .select(`
+            *,
+            service:services(name, duration_minutes, price),
+            dentist:dentists(
+                id,
+                profile:profiles(full_name, last_name, first_name)
+            )
+        `)
+        .single();
+
+    if (error) {
+        if (error.code === '23505') {
+            throw new AppError('This slot was just taken. Please try another time.', 409);
+        }
+        throw new AppError(error.message, 500);
+    }
+
+    // ── 6. Send Email Notification ──
+    if (patient.email) {
+        const patientDisplayName = patient.first_name ? `${patient.first_name} ${patient.last_name}`.trim() : patient.full_name;
+        sendBookingSuccessEmail(patient.email, patientDisplayName, {
+            date: appointment.appointment_date,
+            start_time: appointment.start_time,
+            service: appointment.service?.name,
+            dentist: appointment.dentist?.profile?.first_name ? `Dr. ${appointment.dentist.profile.last_name}, ${appointment.dentist.profile.first_name}` : (appointment.dentist?.profile?.full_name || 'Assigned'),
+        }).catch(err => console.error('[Email] Failed to send admin booking success email:', err.message));
+    }
+
+    return appointment;
+};
+
 // ── End of Service ──

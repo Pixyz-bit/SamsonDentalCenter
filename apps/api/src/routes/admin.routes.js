@@ -11,6 +11,7 @@ import {
     getPending,
     approve,
     reject,
+    bookForPatient,
     // Content Management
     getSettings,
     updateSettings,
@@ -78,6 +79,8 @@ import {
 } from '../controllers/audit.controller.js';
 import { requireAuth } from '../middleware/auth.middleware.js';
 import { requireAdmin, requireAdminOrSecretary } from '../middleware/admin.middleware.js'; // UPDATED
+import { validate } from '../utils/validate.js';
+import { adminBookAppointmentSchema } from '../schemas/admin.schema.js';
 
 const router = Router();
 
@@ -123,6 +126,7 @@ router.get('/patients/:id', getPatientHandler); // NEW
 router.patch('/patients/:id', updatePatientHandler); // NEW
 router.get('/patients', getPatients);
 router.get('/patients/:id/history', viewPatientHistory);
+router.post('/patients/:id/book', validate(adminBookAppointmentSchema), bookForPatient);
 router.patch('/patients/:id/restriction', toggleRestriction);
 
 // ── Content Management ──

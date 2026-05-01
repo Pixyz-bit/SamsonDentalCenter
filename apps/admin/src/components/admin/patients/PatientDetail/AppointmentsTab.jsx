@@ -5,13 +5,15 @@ import { api } from '../../../../utils/api';
 import RequestReviewView from './RequestReviewView';
 import UpcomingAppointmentView from './UpcomingAppointmentView';
 import PastAppointmentView from './PastAppointmentView';
+import AdminBookingWizard from './AdminBookingWizard';
 
-const AppointmentsTab = ({ patient, token, filterMode = 'request', onSubViewChange }) => {
+const AppointmentsTab = ({ patient, dependents = [], token, filterMode = 'request', onSubViewChange }) => {
     const [appointments, setAppointments] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [selectedAppointment, setSelectedAppointment] = useState(null);
     const [view, setView] = useState('list'); // 'list' or 'details'
+    const [isWizardOpen, setIsWizardOpen] = useState(false);
 
     const [searchQuery, setSearchQuery] = useState('');
     const [statusFilter, setStatusFilter] = useState('ALL');
@@ -190,7 +192,7 @@ const AppointmentsTab = ({ patient, token, filterMode = 'request', onSubViewChan
                     </div>
                     {filterMode === 'attendance' && (
                         <button
-                            onClick={() => alert('Add Appointment Placeholder')}
+                            onClick={() => setIsWizardOpen(true)}
                             className='h-9 px-4 rounded-lg bg-brand-500 text-white text-[9px] font-black uppercase tracking-widest hover:bg-brand-600 transition-all shadow-lg shadow-brand-500/20 active:scale-95 flex items-center gap-2 whitespace-nowrap'
                         >
                             <Plus size={14} /> <span>Add Appointment</span>
@@ -355,6 +357,19 @@ const AppointmentsTab = ({ patient, token, filterMode = 'request', onSubViewChan
                     </p>
                 </div>
             )}
+
+            {/* Admin Booking Wizard */}
+            <AdminBookingWizard 
+                isOpen={isWizardOpen}
+                onClose={() => setIsWizardOpen(false)}
+                primaryPatient={patient}
+                dependents={dependents}
+                token={token}
+                onSuccess={() => {
+                    setIsWizardOpen(false);
+                    fetchHistory();
+                }}
+            />
         </div>
     );
 };

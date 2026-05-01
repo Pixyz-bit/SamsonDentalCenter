@@ -249,9 +249,9 @@ const PatientDetailView = ({ patientId, onBack, activeTab }) => {
                                 onEditContact={() => setIsEditContactModalOpen(true)}
                             />
                         )}
-                        {activeTab === 'request' && <AppointmentsTab patient={patient} token={token} filterMode="request" onSubViewChange={setSubLabel} />}
-                        {activeTab === 'upcoming' && <AppointmentsTab patient={patient} token={token} filterMode="attendance" onSubViewChange={setSubLabel} />}
-                        {activeTab === 'history' && <AppointmentsTab patient={patient} token={token} filterMode="history" onSubViewChange={setSubLabel} />}
+                        {activeTab === 'request' && <AppointmentsTab patient={patient} dependents={dependents} token={token} filterMode="request" onSubViewChange={setSubLabel} />}
+                        {activeTab === 'upcoming' && <AppointmentsTab patient={patient} dependents={dependents} token={token} filterMode="attendance" onSubViewChange={setSubLabel} />}
+                        {activeTab === 'history' && <AppointmentsTab patient={patient} dependents={dependents} token={token} filterMode="history" onSubViewChange={setSubLabel} />}
                         {activeTab === 'records' && <RecordsTab patient={patient} token={token} />}
                         {activeTab === 'family' && (
                             <FamilyTab 

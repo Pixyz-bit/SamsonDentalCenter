@@ -2,7 +2,19 @@ import crypto from 'crypto';
 import { supabaseAdmin } from '../config/supabase.js';
 import { markNoShow } from '../services/noshow.service.js';
 import { notifyWaitlist } from '../services/waitlist.service.js';
-import { bookWalkIn } from '../services/appointment.service.js';
+import {
+    bookAppointment,
+    getPatientAppointments,
+    getAppointmentById,
+    bookAppointmentGuest,
+    getPatientAppointmentStats,
+    cancelAppointment,
+    rescheduleAppointment,
+    cancelGuestAppointmentAction,
+    insertConfirmedGuestAppointment,
+    rescheduleGuestAppointment,
+    bookAppointmentAdmin,
+} from '../services/appointment.service.js';
 import { APPOINTMENT_STATUS } from '../utils/constants.js';
 import { sendBookingSuccessEmail, sendCancellationEmail, sendAccountSetupInviteEmail } from '../services/email-confirmation.service.js';
 import {
@@ -416,6 +428,56 @@ export const addWalkIn = async (req, res, next) => {
 
         const result = await bookWalkIn(patient_id, service_id, time, notes);
         res.status(201).json(result);
+    } catch (err) {
+        next(err);
+    }
+};
+
+/**
+ * POST /api/admin/patients/:id/book
+ *
+ * Admin/Staff books an appointment on behalf of a patient.
+ * Status is auto-set to CONFIRMED.
+ */
+export const bookForPatient = async (req, res, next) => {
+    try {
+        const { id: patientId } = req.params;
+        const { service_id, date, time, user_session_id, dentist_id } = req.body;
+
+        const appointment = await bookAppointmentAdmin(
+            req.user.id,
+            patientId,
+            service_id,
+            date,
+            time,
+            user_session_id,
+            dentist_id
+        );
+
+        // Audit Log: ADMIN_BOOKING
+        try {
+            await supabaseAdmin.from('audit_log').insert({
+                actor_id: req.user.id,
+                actor_role: req.user.role,
+                action: 'ADMIN_BOOKING',
+                target_type: 'appointments',
+                target_id: appointment.id,
+                resource_type: 'appointments',
+                resource_id: appointment.id,
+                new_values: appointment,
+                details: {
+                    source: 'ADMIN_WIZARD',
+                    patient_id: patientId,
+                }
+            });
+        } catch (auditErr) {
+            console.error('Audit Log failed (bookForPatient):', auditErr.message);
+        }
+
+        res.status(201).json({
+            message: 'Appointment booked and confirmed successfully.',
+            appointment
+        });
     } catch (err) {
         next(err);
     }
