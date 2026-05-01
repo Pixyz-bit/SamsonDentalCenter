@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import PageBreadcrumb from '../../components/common/PageBreadcrumb';
 import { CheckCircle2, CalendarClock, CalendarDays, UserX, Undo2 } from 'lucide-react';
-import CheckOutModal from '../../components/secretary/frontdesk/CheckOutModal';
 import ApprovalDetailView from '../../components/secretary/approval_details';
 import RealTimeClock from '../../components/common/RealTimeClock';
+import CheckoutView from '../../components/secretary/patients/appointments/CheckoutView';
+import HistoryDetailView from '../../components/secretary/patients/history/HistoryDetailView';
 
 const mockFrontDeskAppointments = [
     {
@@ -76,16 +77,14 @@ const mockFrontDeskAppointments = [
 const FrontDeskPage = () => {
     const [activeTab, setActiveTab] = useState('Upcoming');
     const [appointments, setAppointments] = useState(mockFrontDeskAppointments);
-    const [isCheckOutModalOpen, setIsCheckOutModalOpen] = useState(false);
-    const [isReadOnlyModal, setIsReadOnlyModal] = useState(false);
+    const [isCheckingOut, setIsCheckingOut] = useState(false);
     const [selectedApt, setSelectedApt] = useState(null);
 
     const handleStatusChange = (id, newStatus) => {
         if (newStatus === 'Completed') {
             const apt = appointments.find(a => a.id === id);
             setSelectedApt(apt);
-            setIsReadOnlyModal(false);
-            setIsCheckOutModalOpen(true);
+            setIsCheckingOut(true);
             return;
         }
 
@@ -96,8 +95,7 @@ const FrontDeskPage = () => {
 
     const handleViewDetails = (apt) => {
         setSelectedApt(apt);
-        setIsReadOnlyModal(true);
-        setIsCheckOutModalOpen(true);
+        setIsCheckingOut(apt.status === 'In Progress');
     };
 
     const handleCheckOutConfirm = (id, treatmentNotes, doctorNotes) => {
@@ -105,7 +103,7 @@ const FrontDeskPage = () => {
         setAppointments(prev => prev.map(apt => 
             apt.id === id ? { ...apt, status: 'Completed', treatmentNotes, doctorNotes } : apt
         ));
-        setIsCheckOutModalOpen(false);
+        setIsCheckingOut(false);
         setSelectedApt(null);
     };
 
@@ -134,27 +132,73 @@ const FrontDeskPage = () => {
         dentist: selectedApt.doctor
     } : null;
 
-    if (selectedApt && !isCheckOutModalOpen) {
+    if (selectedApt && isCheckingOut) {
+        return (
+            <div className="flex flex-col h-full w-full max-w-full overflow-x-hidden pb-8 animate-in fade-in slide-in-from-right-4 duration-500">
+                <CheckoutView 
+                    appointment={selectedApt}
+                    patient={{
+                        full_name: selectedApt.patient,
+                        phone: selectedApt.phone
+                    }}
+                    onBack={() => {
+                        setIsCheckingOut(false);
+                        setSelectedApt(null);
+                    }}
+                    onConfirm={() => handleCheckOutConfirm(selectedApt.id)}
+                />
+            </div>
+        );
+    }
+
+    if (selectedApt && !isCheckingOut) {
+        const isHistory = selectedApt.status === 'Completed' || selectedApt.status === 'No Show';
+
         return (
             <div className="flex flex-col h-full w-full max-w-full overflow-x-hidden pb-8">
-                <PageBreadcrumb pageTitle="Appointment Details" parentName="Front Desk" parentPath="/front-desk" />
+                <PageBreadcrumb 
+                    pageTitle={isHistory ? "Clinical Record" : "Appointment Details"} 
+                    parentName="Front Desk" 
+                    parentPath="/secretary/front-desk" 
+                />
                 <div className="mt-6 flex-1 bg-white dark:bg-gray-900 rounded-3xl border border-gray-100 dark:border-gray-800 shadow-theme-sm overflow-hidden">
-                    <ApprovalDetailView 
-                        request={requestForContext}
-                        onBack={() => setSelectedApt(null)}
-                        onApprove={() => {
-                            handleStatusChange(selectedApt.id, selectedApt.status === 'Upcoming' ? 'In Progress' : 'Completed');
-                            setSelectedApt(null);
-                        }}
-                        onReject={(reason) => {
-                            handleStatusChange(selectedApt.id, 'No Show');
-                            setSelectedApt(null);
-                        }}
-                        busySlots={[10, 25, 40]} // Mocked busy slots for design parity
-                        slotPosition={5} // Mocked position
-                        timeStr={selectedApt.startTime}
-                        completedCount={completedCount}
-                    />
+                    {isHistory ? (
+                        <HistoryDetailView 
+                            historyItem={{
+                                ...selectedApt,
+                                date: 'Apr 20, 2026', // Mock date for detail consistency
+                                doctor: selectedApt.doctor
+                            }}
+                            patient={{
+                                full_name: selectedApt.patient,
+                                phone: selectedApt.phone
+                            }}
+                            onBack={() => setSelectedApt(null)}
+                        />
+                    ) : (
+                        <ApprovalDetailView 
+                            request={requestForContext}
+                            onBack={() => setSelectedApt(null)}
+                            onApprove={() => {
+                                handleStatusChange(selectedApt.id, selectedApt.status === 'Upcoming' ? 'In Progress' : 'Completed');
+                                setSelectedApt(null);
+                            }}
+                            onReject={(_reason) => {
+                                handleStatusChange(selectedApt.id, 'No Show');
+                                setSelectedApt(null);
+                            }}
+                            isBookingMode={true}
+                            busySlots={[15, 30, 55]} // Match snippet
+                            slotPosition={10} // Match snippet
+                            timeStr={selectedApt.startTime}
+                            completedCount={completedCount}
+                            breadcrumbItems={[
+                                { label: 'Home', href: '/secretary' },
+                                { label: 'Front Desk', href: '/secretary/front-desk' },
+                                { label: 'Appointment Details' }
+                            ]}
+                        />
+                    )}
                 </div>
             </div>
         );
@@ -238,7 +282,14 @@ const FrontDeskPage = () => {
                     filteredAppointments.map(apt => (
                         <div 
                             key={apt.id} 
-                            onClick={() => setSelectedApt(apt)}
+                            onClick={() => {
+                                if (apt.status === 'In Progress') {
+                                    setSelectedApt(apt);
+                                    setIsCheckingOut(true);
+                                } else {
+                                    setSelectedApt(apt);
+                                }
+                            }}
                             className="flex flex-col sm:flex-row bg-white dark:bg-[#111827] border border-gray-200 dark:border-gray-800 rounded-lg shadow-sm hover:shadow-md transition-shadow overflow-hidden group cursor-pointer"
                         >
                            
@@ -261,7 +312,7 @@ const FrontDeskPage = () => {
                                 <div className="flex items-center gap-3 w-full lg:w-[240px] shrink-0">
                                     <div className="relative shrink-0">
                                         <img src={apt.patientAvatar} alt={apt.patient} className="w-10 h-10 sm:w-12 sm:h-12 rounded-full border border-gray-200 dark:border-gray-700 shadow-sm object-cover" />
-                                        <div className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 border-2 border-white dark:border-[#111827] rounded-full"></div>
+                                        <div className={`absolute bottom-0 right-0 w-3 h-3 border-2 border-white dark:border-[#111827] rounded-full ${apt.status === 'In Progress' ? 'bg-amber-500 animate-pulse' : 'bg-emerald-500'}`}></div>
                                     </div>
                                     <div className="flex flex-col min-w-0">
                                         <span className="font-semibold text-[#0B1120] dark:text-white text-base sm:text-lg font-outfit group-hover:text-brand-500 transition-colors truncate">
@@ -352,15 +403,6 @@ const FrontDeskPage = () => {
                     </div>
                 )}
             </div>
-
-            {/* Check Out Modal */}
-            <CheckOutModal 
-                isOpen={isCheckOutModalOpen}
-                onClose={() => setIsCheckOutModalOpen(false)}
-                appointment={selectedApt}
-                onConfirm={handleCheckOutConfirm}
-                isReadOnly={isReadOnlyModal}
-            />
         </div>
     );
 };
