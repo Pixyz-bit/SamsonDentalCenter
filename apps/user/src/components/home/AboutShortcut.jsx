@@ -81,7 +81,7 @@ const AboutShortcut = () => {
 
   return (
     <section ref={sectionRef} className="py-6 md:py-12 bg-white overflow-hidden">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-6xl mx-auto px-6 sm:px-8 lg:px-12">
           <div className="text-center mb-6 md:mb-10 gsap-animate">
               <h2 className="text-3xl md:text-4xl font-brand font-black text-slate-900 uppercase tracking-tight flex flex-col sm:block">
                   <span className="sm:mr-2">Real Results.</span>

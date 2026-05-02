@@ -13,7 +13,7 @@ const InquiriesPage = () => {
                 {/* Background Decor */}
                 <div className='absolute top-0 right-0 w-150 h-150 bg-blue-600/5 rounded-full blur-[120px] -mr-40 -mt-40 pointer-events-none'></div>
 
-                <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10'>
+                <div className='max-w-6xl mx-auto px-6 sm:px-8 lg:px-12 relative z-10'>
                     <div className='max-w-3xl mx-auto'>
                         <InquiryForm />
                     </div>

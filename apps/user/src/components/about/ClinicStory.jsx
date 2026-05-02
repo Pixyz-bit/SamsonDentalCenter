@@ -81,7 +81,7 @@ const ClinicStory = () => {
 
     return (
         <section ref={containerRef} className='py-16 sm:py-20 bg-white'>
-            <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
+            <div className='max-w-6xl mx-auto px-6 sm:px-8 lg:px-12'>
                 <div className='grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-start'>
                     {/* Left: Headline + description + tabs + panel */}
                     <div ref={leftContentRef} className='order-2 lg:order-1 lg:col-span-7'>

@@ -120,14 +120,14 @@ const HomeServices = ({ variant = 'light' }) => {
     return (
         <section
             ref={sectionRef}
-            className={`py-16 sm:py-24 lg:py-32 relative overflow-hidden transition-colors duration-500 ${isDark ? 'bg-[#0B1120]' : 'bg-white'}`}
+            className={`py-10 sm:py-16 lg:py-20 relative overflow-hidden transition-colors duration-500 ${isDark ? 'bg-[#0B1120]' : 'bg-white'}`}
         >
             {/* Background Decor */}
             <div
                 className={`absolute top-0 right-0 w-200 h-200 rounded-full blur-[120px] -mr-48 -mt-48 transition-all duration-700 pointer-events-none ${isDark ? 'bg-white/5' : 'bg-blue-600/5'}`}
             ></div>
 
-            <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10'>
+            <div className='max-w-6xl mx-auto px-6 sm:px-8 lg:px-12 relative z-10'>
                 <div
                     ref={headingRef}
                     className='max-w-3xl mb-12 md:mb-20'

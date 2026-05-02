@@ -258,11 +258,11 @@ const ServicesList = ({ variant = 'dark', onBookNow, onServiceSelect }) => {
   const listItems = filteredServices.slice(5);
 
   return (
-    <div ref={sectionRef} className="bg-[#0B1120] py-16 sm:py-24 lg:py-32 relative overflow-hidden transition-colors duration-500">
+    <div ref={sectionRef} className="bg-[#0B1120] py-10 sm:py-16 lg:py-20 relative overflow-hidden transition-colors duration-500">
       {/* Background Decor */}
       <div className="absolute top-0 right-0 w-[1200px] h-[1200px] bg-sky-500/5 rounded-full blur-[200px] -mr-96 -mt-96 pointer-events-none transition-all duration-700"></div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <div className="max-w-6xl mx-auto px-6 sm:px-8 lg:px-12 relative z-10">
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 md:mb-20 gap-8">
           <div ref={headingRef} className="max-w-3xl">
             <div className="flex items-center space-x-3 mb-6 overflow-hidden">

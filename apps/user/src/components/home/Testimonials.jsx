@@ -136,7 +136,7 @@ const Testimonials = ({ variant = 'light' }) => {
             ref={sectionRef}
             className={`py-12 sm:py-16 overflow-hidden transition-colors duration-500 ${isDark ? 'bg-[#0B1120] text-white' : 'bg-white text-slate-900'}`}
         >
-            <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
+            <div className='max-w-6xl mx-auto px-6 sm:px-8 lg:px-12'>
                 <div className='flex flex-col lg:flex-row items-center gap-8 lg:gap-16'>
                     {/* Left Side: Heading */}
                     <div

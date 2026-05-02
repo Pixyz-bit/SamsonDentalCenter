@@ -111,7 +111,7 @@ const TeamGrid = () => {
     return (
         <>
             <section ref={containerRef} className='bg-white py-10 md:py-20 relative'>
-                <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full'>
+                <div className='max-w-6xl mx-auto px-6 sm:px-8 lg:px-12 w-full'>
                     <div className='mb-12'>
                         <div className='text-center max-w-2xl mx-auto'>
                             <h2 className='text-3xl md:text-4xl font-brand font-black text-slate-900 mb-4'>Our Dedicated Team</h2>

@@ -57,14 +57,14 @@ const LocationHours = ({ variant = 'light' }) => {
     return (
         <section
             ref={sectionRef}
-            className={`py-20 sm:py-32 relative overflow-hidden transition-colors duration-500 ${isDark ? 'bg-slate-900' : 'bg-slate-50/50'}`}
+            className={`py-12 sm:py-20 relative overflow-hidden transition-colors duration-500 ${isDark ? 'bg-slate-900' : 'bg-slate-50/50'}`}
         >
             {/* Minimal Background Decor */}
             <div
                 className={`absolute top-0 right-0 w-[500px] h-[500px] rounded-full blur-[120px] opacity-[0.03] -mr-48 -mt-48 pointer-events-none ${isDark ? 'bg-white' : 'bg-blue-600'}`}
             ></div>
 
-            <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10'>
+            <div className='max-w-6xl mx-auto px-6 sm:px-8 lg:px-12 relative z-10'>
                 {/* Standardized Header */}
                 <div
                     ref={headingRef}

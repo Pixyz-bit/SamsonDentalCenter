@@ -97,7 +97,7 @@ const Promotions = forwardRef(({ variant = 'light' }, ref) => {
                 ></div>
             </div>
 
-            <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10'>
+            <div className='max-w-6xl mx-auto px-6 sm:px-8 lg:px-12 relative z-10'>
                 {/* Header Row: Title & Navigation (Matched to HomeServices) */}
                 <div
                     ref={headingRef}

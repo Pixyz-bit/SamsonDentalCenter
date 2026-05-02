@@ -87,12 +87,12 @@ const features = [
 
 const WhyChooseUs = () => {
     return (
-        <section className='py-16 sm:py-24 lg:py-32 bg-slate-50 relative overflow-hidden'>
+        <section className='py-10 sm:py-16 lg:py-20 bg-slate-50 relative overflow-hidden'>
             {/* Background elements */}
             <div className='absolute -top-80 -left-80 w-160 h-160 bg-blue-100/50 rounded-full blur-[100px] pointer-events-none'></div>
             <div className='absolute top-80 -right-80 w-160 h-160 bg-slate-200/50 rounded-full blur-[100px] pointer-events-none'></div>
 
-            <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10'>
+            <div className='max-w-6xl mx-auto px-6 sm:px-8 lg:px-12 relative z-10'>
                 <div className='grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-24 items-center'>
                     {/* Left Column: Text & Context */}
                     <div className='flex flex-col gap-6 sm:gap-8 max-w-2xl'>

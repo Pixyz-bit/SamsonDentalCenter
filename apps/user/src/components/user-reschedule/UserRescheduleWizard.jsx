@@ -43,7 +43,7 @@ const UserRescheduleWizard = ({ reschedule, appointment }) => {
         return (
             <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
                 <header className="sticky top-0 z-40 bg-white/80 dark:bg-gray-800/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 shadow-theme-xs">
-                    <div className="max-w-7xl mx-auto px-4 h-20 flex items-center justify-center relative">
+                    <div className="max-w-6xl mx-auto px-8 h-20 flex items-center justify-center relative">
                         <StepIndicator
                             currentStep={step + 1} // success = 4
                             labels={[...breadcrumbLabels, 'Done']}
@@ -67,7 +67,7 @@ const UserRescheduleWizard = ({ reschedule, appointment }) => {
     return (
         <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col">
             <header className="sticky top-0 z-40 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 shadow-theme-xs">
-                <div className="max-w-7xl mx-auto px-4 h-20 flex items-center justify-center relative">
+                <div className="max-w-6xl mx-auto px-8 h-20 flex items-center justify-center relative">
                     <div className="absolute left-4 top-1/2 -translate-y-1/2">
                         <button
                             onClick={handleExit}
@@ -86,7 +86,7 @@ const UserRescheduleWizard = ({ reschedule, appointment }) => {
                 </div>
             </header>
 
-            <main className="flex-1 max-w-7xl mx-auto px-6 py-10 md:py-16 w-full">
+            <main className="flex-1 max-w-6xl mx-auto px-8 md:px-12 py-10 md:py-16 w-full">
                 <div className="min-h-[60vh]">
                     {currentStep === 'datetime' && (
                         <DateTimeStep

@@ -50,7 +50,7 @@ const ContactMap = () => {
     }, []);
 
     return (
-        <section className='py-24 sm:py-32 bg-white overflow-hidden'>
+        <section className='py-16 sm:py-24 bg-white overflow-hidden'>
             <div className='w-full max-w-[1500px] mx-auto px-6 sm:px-10 lg:px-16 2xl:px-24' ref={containerRef}>
                 <div className='grid grid-cols-1 lg:grid-cols-[1fr_1.2fr] xl:grid-cols-[1fr_1.4fr] gap-10 lg:gap-18 xl:gap-30 items-center'>
                     
