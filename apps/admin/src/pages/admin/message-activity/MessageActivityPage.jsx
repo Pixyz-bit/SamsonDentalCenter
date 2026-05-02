@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Mail, MessageSquare, AlertCircle, CheckCircle, Clock, XCircle, RefreshCw, Send, CornerDownRight } from 'lucide-react';
 import { useToast } from '../../../context/ToastContext';
+import { useAuth } from '../../../context/AuthContext';
 import { api } from '../../../utils/api';
 import PageBreadcrumb from '../../../components/common/PageBreadcrumb';
 
@@ -18,11 +19,12 @@ const MessageActivityPage = () => {
     const [logs, setLogs] = useState([]);
     const [loading, setLoading] = useState(true);
     const { showToast } = useToast();
+    const { token } = useAuth();
 
     const fetchLogs = async () => {
         setLoading(true);
         try {
-            const response = await api.get('/admin/message-logs');
+            const response = await api.get('/admin/message-logs', token);
             const realLogs = response.logs || [];
             
             // Prepend real logs to mock logs so the user can see both for now
@@ -30,7 +32,7 @@ const MessageActivityPage = () => {
             setLogs([...realLogs, ...MOCK_LOGS]);
         } catch (err) {
             console.error('Error fetching logs:', err);
-            showToast('Failed to fetch real message logs. Showing demo data instead.', 'warning');
+            showToast('Failed to fetch real message logs. Showing demo data instead.', 'error', 'Fetch Error');
             setLogs(MOCK_LOGS);
         } finally {
             setLoading(false);
