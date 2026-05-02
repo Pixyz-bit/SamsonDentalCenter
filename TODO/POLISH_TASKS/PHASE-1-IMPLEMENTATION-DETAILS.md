@@ -213,7 +213,7 @@ following safety mechanisms:
 5. [x] Implement Audit Logging for all configuration changes.
 6. [x] Implement Global Error Handling & Session Management.
 7. [x] Implement Success/Error Feedback Alerts for the Admin Panel.
-8. [/] **IN PROGRESS:** Cross-App Sync (Wire all saved Setting fields directly into the User App UI and
+8. [x] **IN PROGRESS:** Cross-App Sync (Wire all saved Setting fields directly into the User App UI and
        Backend logic).
 
 ---
@@ -281,7 +281,7 @@ Run through this checklist manually in the browser to ensure Phase 1 is fully op
 
 ### 5. Message Activity & Webhooks
 - [x] **Provider ID Visibility:** Verified that the `provider_id` is now visible in the Admin Message Activity table for easier debugging and testing.
-- [ ] **Real-Time Status Update (Simulation):** 
+- [x] **Real-Time Status Update (Simulation):** 
     - **How it works:** This test simulates a "Ping" from Resend to your server. It mimics the behavior where a patient opens an email, triggering a webhook that updates the database status.
     - **Test Action:** Copy an ID from the Message Activity table (starts with `re_`) and run this command in your terminal:
     ```bash
@@ -298,3 +298,117 @@ Run through this checklist manually in the browser to ensure Phase 1 is fully op
 
 ---
 
+
+
+---
+
+## ?? Phase 2/3 Pending Implementation & Tests
+
+---
+
+### 6. Ripple Effect & Conflict Management
+
+#### Implementation Plan
+
+**6a. Holiday/Block-out Displacement:**
+- When an Admin saves a new holiday or blocked date, the backend must query for existing future appointments on that date before committing the change.
+- If conflicts exist, return a list of affected appointments to the frontend.
+- The Admin must either manually reschedule or force-accept before the date is blocked.
+
+**6b. Clinic Hour Shifting:**
+- When the Admin changes opening/closing times (e.g., closes at 4pm instead of 5pm), the backend must identify all future appointments booked in the removed time window.
+- Those appointments must be flagged as "displaced" status and surfaced in the Admin's Displaced Holding Area.
+
+#### Test Checklist (Run When Implemented)
+
+- [ ] **Holiday Block Test:** In Admin Settings, add a holiday on a date that has at least 1 active future appointment. Expected: System shows a modal listing the affected patients and blocks the save until resolved.
+- [ ] **Clean Holiday Test:** Add a holiday on a date with zero appointments. Expected: Holiday saves successfully with no warning.
+- [ ] **Hour Shift Test:** Narrow the clinic's closing time from 5:00 PM to 3:00 PM while a future appointment exists at 4:00 PM. Expected: That appointment is flagged as Displaced.
+- [ ] **User App Block Test:** After a holiday is saved, open the User Booking Calendar. Expected: That date is visually disabled and cannot be selected.
+
+---
+
+### 7. Doctor Schedule Inheritance
+
+#### Implementation Plan
+
+**State Machine (Source of Truth — DB Column: is_using_global):**
+
+| State | is_using_global | weekly_days | Result |
+|---|---|---|---|
+| Inheriting | 	rue | (Ignored) | Doctor follows Global Clinic Settings |
+| Customized | alse | ['Mon','Wed'] | Doctor follows specific days only |
+| Strictly Closed | alse | [] (Empty array) | Doctor unavailable — NOT a global fallback |
+
+**Scenario A — First-Time Customization ("Clone" Logic):**
+- Trigger: Admin toggles "Inherit Clinic Schedule" to OFF for the first time.
+- Action: Frontend fetches Global Settings and pre-fills the doctor's day checkboxes with those days before any editing occurs.
+- Why: Prevents an accidental "Blackout" where the doctor's schedule instantly becomes empty.
+
+**Scenario B — Narrowing Guard (Removing a Day):**
+- Trigger: Admin unchecks a day (e.g., Tuesday) from a doctor's custom schedule and clicks Save.
+- Backend check: SELECT count(*) FROM appointments WHERE doctor_id = ? AND day_of_week = 'Tuesday' AND appointment_date >= NOW() AND status IN ('pending','confirmed')
+- If count > 0: Reject save. Return list of affected patients.
+- Modal: "Cannot remove Tuesday. [N] patients are booked. [View List]"
+
+**Scenario C — Switch-Back Guard (Returning to Global):**
+- Trigger: Admin toggles "Inherit Clinic Schedule" back to ON for a doctor with a custom schedule.
+- Backend check: Compute the set difference (doctor's custom days - Global active days) to find "orphan days".
+- For each orphan day: Query future appointments. If any exist, block the switch.
+- Modal: "Cannot switch to Global. Doctor has Sunday appointments not covered by clinic hours."
+
+> ?? **Critical Rule:** ALL conflict queries above MUST include ppointment_date >= NOW(). Only future appointments matter — historical records should never block a schedule change.
+
+#### Test Checklist (Run When Implemented)
+
+- [ ] **Global Inheritance Test:** Add a new doctor. Do not set a custom schedule. Trigger a booking for that doctor. Expected: Available days match the Global Clinic schedule exactly.
+- [ ] **Clone-on-Switch Test:** Switch a doctor from Global to Custom. Expected: The custom day checkboxes are pre-populated with the current Global days (no days are unchecked by default).
+- [ ] **Narrowing Guard Test:** On a doctor with a custom schedule, uncheck a day that has a future patient booked. Click Save. Expected: Save is blocked. A modal shows the list of affected patients for that day.
+- [ ] **Clean Narrowing Test:** Uncheck a day with no future appointments. Expected: Saves successfully.
+- [ ] **Switch-Back Conflict Test:** A doctor has a custom schedule including Sunday. The Global schedule is closed on Sunday. Toggle the doctor back to "Inherit Global". Expected: Switch is blocked. Modal lists the Sunday patients that need to be rescheduled.
+- [ ] **Clean Switch-Back Test:** Resolve all orphan-day appointments, then toggle back to Global. Expected: Switches successfully. Doctor now follows Global schedule.
+- [ ] **Strictly Closed Test:** Set a doctor's schedule to Custom with all days unchecked (empty). Expected: That doctor does not appear as available in the booking flow — they are NOT inheriting Global as a fallback.
+
+---
+
+### 8. OTP Hardening (Immediate Next Task)
+
+#### Implementation Plan
+
+**Migration needed:**
+`sql
+ALTER TABLE guest_otp_codes ADD COLUMN IF NOT EXISTS attempt_count INTEGER DEFAULT 0;
+`
+
+**Attempt Limit (5 tries):**
+- On each failed OTP verify call, increment ttempt_count on the matching guest_otp_codes record.
+- If ttempt_count >= 5, mark the code as is_verified = true (invalidated) and return a "Too many attempts" error.
+- Frontend: Show a clear message — "Code has been invalidated. Please request a new one."
+
+**Cooldown Period (2-minute resend delay):**
+- On sendOTP, query the latest OTP record for this email.
+- If created_at is within the last 120 seconds, reject the request.
+- Return error: "Please wait [X] seconds before requesting a new code."
+- Frontend: Display a countdown timer on the "Resend Code" button.
+
+#### Test Checklist (Run When Implemented)
+
+- [ ] **5-Attempt Limit Test:** Request an OTP. Enter an incorrect code 5 times. Expected: On the 5th failure, the code is invalidated and a new OTP must be requested.
+- [ ] **Valid Code After Failure Test:** Enter a wrong code 4 times, then enter the correct code. Expected: Verification succeeds (limit is 5, not 4).
+- [ ] **Cooldown Block Test:** Request an OTP. Immediately request another OTP (within 2 minutes). Expected: Request is rejected with a "Please wait [X] seconds" message.
+- [ ] **Cooldown Expiry Test:** Wait 2 minutes after the first OTP, then request a new one. Expected: A new OTP is sent successfully.
+- [ ] **Frontend Timer Test:** After requesting an OTP, verify the "Resend Code" button shows a countdown timer and is disabled until the 2-minute cooldown expires.
+
+---
+
+### 9. SMS Integration (?? Skipped — Tests Listed for Future Verification)
+
+> **Status:** PhilSMS is integrated in the backend but is NOT currently tested. Email (Resend) is the active and stable channel. SMS testing requires a paid PhilSMS balance.
+
+#### Test Checklist (Run When Budget Is Available)
+
+- [ ] **SMS Gateway Smoke Test:** With SMS toggle ON in Admin Settings, trigger a guest OTP request and check that an SMS is received (in addition to email).
+- [ ] **SMS Toggle Test:** Turn SMS toggle OFF in Admin Settings. Trigger any notification flow (booking, OTP). Expected: No SMS is sent; the backend logs should show the SMS was skipped due to the toggle being OFF.
+- [ ] **SMS Notification Test (24h Reminder):** Book an appointment for the next day. Check that a 24-hour reminder SMS is sent at the configured reminder time.
+- [ ] **SMS Notification Test (48h Reminder):** Book an appointment 2 days out. Check that a 48-hour reminder SMS is sent at the configured reminder time.
+- [ ] **SMS Failure Graceful Handling:** Simulate an SMS API failure (e.g., bad token). Expected: Email is still sent; the failure is logged but does not crash the booking flow.

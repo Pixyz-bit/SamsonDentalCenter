@@ -83,3 +83,28 @@ accidentally wiping out appointment histories while building Phase 4._
 3. **Legal / Templates:** Connect the editable Clinic Settings (emails/SMS/legal) to the Live User
    App.
 4. **Final QA Check:** Ensure ALL destructive actions have the proper warning pop-ups.
+
+---
+
+## ðŸš© Open Questions & Next-Phase Verification
+
+### SMS Verification Status
+- [ ] **PhilSMS Gateway:** Integration exists but is not yet tested in a live environment. Focus remains on Resend (Email) stability first.
+
+### Ripple Effect & Conflict Management (Phase 2/3)
+- [ ] **Holiday Displacements:** Does blocking a date in Admin Settings correctly flag or prevent bookings on that day in the User App?
+- [ ] **Hour Shifting:** If clinic hours are changed, are existing appointments in the removed slots correctly identified as "Displaced"?
+
+### Doctor Schedule Inheritance
+- [ ] **State Machine (Source of Truth):** Implement `is_using_global` flag on the doctor's schedule record.
+    - `true` ? Ignore `weekly_days`, inherit Global.
+    - `false` + days set ? Use specific days only.
+    - `false` + empty array ? Doctor is Strictly Closed (NOT global fallback).
+- [ ] **Clone Logic:** On first toggle from Global ? Custom, pre-populate the doctor's checkboxes from the current Global Settings to prevent a `Blackout` on all days.
+- [ ] **Narrowing Guard:** When removing a day, query future appointments for that day before saving. Block the save and show a patient list if conflicts exist.
+- [ ] **Switch-Back Guard:** When switching Custom ? Global, compute the difference (days in Custom not in Global). Query future appointments on orphan days. Block until resolved.
+- [ ] **?? Critical:** All conflict queries MUST use `appointment_date >= NOW()` — only check future appointments.
+
+### OTP Hardening (Immediate Next)
+- [ ] **Attempt Limits:** Implement a 5-try limit for guest OTP verification.
+- [ ] **Cool-down Period:** Implement a 2-minute delay before allowing a fresh OTP request.

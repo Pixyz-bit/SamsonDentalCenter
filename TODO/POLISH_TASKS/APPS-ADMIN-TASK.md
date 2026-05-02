@@ -60,6 +60,34 @@
       details. No actions required.
 - [ ] **Doctor Audit Log:** Dedicated tab inside the Doctor Profile tracking all administrative and
       clinical actions related to this doctor.
+- [ ] **Schedule Inheritance Logic (Full Implementation Plan):**
+
+    **State Machine (Source of Truth):**
+
+    | State | `is_using_global` | `weekly_days` | Outcome |
+    |---|---|---|---|
+    | Inheriting | `true` | (Ignored) | Doctor follows Global Clinic Settings |
+    | Customized | `false` | `['Mon','Wed']` | Doctor follows specific days only |
+    | Strictly Closed | `false` | `[]` (Empty) | Doctor is unavailable, NOT global |
+
+    **Scenario 1 — First-Time Customization ("Clone" Logic):**
+    - When admin toggles "Inherit Clinic Schedule" to OFF, the frontend MUST first fetch Global Settings and pre-populate the Doctor's checkboxes with that data before the user edits anything.
+    - This prevents a "Blackout" — the doctor's schedule stays identical to the clinic's until the admin manually unchecks a day.
+
+    **Scenario 2 — Narrowing Conflict (Removing Days):**
+    - When admin unchecks a previously-active day (e.g., Tuesday) and clicks Save:
+    - System queries: `SELECT count(*) FROM appointments WHERE doctor_id = ? AND day_of_week = 'Tuesday' AND appointment_date >= NOW() AND status IN ('pending', 'confirmed')`.
+    - If count > 0: **Block the save.** Show modal: *"Cannot remove Tuesday. 3 patients are booked. [View List]"*
+    - Admin must reschedule those patients first.
+    - ⚠️ **Note:** Only check FUTURE appointments (use `appointment_date >= NOW()`), not past ones.
+
+    **Scenario 3 — Switch Back Conflict (Returning to Global):**
+    - When admin toggles back to "Inherit Clinic Schedule" ON:
+    - Compare doctor's current active custom days vs. Global active days.
+    - Identify any days that exist in doctor's custom set but NOT in Global (e.g., Sunday custom, closed globally).
+    - Query future appointments for those orphaned days.
+    - If count > 0: **Block the switch.** Show same "patients are booked" modal for those days.
+    - Only allow switch after all conflicting future appointments are resolved.
 
 ### Doctor Availability & Access Controls
 
@@ -163,6 +191,9 @@ website content aren't hardcoded.
     - Configuration for Slot Duration, Lead Time (e.g., must book 24h ahead), and Max Horizon (e.g.,
       book up to 2 months out).
     - Waitlist Toggle: Global ON/OFF switch.
+- [ ] **Conflict Impact Review (The Ripple Effect):**
+    - Build a "Review Changes" modal when an Admin saves a new Holiday or blocks a date.
+    - This modal should list all **Active Appointments** that fall on those days and ask the user how to handle them (e.g., "Move to Displaced Area").
 
 ### Website Details (Headless Data Pivot)
 
