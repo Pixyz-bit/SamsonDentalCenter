@@ -176,12 +176,12 @@ website content aren't hardcoded.
 
 - [ ] **Legal Pages Management:** Simple text editor for updating Privacy Policy and Terms of
       Service dynamically.
-- [ ] **Automated Notifications Tab:**
+- [x] **Automated Notifications Tab:**
     - Master ON/OFF switches for SMS and Email systems with explicit warnings about broken flows (e.g., OTP) when disabled.
     - Toggles for sending 24-hour and 48-hour reminders.
     - Configuration for Reminder Send Time (e.g., cron schedule time).
-- [ ] **Message Activity Tracker:**
-    - Create a new read-only data table view in Admin.
+- [x] **Message Activity Tracker:**
+    - Create a new read-only data table view in Admin (Promoted to Sidebar).
     - Display records from `message_logs` (Provider ID, Recipient, Channel, Purpose, Status like 'delivered'/'bounced').
 - [ ] **Message Templates:** UI to safely modify the basic text of SMS/Email reminders without
       touching code.

@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Mail, MessageSquare, AlertCircle, CheckCircle, Clock, XCircle, RefreshCw, Send, CornerDownRight } from 'lucide-react';
-import { useToast } from '../../../../context/ToastContext';
-import { api } from '../../../../utils/api';
-import PageBreadcrumb from '../../../../components/common/PageBreadcrumb';
+import { useToast } from '../../../context/ToastContext';
+import { api } from '../../../utils/api';
+import PageBreadcrumb from '../../../components/common/PageBreadcrumb';
 
 // Mock data kept as fallback/demonstration as requested by user
 const MOCK_LOGS = [
@@ -23,7 +23,7 @@ const MessageActivityPage = () => {
         setLoading(true);
         try {
             const response = await api.get('/admin/message-logs');
-            const realLogs = response.data.logs || [];
+            const realLogs = response.logs || [];
             
             // Prepend real logs to mock logs so the user can see both for now
             // Once real data builds up, we can remove MOCK_LOGS
@@ -153,7 +153,7 @@ const MessageActivityPage = () => {
                                                 </td>
                                                 <td className='p-5 whitespace-nowrap'>
                                                     <span className='text-[10px] font-black uppercase tracking-widest text-gray-400 bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 px-2 py-1 rounded-md'>
-                                                        {log.purpose.replace(/_/g, ' ')}
+                                                        {(log.purpose || 'N/A').replace(/_/g, ' ')}
                                                     </span>
                                                 </td>
                                                 <td className='p-5 whitespace-nowrap'>

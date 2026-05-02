@@ -16,17 +16,17 @@ _These tasks do not affect major UI logic or existing bookings. They lay the gro
     - Implement the Session Timeout warning securely.
 3. **Clinic Settings (Database/Config First)**
     - Build the backend models/API for the new "Clinic Settings".
-    - Implement the Settings UI (Operating Hours, Lead Time (Days), Block-out Dates).
-    - Pivot "Website Configuration" into "Website Details" (Headless Data model), removing layout-specific texts and adding Core Data (Logos, Short Description, Business Hours, Maps).
-    - **NEW**: Implement "Automated Notifications" Tab (Email/SMS toggles, 24h/48h reminders, warnings).
-    - **NEW**: Implement "Message Activity" View (Tracking webhook delivery logs).
+    - [x] Implement the Settings UI (Operating Hours, Lead Time (Days), Block-out Dates).
+    - [x] Pivot "Website Configuration" into "Website Details" (Headless Data model), removing layout-specific texts and adding Core Data (Logos, Short Description, Business Hours, Maps).
+    - [x] **NEW**: Implement "Automated Notifications" Tab (Email/SMS toggles, 24h/48h reminders, warnings).
+    - [x] **NEW**: Implement "Message Activity" View (Tracking webhook delivery logs - Promoted to Sidebar).
     - _Why first? Your booking front-end and doctor schedules will need to read these settings
       later._
 4. **Action Alerts & Cross-App Sync (Critical Finish)**
-    - Implement High-Fidelity Action Alerts (Toasts/Modals) for all Admin Settings saves.
-    - Sync Global Rules (Lead Time Days, Horizon, Holidays) to the User App Booking Calendar.
-    - Sync General Details, Website Banner, and Legal Docs to the User App UI.
-    - Sync Notification rule toggles (ON/OFF) logic to backend controllers. (PENDING TEST)
+    - [x] Implement High-Fidelity Action Alerts (Toasts/Modals) for all Admin Settings saves.
+    - [x] Sync Global Rules (Lead Time Days, Horizon, Holidays) to the User App Booking Calendar.
+    - [x] Sync General Details, Website Banner, and Legal Docs to the User App UI.
+    - [x] Sync Notification rule toggles (ON/OFF) logic to backend controllers. (VERIFIED)
 
 ## PHASE 2: The Services Catalog
 
