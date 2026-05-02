@@ -57,6 +57,7 @@ const SessionTimeoutManager = ({ children }) => {
                 setSecondsRemaining(prev => {
                     if (prev <= 1) {
                         clearInterval(warningTimerRef.current);
+                        sessionStorage.setItem('session_timeout', 'true');
                         logout();
                         return 0;
                     }

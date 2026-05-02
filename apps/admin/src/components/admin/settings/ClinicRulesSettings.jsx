@@ -2,14 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { Clock, ShieldCheck, Calendar, Hourglass, Coffee, Moon, Sun } from 'lucide-react';
 import { Button, Label, Switch, Input } from '../../ui';
 import { useSettings } from '../../../hooks/useSettings';
+import { useToast } from '../../../context/ToastContext';
 import { FormSkeleton } from '../../ui/Skeletons';
 
 const ClinicRulesSettings = () => {
     const { settings, schedule, loading, updating, updateSettings, updateSchedule } = useSettings();
+    const { showToast } = useToast();
     const [rulesData, setRulesData] = useState({
-        booking_lead_time_hours: 24,
+        booking_lead_time_days: 1,
         booking_max_horizon_days: 60,
-        slot_duration_minutes: 30,
         waitlist_enabled: true
     });
 
@@ -18,9 +19,8 @@ const ClinicRulesSettings = () => {
     useEffect(() => {
         if (settings) {
             setRulesData({
-                booking_lead_time_hours: settings.booking_lead_time_hours || 24,
+                booking_lead_time_days: settings.booking_lead_time_days || 1,
                 booking_max_horizon_days: settings.booking_max_horizon_days || 60,
-                slot_duration_minutes: settings.slot_duration_minutes || 30,
                 waitlist_enabled: settings.waitlist_enabled ?? true
             });
         }
@@ -46,18 +46,18 @@ const ClinicRulesSettings = () => {
     const handleSaveRules = async () => {
         try {
             await updateSettings(rulesData);
-            alert('Booking rules updated successfully!');
+            showToast('Booking rules updated successfully!', 'success');
         } catch (err) {
-            alert('Failed to update rules: ' + err.message);
+            showToast('Failed to update rules: ' + err.message, 'error');
         }
     };
 
     const handleSaveSchedule = async () => {
         try {
             await updateSchedule(scheduleData);
-            alert('Weekly schedule updated successfully!');
+            showToast('Weekly schedule updated successfully!', 'success');
         } catch (err) {
-            alert('Failed to update schedule: ' + err.message);
+            showToast('Failed to update schedule: ' + err.message, 'error');
         }
     };
 
@@ -89,18 +89,18 @@ const ClinicRulesSettings = () => {
                             </div>
                             <div>
                                 <h5 className='text-xs font-bold text-gray-900 dark:text-white uppercase'>Booking Lead Time</h5>
-                                <p className='text-[10px] text-gray-500 dark:text-gray-400'>Min. hours required before booking</p>
+                                <p className='text-[10px] text-gray-500 dark:text-gray-400'>Min. days required before booking</p>
                             </div>
                         </div>
                         <div className="flex items-center gap-3">
                             <Input 
                                 type="number" 
-                                name="booking_lead_time_hours"
-                                value={rulesData.booking_lead_time_hours}
+                                name="booking_lead_time_days"
+                                value={rulesData.booking_lead_time_days}
                                 onChange={handleRuleChange}
                                 className="w-20 h-9 text-center font-black"
                             />
-                            <span className="text-[10px] font-black uppercase text-gray-400">Hours</span>
+                            <span className="text-[10px] font-black uppercase text-gray-400">Days</span>
                         </div>
                     </div>
 
@@ -127,28 +127,7 @@ const ClinicRulesSettings = () => {
                         </div>
                     </div>
 
-                    {/* Slot Duration */}
-                    <div className='flex flex-col md:flex-row md:items-center justify-between gap-4 p-4 rounded-xl border border-gray-100 dark:border-gray-800 bg-gray-50/30 dark:bg-white/[0.01]'>
-                        <div className='flex items-center gap-4'>
-                            <div className='p-2 rounded-lg bg-emerald-100 dark:bg-emerald-500/10 text-emerald-600'>
-                                <Clock size={18} />
-                            </div>
-                            <div>
-                                <h5 className='text-xs font-bold text-gray-900 dark:text-white uppercase'>Slot Duration</h5>
-                                <p className='text-[10px] text-gray-500 dark:text-gray-400'>Default time per appointment</p>
-                            </div>
-                        </div>
-                        <div className="flex items-center gap-3">
-                            <Input 
-                                type="number" 
-                                name="slot_duration_minutes"
-                                value={rulesData.slot_duration_minutes}
-                                onChange={handleRuleChange}
-                                className="w-20 h-9 text-center font-black"
-                            />
-                            <span className="text-[10px] font-black uppercase text-gray-400">Mins</span>
-                        </div>
-                    </div>
+
 
                     {/* Waitlist Toggle */}
                     <div className='flex flex-col md:flex-row md:items-center justify-between gap-4 p-4 rounded-xl border border-gray-100 dark:border-gray-800 bg-gray-50/30 dark:bg-white/[0.01]'>

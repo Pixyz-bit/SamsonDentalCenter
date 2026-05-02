@@ -1,7 +1,6 @@
 import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import PageBreadcrumb from '../../components/common/PageBreadcrumb';
-import ClinicGeneralSettings from '../../components/admin/settings/ClinicGeneralSettings';
 import ClinicRulesSettings from '../../components/admin/settings/ClinicRulesSettings';
 import ClinicWebsiteSettings from '../../components/admin/settings/ClinicWebsiteSettings';
 import ClinicNotificationsSettings from '../../components/admin/settings/ClinicNotificationsSettings';
@@ -14,13 +13,12 @@ const Settings = () => {
     const { tab } = useParams();
     const navigate = useNavigate();
     const { user } = useAuth();
-    const activeTab = tab || 'general';
+    const activeTab = tab || 'website';
 
     const tabs = [
-        { id: 'general', label: 'General Details', allowedRoles: ['admin', 'secretary', 'receptionist'] },
-        { id: 'website', label: 'Website', allowedRoles: ['admin', 'secretary'] },
+        { id: 'website', label: 'Website Configuration', allowedRoles: ['admin', 'secretary'] },
         { id: 'rules', label: 'Global Rules', allowedRoles: ['admin'] },
-        { id: 'notifications', label: 'Notifications', allowedRoles: ['admin'] },
+        { id: 'notifications', label: 'Automated Notifications', allowedRoles: ['admin'] },
         { id: 'legal', label: 'Legal & Policy', allowedRoles: ['admin'] },
         { id: 'holidays', label: 'Clinic Holidays', allowedRoles: ['admin', 'secretary'] },
         { id: 'health', label: 'System Health', allowedRoles: ['admin'] }
@@ -56,7 +54,6 @@ const Settings = () => {
             
             <div className='flex-grow no-scrollbar'>
                 <div className='max-w-4xl'>
-                    {activeTab === 'general' && <ClinicGeneralSettings />}
                     {activeTab === 'website' && <ClinicWebsiteSettings />}
                     {activeTab === 'rules' && <ClinicRulesSettings />}
                     {activeTab === 'notifications' && <ClinicNotificationsSettings />}

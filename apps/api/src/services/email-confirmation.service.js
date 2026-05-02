@@ -5,6 +5,7 @@ import { AppError } from '../utils/errors.js';
 import { Resend } from 'resend';
 import fs from 'fs';
 import path from 'path';
+import { logCommunication } from './message-log.service.js';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -34,12 +35,22 @@ export const sendOTPEmail = async (email, name, otpCode) => {
             otpCode,
         });
 
-        await resend.emails.send({
+        const result = await resend.emails.send({
             from: process.env.EMAIL_FROM || 'Samson Dental <noreply@samsondental.com>',
             to: email,
             subject: `${otpCode} is your PrimeraDental verification code`,
             html,
         });
+
+        // Log to database
+        await logCommunication({
+            recipient: email,
+            channel: 'email',
+            purpose: 'OTP',
+            status: 'sent',
+            provider_id: result.id
+        });
+
         console.log(`📧 OTP email sent to ${email}`);
     } catch (err) {
         console.error('Failed to send OTP email:', err.message);
@@ -96,12 +107,22 @@ export const sendGuestConfirmationEmail = async (email, name, details) => {
             expiryMinutes: CLINIC_CONFIG.GUEST_CONFIRM_EXPIRY_MINUTES,
         });
 
-        await resend.emails.send({
+        const result = await resend.emails.send({
             from: process.env.EMAIL_FROM || 'Samson Dental <noreply@samsondental.com>',
             to: email,
             subject: 'Verify Your Booking Request — Samson Dental',
             html,
         });
+
+        // Log to database
+        await logCommunication({
+            recipient: email,
+            channel: 'email',
+            purpose: 'CONFIRMATION_REQUEST',
+            status: 'sent',
+            provider_id: result.id
+        });
+
         console.log(`📧 Confirmation email sent to ${email}`);
     } catch (err) {
         console.error('Failed to send confirmation email:', err.message);
@@ -264,6 +285,15 @@ export const sendBookingSuccessEmail = async (email, name, details) => {
             to: email,
             subject: '✅ Appointment Confirmed — Samson Dental',
             html,
+        });
+
+        // Log to database
+        await logCommunication({
+            recipient: email,
+            channel: 'email',
+            purpose: 'BOOKING_CONFIRMATION',
+            status: 'sent',
+            provider_id: result.id
         });
 
         console.log(`✅ [Email] SUCCESS: Booking confirmation sent to ${email}`, result);

@@ -102,3 +102,7 @@
       syncing with the Clinic's timezone regardless of the user's local device time.
 - [ ] **SEO & Meta Tags:** Remember to add `<title>`, description, and OpenGraph tags to public
       pages for better search engine ranking.
+
+
+- [ ] **Legal Footer Links:** Fix "Privacy Policy" and "Terms & Conditions" links in the Patient Portal footer to correctly redirect to their respective pages.
+- [ ] **Notification Toggle Test:** Verify that Admin toggles for SMS/Email notifications correctly enable/disable communications during the booking flow.

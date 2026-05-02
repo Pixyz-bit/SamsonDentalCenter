@@ -16,6 +16,13 @@ const UserCircleIcon = () => (
     </svg>
 );
 
+const MailIcon = () => (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M4 4H20C21.1 4 22 4.9 22 6V18C22 19.1 21.1 20 20 20H4C2.9 20 2 19.1 2 18V6C2 4.9 2.9 4 4 4Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M22 6L12 13L2 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+);
+
 const HomeIcon = () => (
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M3 9.5L12 4L21 9.5V19C21 20.1046 20.1046 21 19 21H5C3.89543 21 3 20.1046 3 19V9.5Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
@@ -86,8 +93,9 @@ const navItems = [
     { icon: <StaffIcon />, name: 'Staff & Reception', path: '/staff' },
     { icon: <PatientsIcon />, name: 'Patients & Users', path: '/patients' },
     { icon: <ServicesIcon />, name: 'Services Catalog', path: '/services' },
-    { icon: <SettingsIcon />, name: 'Clinic Settings', path: '/settings' },
+    { icon: <SettingsIcon />, name: 'Clinic Settings', path: '/settings/website' },
     { icon: <AuditIcon />, name: 'Audit Logs', path: '/audit-logs' },
+    { icon: <MailIcon />, name: 'Message Activity', path: '/message-activity' },
     { icon: <UserIcon />, name: 'My Profile', path: '/profile' },
 ];
 

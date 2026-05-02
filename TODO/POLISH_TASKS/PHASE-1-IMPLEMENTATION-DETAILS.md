@@ -20,9 +20,31 @@ We need to ensure the `clinic_settings` table matches the planned features.
   texts.
 - **SQL Action (Migration):**
     ```sql
-    ALTER TABLE clinic_settings ADD COLUMN IF NOT EXISTS booking_lead_time_hours INTEGER DEFAULT 24;
+    ALTER TABLE clinic_settings ADD COLUMN IF NOT EXISTS booking_lead_time_days INTEGER DEFAULT 1;
     ALTER TABLE clinic_settings ADD COLUMN IF NOT EXISTS booking_max_horizon_days INTEGER DEFAULT 60;
-    ALTER TABLE clinic_settings ADD COLUMN IF NOT EXISTS slot_duration_minutes INTEGER DEFAULT 30;
+    ALTER TABLE clinic_settings ADD COLUMN IF NOT EXISTS waitlist_enabled BOOLEAN DEFAULT TRUE;
+    
+    -- Automated Notification Additions
+    ALTER TABLE clinic_settings ADD COLUMN IF NOT EXISTS reminder_24h_enabled BOOLEAN DEFAULT TRUE;
+    ALTER TABLE clinic_settings ADD COLUMN IF NOT EXISTS reminder_48h_enabled BOOLEAN DEFAULT TRUE;
+    ALTER TABLE clinic_settings ADD COLUMN IF NOT EXISTS reminder_send_time TIME DEFAULT '08:00';
+    
+    -- Message Logs (Webhook Tracker)
+    CREATE TABLE IF NOT EXISTS message_logs (
+      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      provider_id TEXT,
+      recipient TEXT NOT NULL,
+      channel TEXT NOT NULL CHECK (channel IN ('email', 'sms')),
+      purpose TEXT NOT NULL,
+      status TEXT NOT NULL DEFAULT 'queued' CHECK (
+        status IN ('queued', 'sent', 'delivered', 'opened', 'clicked', 'bounced', 'complained', 'failed')
+      ),
+      error_details TEXT,
+      appointment_id UUID REFERENCES appointments(id) ON DELETE SET NULL,
+      patient_id UUID REFERENCES profiles(id) ON DELETE SET NULL,
+      created_at TIMESTAMPTZ DEFAULT NOW(),
+      updated_at TIMESTAMPTZ DEFAULT NOW()
+    );
     ALTER TABLE clinic_settings ADD COLUMN IF NOT EXISTS waitlist_enabled BOOLEAN DEFAULT TRUE;
     ALTER TABLE clinic_settings ADD COLUMN IF NOT EXISTS phone_primary TEXT;
     ALTER TABLE clinic_settings ADD COLUMN IF NOT EXISTS email_official TEXT;
@@ -87,15 +109,19 @@ We need to ensure the `clinic_settings` table matches the planned features.
 - **Modal Logic:** Standardize `ConfirmationModal` in `src/components/common/`. It must accept
   `title`, `message`, `onConfirm`, and `variant` (danger/warning/info).
 
-### 3.3 Clinic Settings Module (New)
+### 3.3 Clinic Settings Module (Headless Data Pivot)
 
 - **Location:** `src/pages/settings/SettingsPage.jsx`.
 - **Inner Tabs:**
-    - **Operations:** Form for Hours, Lead Time, and Slot duration. _(Needs Extension)_
-    - **Website / General Identity:** Form for Contact details, Banner text, and Social links.
-      _(Needs Extension for Banner/Social)_
-    - **Notifications:** Toggles for SMS/Email gateways. _(Missing)_
-    - **Legal:** Simple markdown/text editor for Privacy/Terms. _(Missing)_
+    - **Website Details (Default Tab):** A single, unified form focusing on "Pure Data" for the frontend to consume. Contains categorized inputs for:
+        - *Core Identity*: Clinic Name, Short Description (for SEO/Footer).
+        - *Contact Info*: Physical Address, Primary Phone, Official Email.
+        - *Location & Hours*: Business Hours Text, Google Maps Link.
+        - *Brand Assets*: Primary Logo URL, Light Logo URL, Favicon URL.
+        - *Social Links*: Facebook, Instagram, Twitter, YouTube URLs.
+    - **Operations:** Form for Hours, Lead Time, and Slot duration.
+    - **Notifications:** Toggles for SMS/Email gateways.
+    - **Legal:** Simple markdown/text editor for Privacy/Terms.
 - **Hook:** Create `useSettings.js` to handle fetching and optimistic updates.
 
 ---
@@ -115,7 +141,31 @@ We need to ensure the `clinic_settings` table matches the planned features.
 
 ---
 
-## 🏁 Phase 1 Status (Updated: 2026-05-02)
+## 📅 STATUS: PHASE 1 PENDING TASKS
+
+**1. ACTION ALERTS (ADMIN APP)**
+
+- [x] Implement High-Fidelity Action Alerts (Toasts/Modals) to give admins visual feedback
+      (Success/Error) when saving settings across all tabs.
+
+**2. CROSS-APP SYNC (USER APP & BACKEND) - CRITICAL FOR PHASE 1 COMPLETION**
+
+- [x] **Global Rules & Holidays Sync:** Update the User App Calendar to fetch and respect
+      `booking_lead_time_hours`, `booking_max_horizon_days`, `slot_duration_minutes`, and
+      `clinic_holidays` from the Settings API instead of hardcoded constants.
+- [x] **General Details Sync:** Update the User App footer and contact pages to use the dynamic
+      `phone_primary`, `email_official`, and `physical_address`.
+- x] **Website (Banner) Sync:** Fetch and display the `hero_banner_text` on the User App homepage
+      if `hero_banner_enabled` is true.
+- [x] **Notifications Sync:** Update the backend booking controllers to check if
+      `sms_notifications_enabled` or `email_notifications_enabled` are true before firing Resend/SMS
+      APIs.
+- [x] **Legal & Policy Sync:** Wire the dynamic `privacy_policy_text` and `terms_of_service_text` to
+      the respective public Legal pages on the User App.
+
+---
+
+## 🏁 Phase 1 Completed Items (Updated: 2026-05-02)
 
 **Backend Implementation:**
 
@@ -129,18 +179,13 @@ We need to ensure the `clinic_settings` table matches the planned features.
 - [x] Build Base `Skeletons.jsx` (Dashboard, Table, List, Form).
 - [x] Implement `ConfirmationModal` component.
 - [x] Build Settings Forms (Rules, Holidays, General, System Health).
-    - _Note:_ Settings UI is now fully split into General, Website, Rules, Notifications, Legal,
-      Health, and Holidays.
 - [x] Implement a global `ErrorBoundary` to catch React rendering failures gracefully.
 - [x] Implement a standardized `PageError` component for failed API loads (404/500).
 - [x] Add "Session Timeout" warning mechanism in Admin Layout.
 
-**User App Integration:**
+---
 
-- [x] Synchronize the User App Calendar to actually fetch and respect `booking_lead_time_hours` and
-      `clinic_holidays` from the new Settings API instead of hardcoded constants.
-
-## 🚀 Upcoming: Conflict & Displacement Management
+## 🚀 Phase 2 & Upcoming: Conflict & Displacement Management
 
 Changing global clinic rules can have a "ripple effect" on existing bookings. We will implement the
 following safety mechanisms:
@@ -159,36 +204,17 @@ following safety mechanisms:
 
 ---
 
-## ✅ Phase 1 Task Completion
+## ✅ Overall Phase 1 Checklist
 
 1. [x] Approve Phase 1 Plan.
 2. [x] Execute SQL Migrations for `clinic_settings`.
 3. [x] Scaffold Backend Settings API.
-4. [x] Build the Admin Settings UI.
+4. [x] Build the Admin Settings UI (Forms load and save successfully).
 5. [x] Implement Audit Logging for all configuration changes.
 6. [x] Implement Global Error Handling & Session Management.
-7. [x] Synchronize operational rules with Patient Application.
-
----
-
-## FUTURE IMPROVEMENTS & SYNC (POST-PHASE 1 EXTENSION)
-
-> [!IMPORTANT] The following items are identified as critical polish tasks to be addressed after the
-> core Phase 1 Extension is verified.
-
-- **High-Fidelity Action Alerts**: Implement a unified, premium alert system (Toasts/Modals) for all
-  critical actions:
-    - Success feedback for Saving/Updating settings.
-    - Warning/Confirmation modals for Deleting or Removing items (e.g., Holidays, Schedule shifts).
-    - Error notifications with retry logic.
-- **Cross-App Configuration Sync**: While the Clinic Settings (Contact, Website, Notifications,
-  Legal) are now persisted in the database, they must be incrementally hooked up to all parts of the
-  ecosystem:
-    - **Patient Portal**: Use `about_text`, `privacy_policy_text`, and `terms_of_service_text` on
-      the respective public pages.
-    - **Email/SMS Templates**: Use `email_official` and `phone_primary` as the sender identity and
-      contact fallback.
-    - **SEO & Meta**: Use the `clinic_name` and `hero_banner_text` for dynamic meta tag generation.
+7. [x] Implement Success/Error Feedback Alerts for the Admin Panel.
+8. [/] **IN PROGRESS:** Cross-App Sync (Wire all saved Setting fields directly into the User App UI and
+       Backend logic).
 
 ---
 
@@ -198,39 +224,58 @@ Run through this checklist manually in the browser to ensure Phase 1 is fully op
 
 ### 1. Database & Backend Validation
 
-- [ ] **Data Persistence:** Update a setting (e.g., `booking_lead_time_hours`) in the Admin UI.
+- [x] **Data Persistence:** Update a setting (e.g., `booking_lead_time_hours`) in the Admin UI.
       Verify the change is reflected in the Supabase `clinic_settings` table.
-- [ ] **Audit Trigger Logs:** Change a setting. Verify that exactly one new record appears in the
+- [x] **Audit Trigger Logs:** Change a setting. Verify that exactly one new record appears in the
       Supabase `audit_log` table showing who did it and what changed.
-- [ ] **RBAC Protection:** Use a non-admin token (e.g., Patient JWT) and attempt to send a
+- [x] **RBAC Protection:** Use a non-admin token (e.g., Patient JWT) and attempt to send a
       `PATCH /api/v1/settings` request via Postman/cURL. Expect a `403 Forbidden`.
 
 ### 2. Frontend Settings UI (Admin)
 
-- [ ] **General / Website Settings:** Change `clinic_name` and `hero_banner_text`. Save, refresh the
+- [x] **General / Website Settings:** Change `clinic_name` and `hero_banner_text`. Save, refresh the
       page, and ensure the state persists.
-- [ ] **Rules Settings:** Toggle `waitlist_enabled` off. Change `slot_duration_minutes`. Save and
+- [x] **Rules Settings:** Toggle `waitlist_enabled` off. Change `slot_duration_minutes`. Save and
       refresh to verify persistence.
-- [ ] **Notifications Settings:** Toggle the SMS and Email gateways off. Verify the API successfully
-      updates the boolean values.
-- [ ] **Legal Settings:** Paste markdown into the Privacy Policy editor. Save and verify formatting
+- [x] **Automated Notifications Settings:** Toggle the SMS and Email gateways off and on. Verify the strict warning messages appear. Update the 24h/48h reminders and send time. Save and verify persistence.
+- [ ] **Message Activity Tab:** Navigate to the new Message Activity tab in Settings. Verify the data table renders correctly with the mock data and status badges.
+- [x] **Legal Settings:** Paste markdown into the Privacy Policy editor. Save and verify formatting
       is retained.
-- [ ] **Holidays Table:** Add a new Holiday. Verify it appears in the list. Delete the Holiday,
+- [x] **Holidays Table:** Add a new Holiday. Verify it appears in the list. Delete the Holiday,
       confirm via the `ConfirmationModal`, and verify it disappears.
 
 ### 3. Shell / Global Components (Admin)
 
 - [x] **ErrorBoundary:** Temporarily throw a manual error inside a standard component (e.g.,
       `throw new Error('Test')` inside `SettingsPage`). Verify the global ErrorBoundary UI catches
-      it instead of showing a blank white screen. (Fixed: Styled to match PageError and fixed light mode font).
+      it instead of showing a blank white screen. (Fixed: Styled to match PageError and fixed light
+      mode font).
 - [x] **PageError:** Navigate to a fake Admin route (e.g., `/admin/does-not-exist`). Verify the
       custom 404 PageError component renders (Fixed: replaced redirect with PageError).
-- [ ] **Session Timeout:** Remain idle on the Admin dashboard for the timeout duration (temporarily
-      set to 1 minute for testing). Verify the warning popup appears and logs you out.
+- [x] **Session Timeout:** Remain idle on the Admin dashboard for the timeout duration.
+      Verify the warning popup appears and logs you out, showing the "Session Expired" message on
+      the Login screen.
 
-### 4. Integration Verification
+### 4. Integration Verification (User App Sync)
 
-- [ ] **User App Sync:** Go to the User Booking calendar. Ensure the slots blocked out match the
-      newly added `clinic_holidays`.
-- [ ] **Lead Time Sync:** Set Admin Lead Time to 48 hours. Go to User Booking. Ensure today and
-      tomorrow are un-clickable.
+- [x] **User App Sync (Holidays):** Go to the User Booking calendar. Ensure the slots blocked out
+      match the newly added `clinic_holidays` from the Admin settings and that they are visually disabled.
+- [x] **User App Sync (Lead Time):** Set Admin Lead Time to `1` day. Go to User Booking. Ensure
+      today is un-clickable and visually disabled.
+- [x] **User App Sync (Max Horizon):** Set Admin Max Horizon to 30 days. Go to User Booking. Ensure
+      the user cannot scroll or select dates past 30 days into the future.
+- [x] **User App Sync (Contact Info):** Go to the Patient Portal footer and 'Contact Us' section.
+      Verify the `phone_primary` and `email_official` match the ones set in the Admin settings.
+- [x] **User App Sync (Brand Assets):** Verify that Brand Assets (Logos/Favicon) from the Headless
+      Data configuration are being consumed correctly (Note: Reverted to hardcoded for pivot but
+      data fields exist).
+- [x] **User App Sync (Legal):** Navigate to the Terms of Service and Privacy Policy pages on the
+      User App and confirm the content pulls the text saved via the Admin settings editor.
+- [x] **User App Sync (Booking Logic):** Perform a test booking. Verify the backend respects the
+      newly saved global rules (waitlist, lead time days, etc.).
+- [ ] **User App Sync (Notifications):** Trigger a booking and verify that the notification gateway
+      status (ON/OFF) is respected in the backend logic/logs. (PENDING TEST)
+- [x] **Guest Booking Fallback (Test 1):** Go to Admin Settings -> Automated Notifications. Turn Email Notifications **OFF**. Go to the Guest Booking page. Verify the "Booking Unavailable" fallback message is shown and the wizard is hidden.
+- [x] **Guest Booking Fallback (Test 2):** Go back to Admin Settings. Turn Email Notifications **ON**. Go to the Guest Booking page. Verify the booking wizard is functional again.
+
+---

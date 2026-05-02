@@ -42,10 +42,10 @@ export const getAvailableSlots = async (
     // ── 0. Get Clinic Global Settings ──
     const { data: settings } = await supabaseAdmin
         .from('clinic_settings')
-        .select('booking_lead_time_hours, booking_max_horizon_days, waitlist_enabled')
+        .select('booking_lead_time_days, booking_max_horizon_days, waitlist_enabled')
         .single();
 
-    const leadTimeHours = settings?.booking_lead_time_hours || 24;
+    const leadTimeDays = settings?.booking_lead_time_days || 1;
     const horizonDays = settings?.booking_max_horizon_days || 60;
 
     // ── 0b. Check lead time and horizon ──
@@ -324,9 +324,14 @@ export const getAvailableSlots = async (
             if (hasAppointmentConflict) return false;
 
             // Check if this slot violates the booking lead time
-            const slotDateTime = new Date(`${date}T${slot}:00`);
-            const leadTimeLimit = new Date(Date.now() + leadTimeHours * 60 * 60 * 1000);
-            if (slotDateTime < leadTimeLimit) return false;
+            const requestedD = new Date(date);
+            const todayD = new Date();
+            todayD.setHours(0, 0, 0, 0);
+            
+            const minAllowedD = new Date(todayD);
+            minAllowedD.setDate(minAllowedD.getDate() + leadTimeDays);
+            
+            if (requestedD < minAllowedD) return false;
 
             // Check if this slot overlaps with the clinic-wide lunch break
             if (clinicDay.lunch_start_time && clinicDay.lunch_end_time) {

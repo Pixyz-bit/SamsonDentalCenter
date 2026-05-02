@@ -60,8 +60,8 @@ const DateTimeStep = ({
     // ✅ Min booking date based on lead time
     const minDate = useMemo(() => {
         const d = new Date();
-        const leadTime = settings?.booking_lead_time_hours || 24;
-        d.setHours(d.getHours() + leadTime);
+        const leadTimeDays = settings?.booking_lead_time_days || 1;
+        d.setDate(d.getDate() + leadTimeDays);
         d.setHours(0, 0, 0, 0);
         return d;
     }, [settings]);
@@ -71,6 +71,7 @@ const DateTimeStep = ({
         const horizon = settings?.booking_max_horizon_days || 90;
         const d = new Date(today);
         d.setDate(d.getDate() + horizon);
+        d.setHours(23, 59, 59, 999); // End of the horizon day
         return d;
     }, [today, settings]);
 
@@ -351,8 +352,17 @@ const DateTimeStep = ({
     };
 
     const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-    const canGoPrev = viewDate.getMonth() > today.getMonth() || viewDate.getFullYear() > today.getFullYear();
-    const canGoNext = viewDate < maxDate;
+    
+    // ✅ Navigation Restrictions
+    const canGoPrev = useMemo(() => {
+        const firstDayOfCurrentMonth = new Date(viewDate.getFullYear(), viewDate.getMonth(), 1);
+        return firstDayOfCurrentMonth > minDate;
+    }, [viewDate, minDate]);
+
+    const canGoNext = useMemo(() => {
+        const nextMonth = new Date(viewDate.getFullYear(), viewDate.getMonth() + 1, 1);
+        return nextMonth <= maxDate;
+    }, [viewDate, maxDate]);
 
     // Calculation for Progress Bar
     const holdProgress = useMemo(() => {
@@ -692,8 +702,11 @@ const DateTimeStep = ({
                             const isToday = date.getTime() === today.getTime();
                             const isSelected = key === selectedDate;
                             
-                            // ✅ Check if date is a holiday
-                            const isHoliday = holidays?.some(h => h.date === key && h.is_closed);
+                            // ✅ Check if date is a holiday (Robust check)
+                            const isHoliday = holidays?.some(h => {
+                                const hDate = typeof h.date === 'string' ? h.date.split('T')[0] : h.date;
+                                return hDate === key && h.is_closed;
+                            });
 
                             // ✅ Check if day of week is open in schedule
                             const daySchedule = schedule?.find(s => s.day_of_week === date.getDay());

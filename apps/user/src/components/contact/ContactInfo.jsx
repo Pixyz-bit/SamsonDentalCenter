@@ -1,29 +1,104 @@
-import { Facebook, Phone, Mail } from "lucide-react";
+import { Facebook, Phone, Mail, Instagram, Twitter, Youtube, Clock, MapPin } from "lucide-react";
+import { useClinicSettings } from "../../hooks/useClinicSettings";
 
 const ContactInfo = () => {
+  const { settings, loading } = useClinicSettings();
+
   const contactItems = [
-    {
-      icon: Facebook,
-      label: "Facebook",
-      value: "https://www.facebook.com/samsondentalcenter",
-      href: "https://www.facebook.com/samsondentalcenter",
-      display: "https://www.facebook.com/samsondentalcenter",
-    },
     {
       icon: Phone,
       label: "Phone Number",
-      value: "09123456789",
-      href: "tel:09123456789",
-      display: "09123456789",
+      value: settings?.phone_primary || settings?.phone || "09123456789",
+      href: `tel:${settings?.phone_primary || settings?.phone || "09123456789"}`,
+      display: settings?.phone_primary || settings?.phone || "09123456789",
+      isSocial: false,
     },
     {
       icon: Mail,
       label: "Email",
-      value: "samsondentalcenter@gmail.com",
-      href: "mailto:samsondentalcenter@gmail.com",
-      display: "samsondentalcenter@gmail.com",
+      value: settings?.email_official || settings?.email || "samsondentalcenter@gmail.com",
+      href: `mailto:${settings?.email_official || settings?.email || "samsondentalcenter@gmail.com"}`,
+      display: settings?.email_official || settings?.email || "samsondentalcenter@gmail.com",
+      isSocial: false,
     },
   ];
+
+  if (settings?.physical_address) {
+    contactItems.push({
+      icon: MapPin,
+      label: "Address",
+      value: settings.physical_address,
+      href: settings?.google_maps_link || undefined,
+      display: settings.physical_address,
+      isSocial: !!settings?.google_maps_link,
+    });
+  }
+
+  if (settings?.business_hours_text) {
+    contactItems.push({
+      icon: Clock,
+      label: "Business Hours",
+      value: settings.business_hours_text,
+      href: undefined,
+      display: settings.business_hours_text,
+      isSocial: false,
+    });
+  }
+
+  if (settings?.closed_time_text) {
+    contactItems.push({
+      icon: Clock, // Reusing Clock for closed times
+      label: "Closed",
+      value: settings.closed_time_text,
+      href: undefined,
+      display: settings.closed_time_text,
+      isSocial: false,
+    });
+  }
+
+  if (settings?.facebook_url) {
+    contactItems.push({
+      icon: Facebook,
+      label: "Facebook",
+      value: settings.facebook_url,
+      href: settings.facebook_url,
+      display: "Follow us on Facebook",
+      isSocial: true,
+    });
+  }
+  
+  if (settings?.instagram_url) {
+    contactItems.push({
+      icon: Instagram,
+      label: "Instagram",
+      value: settings.instagram_url,
+      href: settings.instagram_url,
+      display: "Follow us on Instagram",
+      isSocial: true,
+    });
+  }
+
+  if (settings?.twitter_url) {
+    contactItems.push({
+      icon: Twitter,
+      label: "Twitter",
+      value: settings.twitter_url,
+      href: settings.twitter_url,
+      display: "Follow us on Twitter",
+      isSocial: true,
+    });
+  }
+
+  if (settings?.youtube_url) {
+    contactItems.push({
+      icon: Youtube,
+      label: "YouTube",
+      value: settings.youtube_url,
+      href: settings.youtube_url,
+      display: "Subscribe on YouTube",
+      isSocial: true,
+    });
+  }
 
   return (
     <section className="py-16 sm:py-0 lg:py-0 bg-white">
@@ -69,9 +144,9 @@ const ContactInfo = () => {
                   <a
                     key={item.label}
                     href={item.href}
-                    target={item.label === "Facebook" ? "_blank" : undefined}
+                    target={item.isSocial ? "_blank" : undefined}
                     rel={
-                      item.label === "Facebook"
+                      item.isSocial
                         ? "noopener noreferrer"
                         : undefined
                     }

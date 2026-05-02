@@ -72,6 +72,7 @@ import {
     updatePatientHandler, // NEW
     adminReschedule,
     bulkUpdateSchedule,
+    getMessageLogsHandler,
 } from '../controllers/admin.controller.js';
 
 import { 
@@ -186,5 +187,8 @@ router.get('/system/health', requireAdmin, getSystemHealthHandler);
 // ── Audit Logs ── (NEW)
 router.get('/audit-logs', requireAdmin, getAuditLogs);
 router.get('/audit-logs/:id', requireAdmin, getAuditLogDetails);
+
+// ── Message Activity ── (NEW)
+router.get('/message-logs', requireAdmin, getMessageLogsHandler);
 
 export default router;

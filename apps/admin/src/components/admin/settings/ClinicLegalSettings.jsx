@@ -2,10 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { Shield, FileText, ExternalLink } from 'lucide-react';
 import { Button, Label } from '../../ui';
 import { useSettings } from '../../../hooks/useSettings';
+import { useToast } from '../../../context/ToastContext';
 import { FormSkeleton } from '../../ui/Skeletons';
 
 const ClinicLegalSettings = () => {
     const { settings, loading, error, updating, updateSettings } = useSettings();
+    const { showToast } = useToast();
     const [formData, setFormData] = useState({
         privacy_policy_text: '',
         terms_of_service_text: ''
@@ -28,9 +30,9 @@ const ClinicLegalSettings = () => {
     const handleSubmit = async () => {
         try {
             await updateSettings(formData);
-            alert('Legal documents updated successfully!');
+            showToast('Legal documents updated successfully!', 'success');
         } catch (err) {
-            alert('Failed to update legal settings: ' + err.message);
+            showToast('Failed to update legal settings: ' + err.message, 'error');
         }
     };
 

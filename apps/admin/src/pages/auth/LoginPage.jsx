@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import AuthLayout from '../../layouts/AuthLayout';
@@ -10,6 +10,13 @@ const LoginPage = () => {
     const location = useLocation();
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(false);
+
+    useEffect(() => {
+        if (sessionStorage.getItem('session_timeout') === 'true') {
+            setError('Your session has expired due to inactivity. Please log in again.');
+            sessionStorage.removeItem('session_timeout');
+        }
+    }, []);
 
     const handleLogin = async (email, password) => {
         setError(null);

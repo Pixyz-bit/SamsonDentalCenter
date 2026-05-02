@@ -1,15 +1,18 @@
 import React, { useEffect, useRef } from 'react';
+import { useClinicSettings } from '../../hooks/useClinicSettings';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/dist/ScrollTrigger';
 
 gsap.registerPlugin(ScrollTrigger);
 
 const ClinicStory = () => {
+    const { settings, loading } = useClinicSettings();
     const containerRef = useRef(null);
     const leftContentRef = useRef(null);
     const imageRef = useRef(null);
 
     useEffect(() => {
+        if (loading || !settings) return;
         if (!containerRef.current) return;
 
         // Animate left content from left
@@ -51,7 +54,13 @@ const ClinicStory = () => {
         return () => {
             ScrollTrigger.getAll().forEach(trigger => trigger.kill());
         };
-    }, []);
+    }, [loading, settings]);
+
+    // "Good enough" tab state without adding dependencies
+    const [activeTab, setActiveTab] = React.useState(0);
+
+    if (loading) return <div className="py-20 animate-pulse bg-white min-h-[400px]" />;
+
     const image = {
         // Using a stable Unsplash image URL (direct link) to avoid loading issues.
         src: '/images/about/clinic-exterior.jpeg',
@@ -70,14 +79,11 @@ const ClinicStory = () => {
             body: 'We’re building a modern dental experience that blends advanced technology with a calm, supportive environment — making great oral health accessible for every family we serve.',
         },
         {
-            label: 'Our Value',
+            label: 'Our Values',
             title: 'Integrity, empathy, and excellence — every day.',
             body: 'We hold ourselves to global standards: honest guidance, evidence-based treatment, and a commitment to long-term outcomes, not quick fixes.',
         },
     ];
-
-    // "Good enough" tab state without adding dependencies
-    const [activeTab, setActiveTab] = React.useState(0);
 
     return (
         <section ref={containerRef} className='py-16 sm:py-20 bg-white'>
@@ -90,12 +96,13 @@ const ClinicStory = () => {
                             Our story
                         </p>
                         <h2 className='mt-4 text-4xl sm:text-5xl lg:text-6xl font-semibold tracking-[-0.02em] text-slate-900 leading-[1.06]'>
-                            Dentistry that feels calm, clear, and genuinely premium.
+                            {settings?.clinic_name || 'Dentistry'} that feels calm, clear, and genuinely premium.
                         </h2>
-                        <p className='mt-5 text-base sm:text-lg text-slate-600 leading-relaxed max-w-2xl'>
-                            No pressure. No confusing jargon. Just a modern clinic, a friendly team,
-                            and a simple plan that gets you to a healthier smile.
-                        </p>
+                        <div className='mt-5 text-base sm:text-lg text-slate-600 leading-relaxed max-w-2xl prose prose-slate'>
+                            <p>
+                                No pressure. No confusing jargon. Just a modern clinic, a friendly team, and a simple plan that gets you to a healthier smile.
+                            </p>
+                        </div>
 
                         {/* Tabs */}
                         <div className='mt-10'>
@@ -124,9 +131,9 @@ const ClinicStory = () => {
                                 <h3 className='text-xl sm:text-2xl font-semibold tracking-tight text-slate-900'>
                                     {tabs[activeTab].title}
                                 </h3>
-                                <p className='mt-3 text-base text-slate-700 leading-relaxed'>
-                                    {tabs[activeTab].body}
-                                </p>
+                                <div className='mt-3 text-base text-slate-700 leading-relaxed prose prose-slate'>
+                                    <p>{tabs[activeTab].body}</p>
+                                </div>
                             </div>
                         </div>
                     </div>

@@ -1,4 +1,4 @@
-# ADMIN APP: POLISH & TO-DO LIST
+# ADMIN APP: POLISH & TO-DO LIST ORIGINAL (THIS IS THE ORIGINAL PLANS OR TO DO LIST)
 
 ## 🌐 1. Global UI/UX & System Behavior
 
@@ -164,19 +164,25 @@ website content aren't hardcoded.
       book up to 2 months out).
     - Waitlist Toggle: Global ON/OFF switch.
 
-### Website Content Management
+### Website Details (Headless Data Pivot)
 
-- [ ] **Contact Information:** Editable fields for physical address, phone numbers, and email (syncs
-      directly to User app footer/contact page).
-- [ ] **Hero Banner/Announcement:** Toggle and text editor for global site alerts (e.g., "Holiday
-      Promo!").
-- [ ] **Social Media & FAQs:** Updatable social links and FAQ content for the public site.
+- **Core Identity:** Editable fields for Clinic Name and Short Description (for SEO/Footer).
+- **Contact Info:** Editable fields for Physical Address, Primary Phone, and Official Email.
+- **Location & Hours:** Editable fields for Business Hours Text and Google Maps Link.
+- **Brand Assets:** Input fields for Primary Logo URL, Light Logo URL, and Favicon URL.
+- **Social Media:** Standard input fields for Facebook, Instagram, Twitter, and YouTube URLs.
 
-### Communications & Legal
+### Automated Notifications & Legal
 
 - [ ] **Legal Pages Management:** Simple text editor for updating Privacy Policy and Terms of
       Service dynamically.
-- [ ] **Messaging Gateway Toggles:** Master ON/OFF switches for SMS and Email systems.
+- [ ] **Automated Notifications Tab:**
+    - Master ON/OFF switches for SMS and Email systems with explicit warnings about broken flows (e.g., OTP) when disabled.
+    - Toggles for sending 24-hour and 48-hour reminders.
+    - Configuration for Reminder Send Time (e.g., cron schedule time).
+- [ ] **Message Activity Tracker:**
+    - Create a new read-only data table view in Admin.
+    - Display records from `message_logs` (Provider ID, Recipient, Channel, Purpose, Status like 'delivered'/'bounced').
 - [ ] **Message Templates:** UI to safely modify the basic text of SMS/Email reminders without
       touching code.
 
@@ -193,3 +199,11 @@ website content aren't hardcoded.
       appointments.
 - [ ] **System Status/Health Tab:** Useful for Admins to view if background jobs, SMS gateways, or
       Email services are experiencing downtime.
+
+
+**10 . Email Template Editor ADIITIONAL FEATURE:**
+      -   **Token Reference:** Next to each token in the editor (e.g., {{client_name}}),
+          display a small clickable "i" (info) icon that shows a tooltip with the exact
+          sample data that will be rendered (e.g., "Sample: John Doe").
+      -   **Contextual Help:** When the Admin clicks the "i" icon, a small helper box should
+          appear explaining what the variable is and what it controls in the system.

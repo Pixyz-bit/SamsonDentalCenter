@@ -33,6 +33,8 @@ import ServicesPage from '../pages/public/ServicesPage';
 import ServiceDetailPage from '../pages/public/ServiceDetailPage';
 import InquiriesPage from '../pages/public/InquiriesPage';
 import ContactPage from '../pages/public/ContactPage';
+import PrivacyPolicyPage from '../pages/public/PrivacyPolicyPage';
+import TermsOfServicePage from '../pages/public/TermsOfServicePage';
 
 // Guest booking (Module 05)
 import GuestBookingPage from '../pages/guest/GuestBookingPage';
@@ -77,6 +79,14 @@ const AppRoutes = () => {
                     <Route
                         path='/contact'
                         element={<ContactPage />}
+                    />
+                    <Route
+                        path='/privacy-policy'
+                        element={<PrivacyPolicyPage />}
+                    />
+                    <Route
+                        path='/terms-of-service'
+                        element={<TermsOfServicePage />}
                     />
 
                     {/* Guest Booking — logged-in users are redirected to /patient/book */}

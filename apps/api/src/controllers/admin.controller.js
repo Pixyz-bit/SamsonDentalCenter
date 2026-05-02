@@ -1700,3 +1700,15 @@ export const updatePatientHandler = async (req, res, next) => {
     }
 };
 
+/**
+ * GET /api/admin/message-logs
+ */
+export const getMessageLogsHandler = async (req, res, next) => {
+    try {
+        const { getMessageLogs } = await import('../services/message-log.service.js');
+        const logs = await getMessageLogs();
+        res.json({ logs });
+    } catch (err) {
+        next(err);
+    }
+};

@@ -2,11 +2,13 @@ import React, { useState } from 'react';
 import { Calendar as CalendarIcon, Trash2, Plus, Info } from 'lucide-react';
 import { Button, Input, Modal } from '../../ui';
 import { useSettings } from '../../../hooks/useSettings';
+import { useToast } from '../../../context/ToastContext';
 import { ListSkeleton } from '../../ui/Skeletons';
 import ConfirmationModal from '../../common/ConfirmationModal';
 
 const ClinicHolidaysSettings = () => {
     const { holidays, loading, error, updating, addHoliday, deleteHoliday } = useSettings();
+    const { showToast } = useToast();
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [holidayToDelete, setHolidayToDelete] = useState(null);
@@ -18,8 +20,9 @@ const ClinicHolidaysSettings = () => {
             await addHoliday(newHoliday);
             setIsAddModalOpen(false);
             setNewHoliday({ name: '', date: '' });
+            showToast('Holiday added successfully!', 'success');
         } catch (err) {
-            alert('Failed to add holiday: ' + err.message);
+            showToast('Failed to add holiday: ' + err.message, 'error');
         }
     };
 
@@ -34,8 +37,9 @@ const ClinicHolidaysSettings = () => {
             await deleteHoliday(holidayToDelete.id);
             setIsDeleteModalOpen(false);
             setHolidayToDelete(null);
+            showToast('Holiday removed successfully!', 'success');
         } catch (err) {
-            alert('Failed to delete holiday: ' + err.message);
+            showToast('Failed to delete holiday: ' + err.message, 'error');
         }
     };
 

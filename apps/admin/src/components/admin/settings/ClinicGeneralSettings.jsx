@@ -2,10 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { Building2, Mail, Phone, MapPin } from 'lucide-react';
 import { Button, Input, Label } from '../../ui';
 import { useSettings } from '../../../hooks/useSettings';
+import { useToast } from '../../../context/ToastContext';
 import { FormSkeleton } from '../../ui/Skeletons';
 
 const ClinicGeneralSettings = () => {
     const { settings, loading, error, updating, updateSettings } = useSettings();
+    const { showToast } = useToast();
     const [formData, setFormData] = useState({
         clinic_name: '',
         email_official: '',
@@ -34,9 +36,9 @@ const ClinicGeneralSettings = () => {
     const handleSubmit = async () => {
         try {
             await updateSettings(formData);
-            alert('Identity settings updated successfully!');
+            showToast('Clinic identity updated successfully!', 'success');
         } catch (err) {
-            alert('Failed to update settings: ' + err.message);
+            showToast('Failed to update settings: ' + err.message, 'error');
         }
     };
 

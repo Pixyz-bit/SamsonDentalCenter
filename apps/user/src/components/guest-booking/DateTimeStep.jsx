@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, ChevronDown, RefreshCw, Lock, Calendar as CalendarIcon, Clock as ClockIcon, Info, ArrowRight, MousePointer2, Loader2, Hourglass, Plus, Check, Users, CalendarX, AlertCircle, X } from 'lucide-react';
 import useSlots from '../../hooks/useSlots';
+import { useClinicSettings } from '../../hooks/useClinicSettings';
 import { api } from '../../utils/api';
 import ErrorState from '../common/ErrorState';
 
@@ -29,6 +30,9 @@ const DateTimeStep = ({
     const dentistId = formData?.dentist_id || null;
     const [isDoctorDropdownOpen, setIsDoctorDropdownOpen] = useState(false);
     
+    // ✅ Fetch clinic-wide settings (holidays, schedule)
+    const { settings, holidays, schedule, loading: settingsLoading } = useClinicSettings();
+    
     // VISIBILITY LIMIT: 3 columns * 6 rows = 18 slots
     const INITIAL_VISIBLE_COUNT = 18;
     const [visibleCount, setVisibleCount] = useState(INITIAL_VISIBLE_COUNT);
@@ -39,11 +43,21 @@ const DateTimeStep = ({
         return d;
     }, []);
 
-    const MAX_BOOKING_DAYS_AHEAD = 90;
-    const maxDate = useMemo(
-        () => new Date(today.getTime() + MAX_BOOKING_DAYS_AHEAD * 24 * 60 * 60 * 1000),
-        [today],
-    );
+    const minDate = useMemo(() => {
+        const d = new Date();
+        const leadTimeDays = settings?.booking_lead_time_days || 1;
+        d.setDate(d.getDate() + leadTimeDays);
+        d.setHours(0, 0, 0, 0);
+        return d;
+    }, [settings]);
+
+    const maxDate = useMemo(() => {
+        const horizon = settings?.booking_max_horizon_days || 90;
+        const d = new Date(today);
+        d.setDate(d.getDate() + horizon);
+        d.setHours(23, 59, 59, 999); // End of the horizon day
+        return d;
+    }, [today, settings]);
 
     const [viewDate, setViewDate] = useState(() => {
         if (selectedDate) return new Date(selectedDate);
@@ -223,8 +237,16 @@ const DateTimeStep = ({
         return days;
     }, [viewDate]);
 
-    const canGoPrev = viewDate.getMonth() > today.getMonth() || viewDate.getFullYear() > today.getFullYear();
-    const canGoNext = viewDate < maxDate;
+    // ✅ Navigation Restrictions
+    const canGoPrev = useMemo(() => {
+        const firstDayOfCurrentMonth = new Date(viewDate.getFullYear(), viewDate.getMonth(), 1);
+        return firstDayOfCurrentMonth > minDate;
+    }, [viewDate, minDate]);
+
+    const canGoNext = useMemo(() => {
+        const nextMonth = new Date(viewDate.getFullYear(), viewDate.getMonth() + 1, 1);
+        return nextMonth <= maxDate;
+    }, [viewDate, maxDate]);
 
     // Filtered Slots for "Load More"
     const visibleSlots = useMemo(() => {
@@ -507,17 +529,24 @@ const DateTimeStep = ({
                                                 const isToday = date.getTime() === today.getTime();
                                                 const isSelected = key === selectedDate;
                                                 
-                                                // ✅ Disable dates outside of the 90 day limit or in the past
-                                                let isDisabled = isPast || isToday || date > maxDate;
+                                                // ✅ Check if date is a holiday (Robust check)
+                                                const isHoliday = holidays?.some(h => {
+                                                    const hDate = typeof h.date === 'string' ? h.date.split('T')[0] : h.date;
+                                                    return hDate === key && h.is_closed;
+                                                });
+
+                                                // ✅ Check if day of week is open in clinic schedule
+                                                const daySchedule = schedule?.find(s => s.day_of_week === date.getDay());
+                                                const isClosedDay = daySchedule ? !daySchedule.is_open : (date.getDay() === 0);
+
+                                                // ✅ Combine disabling rules (minDate handles Lead Time)
+                                                let isDisabled = date < minDate || date > maxDate || isHoliday || isClosedDay || isProcessing;
                                                 
-                                                // ✅ Disable dates that are not in the working days array
-                                                if (availabilityStatus?.working_days?.length > 0) {
+                                                // ✅ Doctor-specific working day check (if applicable)
+                                                if (!isDisabled && availabilityStatus?.working_days?.length > 0) {
                                                     if (!availabilityStatus.working_days.includes(date.getDay())) {
                                                         isDisabled = true;
                                                     }
-                                                } else {
-                                                    // Fallback check if working_days isn't loaded: disable Sunday
-                                                    if (date.getDay() === 0) isDisabled = true;
                                                 }
 
                                                 if (!isCurrentMonth) return <div key={idx} className="aspect-square" />;
