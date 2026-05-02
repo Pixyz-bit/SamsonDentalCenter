@@ -43,11 +43,11 @@ export const updateSettings = async (updates, actorId, actorRole) => {
         actor_role: actorRole,
         action: 'UPDATE_CLINIC_SETTINGS',
         target_type: 'clinic_settings',
-        target_id: '1',
+        target_id: null,
         resource_type: 'settings',
         resource_id: '1',
         old_values: oldValues,
-        new_values: updates,
+        new_values: newValues,
         details: { source: 'ADMIN_SETTINGS_PORTAL' }
     }).then(({ error: auditErr }) => {
         if (auditErr) console.error('Audit log failed:', auditErr.message);
@@ -92,9 +92,10 @@ export const updateSchedule = async (schedules, actorId, actorRole) => {
         actor_role: actorRole,
         action: 'UPDATE_CLINIC_SCHEDULE',
         target_type: 'clinic_schedule',
+        target_id: null,
         resource_type: 'schedule',
         old_values: oldSchedule,
-        new_values: schedules,
+        new_values: newSchedule,
         details: { source: 'ADMIN_SETTINGS_PORTAL' }
     }).then(({ error: auditErr }) => {
         if (auditErr) console.error('Audit log failed:', auditErr.message);
@@ -141,7 +142,9 @@ export const addHoliday = async (holidayData, actorId, actorRole) => {
         resource_type: 'holidays',
         resource_id: data.id,
         new_values: data
-    }).catch(err => console.error('Audit log failed:', err.message));
+    }).then(({ error: auditErr }) => {
+        if (auditErr) console.error('Audit log failed:', auditErr.message);
+    });
 
     return data;
 };
@@ -173,7 +176,9 @@ export const deleteHoliday = async (id, actorId, actorRole) => {
         resource_type: 'holidays',
         resource_id: id,
         old_values: oldData
-    }).catch(err => console.error('Audit log failed:', err.message));
+    }).then(({ error: auditErr }) => {
+        if (auditErr) console.error('Audit log failed:', auditErr.message);
+    });
 
     return { success: true };
 };

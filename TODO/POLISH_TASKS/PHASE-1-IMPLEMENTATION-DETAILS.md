@@ -91,10 +91,11 @@ We need to ensure the `clinic_settings` table matches the planned features.
 
 - **Location:** `src/pages/settings/SettingsPage.jsx`.
 - **Inner Tabs:**
-    - **Operations:** Form for Hours, Lead Time, and Slot duration.
-    - **Website:** Form for Contact details, Banner text, and Social links.
-    - **Notifications:** Toggles for SMS/Email gateways.
-    - **Legal:** Simple markdown/text editor for Privacy/Terms.
+    - **Operations:** Form for Hours, Lead Time, and Slot duration. _(Needs Extension)_
+    - **Website / General Identity:** Form for Contact details, Banner text, and Social links.
+      _(Needs Extension for Banner/Social)_
+    - **Notifications:** Toggles for SMS/Email gateways. _(Missing)_
+    - **Legal:** Simple markdown/text editor for Privacy/Terms. _(Missing)_
 - **Hook:** Create `useSettings.js` to handle fetching and optimistic updates.
 
 ---
@@ -112,9 +113,60 @@ We need to ensure the `clinic_settings` table matches the planned features.
 
 ---
 
-## ✅ Next Steps
+---
 
-1. Approve this Phase 1 Plan.
-2. Execute SQL Migrations for `clinic_settings`.
-3. Scaffold Backend Settings API.
-4. Build the Admin Settings UI.
+## 🏁 Phase 1 Status (Updated: 2026-05-02)
+
+**Backend Implementation:**
+
+- [x] Create `clinic_settings` and `clinic_holidays` schema enhancements.
+- [x] Implement settings API routes, controllers, and services.
+- [x] Protect settings API endpoints with `requireAdmin` middleware.
+
+**Frontend Implementation (Admin App):**
+
+- [x] Setup basic Admin Settings Pages (`SettingsPage.jsx`).
+- [x] Build Base `Skeletons.jsx` (Dashboard, Table, List, Form).
+- [x] Implement `ConfirmationModal` component.
+- [~] Build Settings Forms (Rules, Holidays, General, System Health).
+    - _Note:_ `ClinicGeneralSettings` is missing hero banner toggle, privacy policy, and terms text
+      editors.
+    - _Note:_ Notifications Settings (SMS/Email toggles) component is missing.
+    - _Note:_ Operating Hours setup in `ClinicRulesSettings` is incomplete (needs exact open/close
+      times mapping per day + lunch breaks).
+- [ ] **Missing:** Implement a global `ErrorBoundary` to catch React rendering failures gracefully.
+- [ ] **Missing:** Implement a standardized `PageError` component for failed API loads (404/500).
+- [ ] **Missing:** Add "Session Timeout" warning mechanism in Admin Layout.
+
+**User App Integration:**
+
+- [ ] **Missing:** Synchronize the User App Calendar to actually fetch and respect
+      `booking_lead_time_hours` and `clinic_holidays` from the new Settings API instead of hardcoded
+      constants.
+
+## 🚀 Upcoming: Conflict & Displacement Management
+
+Changing global clinic rules can have a "ripple effect" on existing bookings. We will implement the
+following safety mechanisms:
+
+1. **Rule Conflict Detection (Alerts)**:
+    - **Holiday Displacement**: Adding a clinic holiday on a date with existing appointments must
+      trigger a blocking alert for the Admin, listing all patients who need to be moved.
+    - **Hours Restriction**: If opening hours are shifted (e.g., 8:00 AM → 9:00 AM), any
+      appointments in the 8:00-9:00 slot must be flagged as "Displaced".
+    - **Lunch Break Conflict**: If a lunch break is newly introduced over existing slots, affected
+      appointments must be highlighted.
+
+2. **Administrative Resolution Flow**:
+    - Provide a "Conflict Resolution" dashboard where staff can see all displaced appointments and
+      quickly reschedule or notify patients via the integrated Reschedule Wizard.
+
+---
+
+## ✅ Phase 1 Task Completion
+
+1. [x] Approve Phase 1 Plan.
+2. [x] Execute SQL Migrations for `clinic_settings`.
+3. [x] Scaffold Backend Settings API.
+4. [x] Build the Admin Settings UI.
+5. [x] Implement Audit Logging for all configuration changes.
