@@ -30,7 +30,9 @@ const ClinicRulesSettings = () => {
             });
         }
         if (schedule) {
-            setScheduleData(schedule.sort((a, b) => a.day_of_week - b.day_of_week));
+            // Sort a copy to avoid mutating the original schedule from the hook
+            const sorted = [...schedule].sort((a, b) => Number(a.day_of_week) - Number(b.day_of_week));
+            setScheduleData(sorted);
         }
     }, [settings, schedule]);
 

@@ -142,15 +142,18 @@ export const useDoctors = (fetchOnMount = true) => {
         }
     }, [token]);
 
-    const fetchDoctorAppointments = useCallback(async (dentistId) => {
+    const fetchDoctorAppointments = useCallback(async (dentistId = null, params = {}) => {
         try {
-            // Fetch up to 100 upcoming appointments starting from today
-            // so we don't accidentally fetch only past appointments due to pagination
-            const today = new Date().toLocaleDateString('en-CA'); // 'YYYY-MM-DD' in local time
-            const response = await api.get(`/admin/appointments?dentist_id=${dentistId}&limit=100&date_from=${today}`, token);
+            const { limit = 100, date_from = new Date().toLocaleDateString('en-CA'), date_to = null } = params;
+            
+            let url = `/admin/appointments?limit=${limit}&date_from=${date_from}`;
+            if (dentistId) url += `&dentist_id=${dentistId}`;
+            if (date_to) url += `&date_to=${date_to}`;
+            
+            const response = await api.get(url, token);
             return response.appointments;
         } catch (err) {
-            console.error('Failed to fetch doctor appointments:', err);
+            console.error('Failed to fetch appointments:', err);
             throw err;
         }
     }, [token]);

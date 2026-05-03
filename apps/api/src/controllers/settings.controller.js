@@ -35,7 +35,7 @@ export const updateClinicSchedule = async (req, res, next) => {
     try {
         const schedule = await settingsService.updateSchedule(
             req.body,
-            req.query.force,
+            req.query.force === 'true',
             req.user.id,
             req.user.role
         );
@@ -60,7 +60,7 @@ export const createHoliday = async (req, res, next) => {
             req.body,
             req.user.id,
             req.user.role,
-            req.query.force
+            req.query.force === 'true'
         );
         res.status(201).json({ message: 'Holiday added successfully.', holiday });
     } catch (err) {

@@ -112,27 +112,34 @@ export const updateSchedule = async (schedules, force = false, actorId, actorRol
 
     if (allFutureAppts && allFutureAppts.length > 0) {
         for (const newDay of schedules) {
-            // Only check days that are open
-            if (!newDay.is_open) continue;
-
-            const newOpen = newDay.open_time?.substring(0, 5);
-            const newClose = newDay.close_time?.substring(0, 5);
-            if (!newOpen || !newClose) continue;
-
+            const isDayOpen = newDay.is_open === true || newDay.is_open === 1 || newDay.is_open === 'true';
+            
             for (const appt of allFutureAppts) {
                 // Filter to this specific weekday
-                const apptDate = new Date(appt.appointment_date);
-                // Adjust for timezone to get correct day of week
-                const apptDow = apptDate.getUTCDay(); 
+                // Use a robust date parsing that matches how we extract day of week
+                const apptDate = new Date(appt.appointment_date + 'T00:00:00');
+                const apptDow = apptDate.getDay(); 
                 
-                if (apptDow !== newDay.day_of_week) continue;
+                if (apptDow !== Number(newDay.day_of_week)) continue;
+
+                // Case A: The day is now CLOSED entirely
+                if (!isDayOpen) {
+                    if (!conflictingAppointments.find(c => c.id === appt.id)) {
+                        conflictingAppointments.push(appt);
+                    }
+                    continue;
+                }
+
+                // Case B: The day is OPEN but times shifted
+                const newOpen = newDay.open_time?.substring(0, 5);
+                const newClose = newDay.close_time?.substring(0, 5);
+                if (!newOpen || !newClose) continue;
 
                 const apptStart = appt.start_time?.substring(0, 5);
                 const apptEnd = appt.end_time?.substring(0, 5);
 
                 // Conflict: appointment starts before clinic opens OR ends after clinic closes
                 if (apptStart < newOpen || apptEnd > newClose) {
-                    // Check if already added to conflicts
                     if (!conflictingAppointments.find(c => c.id === appt.id)) {
                         conflictingAppointments.push(appt);
                     }

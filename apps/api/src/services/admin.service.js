@@ -1450,6 +1450,9 @@ export const getAllAppointmentsFiltered = async (filters = {}, page = 1, limit =
         query = query.eq('appointment_date', filters.date);
     } else if (filters.date_from) {
         query = query.gte('appointment_date', filters.date_from);
+        if (filters.date_to) {
+            query = query.lte('appointment_date', filters.date_to);
+        }
     }
     
     // If a specific status is requested, use it; otherwise, exclude 'zombie' statuses by default
