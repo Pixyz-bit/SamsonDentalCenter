@@ -93,43 +93,50 @@ export const updateSchedule = async (schedules, force = false, actorId, actorRol
         .select('*');
 
     // ── 2. Conflict Detection: Find appointments that fall outside new hours ──
-    // For each day being changed, scan future appointments of that weekday.
     const conflictingAppointments = [];
+    
+    // Fetch ALL future active appointments ONCE
+    const { data: allFutureAppts, error: fetchError } = await supabaseAdmin
+        .from('appointments')
+        .select(`
+            id, appointment_date, start_time, end_time, status,
+            patient:profiles!appointments_patient_id_fkey(first_name, last_name, full_name, phone),
+            guest_name, guest_first_name, guest_last_name, guest_phone,
+            service:services(name),
+            dentist:dentists(profile:profiles(first_name, last_name, full_name))
+        `)
+        .gte('appointment_date', today)
+        .in('status', [APPOINTMENT_STATUS.PENDING, APPOINTMENT_STATUS.CONFIRMED]);
 
-    for (const newDay of schedules) {
-        // Only check days that are open — closing a day entirely is handled by holidays
-        if (!newDay.is_open) continue;
+    if (fetchError) throw new AppError(fetchError.message, 500);
 
-        const newOpen = newDay.open_time?.substring(0, 5);
-        const newClose = newDay.close_time?.substring(0, 5);
-        if (!newOpen || !newClose) continue;
+    if (allFutureAppts && allFutureAppts.length > 0) {
+        for (const newDay of schedules) {
+            // Only check days that are open
+            if (!newDay.is_open) continue;
 
-        // Fetch all future active appointments on this weekday
-        const { data: dayAppts } = await supabaseAdmin
-            .from('appointments')
-            .select(`
-                id, appointment_date, start_time, end_time, status,
-                patient:profiles!appointments_patient_id_fkey(first_name, last_name, full_name, phone),
-                guest_name, guest_first_name, guest_last_name, guest_phone,
-                service:services(name),
-                dentist:dentists(profile:profiles(first_name, last_name, full_name))
-            `)
-            .gte('appointment_date', today)
-            .in('status', [APPOINTMENT_STATUS.PENDING, APPOINTMENT_STATUS.CONFIRMED]);
+            const newOpen = newDay.open_time?.substring(0, 5);
+            const newClose = newDay.close_time?.substring(0, 5);
+            if (!newOpen || !newClose) continue;
 
-        if (!dayAppts) continue;
+            for (const appt of allFutureAppts) {
+                // Filter to this specific weekday
+                const apptDate = new Date(appt.appointment_date);
+                // Adjust for timezone to get correct day of week
+                const apptDow = apptDate.getUTCDay(); 
+                
+                if (apptDow !== newDay.day_of_week) continue;
 
-        for (const appt of dayAppts) {
-            // Filter to this specific weekday
-            const apptDow = new Date(appt.appointment_date).getDay();
-            if (apptDow !== newDay.day_of_week) continue;
+                const apptStart = appt.start_time?.substring(0, 5);
+                const apptEnd = appt.end_time?.substring(0, 5);
 
-            const apptStart = appt.start_time?.substring(0, 5);
-            const apptEnd = appt.end_time?.substring(0, 5);
-
-            // Conflict: appointment starts before clinic opens OR ends after clinic closes
-            if (apptStart < newOpen || apptEnd > newClose) {
-                conflictingAppointments.push(appt);
+                // Conflict: appointment starts before clinic opens OR ends after clinic closes
+                if (apptStart < newOpen || apptEnd > newClose) {
+                    // Check if already added to conflicts
+                    if (!conflictingAppointments.find(c => c.id === appt.id)) {
+                        conflictingAppointments.push(appt);
+                    }
+                }
             }
         }
     }
@@ -139,28 +146,19 @@ export const updateSchedule = async (schedules, force = false, actorId, actorRol
         throw new AppError('Conflicts detected', 409, { conflictingAppointments });
     }
 
-    // ── 4. If forcing → displace conflicting appointments ──
+    // ── 4. If forcing → displace conflicting appointments in BATCH ──
     if (conflictingAppointments.length > 0 && force) {
-        for (const appt of conflictingAppointments) {
-            const apptDow = new Date(appt.appointment_date).getDay();
-            const newDay = schedules.find(s => s.day_of_week === apptDow);
-            const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-            const dayName = dayNames[apptDow] || 'Unknown';
-            const reason = `Clinic Hours Shift: ${dayName} now closes at ${newDay?.close_time?.substring(0, 5) || 'updated time'}`;
+        const conflictIds = conflictingAppointments.map(a => a.id);
+        const { error: updateError } = await supabaseAdmin
+            .from('appointments')
+            .update({
+                status: APPOINTMENT_STATUS.DISPLACED,
+                displacement_reason: 'Clinic Hours Adjusted: Appointment now falls outside operational hours.',
+                updated_at: new Date().toISOString()
+            })
+            .in('id', conflictIds);
 
-            const { error: updateError } = await supabaseAdmin
-                .from('appointments')
-                .update({
-                    status: APPOINTMENT_STATUS.DISPLACED,
-                    displacement_reason: reason,
-                    updated_at: new Date().toISOString()
-                })
-                .eq('id', appt.id);
-
-            if (updateError) {
-                console.error(`Failed to displace appointment ${appt.id}:`, updateError.message);
-            }
-        }
+        if (updateError) throw new AppError('Error displacing appointments: ' + updateError.message, 500);
     }
 
     // ── 5. Save the new schedule ──

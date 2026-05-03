@@ -165,10 +165,18 @@ const DateTimeStep = ({
     const handleSpecialistChange = async (id) => {
         if (isLoading) return; // ✅ Block while loading
         const val = id || null;
-        onUpdate({ dentist_id: val });
-        if (selectedTime) {
+        
+        // 🎯 Reset everything when doctor changes
+        if (selectedDate || selectedTime) {
             await releaseHold();
-            onUpdate({ dentist_id: val, time: '' });
+            onUpdate({ 
+                dentist_id: val, 
+                date: '', 
+                time: '' 
+            });
+            setPendingDate(null);
+        } else {
+            onUpdate({ dentist_id: val });
         }
     };
 

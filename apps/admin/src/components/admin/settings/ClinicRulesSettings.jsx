@@ -110,8 +110,8 @@ const ClinicRulesSettings = () => {
                             </div>
                         </div>
                         <div className="flex items-center gap-3">
-                            <Input 
-                                type="number" 
+                            <Input
+                                type="number"
                                 name="booking_lead_time_days"
                                 value={rulesData.booking_lead_time_days}
                                 onChange={handleRuleChange}
@@ -133,8 +133,8 @@ const ClinicRulesSettings = () => {
                             </div>
                         </div>
                         <div className="flex items-center gap-3">
-                            <Input 
-                                type="number" 
+                            <Input
+                                type="number"
                                 name="booking_max_horizon_days"
                                 value={rulesData.booking_max_horizon_days}
                                 onChange={handleRuleChange}
@@ -157,15 +157,15 @@ const ClinicRulesSettings = () => {
                                 <p className='text-[10px] text-gray-500 dark:text-gray-400'>Enable waitlist for fully booked days</p>
                             </div>
                         </div>
-                        <Switch 
-                            checked={rulesData.waitlist_enabled} 
+                        <Switch
+                            checked={rulesData.waitlist_enabled}
                             onChange={(checked) => setRulesData(p => ({ ...p, waitlist_enabled: checked }))}
                         />
                     </div>
                 </div>
 
                 <div className='mt-8 pt-6 border-t border-gray-100 dark:border-gray-800 flex justify-end'>
-                    <Button 
+                    <Button
                         onClick={handleSaveRules}
                         disabled={updating}
                         className='px-8 h-11 rounded-xl text-[11px] font-black uppercase tracking-widest bg-brand-500 text-white hover:bg-brand-600 transition-all shadow-lg shadow-brand-500/20'
@@ -201,7 +201,7 @@ const ClinicRulesSettings = () => {
                                     <h5 className={`text-sm font-black uppercase tracking-tight ${day.is_open ? 'text-gray-900 dark:text-white' : 'text-gray-400'}`}>
                                         {days[day.day_of_week]}
                                     </h5>
-                                    <Switch 
+                                    <Switch
                                         checked={day.is_open}
                                         onChange={(checked) => handleScheduleChange(idx, 'is_open', checked)}
                                     />
@@ -215,14 +215,14 @@ const ClinicRulesSettings = () => {
                                                 <Sun size={14} />
                                             </div>
                                             <div className='flex items-center gap-2'>
-                                                <Input 
+                                                <Input
                                                     type="text"
                                                     value={day.open_time?.substring(0, 5) || '08:00'}
                                                     onChange={(e) => handleScheduleChange(idx, 'open_time', e.target.value)}
                                                     className="w-16 h-8 text-xs font-bold p-0 text-center border-none bg-transparent"
                                                 />
                                                 <span className='text-gray-300'>—</span>
-                                                <Input 
+                                                <Input
                                                     type="text"
                                                     value={day.close_time?.substring(0, 5) || '17:00'}
                                                     onChange={(e) => handleScheduleChange(idx, 'close_time', e.target.value)}
@@ -237,7 +237,7 @@ const ClinicRulesSettings = () => {
                                                 <Coffee size={14} />
                                             </div>
                                             <div className='flex items-center gap-2'>
-                                                <Input 
+                                                <Input
                                                     type="text"
                                                     value={day.lunch_start_time?.substring(0, 5) || ''}
                                                     onChange={(e) => handleScheduleChange(idx, 'lunch_start_time', e.target.value || null)}
@@ -245,7 +245,7 @@ const ClinicRulesSettings = () => {
                                                     className="w-16 h-8 text-xs font-bold p-0 text-center border-none bg-transparent"
                                                 />
                                                 <span className='text-gray-300'>—</span>
-                                                <Input 
+                                                <Input
                                                     type="text"
                                                     value={day.lunch_end_time?.substring(0, 5) || ''}
                                                     onChange={(e) => handleScheduleChange(idx, 'lunch_end_time', e.target.value || null)}
@@ -268,7 +268,7 @@ const ClinicRulesSettings = () => {
                 </div>
 
                 <div className='mt-10 pt-6 border-t border-gray-100 dark:border-gray-800 flex justify-end'>
-                    <Button 
+                    <Button
                         onClick={() => handleSaveSchedule(false)}
                         disabled={updating}
                         className='px-10 h-12 rounded-xl text-sm font-black bg-gray-900 dark:bg-white text-white dark:text-gray-900 hover:bg-black dark:hover:bg-gray-100 transition-all shadow-xl shadow-black/10'
@@ -278,86 +278,118 @@ const ClinicRulesSettings = () => {
                 </div>
             </div>
 
-            {/* ── Schedule Conflict Modal ── */}
-            <Modal
-                isOpen={conflictModalOpen}
+            {/* ── Conflict Resolution Modal (1:1 matching Holiday Style) ── */}
+            <Modal 
+                isOpen={conflictModalOpen} 
                 onClose={() => setConflictModalOpen(false)}
-                className="max-w-2xl w-[95%] sm:w-full m-auto"
-                title="Schedule Conflict Detected"
-                subtitle={`${conflictingAppointments.length} appointment${conflictingAppointments.length !== 1 ? 's' : ''} fall outside the new clinic hours.`}
+                title="Conflicts Detected"
+                subtitle="Future appointments found outside the new clinic hours."
+                className="max-w-5xl"
                 footer={(
-                    <div className="flex flex-col sm:flex-row gap-3 sm:justify-end w-full sm:w-auto">
-                        <Button
-                            variant="outline"
+                    <>
+                        <Button 
+                            variant="secondary" 
                             onClick={() => setConflictModalOpen(false)}
-                            className="h-11 px-6 rounded-xl text-sm font-black border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:bg-gray-50"
+                            className="flex-1 sm:flex-none"
                         >
-                            Cancel
+                            Cancel & Adjust
                         </Button>
-                        <Button
+                        <Button 
                             onClick={handleForceSave}
                             disabled={updating}
-                            className="h-11 px-6 rounded-xl text-sm font-black bg-amber-500 hover:bg-amber-600 text-white shadow-lg shadow-amber-500/20"
+                            className="flex-1 sm:flex-none bg-amber-500 hover:bg-amber-600 text-white border-0"
                         >
-                            {updating ? 'Displacing...' : `Force Save & Displace All`}
+                            {updating ? 'Saving...' : 'Force Save & Displace'}
                         </Button>
-                    </div>
+                    </>
                 )}
             >
-                <div className="space-y-3">
-                    {conflictingAppointments.map((appt) => {
-                        const patientName = appt.patient?.first_name
-                            ? `${appt.patient.last_name}, ${appt.patient.first_name}`
-                            : (appt.patient?.full_name || appt.guest_first_name
-                                ? `${appt.guest_last_name || ''}, ${appt.guest_first_name || ''}`.trim()
-                                : (appt.guest_name || 'Guest'));
-                        const phone = appt.patient?.phone || appt.guest_phone;
-                        const fmt = (t) => {
-                            if (!t) return '';
-                            const [h, m] = t.substring(0, 5).split(':');
-                            const hr = parseInt(h);
-                            return `${hr % 12 || 12}:${m} ${hr >= 12 ? 'PM' : 'AM'}`;
-                        };
+                <div className="space-y-6">
+                    <div className="flex items-center gap-4 p-4 bg-amber-50 dark:bg-amber-500/10 border border-amber-100 dark:border-amber-500/20 rounded-2xl">
+                        <div className="w-12 h-12 bg-amber-500 text-white rounded-xl flex items-center justify-center shrink-0 shadow-lg shadow-amber-500/20">
+                            <AlertTriangle size={24} />
+                        </div>
+                        <p className="text-sm font-bold text-amber-800 dark:text-amber-200 leading-relaxed">
+                            Saving these hours will affect the following <strong>{conflictingAppointments.length}</strong> future appointments. If you proceed, these appointments will be flagged as <span className="font-black text-amber-600 dark:text-amber-400">DISPLACED</span>.
+                        </p>
+                    </div>
+                    
+                    <div className="space-y-3">
+                        <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-2">
+                            <div className="w-1 h-1 rounded-full bg-brand-500" />
+                            Affected Appointments
+                        </h4>
+                        <div className="space-y-4">
+                            {conflictingAppointments.map(appt => {
+                                const patientName = appt.patient?.first_name
+                                    ? `${appt.patient.last_name}, ${appt.patient.first_name}`
+                                    : (appt.patient?.full_name || appt.guest_first_name
+                                        ? `${appt.guest_last_name || ''}, ${appt.guest_first_name || ''}`.trim()
+                                        : (appt.guest_name || 'Guest'));
+                                
+                                const phone = appt.patient?.phone || appt.guest_phone;
+                                const fmt = (t) => {
+                                    if (!t) return '';
+                                    const [h, m] = t.substring(0, 5).split(':');
+                                    const hr = parseInt(h);
+                                    return `${hr % 12 || 12}:${m} ${hr >= 12 ? 'PM' : 'AM'}`;
+                                };
 
-                        return (
-                            <div key={appt.id} className="flex gap-4 p-4 rounded-xl border border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-white/[0.02]">
-                                {/* Time */}
-                                <div className="shrink-0 w-20 flex flex-col items-center justify-center bg-white dark:bg-gray-800 rounded-lg p-2 border border-gray-100 dark:border-gray-700 gap-1">
-                                    <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">Start</span>
-                                    <span className="text-sm font-black text-gray-900 dark:text-white">{fmt(appt.start_time)}</span>
-                                    <div className="w-full border-t border-gray-100 dark:border-gray-700" />
-                                    <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">End</span>
-                                    <span className="text-sm font-black text-gray-900 dark:text-white">{fmt(appt.end_time)}</span>
-                                </div>
-                                {/* Info */}
-                                <div className="flex-1 min-w-0">
-                                    <p className="font-black text-gray-900 dark:text-white text-sm truncate">{patientName}</p>
-                                    <p className="text-[11px] text-gray-500 dark:text-gray-400 mt-0.5 truncate">
-                                        {appt.service?.name}
-                                        {appt.dentist?.profile?.first_name && (
-                                            <> &bull; Dr. {appt.dentist.profile.last_name}, {appt.dentist.profile.first_name}</>
-                                        )}
-                                    </p>
-                                    {phone && (
-                                        <span className="flex items-center gap-1 mt-1 text-[10px] text-emerald-600 font-bold">
-                                            <Phone size={9} /> {phone}
-                                        </span>
-                                    )}
-                                    <p className="text-[10px] font-bold text-gray-400 mt-1">{appt.appointment_date}</p>
-                                </div>
-                                {/* Status */}
-                                <div className="shrink-0 flex items-center">
-                                    <span className={`text-[9px] font-black uppercase tracking-widest px-2 py-1 rounded-full ${
-                                        appt.status === 'CONFIRMED'
-                                            ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400'
-                                            : 'bg-amber-100 text-amber-700 dark:bg-amber-500/10 dark:text-amber-400'
-                                    }`}>
-                                        {appt.status}
-                                    </span>
-                                </div>
-                            </div>
-                        );
-                    })}
+                                return (
+                                    <div key={appt.id} className="flex flex-col sm:flex-row bg-white dark:bg-white/[0.02] border border-gray-100 dark:border-gray-800 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+                                        {/* Left Side: Time */}
+                                        <div className="flex sm:flex-col justify-between sm:justify-center sm:w-32 bg-gray-50/50 dark:bg-gray-800/30 border-b sm:border-b-0 sm:border-r border-gray-100 dark:border-gray-800 shrink-0">
+                                            <div className="px-4 py-3">
+                                                <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest mb-1.5">Start Time</p>
+                                                <p className="text-sm font-black text-gray-900 dark:text-white leading-none">{fmt(appt.start_time)}</p>
+                                            </div>
+                                            <div className="h-[1px] w-full bg-gray-100 dark:bg-gray-800" />
+                                            <div className="px-4 py-3">
+                                                <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest mb-1.5">End Time</p>
+                                                <p className="text-sm font-black text-gray-600 dark:text-gray-400 leading-none">{fmt(appt.end_time)}</p>
+                                            </div>
+                                        </div>
+
+                                        {/* Main Content Area */}
+                                        <div className="flex-grow p-4 sm:p-5 flex items-center gap-4">
+                                            <div className="flex-grow">
+                                                <p className="text-base font-black text-gray-900 dark:text-white leading-tight mb-1">{patientName}</p>
+                                                <div className="space-y-1">
+                                                    <div className="flex items-center gap-2">
+                                                        <p className="text-[11px] font-black text-gray-900 dark:text-white uppercase tracking-tighter">
+                                                            {appt.service?.name || 'Dental Service'}
+                                                        </p>
+                                                        <span className="text-gray-300 dark:text-gray-600">•</span>
+                                                        <p className="text-[11px] font-bold text-gray-500 dark:text-gray-400">
+                                                            {appt.dentist?.profile?.first_name ? `Dr. ${appt.dentist.profile.last_name}` : 'No Doctor Assigned'}
+                                                        </p>
+                                                    </div>
+                                                    <p className="text-[11px] font-medium text-gray-500 flex items-center gap-2">
+                                                        <Phone size={10} className="text-green-500" />
+                                                        <span className="text-gray-800 dark:text-gray-200">{phone || 'No contact'}</span>
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* Right Side: Status Badges */}
+                                        <div className="flex flex-row sm:flex-col items-stretch justify-center border-t sm:border-t-0 sm:border-l border-gray-100 dark:border-gray-800 bg-gray-50/20 dark:bg-white/[0.01] shrink-0 min-w-[160px]">
+                                            <div className="px-5 py-4 flex flex-col sm:items-start items-center gap-2">
+                                                <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest leading-none">Appointment Status</p>
+                                                <span className={`px-2 py-1 text-[9px] font-black uppercase tracking-widest rounded-lg shadow-sm border ${
+                                                    appt.status === 'CONFIRMED' 
+                                                        ? 'bg-green-50 text-green-600 border-green-100 dark:bg-green-500/10 dark:text-green-400 dark:border-green-500/20' 
+                                                        : 'bg-amber-50 text-amber-600 border-amber-100 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20'
+                                                }`}>
+                                                    {appt.status}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </div>
                 </div>
             </Modal>
         </div>

@@ -108,6 +108,24 @@ const DateTimeStep = ({
         return days;
     }, [viewDate]);
 
+    // ✅ Fetch overall availability status (slots for next 90 days)
+    const fetchAvailabilityStatus = useCallback(async () => {
+        if (!serviceId) return;
+        setStatusLoading(true);
+        try {
+            let url = `/slots/service-status/${serviceId}`;
+            if (formData?.dentist_id) {
+                url += `?dentistId=${formData.dentist_id}`;
+            }
+            const data = await api.get(url);
+            setAvailabilityStatus(data);
+        } catch (err) {
+            console.error('Failed to check service status:', err);
+        } finally {
+            setStatusLoading(false);
+        }
+    }, [serviceId, formData?.dentist_id]);
+
     // ✅ Fetch qualified specialists for this service
     useEffect(() => {
         if (serviceId) {
@@ -126,28 +144,11 @@ const DateTimeStep = ({
                 }
             };
             fetchSpecialists();
-
-            // ✅ Check overall availability status (slots for next 90 days)
-            const checkStatus = async () => {
-                setStatusLoading(true);
-                try {
-                    let url = `/slots/service-status/${serviceId}`;
-                    if (formData?.dentist_id) {
-                        url += `?dentistId=${formData.dentist_id}`;
-                    }
-                    const data = await api.get(url);
-                    setAvailabilityStatus(data);
-                } catch (err) {
-                    console.error('Failed to check service status:', err);
-                } finally {
-                    setStatusLoading(false);
-                }
-            };
-            checkStatus();
+            fetchAvailabilityStatus();
         } else {
             setSpecialists([]);
         }
-    }, [serviceId, formData?.dentist_id]);
+    }, [serviceId, fetchAvailabilityStatus]);
 
     // ✅ FIX: Use local date parts to avoid timezone shifting (e.g. UTC-8 or UTC+8 issues)
     const formatDateKey = (d) => {
@@ -173,6 +174,20 @@ const DateTimeStep = ({
         sessionId,
         formData?.dentist_id || null, // 🎯 Pass selected dentist to filter slots
     );
+
+    // ✅ Consolidated Global Refresh (Calendar + Slots + Hold)
+    const handleGlobalRefresh = useCallback(async () => {
+        // 1. Sync Clinic Rules & Holidays
+        // Note: useClinicSettings refetch is handled by its return
+        // 2. Sync Doctor Availability Logic
+        fetchAvailabilityStatus();
+        // 3. Sync Timeslots (if a date is selected)
+        if (selectedDate) {
+            refetchSlots();
+        }
+        // 4. Sync Hold Status
+        slotHold.checkActiveHold?.();
+    }, [fetchAvailabilityStatus, refetchSlots, selectedDate, slotHold]);
 
     const isLoading = slotsLoading || isPending;
     const isProcessing = isLoading || !!pendingSlot || !!pendingDate || holdLoading;
@@ -399,18 +414,24 @@ const DateTimeStep = ({
 
     const hasMoreSlots = slots && slots.length > visibleCount;
 
-    // ✅ NEW: Handle specialist change (reset time and release hold)
+    // ✅ NEW: Handle specialist change (reset selections and release hold)
     const handleSpecialistChange = async (dentistId) => {
         if (isLoading) return; // ✅ Block while loading
         setValidationError(null);
-        if (formData.time) {
+        
+        // 🎯 Reset everything when doctor changes
+        if (selectedDate || formData?.time || formData?.waitlist_time) {
             await releaseHold();
+            onUpdate({
+                dentist_id: dentistId,
+                date: '',
+                time: '',
+                waitlist_time: '',
+            });
+            setPendingDate(null);
+        } else {
+            onUpdate({ dentist_id: dentistId });
         }
-        onUpdate({
-            dentist_id: dentistId,
-            time: '',
-            waitlist_time: '',
-        });
     };
 
     // Custom Premium Doctor Dropdown Component
@@ -753,7 +774,7 @@ const DateTimeStep = ({
                                         <div className='p-1.5 bg-brand-50 dark:bg-brand-500/10 rounded-lg'><Clock size={16} className='text-brand-500' /></div>
                                         Available Times
                                     </h3>
-                                    <button onClick={refetchSlots} disabled={isProcessing} className='flex items-center gap-2 px-3 py-1.5 text-[11px] font-bold bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-400 rounded-lg border border-gray-100 dark:border-gray-700 shadow-theme-xs transition-all disabled:opacity-50'><RefreshCw size={14} className={isProcessing ? 'animate-spin' : ''} />Refresh</button>
+                                    <button onClick={handleGlobalRefresh} disabled={isProcessing} className='flex items-center gap-2 px-3 py-1.5 text-[11px] font-bold bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-400 rounded-lg border border-gray-100 dark:border-gray-700 shadow-theme-xs transition-all disabled:opacity-50'><RefreshCw size={14} className={isProcessing ? 'animate-spin' : ''} />Refresh</button>
                                 </div>
 
                                 {isLoading ? (

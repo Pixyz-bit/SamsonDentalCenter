@@ -75,7 +75,7 @@ const ClinicHolidaysSettings = () => {
     const getInitials = (name) => {
         if (!name) return 'GP';
         const parts = name.trim().split(/\s+/);
-        if (parts.length >= 2) return (parts[0][0] + parts[parts.length-1][0]).toUpperCase();
+        if (parts.length >= 2) return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
         return name.slice(0, 2).toUpperCase();
     };
 
@@ -94,7 +94,7 @@ const ClinicHolidaysSettings = () => {
                             Public holidays and clinic-wide breaks
                         </p>
                     </div>
-                    <Button 
+                    <Button
                         onClick={() => setIsAddModalOpen(true)}
                         className='flex items-center gap-2 h-11 px-6 rounded-xl bg-brand-500 text-white text-xs font-black uppercase tracking-tight shadow-lg shadow-brand-500/20 hover:scale-[1.02] active:scale-95 transition-all'
                     >
@@ -118,15 +118,15 @@ const ClinicHolidaysSettings = () => {
                                     <div>
                                         <h5 className='text-base font-bold text-gray-900 dark:text-white'>{holiday.name}</h5>
                                         <p className='text-xs text-gray-500 dark:text-gray-400 font-bold uppercase tracking-wider mt-0.5'>
-                                            {new Date(holiday.date).toLocaleDateString('en-US', { 
-                                                month: 'long', 
-                                                day: 'numeric', 
-                                                year: 'numeric' 
+                                            {new Date(holiday.date).toLocaleDateString('en-US', {
+                                                month: 'long',
+                                                day: 'numeric',
+                                                year: 'numeric'
                                             })}
                                         </p>
                                     </div>
                                 </div>
-                                <button 
+                                <button
                                     onClick={() => handleDeleteClick(holiday)}
                                     className='p-2.5 text-gray-300 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-xl transition-all'
                                 >
@@ -155,30 +155,30 @@ const ClinicHolidaysSettings = () => {
                         <div className="space-y-5">
                             <div>
                                 <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 block">Holiday Name</label>
-                                <Input 
-                                    placeholder="e.g. Christmas Day" 
+                                <Input
+                                    placeholder="e.g. Christmas Day"
                                     value={newHoliday.name}
                                     onChange={e => setNewHoliday(p => ({ ...p, name: e.target.value }))}
                                 />
                             </div>
                             <div>
                                 <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2 block">Date</label>
-                                <Input 
-                                    type="date" 
+                                <Input
+                                    type="date"
                                     value={newHoliday.date}
                                     onChange={e => setNewHoliday(p => ({ ...p, date: e.target.value }))}
                                 />
                             </div>
                         </div>
                         <div className="flex space-x-3 mt-10">
-                            <Button 
-                                variant="outline" 
+                            <Button
+                                variant="outline"
                                 onClick={() => setIsAddModalOpen(false)}
                                 className="flex-1 rounded-xl h-12 font-bold"
                             >
                                 Cancel
                             </Button>
-                            <Button 
+                            <Button
                                 onClick={() => handleAddHoliday(false)}
                                 disabled={updating || !newHoliday.name || !newHoliday.date}
                                 className="flex-1 rounded-xl h-12 font-bold bg-brand-500 text-white"
@@ -191,7 +191,7 @@ const ClinicHolidaysSettings = () => {
             )}
 
             {/* Delete Confirmation */}
-            <ConfirmationModal 
+            <ConfirmationModal
                 isOpen={isDeleteModalOpen}
                 onClose={() => setIsDeleteModalOpen(false)}
                 onConfirm={confirmDelete}
@@ -203,22 +203,22 @@ const ClinicHolidaysSettings = () => {
             />
 
             {/* Conflict Resolution Modal */}
-            <Modal 
-                isOpen={isConflictModalOpen} 
+            <Modal
+                isOpen={isConflictModalOpen}
                 onClose={() => setIsConflictModalOpen(false)}
                 title="Conflicts Detected"
                 subtitle="Future appointments found on this date."
                 className="max-w-5xl"
                 footer={(
                     <>
-                        <Button 
-                            variant="secondary" 
+                        <Button
+                            variant="secondary"
                             onClick={() => setIsConflictModalOpen(false)}
                             className="flex-1 sm:flex-none"
                         >
                             Cancel & Adjust
                         </Button>
-                        <Button 
+                        <Button
                             onClick={handleForceSave}
                             disabled={updating}
                             className="flex-1 sm:flex-none bg-amber-500 hover:bg-amber-600 text-white border-0"
@@ -237,7 +237,7 @@ const ClinicHolidaysSettings = () => {
                             Saving this holiday will affect the following <strong>{conflictData?.length}</strong> future appointments. If you proceed, these appointments will be flagged as <span className="font-black text-amber-600 dark:text-amber-400">DISPLACED</span>.
                         </p>
                     </div>
-                    
+
                     <div className="space-y-3">
                         <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-2">
                             <div className="w-1 h-1 rounded-full bg-brand-500" />
@@ -245,10 +245,10 @@ const ClinicHolidaysSettings = () => {
                         </h4>
                         <div className="space-y-4">
                             {conflictData?.map(appt => {
-                                const patientName = appt.profiles?.full_name || 
-                                                  (appt.guest_first_name ? `${appt.guest_first_name} ${appt.guest_last_name}` : appt.guest_name) || 
-                                                  'Guest Patient';
-                                
+                                const patientName = appt.profiles?.full_name ||
+                                    (appt.guest_first_name ? `${appt.guest_first_name} ${appt.guest_last_name}` : appt.guest_name) ||
+                                    'Guest Patient';
+
                                 const contactInfo = appt.profiles?.phone || appt.guest_phone || 'No contact';
                                 const serviceName = appt.services?.name || 'Dental Service';
                                 const serviceTier = appt.services?.tier?.toUpperCase() || 'GENERAL';
@@ -328,11 +328,10 @@ const ClinicHolidaysSettings = () => {
                                             {/* Status */}
                                             <div className="px-5 py-4 flex flex-col sm:items-start items-center gap-2">
                                                 <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest leading-none">Appointment Status</p>
-                                                <span className={`px-2 py-1 text-[9px] font-black uppercase tracking-widest rounded-lg shadow-sm border ${
-                                                    appt.status === 'CONFIRMED' 
-                                                        ? 'bg-green-50 text-green-600 border-green-100 dark:bg-green-500/10 dark:text-green-400 dark:border-green-500/20' 
+                                                <span className={`px-2 py-1 text-[9px] font-black uppercase tracking-widest rounded-lg shadow-sm border ${appt.status === 'CONFIRMED'
+                                                        ? 'bg-green-50 text-green-600 border-green-100 dark:bg-green-500/10 dark:text-green-400 dark:border-green-500/20'
                                                         : 'bg-amber-50 text-amber-600 border-amber-100 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20'
-                                                }`}>
+                                                    }`}>
                                                     {appt.status}
                                                 </span>
                                             </div>

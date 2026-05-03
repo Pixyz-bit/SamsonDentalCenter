@@ -340,7 +340,7 @@ alert modays says success on title even if the action is failed, to do later
 
 - [x] **Ghost Slot Recovery Test:** Displace an appointment via Holiday, then delete the holiday. Expected: The timeslot should be immediately available for a NEW booking (System now ignores `DISPLACED` appointments in the availability engine).
  
-- [] **Hour Shift Test:** Narrow the clinic's closing time from 5:00 PM to 3:00 PM while a future appointment exists at 4:00 PM. Expected: That appointment is flagged as Displaced.
+- [x] **Hour Shift Test:** Narrow the clinic's closing time from 5:00 PM to 3:00 PM while a future appointment exists at 4:00 PM. Expected: That appointment is flagged as Displaced.
 
 - [x] **User App Block Test:** After a holiday is saved, open the User Booking Calendar. Expected: That date is visually disabled and cannot be selected.
 
@@ -363,18 +363,18 @@ alert modays says success on title even if the action is failed, to do later
     - Mark **All 7 Days** as "Closed/Not Working".
     - **Expected:** The doctor should automatically disappear from the Guest Booking dropdown entirely.
 
-- [ ] **Strict Skillset Check:**
+- [x] **Strict Skillset Check:**
     - Unassign a specific service from a doctor in the Admin panel.
     - **Expected:** The doctor should disappear from the dropdown for that specific service, even if they have available slots.
 
-- [ ] **Schedule Break Hardening Test:**
+- [x] **Schedule Break Hardening Test:**
     - Open the "Edit Weekly Sched" modal for a doctor.
     - Turn OFF all working days (or use "Clear All").
     - **Expected:** The "Daily Break" toggle should be disabled/grayed out and show a warning message.
     - Turn ON one working day.
     - **Expected:** The "Daily Break" toggle should become interactive again.
 
-- [ ] **Inheritance Sync Test:**
+- [x] **Inheritance Sync Test:**
     - Set a doctor to "Custom Mode".
     - Change their hours.
     - Click "Global" in the segmented control.
@@ -400,8 +400,7 @@ i test example i im on date and time on guest booking now i see the dates on cal
     - [x] **Inheritance UI:** Replaced basic switch with a premium Segmented Control.
     - [x] **Break Hardening:** Implemented strict dependency (Break requires at least 1 working day).
     - [x] **Reset Logic:** Added "Clear All" to quickly wipe a custom routine.
-- [ ] **Doctor Profile Tabs Structure** (Contact vs. Identity).
-- [ ] **Strictly Closed Test:** Set a doctor's schedule to Custom with all days unchecked (empty). Expected: That doctor does not appear as available in the booking flow — they are NOT inheriting Global as a fallback.
+- [x] **Strictly Closed Test:** Set a doctor's schedule to Custom with all days unchecked (empty). Expected: That doctor does not appear as available in the booking flow — they are NOT inheriting Global as a fallback.
 
 ---
 

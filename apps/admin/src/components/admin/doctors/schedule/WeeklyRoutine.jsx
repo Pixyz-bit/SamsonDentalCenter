@@ -36,13 +36,13 @@ const WeeklyRoutine = ({ doctor, externalBlockModalOpen, setExternalBlockModalOp
 
     // Clinic schedule for Clone Logic
     const { schedule: clinicSchedule } = useSettings();
-    
+
     // Track DB block IDs for deletion logic
     const [dbBlocks, setDbBlocks] = useState({}); // { dateKey: blockId }
 
     // Modal States
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-    
+
     // Internal fallback if no external state is provided (for backward compat)
     const [_isBlockModalOpen, _setIsBlockModalOpen] = useState(false);
     const isBlockModalOpen = externalBlockModalOpen !== undefined ? externalBlockModalOpen : _isBlockModalOpen;
@@ -54,12 +54,12 @@ const WeeklyRoutine = ({ doctor, externalBlockModalOpen, setExternalBlockModalOp
     const [blockedDates, setBlockedDates] = useState(new Set());
     const [draftBlockedDates, setDraftBlockedDates] = useState(new Set());
     const [draftUnblockedDates, setDraftUnblockedDates] = useState(new Set());
-    
+
     // Break Schedule States
     const [globalBreakEnabled, setGlobalBreakEnabled] = useState(false);
     const [globalBreakStart, setGlobalBreakStart] = useState('12:00');
     const [globalBreakEnd, setGlobalBreakEnd] = useState('13:00');
-    
+
     // Reason States
     const [blockReason, setBlockReason] = useState('leave');
     const [otherReason, setOtherReason] = useState('');
@@ -82,10 +82,10 @@ const WeeklyRoutine = ({ doctor, externalBlockModalOpen, setExternalBlockModalOp
             // Map Schedule
             const hasExistingSchedule = fetchedSchedule && fetchedSchedule.length > 0;
             const newSchedule = initialDays.map(day => ({ ...day }));
-            
+
             // Determine if the doctor is in "Custom Mode" (any row is not using global)
             const isCustomMode = hasExistingSchedule && fetchedSchedule.some(r => r.is_using_global === false);
-            
+
             // Re-sync global/draft flags
             setIsUsingGlobal(!isCustomMode);
             setDraftIsUsingGlobal(!isCustomMode);
@@ -102,7 +102,7 @@ const WeeklyRoutine = ({ doctor, externalBlockModalOpen, setExternalBlockModalOp
                 // 3. If no row exists:
                 //    - If isCustomMode is false (Global) -> Inherit.
                 //    - If isCustomMode is true (Custom) -> Closed (not Inheriting).
-                
+
                 const shouldInherit = doctorRow ? (doctorRow.is_using_global !== false) : !isCustomMode;
 
                 if (shouldInherit && clinicDay) {
@@ -131,7 +131,7 @@ const WeeklyRoutine = ({ doctor, externalBlockModalOpen, setExternalBlockModalOp
                     };
                 }
             });
-            
+
             setSchedule(newSchedule);
             setDraftSchedule(newSchedule);
 
@@ -161,7 +161,7 @@ const WeeklyRoutine = ({ doctor, externalBlockModalOpen, setExternalBlockModalOp
     const syncDraftWithSchedule = useCallback(() => {
         const deepCopy = schedule.map(day => ({ ...day }));
         setDraftSchedule(deepCopy);
-        
+
         const workingDayWithBreak = schedule.find(d => d.isWorking && d.break_start_time);
         if (workingDayWithBreak) {
             setGlobalBreakEnabled(true);
@@ -200,13 +200,13 @@ const WeeklyRoutine = ({ doctor, externalBlockModalOpen, setExternalBlockModalOp
 
     // --- Weekly Edit Actions ---
     const handleToggle = (index) => {
-        setDraftSchedule(prev => prev.map((day, i) => 
+        setDraftSchedule(prev => prev.map((day, i) =>
             i === index ? { ...day, isWorking: !day.isWorking } : day
         ));
     };
 
     const handleTimeChange = (index, field, value) => {
-        setDraftSchedule(prev => prev.map((day, i) => 
+        setDraftSchedule(prev => prev.map((day, i) =>
             i === index ? { ...day, [field]: value } : day
         ));
     };
@@ -214,7 +214,7 @@ const WeeklyRoutine = ({ doctor, externalBlockModalOpen, setExternalBlockModalOp
     const applyToAll = () => {
         const monday = draftSchedule[0];
         const newSchedule = draftSchedule.map((day, i) => {
-            if (i === 0 || !day.isWorking) return day; 
+            if (i === 0 || !day.isWorking) return day;
             return { ...day, start: monday.start, end: monday.end };
         });
         setDraftSchedule(newSchedule);
@@ -265,14 +265,14 @@ const WeeklyRoutine = ({ doctor, externalBlockModalOpen, setExternalBlockModalOp
                 // \u2500\u2500 Conflict detection (same logic, no window.confirm) \u2500\u2500
                 const allAppointments = await fetchDoctorAppointments(doctor.id);
                 let count = 0;
-                
+
                 allAppointments.forEach(appt => {
                     if (['CANCELLED', 'LATE_CANCEL', 'NO_SHOW', 'COMPLETED', 'RESCHEDULED', 'DISPLACED'].includes((appt.status || '').toUpperCase())) return;
-                    
+
                     const [y, m, d] = (appt.date || '').split('-');
-                    const jsDow = new Date(parseInt(y), parseInt(m) - 1, parseInt(d)).getDay(); 
+                    const jsDow = new Date(parseInt(y), parseInt(m) - 1, parseInt(d)).getDay();
                     const draftDay = payload.find(p => p.day_of_week === jsDow);
-                    
+
                     if (!draftDay || !draftDay.is_working) {
                         count++;
                     } else {
@@ -341,7 +341,7 @@ const WeeklyRoutine = ({ doctor, externalBlockModalOpen, setExternalBlockModalOp
             const allAppointments = await fetchDoctorAppointments(doctor.id);
             const newBlockDates = Array.from(draftBlockedDates);
             let overlapCount = 0;
-            
+
             // Any active appointment landing on a newly blocked date is displaced
             allAppointments.forEach(appt => {
                 if (newBlockDates.includes(appt.date)) {
@@ -388,7 +388,7 @@ const WeeklyRoutine = ({ doctor, externalBlockModalOpen, setExternalBlockModalOp
             if (onScheduleUpdate) {
                 onScheduleUpdate();
             }
-            
+
             setIsSaving(false);
             setIsBlockModalOpen(false);
             showToast('Blocked dates successfully updated.', 'success');
@@ -405,11 +405,11 @@ const WeeklyRoutine = ({ doctor, externalBlockModalOpen, setExternalBlockModalOp
     };
 
     const openBlockModal = () => {
-        setDraftBlockedDates(new Set()); 
+        setDraftBlockedDates(new Set());
         setDraftUnblockedDates(new Set());
         setBlockReason('leave');
         setOtherReason('');
-        setBlockCalDate(new Date()); 
+        setBlockCalDate(new Date());
         setBlockModalMode('view');
         setIsBlockModalOpen(true);
     };
@@ -461,16 +461,16 @@ const WeeklyRoutine = ({ doctor, externalBlockModalOpen, setExternalBlockModalOp
                     </div>
                 </div>
                 <div className='hidden sm:flex items-center gap-3'>
-                    <Button 
-                        variant="soft" 
+                    <Button
+                        variant="soft"
                         onClick={openBlockModal}
                         className="text-sm font-bold h-10 px-4 flex items-center gap-2 bg-red-50 text-red-700 hover:bg-red-100 dark:bg-red-500/10 dark:text-red-400 dark:hover:bg-red-500/20"
                     >
                         <CalendarOff size={16} />
                         Block Date
                     </Button>
-                    <Button 
-                        variant="outline" 
+                    <Button
+                        variant="outline"
                         onClick={openEditModal}
                         className="text-sm font-bold h-10 px-4 flex items-center gap-2"
                     >
@@ -523,7 +523,7 @@ const WeeklyRoutine = ({ doctor, externalBlockModalOpen, setExternalBlockModalOp
                         const scheduleIndex = jsDayToScheduleIndex(jsDay);
                         const dayConfig = schedule[scheduleIndex];
                         const dateKey = formatDateKey(year, month, dateNum);
-                        
+
                         const isBlocked = blockedDates.has(dateKey);
                         const isEffectivelyWorking = dayConfig.isWorking && !isBlocked;
 
@@ -531,8 +531,8 @@ const WeeklyRoutine = ({ doctor, externalBlockModalOpen, setExternalBlockModalOp
                         const isToday = isSameDay(dateObj, new Date());
 
                         return (
-                            <div 
-                                key={dateNum} 
+                            <div
+                                key={dateNum}
                                 onClick={() => setCurrentDate(dateObj)}
                                 className={`
                                     relative aspect-square p-1.5 sm:p-3 flex flex-col transition-all cursor-pointer group
@@ -587,16 +587,16 @@ const WeeklyRoutine = ({ doctor, externalBlockModalOpen, setExternalBlockModalOp
 
             {/* Mobile Action Buttons (Under Calendar) */}
             <div className='flex sm:hidden flex-col items-stretch gap-3 mt-6 px-5 pb-6'>
-                <Button 
-                    variant="soft" 
+                <Button
+                    variant="soft"
                     onClick={openBlockModal}
                     className="text-[13px] w-full font-bold h-11 px-4 flex items-center justify-center gap-2 bg-red-50 text-red-700 hover:bg-red-100 dark:bg-red-500/10 dark:text-red-400 dark:hover:bg-red-500/20 border border-transparent dark:border-red-900/30"
                 >
                     <CalendarOff size={16} />
                     Block Date
                 </Button>
-                <Button 
-                    variant="outline" 
+                <Button
+                    variant="outline"
                     onClick={openEditModal}
                     className="text-[13px] w-full font-bold h-11 px-4 flex items-center justify-center gap-2"
                 >
@@ -606,26 +606,26 @@ const WeeklyRoutine = ({ doctor, externalBlockModalOpen, setExternalBlockModalOp
             </div>
 
             {/* 1. Edit Weekly Schedule Modal */}
-            <Modal 
-                isOpen={isEditModalOpen} 
-                onClose={() => !isSaving && setIsEditModalOpen(false)} 
+            <Modal
+                isOpen={isEditModalOpen}
+                onClose={() => !isSaving && setIsEditModalOpen(false)}
                 className='max-w-5xl w-[95%] sm:w-full m-auto'
                 title="Edit Weekly Schedule"
                 subtitle="Set default availability and working hours."
                 footer={(
                     <div className='flex items-center gap-3 sm:justify-end w-full sm:w-auto'>
-                        <Button 
-                            variant='outline' 
-                            type="button" 
-                            onClick={() => setIsEditModalOpen(false)} 
-                            disabled={isSaving} 
+                        <Button
+                            variant='outline'
+                            type="button"
+                            onClick={() => setIsEditModalOpen(false)}
+                            disabled={isSaving}
                             className='flex-1 sm:flex-none px-6 h-11 rounded-lg text-[14px] font-black'
                         >
                             Cancel
                         </Button>
-                        <Button 
-                            onClick={() => saveWeekly(false)} 
-                            disabled={isSaving} 
+                        <Button
+                            onClick={() => saveWeekly(false)}
+                            disabled={isSaving}
                             className='flex-1 sm:flex-none px-8 h-11 rounded-lg text-[14px] font-black bg-gray-900 text-white min-w-[170px] dark:bg-white dark:text-gray-900 shadow-theme-xs hover:bg-gray-800 active:scale-95 transition-all'
                         >
                             {isSaving ? 'Saving...' : 'Save Changes'}
@@ -678,13 +678,13 @@ const WeeklyRoutine = ({ doctor, externalBlockModalOpen, setExternalBlockModalOp
                                     Tip: You can clone the clinic's hours and then edit them.
                                 </p>
                                 <div className='flex items-center gap-2 ml-auto'>
-                                    <Button 
-                                        variant="outline" 
+                                    <Button
+                                        variant="outline"
                                         onClick={() => {
                                             setDraftSchedule(prev => prev.map(day => ({ ...day, isWorking: false })));
                                             showToast('All days set to OFF.', 'notice', 'Cleared');
                                         }}
-                                        type="button" 
+                                        type="button"
                                         className="text-[10px] font-black h-8 px-3 flex items-center gap-1.5 uppercase tracking-widest border-red-200 dark:border-red-900/30 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10"
                                     >
                                         <X size={12} /> Clear All
@@ -708,7 +708,7 @@ const WeeklyRoutine = ({ doctor, externalBlockModalOpen, setExternalBlockModalOp
                         {(() => {
                             const hasAnyWorkingDay = draftSchedule.some(d => d.isWorking);
                             const isBreakDisabled = draftIsUsingGlobal || !hasAnyWorkingDay;
-                            
+
                             return (
                                 <div className={`p-2 sm:p-3 border border-dashed border-gray-300 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/20 rounded-xl flex flex-col transition-all shadow-sm ${isBreakDisabled ? 'opacity-50 grayscale-[0.5]' : ''}`}>
                                     <div className='flex items-center justify-between mb-2'>
@@ -721,14 +721,14 @@ const WeeklyRoutine = ({ doctor, externalBlockModalOpen, setExternalBlockModalOp
                                                 <span className='text-[7px] font-bold text-red-500 uppercase tracking-tighter'>Pick a working day first</span>
                                             )}
                                         </div>
-                                        <Switch 
-                                            checked={globalBreakEnabled} 
-                                            disabled={isBreakDisabled} 
-                                            onChange={() => setGlobalBreakEnabled(!globalBreakEnabled)} 
-                                            className="scale-75 sm:scale-90" 
+                                        <Switch
+                                            checked={globalBreakEnabled}
+                                            disabled={isBreakDisabled}
+                                            onChange={() => setGlobalBreakEnabled(!globalBreakEnabled)}
+                                            className="scale-75 sm:scale-90"
                                         />
                                     </div>
-                                    
+
                                     {globalBreakEnabled && hasAnyWorkingDay ? (
                                         <div className="flex flex-col gap-1.5 mt-auto">
                                             <div className="flex items-center justify-between gap-1.5">
@@ -759,7 +759,7 @@ const WeeklyRoutine = ({ doctor, externalBlockModalOpen, setExternalBlockModalOp
                                     </span>
                                     <Switch checked={day.isWorking} disabled={draftIsUsingGlobal} onChange={() => handleToggle(index)} className="scale-75 sm:scale-90" />
                                 </div>
-                                
+
                                 {day.isWorking ? (
                                     <div className='flex flex-col gap-1.5 mt-auto'>
                                         <div className="flex items-center justify-between gap-1.5">
@@ -786,27 +786,27 @@ const WeeklyRoutine = ({ doctor, externalBlockModalOpen, setExternalBlockModalOp
             </Modal>
 
             {/* 2. Block Date Multi-Select Modal */}
-            <Modal 
-                isOpen={isBlockModalOpen} 
-                onClose={() => !isSaving && setIsBlockModalOpen(false)} 
+            <Modal
+                isOpen={isBlockModalOpen}
+                onClose={() => !isSaving && setIsBlockModalOpen(false)}
                 className='max-w-[760px] w-[95%] sm:w-full m-auto'
                 title="Manage Blocked Dates"
                 subtitle="View current overrides, add new blocks, or remove existing ones."
                 footer={(
                     <div className='flex items-center gap-3 w-full sm:w-auto sm:justify-end'>
-                        <Button 
-                            variant='outline' 
-                            type="button" 
-                            onClick={() => setIsBlockModalOpen(false)} 
-                            disabled={isSaving} 
+                        <Button
+                            variant='outline'
+                            type="button"
+                            onClick={() => setIsBlockModalOpen(false)}
+                            disabled={isSaving}
                             className='flex-1 sm:flex-none h-11 font-bold px-6'
                         >
                             Cancel
                         </Button>
-                        <Button 
-                            variant='primary' 
-                            onClick={saveBlocks} 
-                            disabled={isSaving || (draftBlockedDates.size === 0 && draftUnblockedDates.size === 0)} 
+                        <Button
+                            variant='primary'
+                            onClick={saveBlocks}
+                            disabled={isSaving || (draftBlockedDates.size === 0 && draftUnblockedDates.size === 0)}
                             className='flex-[1.5] sm:flex-none h-11 font-bold min-w-[150px] px-8'
                         >
                             {isSaving ? 'Saving...' : 'Apply Changes'}
@@ -825,7 +825,7 @@ const WeeklyRoutine = ({ doctor, externalBlockModalOpen, setExternalBlockModalOp
                                     <button onClick={() => navMonth(setBlockCalDate, blockCalDate, 1)} className='p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-gray-500'><ChevronRight size={16} /></button>
                                 </div>
                             </div>
-                            
+
                             <div className='grid grid-cols-7 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900'>
                                 {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day, idx) => (
                                     <div key={idx} className='py-2 text-center text-[10px] font-bold uppercase text-gray-400'>{day}</div>
@@ -835,7 +835,7 @@ const WeeklyRoutine = ({ doctor, externalBlockModalOpen, setExternalBlockModalOp
                             <div className='max-h-[340px] overflow-y-auto no-scrollbar bg-gray-200 dark:bg-gray-800'>
                                 <div className='grid grid-cols-7 gap-[1px]'>
                                     {Array.from({ length: blockStartingDay }).map((_, i) => <div key={`bem-${i}`} className='bg-white dark:bg-gray-900 aspect-square' />)}
-                                    
+
                                     {Array.from({ length: blockDaysInMonth }).map((_, i) => {
                                         const d = i + 1;
                                         const dKey = formatDateKey(blockYear, blockMonth, d);
@@ -843,10 +843,10 @@ const WeeklyRoutine = ({ doctor, externalBlockModalOpen, setExternalBlockModalOp
                                         const isSavedBlocked = blockedDates.has(dKey);
                                         const isPendingBlock = draftBlockedDates.has(dKey);
                                         const jsDow = (blockStartingDay + i) % 7;
-                                        
+
                                         const scheduleIdx = jsDayToScheduleIndex(jsDow);
                                         const isRoutineClosed = !schedule[scheduleIdx]?.isWorking;
-                                        
+
                                         let cellClass = 'bg-white dark:bg-gray-900 border-transparent text-gray-700 dark:text-gray-300';
                                         let isDisabled = true;
                                         let renderCheck = null;
@@ -871,7 +871,7 @@ const WeeklyRoutine = ({ doctor, externalBlockModalOpen, setExternalBlockModalOp
                                             if (isSavedBlocked) {
                                                 isDisabled = false;
                                                 if (isPendingUnblock) {
-                                                    cellClass = 'bg-white dark:bg-gray-900 text-gray-500 dark:text-gray-400 opacity-80 cursor-pointer border border-dashed border-gray-300 dark:border-gray-700'; 
+                                                    cellClass = 'bg-white dark:bg-gray-900 text-gray-500 dark:text-gray-400 opacity-80 cursor-pointer border border-dashed border-gray-300 dark:border-gray-700';
                                                     renderCheck = <input type="checkbox" readOnly checked={false} className="w-3.5 h-3.5 cursor-pointer pointer-events-none opacity-20" />;
                                                 } else {
                                                     cellClass = 'bg-red-50 dark:bg-red-500/10 border-red-500 text-red-700 cursor-pointer shadow-theme-xs z-10';
@@ -892,8 +892,8 @@ const WeeklyRoutine = ({ doctor, externalBlockModalOpen, setExternalBlockModalOp
                                         }
 
                                         return (
-                                            <button 
-                                                key={d} 
+                                            <button
+                                                key={d}
                                                 onClick={() => !isDisabled && toggleBlockDate(dKey)}
                                                 disabled={isDisabled}
                                                 className={`aspect-square p-1 flex flex-col items-center justify-center transition-all border rounded ${cellClass}`}
@@ -919,8 +919,8 @@ const WeeklyRoutine = ({ doctor, externalBlockModalOpen, setExternalBlockModalOp
                         <div className='shrink-0'>
                             <label className='text-xs font-bold text-gray-500 dark:text-gray-400 mb-2.5 block uppercase tracking-widest'>Action Mode</label>
                             <div className='flex flex-col gap-2'>
-                                <Button 
-                                    variant={blockModalMode === 'block' ? 'primary' : 'outline'} 
+                                <Button
+                                    variant={blockModalMode === 'block' ? 'primary' : 'outline'}
                                     className="justify-between w-full h-11 font-bold font-outfit"
                                     onClick={() => {
                                         if (blockModalMode === 'block') setBlockModalMode('view');
@@ -934,8 +934,8 @@ const WeeklyRoutine = ({ doctor, externalBlockModalOpen, setExternalBlockModalOp
                                     <span>Add Blocked Date</span>
                                     {blockModalMode === 'block' && <CheckSquare size={16} />}
                                 </Button>
-                                <Button 
-                                    variant={blockModalMode === 'unblock' ? 'primary' : 'outline'} 
+                                <Button
+                                    variant={blockModalMode === 'unblock' ? 'primary' : 'outline'}
                                     className={`justify-between w-full h-11 font-bold font-outfit ${blockModalMode === 'unblock' ? '!bg-red-500 hover:!bg-red-600' : ''}`}
                                     onClick={() => {
                                         if (blockModalMode === 'unblock') setBlockModalMode('view');
@@ -955,7 +955,7 @@ const WeeklyRoutine = ({ doctor, externalBlockModalOpen, setExternalBlockModalOp
                         {/* Reason details only when actively blocking */}
                         <div className={`transition-all duration-300 flex-grow flex flex-col ${blockModalMode === 'block' ? 'opacity-100' : 'opacity-50 pointer-events-none'}`}>
                             <label className='text-xs font-bold text-gray-500 dark:text-gray-400 mb-2.5 block uppercase tracking-widest shrink-0'>Block Reason</label>
-                            <select 
+                            <select
                                 value={blockReason}
                                 onChange={(e) => setBlockReason(e.target.value)}
                                 className='w-full h-11 shrink-0 px-3 rounded-lg border-2 border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 text-sm font-bold focus:ring-4 focus:ring-brand-500/20 focus:border-brand-500 transition-all outline-none text-gray-900 dark:text-white'
@@ -966,7 +966,7 @@ const WeeklyRoutine = ({ doctor, externalBlockModalOpen, setExternalBlockModalOp
                                 <option value="training">Training / Seminar</option>
                                 <option value="maintenance">Clinic Maintenance</option>
                             </select>
-                            
+
                             <div className='mt-6 p-4 rounded-xl bg-gray-50 dark:bg-white/[0.02] border border-gray-100 dark:border-gray-800 flex-grow'>
                                 <h5 className='text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2'>Selection Summary</h5>
                                 <span className='text-[11px] font-bold text-gray-600 dark:text-gray-300'>
@@ -978,41 +978,90 @@ const WeeklyRoutine = ({ doctor, externalBlockModalOpen, setExternalBlockModalOp
                 </div>
             </Modal>
 
-            {/* ── Schedule Conflict Modal (replaces window.confirm) ── */}
+            {/* ── Conflict Resolution Modal (1:1 matching Holiday Style) ── */}
             {conflictModalOpen && (
-                <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-                    <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl w-full max-w-md flex flex-col">
-                        <div className="flex items-start gap-4 p-6 border-b border-gray-100 dark:border-gray-800">
-                            <div className="p-3 rounded-xl bg-amber-100 dark:bg-amber-500/10 shrink-0">
-                                <AlertTriangle size={22} className="text-amber-600" />
-                            </div>
-                            <div className="flex-1">
-                                <h3 className="text-base font-black text-gray-900 dark:text-white">Schedule Conflict</h3>
-                                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                                    <strong className="text-amber-600">{conflictingCount}</strong> appointment{conflictingCount !== 1 ? 's' : ''} will fall outside the new schedule hours and will be moved to the <strong>Displaced Holding Area</strong>.
-                                </p>
-                            </div>
-                            <button onClick={() => setConflictModalOpen(false)} className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-400">
-                                <X size={16} />
-                            </button>
-                        </div>
-                        <div className="p-6 flex flex-col sm:flex-row gap-3 sm:justify-end">
-                            <Button
+                <Modal 
+                    isOpen={conflictModalOpen} 
+                    onClose={() => setConflictModalOpen(false)}
+                    title="Conflicts Detected"
+                    subtitle="Appointments found outside the new routine hours."
+                    className="max-w-5xl"
+                    footer={(
+                        <>
+                            <Button 
+                                variant="secondary" 
                                 onClick={() => setConflictModalOpen(false)}
-                                className="h-11 px-6 rounded-xl text-sm font-black border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:bg-gray-50"
+                                className="flex-1 sm:flex-none"
                             >
-                                Cancel
+                                Cancel & Adjust
                             </Button>
-                            <Button
+                            <Button 
                                 onClick={handleForceDisplace}
                                 disabled={isSaving}
-                                className="h-11 px-6 rounded-xl text-sm font-black bg-amber-500 hover:bg-amber-600 text-white shadow-lg shadow-amber-500/20 disabled:opacity-50"
+                                className="flex-1 sm:flex-none bg-amber-500 hover:bg-amber-600 text-white border-0 font-bold"
                             >
-                                {isSaving ? 'Displacing...' : `Displace & Save`}
+                                {isSaving ? 'Saving...' : 'Force Save & Displace'}
                             </Button>
+                        </>
+                    )}
+                >
+                    <div className="space-y-6">
+                        <div className="flex items-center gap-4 p-4 bg-amber-50 dark:bg-amber-500/10 border border-amber-100 dark:border-amber-500/20 rounded-2xl">
+                            <div className="w-12 h-12 bg-amber-500 text-white rounded-xl flex items-center justify-center shrink-0 shadow-lg shadow-amber-500/20">
+                                <AlertTriangle size={24} />
+                            </div>
+                            <p className="text-sm font-bold text-amber-800 dark:text-amber-200 leading-relaxed">
+                                Updating this routine will affect <strong>{conflictingCount}</strong> existing appointment(s). These will be flagged as <span className="font-black text-amber-600 dark:text-amber-400">DISPLACED</span> and moved to the holding area.
+                            </p>
+                        </div>
+                        <div className="p-4 rounded-xl border border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-white/5 flex items-start gap-3">
+                            <div className="mt-0.5 text-blue-500"><Info size={16} /></div>
+                            <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
+                                Displacement ensures your schedule stays clean while protecting patient bookings. The secretary will be notified to reschedule these manually.
+                            </p>
                         </div>
                     </div>
-                </div>
+                </Modal>
+            )}
+
+            {/* ── Block Conflict Modal (1:1 matching Holiday Style) ── */}
+            {blockConflictModalOpen && (
+                <Modal 
+                    isOpen={blockConflictModalOpen} 
+                    onClose={() => setBlockConflictModalOpen(false)}
+                    title="Conflicts Detected"
+                    subtitle="Appointments found on the dates you are blocking."
+                    className="max-w-5xl"
+                    footer={(
+                        <>
+                            <Button 
+                                variant="secondary" 
+                                onClick={() => setBlockConflictModalOpen(false)}
+                                className="flex-1 sm:flex-none"
+                            >
+                                Cancel & Adjust
+                            </Button>
+                            <Button 
+                                onClick={() => performBlockSave(true)}
+                                disabled={isSaving}
+                                className="flex-1 sm:flex-none bg-amber-500 hover:bg-amber-600 text-white border-0 font-bold"
+                            >
+                                {isSaving ? 'Saving...' : 'Force Save & Displace'}
+                            </Button>
+                        </>
+                    )}
+                >
+                    <div className="space-y-6">
+                        <div className="flex items-center gap-4 p-4 bg-amber-50 dark:bg-amber-500/10 border border-amber-100 dark:border-amber-500/20 rounded-2xl">
+                            <div className="w-12 h-12 bg-amber-500 text-white rounded-xl flex items-center justify-center shrink-0 shadow-lg shadow-amber-500/20">
+                                <AlertTriangle size={24} />
+                            </div>
+                            <p className="text-sm font-bold text-amber-800 dark:text-amber-200 leading-relaxed">
+                                Blocking these dates will affect <strong>{blockConflictCount}</strong> existing appointment(s). These will be flagged as <span className="font-black text-amber-600 dark:text-amber-400">DISPLACED</span> and moved to the rescheduling queue.
+                            </p>
+                        </div>
+                    </div>
+                </Modal>
             )}
         </div>
     );
