@@ -107,12 +107,12 @@ existing data.
 _These tasks do not affect major UI logic or existing bookings. They lay the groundwork._
 
 1. **Authentication & Security**
-    - Lock down Admin-only routing.
-    - Refine the Auth styling and error messages.
+    - [x] Lock down Admin-only routing. (Verified via `ProtectedRoute` and `requireAdmin`).
+    - [x] Refine the Auth styling and error messages. (Integrated `SessionExpiredModal`).
 2. **Global UI/UX Standards**
     - Build the reusable skeletons for loading states.
     - Standardize the error pages (404, 500, empty states).
-    - Implement the Session Timeout warning securely.
+    - [x] Implement the Session Timeout warning securely. (Implemented: 401 Interceptor + Warning Modal).
 3. **Clinic Settings (Database/Config First)**
     - Build the backend models/API for the new "Clinic Settings".
     - [x] Implement the Settings UI (Operating Hours, Lead Time (Days), Block-out Dates).
@@ -206,6 +206,7 @@ accidentally wiping out appointment histories while building Phase 4._
 - [x] **Narrowing Conflict:** When removing a custom day or shifting hours, the system triggers the "Conflicts Detected" modal. Force-saving results in automated displacement. (VERIFIED)
 - [x] **Switch Back Conflict:** Returning to Global inheritance now checks for orphaned appointments (days/hours active in custom but closed in global) and triggers the displacement flow. (VERIFIED)
 - [x] **?? Critical:** All conflict queries MUST use `appointment_date >= NOW()` — only check future appointments. (VERIFIED)
+- [x] **Global Shift Protection:** Global clinic hour changes now respect doctor inheritance (`is_using_global`). Appointments for doctors with custom schedules are no longer incorrectly displaced. (FIXED)
 - [x] **Doctor Block Date Sync:** Administrative blocks now correctly disable dates in the Guest Booking calendar by comparing blocked doctor counts against scheduled doctor counts per day. (VERIFIED)
 
 ### Doctor Visibility & Dropdown Stability (Stabilization Phase)

@@ -2,8 +2,8 @@
 
 ## 🌐 1. Global UI/UX & System Behavior
 
-- [ ] **Session Timeout:** Implement an idle session timeout warning popup (same as the User app).
-- [ ] **Standardize Modals/Alerts:** Ensure all confirmation dialogs, error messages, success
+- [x] **Session Timeout:** Implement an idle session timeout warning popup. (Implemented: 401 Interceptor + Warning Modal + LoginPage integration).
+- [x] **Standardize Modals/Alerts:** Ensure all confirmation dialogs, error messages, success
       alerts, and pop-ups are consistent, cleanly designed, and responsive.
 - [ ] **Loading & Error States:** Add skeletons for data fetching and create user-friendly error
       states (Empty, 404, Network error) for all tabs.
@@ -12,8 +12,8 @@
 
 ## 🔒 2. Authentication & Security
 
-- [ ] **Admin-Only Access:** Strictly lock down login routing. Only Admin accounts can sign in.
-- [ ] **Auth Polish:** Improve error messaging, login styling, and alerts on the login page.
+- [x] **Admin-Only Access:** Strictly lock down login routing. Only Admin accounts can sign in. (Verified via `requireAdmin` middleware).
+- [x] **Auth Polish:** Improve error messaging, login styling, and alerts on the login page. (Integrated `SessionExpiredModal`).
 - [ ] **Audit Logging (Global):** Ensure robust audit logs capture critical actions (with User/Admin
       name, action, target, timestamp) across Doctors, Patients, and Services. Improve the UI of the
       general Audit Log page.
@@ -94,6 +94,10 @@
     - [x] Compare doctor's current active custom days vs. Global active days.
     - [x] Identify any days that exist in doctor's custom set but NOT in Global (e.g., Sunday custom, closed globally).
     - [x] Trigger displacement modal for those orphaned future appointments. (VERIFIED)
+
+    **Scenario 4 — Global Clinic Shift Protection (Inheritance Guard):**
+    - [x] Ensure that global clinic hour changes ONLY displace appointments for doctors set to "Inherit".
+    - [x] Verified: `updateSchedule` service now checks `is_using_global` per-day before flagging conflicts. (FIXED)
 
 ### Doctor Availability & Access Controls
 
@@ -192,9 +196,7 @@ website content aren't hardcoded.
 
 - [x] **Clinic Operating Hours:** Configurable open/close times and lunch breaks per day.
 - [x] **Global Block-out Dates (Holidays):** Add dates (holidays, emergencies) that are completely closed/disabled on the User booking calendar.
-- [ ] **Booking Rules:**
-    - Configuration for Slot Duration, Lead Time (e.g., must book 24h ahead), and Max Horizon (e.g.,
-      book up to 2 months out).
+- [x] **Booking Rules:** Configuration for Slot Duration, Lead Time, and Max Horizon. (Verified: Backend respects dynamic settings).
     - Waitlist Toggle: Global ON/OFF switch.
 - [x] **Conflict Impact Review (The Ripple Effect):**
     - [x] Build a "Review Changes" modal for Holidays.

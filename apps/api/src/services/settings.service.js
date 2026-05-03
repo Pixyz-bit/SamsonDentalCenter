@@ -99,16 +99,22 @@ export const updateSchedule = async (schedules, force = false, actorId, actorRol
     const { data: allFutureAppts, error: fetchError } = await supabaseAdmin
         .from('appointments')
         .select(`
-            id, appointment_date, start_time, end_time, status,
+            id, appointment_date, start_time, end_time, status, dentist_id,
             patient:profiles!appointments_patient_id_fkey(first_name, last_name, full_name, phone),
             guest_name, guest_first_name, guest_last_name, guest_phone,
             service:services(name),
-            dentist:dentists(profile:profiles(first_name, last_name, full_name))
+            dentist:dentists(id, profile:profiles(first_name, last_name, full_name))
         `)
         .gte('appointment_date', today)
         .in('status', [APPOINTMENT_STATUS.PENDING, APPOINTMENT_STATUS.CONFIRMED]);
 
     if (fetchError) throw new AppError(fetchError.message, 500);
+
+    // Fetch all custom doctor schedules to check for inheritance
+    const { data: customSchedules } = await supabaseAdmin
+        .from('dentist_schedule')
+        .select('dentist_id, day_of_week, is_using_global')
+        .eq('is_using_global', false);
 
     if (allFutureAppts && allFutureAppts.length > 0) {
         for (const newDay of schedules) {
@@ -116,11 +122,21 @@ export const updateSchedule = async (schedules, force = false, actorId, actorRol
             
             for (const appt of allFutureAppts) {
                 // Filter to this specific weekday
-                // Use a robust date parsing that matches how we extract day of week
                 const apptDate = new Date(appt.appointment_date + 'T00:00:00');
                 const apptDow = apptDate.getDay(); 
                 
                 if (apptDow !== Number(newDay.day_of_week)) continue;
+
+                // ── [FIX] Clinic Inheritance Check ──
+                // If the doctor for this appointment has a custom schedule for this weekday (is_using_global = false),
+                // then clinic-wide hour changes should NOT affect/displace their appointments.
+                const hasCustomSchedule = (customSchedules || []).some(s => 
+                    s.dentist_id === appt.dentist_id && s.day_of_week === apptDow
+                );
+                
+                if (hasCustomSchedule) {
+                    continue; // Skip global conflict check for this isolated doctor
+                }
 
                 // Case A: The day is now CLOSED entirely
                 if (!isDayOpen) {

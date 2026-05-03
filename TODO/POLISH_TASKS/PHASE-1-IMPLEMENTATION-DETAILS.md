@@ -514,14 +514,14 @@ The doctor's weekly routine and date blocks now follow the same "Conflict Gateke
 
 #### Test Checklist (Doctor Schedule Tab)
 
-- [ ] **Doctor Weekly Routine (Day Removal):**
+- [x] **Doctor Weekly Routine (Day Removal):**
     - **Setup**: Find a doctor with an appointment on a Monday.
     - **Action**: In the **Doctor -> Schedule** tab, toggle **Monday** to "OFF" (Unchecked) and click "Save Weekly Routine".
     - **Expectation**: The "Conflicts Detected" modal appears showing all future Monday appointments.
     - **Action**: Click "Force Save & Displace".
     - **Verification**: Routine saves. Appointments switch to `DISPLACED` status.
 
-- [ ] **Doctor Weekly Routine (Time Narrowing):**
+- [x] **Doctor Weekly Routine (Time Narrowing):**
     - **Setup**: Find a doctor with an 8:00 AM appointment on a future date.
     - **Action**: Change the doctor's **Start Time** for that day of the week to 10:00 AM. Save.
     - **Expectation**: The modal identifies the 8:00 AM appointment as a conflict.
@@ -550,20 +550,20 @@ The doctor's weekly routine and date blocks now follow the same "Conflict Gateke
     - **Expectation**: Monday should now be **DISABLED** in the calendar because no doctors are available.
     - **Verification**: Success. Availability aggregation correctly counts scheduled vs blocked doctors.
 
-- [ ] **Doctor Block Date (Time Range):**
+- [x] **Doctor Block Date (Time Range):**
     - **Setup**: Find a doctor with a 2:00 PM appointment.
     - **Action**: Create a block from 1:00 PM to 3:00 PM on that date.
     - **Expectation**: The 2:00 PM appointment is flagged in the modal.
     - **Action**: Force save.
     - **Verification**: Only the 2:00 PM appointment is displaced; morning appointments on the same day remain active.
 
-- [ ] **Post-Displacement Booking Availability:**
+- [x ] **Post-Displacement Booking Availability:**
     - **Setup**: Displace a doctor's appointment using any method above.
     - **Action**: Go to the **User Booking App** or use the **Admin Slot Check**.
     - **Expectation**: The time slot previously occupied by the displaced appointment is now **AVAILABLE** (assuming the doctor is still working and not blocked at that time, or another doctor is available).
     - **Verification**: Confirm the slot is bookable again.
 
-- [ ] **UI Integrity (Local Time & Labels):**
+- [ x] **UI Integrity (Local Time & Labels):**
     - **Verification**: Ensure the Displacement Modal correctly shows the patient's full name, the specific service, and the time slot.
     - **Verification**: Confirm dates are formatted correctly (e.g., "JUN 12, 2026") and no "Invalid Date" errors occur.
 
@@ -572,11 +572,11 @@ The doctor's weekly routine and date blocks now follow the same "Conflict Gateke
 ## 🏁 Phase 1: Final Exit Criteria & Verification
 
 ### 🔍 Manual Verification Checklist (Core Foundation)
-- [ ] **Bulk Date Blocking**: Select 3 dates with conflicts. Verify one single modal aggregates all affected appointments correctly.
-- [ ] **Granular Time Blocking UI**: Verify "Manage Blocked Times" modal follows the standard header/footer layout.
-- [ ] **Displacement Integrity**: Verify that force-saving a block displaces appointments and removes them from the "Upcoming Schedule" timeline.
-- [ ] **Clinic Inheritance**: Verify doctor schedule locks and mirrors Global Settings when "Inherit" is ON.
-- [ ] **User App Sync**: Verify blocked dates/times are correctly disabled in the Guest Booking calendar.
+- [x] **Bulk Date Blocking**: Select 3 dates with conflicts. Verify one single modal aggregates all affected appointments correctly.
+- [x] **Granular Time Blocking UI**: Verify "Manage Blocked Times" modal follows the standard header/footer layout.
+- [x] **Displacement Integrity**: Verify that force-saving a block displaces appointments and removes them from the "Upcoming Schedule" timeline.
+- [x] **Clinic Inheritance**: Verify doctor schedule locks and mirrors Global Settings when "Inherit" is ON.
+- [x] **User App Sync**: Verify blocked dates/times are correctly disabled in the Guest Booking calendar.
 
 ### ⏳ Remaining Phase 1 Foundation Tasks
 - [ ] **Session Timeout**: Implement the 15-minute idle warning popup.
