@@ -31,7 +31,7 @@ const DateTimeStep = ({
     const [isDoctorDropdownOpen, setIsDoctorDropdownOpen] = useState(false);
     
     // ✅ Fetch clinic-wide settings (holidays, schedule)
-    const { settings, holidays, schedule, loading: settingsLoading } = useClinicSettings();
+    const { settings, holidays, schedule, loading: settingsLoading, refetch: refetchSettings } = useClinicSettings();
     
     // VISIBILITY LIMIT: 3 columns * 6 rows = 18 slots
     const INITIAL_VISIBLE_COUNT = 18;
@@ -513,9 +513,15 @@ const DateTimeStep = ({
                                     <div className='bg-white dark:bg-white/[0.02] border border-gray-100 dark:border-gray-800 rounded-3xl p-5 shadow-theme-sm h-full'>
                                         <div className='flex items-center justify-between mb-5'>
                                             <h3 className='text-[15px] sm:text-base font-bold text-gray-900 dark:text-white flex items-center gap-2 tracking-tight uppercase'><CalendarIcon size={16} className='text-brand-500' />{viewDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</h3>
-                                            <div className='flex gap-1.5'>
-                                                <button onClick={() => navigateMonth('prev')} disabled={!canGoPrev} className='p-2 bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-xl hover:bg-white dark:hover:bg-gray-700 transition-all disabled:opacity-30 hover:shadow-theme-xs'><ChevronLeft size={18} className='text-gray-600 dark:text-gray-400' /></button>
-                                                <button onClick={() => navigateMonth('next')} disabled={!canGoNext} className='p-2 bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-xl hover:bg-white dark:hover:bg-gray-700 transition-all disabled:opacity-30 hover:shadow-theme-xs'><ChevronRight size={18} className='text-gray-600 dark:text-gray-400' /></button>
+                                            <div className='flex items-center gap-2 sm:gap-3'>
+                                                <button onClick={refetchSettings} disabled={settingsLoading || isProcessing} className='flex items-center gap-1 sm:gap-2 px-2 py-1.5 sm:px-3 text-[10px] sm:text-[11px] font-bold bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-400 rounded-lg border border-gray-100 dark:border-gray-700 shadow-theme-xs transition-all disabled:opacity-50'>
+                                                    <RefreshCw size={14} className={settingsLoading ? 'animate-spin' : ''} />
+                                                    <span className="hidden sm:inline">Refresh</span>
+                                                </button>
+                                                <div className='flex gap-1.5'>
+                                                    <button onClick={() => navigateMonth('prev')} disabled={!canGoPrev} className='p-2 bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-xl hover:bg-white dark:hover:bg-gray-700 transition-all disabled:opacity-30 hover:shadow-theme-xs'><ChevronLeft size={18} className='text-gray-600 dark:text-gray-400' /></button>
+                                                    <button onClick={() => navigateMonth('next')} disabled={!canGoNext} className='p-2 bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-xl hover:bg-white dark:hover:bg-gray-700 transition-all disabled:opacity-30 hover:shadow-theme-xs'><ChevronRight size={18} className='text-gray-600 dark:text-gray-400' /></button>
+                                                </div>
                                             </div>
                                         </div>
                                         <div className='grid grid-cols-7 gap-1 mb-2'>

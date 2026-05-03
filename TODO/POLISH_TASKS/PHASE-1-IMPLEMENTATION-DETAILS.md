@@ -290,7 +290,7 @@ Run through this checklist manually in the browser to ensure Phase 1 is fully op
     -d '{
       "type": "email.opened",
       "data": {
-        "email_id": "131dd04f-d888-4e21-942c-72f5951a20a4"
+        "email_id": "2d277b2a-7bc7-4f64-a2a7-a6270d515555"
       }
     }'
     ```
@@ -322,9 +322,17 @@ Run through this checklist manually in the browser to ensure Phase 1 is fully op
 #### Test Checklist (Run When Implemented)
 
 - [ ] **Holiday Block Test:** In Admin Settings, add a holiday on a date that has at least 1 active future appointment. Expected: System shows a modal listing the affected patients and blocks the save until resolved.
-- [ ] **Clean Holiday Test:** Add a holiday on a date with zero appointments. Expected: Holiday saves successfully with no warning.
+
+the when i block holiday date with active appoinemnt it just says alert and dont show the modal affected patients.
+
+alert modays says success on title even if the action is failed, to do later
+
+- [x] **Clean Holiday Test:** Add a holiday on a date with zero appointments. Expected: Holiday saves successfully with no warning.
 - [ ] **Hour Shift Test:** Narrow the clinic's closing time from 5:00 PM to 3:00 PM while a future appointment exists at 4:00 PM. Expected: That appointment is flagged as Displaced.
 - [ ] **User App Block Test:** After a holiday is saved, open the User Booking Calendar. Expected: That date is visually disabled and cannot be selected.
+
+this is already done 
+i test example i im on date and time on guest booking now i see the dates on calendar right now i add a holiday and the day will only be gone if i refressh the page, i want it to be gone right away or add a refresh button for that so it will reload the calendar like how its done in the timeslot. but the blocking works well. ALREADY DONE
 
 ---
 
@@ -332,32 +340,32 @@ Run through this checklist manually in the browser to ensure Phase 1 is fully op
 
 #### Implementation Plan
 
-**State Machine (Source of Truth — DB Column: is_using_global):**
+**State Machine (Source of Truth ï¿½ DB Column: is_using_global):**
 
 | State | is_using_global | weekly_days | Result |
 |---|---|---|---|
 | Inheriting | 	rue | (Ignored) | Doctor follows Global Clinic Settings |
 | Customized | alse | ['Mon','Wed'] | Doctor follows specific days only |
-| Strictly Closed | alse | [] (Empty array) | Doctor unavailable — NOT a global fallback |
+| Strictly Closed | alse | [] (Empty array) | Doctor unavailable ï¿½ NOT a global fallback |
 
-**Scenario A — First-Time Customization ("Clone" Logic):**
+**Scenario A ï¿½ First-Time Customization ("Clone" Logic):**
 - Trigger: Admin toggles "Inherit Clinic Schedule" to OFF for the first time.
 - Action: Frontend fetches Global Settings and pre-fills the doctor's day checkboxes with those days before any editing occurs.
 - Why: Prevents an accidental "Blackout" where the doctor's schedule instantly becomes empty.
 
-**Scenario B — Narrowing Guard (Removing a Day):**
+**Scenario B ï¿½ Narrowing Guard (Removing a Day):**
 - Trigger: Admin unchecks a day (e.g., Tuesday) from a doctor's custom schedule and clicks Save.
 - Backend check: SELECT count(*) FROM appointments WHERE doctor_id = ? AND day_of_week = 'Tuesday' AND appointment_date >= NOW() AND status IN ('pending','confirmed')
 - If count > 0: Reject save. Return list of affected patients.
 - Modal: "Cannot remove Tuesday. [N] patients are booked. [View List]"
 
-**Scenario C — Switch-Back Guard (Returning to Global):**
+**Scenario C ï¿½ Switch-Back Guard (Returning to Global):**
 - Trigger: Admin toggles "Inherit Clinic Schedule" back to ON for a doctor with a custom schedule.
 - Backend check: Compute the set difference (doctor's custom days - Global active days) to find "orphan days".
 - For each orphan day: Query future appointments. If any exist, block the switch.
 - Modal: "Cannot switch to Global. Doctor has Sunday appointments not covered by clinic hours."
 
-> ?? **Critical Rule:** ALL conflict queries above MUST include ppointment_date >= NOW(). Only future appointments matter — historical records should never block a schedule change.
+> ?? **Critical Rule:** ALL conflict queries above MUST include ppointment_date >= NOW(). Only future appointments matter ï¿½ historical records should never block a schedule change.
 
 #### Test Checklist (Run When Implemented)
 
@@ -367,7 +375,7 @@ Run through this checklist manually in the browser to ensure Phase 1 is fully op
 - [ ] **Clean Narrowing Test:** Uncheck a day with no future appointments. Expected: Saves successfully.
 - [ ] **Switch-Back Conflict Test:** A doctor has a custom schedule including Sunday. The Global schedule is closed on Sunday. Toggle the doctor back to "Inherit Global". Expected: Switch is blocked. Modal lists the Sunday patients that need to be rescheduled.
 - [ ] **Clean Switch-Back Test:** Resolve all orphan-day appointments, then toggle back to Global. Expected: Switches successfully. Doctor now follows Global schedule.
-- [ ] **Strictly Closed Test:** Set a doctor's schedule to Custom with all days unchecked (empty). Expected: That doctor does not appear as available in the booking flow — they are NOT inheriting Global as a fallback.
+- [ ] **Strictly Closed Test:** Set a doctor's schedule to Custom with all days unchecked (empty). Expected: That doctor does not appear as available in the booking flow ï¿½ they are NOT inheriting Global as a fallback.
 
 ---
 
@@ -383,7 +391,7 @@ ALTER TABLE guest_otp_codes ADD COLUMN IF NOT EXISTS attempt_count INTEGER DEFAU
 **Attempt Limit (5 tries):**
 - On each failed OTP verify call, increment ttempt_count on the matching guest_otp_codes record.
 - If ttempt_count >= 5, mark the code as is_verified = true (invalidated) and return a "Too many attempts" error.
-- Frontend: Show a clear message — "Code has been invalidated. Please request a new one."
+- Frontend: Show a clear message ï¿½ "Code has been invalidated. Please request a new one."
 
 **Cooldown Period (2-minute resend delay):**
 - On sendOTP, query the latest OTP record for this email.
@@ -401,7 +409,7 @@ ALTER TABLE guest_otp_codes ADD COLUMN IF NOT EXISTS attempt_count INTEGER DEFAU
 
 ---
 
-### 9. SMS Integration (?? Skipped — Tests Listed for Future Verification)
+### 9. SMS Integration (?? Skipped ï¿½ Tests Listed for Future Verification)
 
 > **Status:** PhilSMS is integrated in the backend but is NOT currently tested. Email (Resend) is the active and stable channel. SMS testing requires a paid PhilSMS balance.
 

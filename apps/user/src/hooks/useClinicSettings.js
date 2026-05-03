@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { api } from '../utils/api';
 
 export const useClinicSettings = () => {
@@ -8,28 +8,28 @@ export const useClinicSettings = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                setLoading(true);
-                const [settingsRes, holidaysRes, scheduleRes] = await Promise.all([
-                    api.get('/settings'),
-                    api.get('/settings/holidays'),
-                    api.get('/settings/schedule')
-                ]);
-                setSettings(settingsRes);
-                setHolidays(holidaysRes);
-                setSchedule(scheduleRes);
-            } catch (err) {
-                console.error('Failed to fetch clinic settings:', err);
-                setError(err.message);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchData();
+    const fetchData = useCallback(async () => {
+        try {
+            setLoading(true);
+            const [settingsRes, holidaysRes, scheduleRes] = await Promise.all([
+                api.get('/settings'),
+                api.get('/settings/holidays'),
+                api.get('/settings/schedule')
+            ]);
+            setSettings(settingsRes);
+            setHolidays(holidaysRes);
+            setSchedule(scheduleRes);
+        } catch (err) {
+            console.error('Failed to fetch clinic settings:', err);
+            setError(err.message);
+        } finally {
+            setLoading(false);
+        }
     }, []);
 
-    return { settings, holidays, schedule, loading, error };
+    useEffect(() => {
+        fetchData();
+    }, [fetchData]);
+
+    return { settings, holidays, schedule, loading, error, refetch: fetchData };
 };

@@ -36,7 +36,8 @@ export const updateClinicSchedule = async (req, res, next) => {
         const schedule = await settingsService.updateSchedule(
             req.body,
             req.user.id,
-            req.user.role
+            req.user.role,
+            req.query.force
         );
         res.json({ message: 'Clinic schedule updated successfully.', schedule });
     } catch (err) {
@@ -58,7 +59,8 @@ export const createHoliday = async (req, res, next) => {
         const holiday = await settingsService.addHoliday(
             req.body,
             req.user.id,
-            req.user.role
+            req.user.role,
+            req.query.force
         );
         res.status(201).json({ message: 'Holiday added successfully.', holiday });
     } catch (err) {

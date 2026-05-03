@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Calendar as CalendarIcon, Trash2, Plus, Info } from 'lucide-react';
+import { Calendar as CalendarIcon, Trash2, Plus, Info, Clock as ClockIcon, Phone } from 'lucide-react';
 import { Button, Input, Modal } from '../../ui';
 import { useSettings } from '../../../hooks/useSettings';
 import { useToast } from '../../../context/ToastContext';
@@ -11,18 +11,38 @@ const ClinicHolidaysSettings = () => {
     const { showToast } = useToast();
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [isConflictModalOpen, setIsConflictModalOpen] = useState(false);
+    const [conflictData, setConflictData] = useState(null);
     const [holidayToDelete, setHolidayToDelete] = useState(null);
     const [newHoliday, setNewHoliday] = useState({ name: '', date: '' });
 
     const handleAddHoliday = async () => {
         if (!newHoliday.name || !newHoliday.date) return;
         try {
-            await addHoliday(newHoliday);
+            await addHoliday(newHoliday, false);
             setIsAddModalOpen(false);
             setNewHoliday({ name: '', date: '' });
             showToast('Holiday added successfully!', 'success');
         } catch (err) {
-            showToast('Failed to add holiday: ' + err.message, 'error');
+            if (err.status === 409 && err.data?.details?.conflictingAppointments) {
+                setConflictData(err.data.details.conflictingAppointments);
+                setIsConflictModalOpen(true);
+            } else {
+                showToast('Failed to add holiday: ' + err.message, 'error');
+            }
+        }
+    };
+
+    const handleForceSave = async () => {
+        try {
+            await addHoliday(newHoliday, true);
+            setIsConflictModalOpen(false);
+            setIsAddModalOpen(false);
+            setNewHoliday({ name: '', date: '' });
+            setConflictData(null);
+            showToast('Holiday added and appointments displaced successfully!', 'success');
+        } catch (err) {
+            showToast('Failed to force save: ' + err.message, 'error');
         }
     };
 
@@ -41,6 +61,22 @@ const ClinicHolidaysSettings = () => {
         } catch (err) {
             showToast('Failed to delete holiday: ' + err.message, 'error');
         }
+    };
+
+    const formatTime = (timeStr) => {
+        if (!timeStr) return '';
+        const [hours, minutes] = timeStr.split(':');
+        const h = parseInt(hours);
+        const ampm = h >= 12 ? 'PM' : 'AM';
+        const h12 = h % 12 || 12;
+        return `${h12}:${minutes} ${ampm}`;
+    };
+
+    const getInitials = (name) => {
+        if (!name) return 'GP';
+        const parts = name.trim().split(/\s+/);
+        if (parts.length >= 2) return (parts[0][0] + parts[parts.length-1][0]).toUpperCase();
+        return name.slice(0, 2).toUpperCase();
     };
 
     if (loading) return <ListSkeleton />;
@@ -143,7 +179,7 @@ const ClinicHolidaysSettings = () => {
                                 Cancel
                             </Button>
                             <Button 
-                                onClick={handleAddHoliday}
+                                onClick={() => handleAddHoliday(false)}
                                 disabled={updating || !newHoliday.name || !newHoliday.date}
                                 className="flex-1 rounded-xl h-12 font-bold bg-brand-500 text-white"
                             >
@@ -165,6 +201,149 @@ const ClinicHolidaysSettings = () => {
                 confirmText="Remove Date"
                 variant="danger"
             />
+
+            {/* Conflict Resolution Modal */}
+            <Modal 
+                isOpen={isConflictModalOpen} 
+                onClose={() => setIsConflictModalOpen(false)}
+                title="Conflicts Detected"
+                subtitle="Future appointments found on this date."
+                className="max-w-5xl"
+                footer={(
+                    <>
+                        <Button 
+                            variant="secondary" 
+                            onClick={() => setIsConflictModalOpen(false)}
+                            className="flex-1 sm:flex-none"
+                        >
+                            Cancel & Adjust
+                        </Button>
+                        <Button 
+                            onClick={handleForceSave}
+                            disabled={updating}
+                            className="flex-1 sm:flex-none bg-amber-500 hover:bg-amber-600 text-white border-0"
+                        >
+                            {updating ? 'Saving...' : 'Force Save & Displace'}
+                        </Button>
+                    </>
+                )}
+            >
+                <div className="space-y-6">
+                    <div className="flex items-center gap-4 p-4 bg-amber-50 dark:bg-amber-500/10 border border-amber-100 dark:border-amber-500/20 rounded-2xl">
+                        <div className="w-12 h-12 bg-amber-500 text-white rounded-xl flex items-center justify-center shrink-0 shadow-lg shadow-amber-500/20">
+                            <Info size={24} />
+                        </div>
+                        <p className="text-sm font-bold text-amber-800 dark:text-amber-200 leading-relaxed">
+                            Saving this holiday will affect the following <strong>{conflictData?.length}</strong> future appointments. If you proceed, these appointments will be flagged as <span className="font-black text-amber-600 dark:text-amber-400">DISPLACED</span>.
+                        </p>
+                    </div>
+                    
+                    <div className="space-y-3">
+                        <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-2">
+                            <div className="w-1 h-1 rounded-full bg-brand-500" />
+                            Affected Appointments
+                        </h4>
+                        <div className="space-y-4">
+                            {conflictData?.map(appt => {
+                                const patientName = appt.profiles?.full_name || 
+                                                  (appt.guest_first_name ? `${appt.guest_first_name} ${appt.guest_last_name}` : appt.guest_name) || 
+                                                  'Guest Patient';
+                                
+                                const contactInfo = appt.profiles?.phone || appt.guest_phone || 'No contact';
+                                const serviceName = appt.services?.name || 'Dental Service';
+                                const serviceTier = appt.services?.tier?.toUpperCase() || 'GENERAL';
+                                const doctorName = appt.dentists?.profiles?.full_name ? `Dr. ${appt.dentists.profiles.full_name}` : 'No Doctor Assigned';
+                                const initials = getInitials(patientName);
+
+                                return (
+                                    <div key={appt.id} className="flex flex-col sm:flex-row bg-white dark:bg-white/[0.02] border border-gray-100 dark:border-gray-800 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+                                        {/* Left Side: Time */}
+                                        <div className="flex sm:flex-col justify-between sm:justify-center sm:w-32 bg-gray-50/50 dark:bg-gray-800/30 border-b sm:border-b-0 sm:border-r border-gray-100 dark:border-gray-800 shrink-0">
+                                            <div className="px-4 py-3">
+                                                <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest mb-1.5">Start Time</p>
+                                                <p className="text-sm font-black text-gray-900 dark:text-white leading-none">{formatTime(appt.start_time)}</p>
+                                            </div>
+                                            <div className="h-[1px] w-full bg-gray-100 dark:bg-gray-800" />
+                                            <div className="px-4 py-3">
+                                                <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest mb-1.5">End Time</p>
+                                                <p className="text-sm font-black text-gray-600 dark:text-gray-400 leading-none">{formatTime(appt.end_time)}</p>
+                                            </div>
+                                        </div>
+
+                                        {/* Main Content Area (Email Style Stacking) */}
+                                        <div className="flex-grow p-4 sm:p-5 flex items-center gap-4">
+                                            {/* Avatar */}
+                                            <div className="relative shrink-0">
+                                                <div className="w-12 h-12 rounded-full bg-brand-500 text-white flex items-center justify-center text-sm font-black shadow-lg shadow-brand-500/20 border-2 border-white dark:border-gray-900">
+                                                    {initials}
+                                                </div>
+                                                <div className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-green-500 border-2 border-white dark:border-gray-900 rounded-full" />
+                                            </div>
+
+                                            <div className="flex-grow">
+                                                <p className="text-base font-black text-gray-900 dark:text-white leading-tight mb-1">{patientName}</p>
+                                                <div className="space-y-1">
+                                                    <div className="flex items-center gap-2">
+                                                        <p className="text-[11px] font-black text-gray-900 dark:text-white uppercase tracking-tighter">
+                                                            {serviceName}
+                                                        </p>
+                                                        <span className="text-gray-300 dark:text-gray-600">•</span>
+                                                        <p className="text-[11px] font-bold text-gray-500 dark:text-gray-400">
+                                                            {doctorName}
+                                                        </p>
+                                                    </div>
+                                                    <p className="text-[11px] font-medium text-gray-500 flex items-center gap-2">
+                                                        <Phone size={10} className="text-green-500" />
+                                                        <span className="text-gray-800 dark:text-gray-200">{contactInfo}</span>
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* Right Side: Status & Source Badges (Stacked with Full Labels) */}
+                                        <div className="flex flex-row sm:flex-col items-stretch justify-center border-t sm:border-t-0 sm:border-l border-gray-100 dark:border-gray-800 bg-gray-50/20 dark:bg-white/[0.01] shrink-0 min-w-[160px]">
+                                            {/* Source */}
+                                            <div className="px-5 py-4 flex flex-col sm:items-start items-center gap-2">
+                                                <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest leading-none">Appointment Source</p>
+                                                {(() => {
+                                                    const source = appt.source || 'USER_BOOKING';
+                                                    const sourceColors = {
+                                                        'GUEST_BOOKING': 'bg-blue-50 text-blue-600 border-blue-100 dark:bg-blue-500/10 dark:text-blue-400 dark:border-blue-500/20',
+                                                        'USER_BOOKING': 'bg-indigo-50 text-indigo-600 border-indigo-100 dark:bg-indigo-500/10 dark:text-indigo-400 dark:border-indigo-500/20',
+                                                        'WALK_IN': 'bg-teal-50 text-teal-600 border-teal-100 dark:bg-teal-500/10 dark:text-teal-400 dark:border-teal-500/20',
+                                                        'WAITLIST': 'bg-amber-50 text-amber-600 border-amber-100 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20'
+                                                    };
+                                                    const sourceClass = sourceColors[source] || sourceColors['USER_BOOKING'];
+                                                    const sourceLabel = source.replace('_', ' ');
+                                                    return (
+                                                        <span className={`px-2 py-0.5 text-[9px] font-black uppercase tracking-widest rounded border shadow-sm ${sourceClass}`}>
+                                                            {sourceLabel}
+                                                        </span>
+                                                    );
+                                                })()}
+                                            </div>
+
+                                            <div className="h-[1px] w-full bg-gray-100 dark:bg-gray-800" />
+
+                                            {/* Status */}
+                                            <div className="px-5 py-4 flex flex-col sm:items-start items-center gap-2">
+                                                <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest leading-none">Appointment Status</p>
+                                                <span className={`px-2 py-1 text-[9px] font-black uppercase tracking-widest rounded-lg shadow-sm border ${
+                                                    appt.status === 'CONFIRMED' 
+                                                        ? 'bg-green-50 text-green-600 border-green-100 dark:bg-green-500/10 dark:text-green-400 dark:border-green-500/20' 
+                                                        : 'bg-amber-50 text-amber-600 border-amber-100 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20'
+                                                }`}>
+                                                    {appt.status}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </div>
+                </div>
+            </Modal>
         </div>
     );
 };

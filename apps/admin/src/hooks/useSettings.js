@@ -58,10 +58,10 @@ export const useSettings = () => {
     /**
      * Update weekly clinic schedule (operating hours, lunch breaks)
      */
-    const updateScheduleData = async (newSchedule) => {
+    const updateScheduleData = async (newSchedule, force = false) => {
         try {
             setUpdating(true);
-            const res = await api.patch('/settings/schedule', newSchedule, token);
+            const res = await api.patch(`/settings/schedule${force ? '?force=true' : ''}`, newSchedule, token);
             setSchedule(res.schedule);
             return res;
         } catch (err) {
@@ -75,10 +75,10 @@ export const useSettings = () => {
     /**
      * Add a one-off holiday or clinic block-out date
      */
-    const addHoliday = async (holidayData) => {
+    const addHoliday = async (holidayData, force = false) => {
         try {
             setUpdating(true);
-            const res = await api.post('/settings/holidays', holidayData, token);
+            const res = await api.post(`/settings/holidays${force ? '?force=true' : ''}`, holidayData, token);
             setHolidays(prev => [...prev, res.holiday].sort((a, b) => a.date.localeCompare(b.date)));
             return res;
         } catch (err) {

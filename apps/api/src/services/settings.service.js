@@ -1,5 +1,6 @@
 import { supabaseAdmin } from '../config/supabase.js';
 import { AppError } from '../utils/errors.js';
+import { APPOINTMENT_STATUS } from '../utils/constants.js';
 
 /**
  * Get all clinic settings.
@@ -120,7 +121,58 @@ export const getHolidays = async () => {
 /**
  * Add a holiday.
  */
-export const addHoliday = async (holidayData, actorId, actorRole) => {
+export const addHoliday = async (holidayData, actorId, actorRole, force = false) => {
+    // 1. Check for conflicts
+    const { data: conflictingAppointments, error: fetchError } = await supabaseAdmin
+        .from('appointments')
+        .select(`
+            id, 
+            patient_id, 
+            appointment_date, 
+            start_time, 
+            end_time, 
+            status, 
+            source,
+            guest_name,
+            guest_first_name,
+            guest_last_name,
+            guest_phone,
+            profiles!patient_id(full_name, phone),
+            services(name, tier),
+            dentists(profiles(full_name))
+        `)
+        .eq('appointment_date', holidayData.date)
+        .in('status', [APPOINTMENT_STATUS.PENDING, APPOINTMENT_STATUS.CONFIRMED]);
+
+    if (fetchError) throw new AppError('Error checking for conflicts', 500);
+
+    if (conflictingAppointments && conflictingAppointments.length > 0) {
+        if (!force) {
+            throw new AppError('Conflicts detected', 409, { conflictingAppointments });
+        } else {
+            // Force save: Displace conflicting appointments
+            const appointmentIds = conflictingAppointments.map(a => a.id);
+            const { error: updateError } = await supabaseAdmin
+                .from('appointments')
+                .update({ status: APPOINTMENT_STATUS.DISPLACED })
+                .in('id', appointmentIds);
+
+            if (updateError) throw new AppError('Error displacing appointments', 500);
+
+            // Audit log for displacement
+            supabaseAdmin.from('audit_log').insert({
+                actor_id: actorId,
+                actor_role: actorRole,
+                action: 'DISPLACE_APPOINTMENTS',
+                target_type: 'appointments',
+                resource_type: 'holidays',
+                details: { reason: 'Holiday created', holiday_date: holidayData.date, affected_count: appointmentIds.length }
+            }).then(({ error: auditErr }) => {
+                if (auditErr) console.error('Audit log failed:', auditErr.message);
+            });
+        }
+    }
+
     const { data, error } = await supabaseAdmin
         .from('clinic_holidays')
         .insert(holidayData)

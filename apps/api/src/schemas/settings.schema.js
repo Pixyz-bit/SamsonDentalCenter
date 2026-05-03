@@ -58,8 +58,10 @@ export const updateScheduleSchema = z.object({
         is_open: booleanOptional,
     })),
     params: z.any(),
-    query: z.any(),
-}).passthrough();
+    query: z.object({
+        force: z.preprocess((val) => val === 'true', z.boolean()).optional(),
+    }).passthrough(),
+});
 
 export const holidaySchema = z.object({
     body: z.object({
@@ -70,5 +72,7 @@ export const holidaySchema = z.object({
         close_time: timeSchema,
     }).passthrough(),
     params: z.any(),
-    query: z.any(),
-}).passthrough();
+    query: z.object({
+        force: z.preprocess((val) => val === 'true', z.boolean()).optional(),
+    }).passthrough(),
+});
