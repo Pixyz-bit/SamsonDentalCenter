@@ -39,6 +39,7 @@ import {
     markAppointmentComplete,
     adminCancelAppointment,
     blockDentistSchedule,
+    bulkBlockDentistSchedule, // NEW
     removeAvailabilityBlock,
     getAllAppointmentsFiltered,
     getTodayAppointmentsFiltered,
@@ -954,6 +955,58 @@ export const blockDentistAvailability = async (req, res, next) => {
             }),
         });
     } catch (err) {
+        next(err);
+    }
+};
+
+/**
+ * POST /api/admin/dentists/:id/block/bulk
+ *
+ * Bulk block a dentist's availability across multiple dates.
+ * Body: { blocks: [{ block_date, start_time, end_time, reason, notes }], overwrite? }
+ */
+export const bulkBlockDentistAvailability = async (req, res, next) => {
+    try {
+        const { blocks, overwrite } = req.body;
+
+        if (!blocks || !Array.isArray(blocks)) {
+            return res.status(400).json({ error: 'blocks array is required.' });
+        }
+
+        const result = await bulkBlockDentistSchedule(
+            req.params.id,
+            blocks,
+            req.user.id,
+            overwrite || false
+        );
+
+        // Audit Log: CREATE_BULK_SCHEDULE_BLOCK
+        try {
+            await supabaseAdmin.from('audit_log').insert({
+                actor_id: req.user.id,
+                actor_role: req.user.role,
+                action: 'CREATE_BULK_SCHEDULE_BLOCK',
+                target_type: 'dentists',
+                target_id: req.params.id,
+                resource_type: 'dentist_availability_blocks',
+                resource_id: req.params.id,
+                new_values: req.body
+            });
+        } catch (auditErr) {
+            console.error('Audit Log failed (bulkBlockDentistAvailability):', auditErr.message);
+        }
+
+        res.status(201).json({
+            message: `${result.results.length} blocks created successfully.`,
+            blocks: result.results
+        });
+    } catch (err) {
+        if (err.status === 409) {
+            return res.status(409).json({
+                error: 'Conflicts detected',
+                conflicts: err.conflicts,
+            });
+        }
         next(err);
     }
 };

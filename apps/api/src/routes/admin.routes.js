@@ -28,6 +28,7 @@ import {
     getDentistDayScheduleHandler,
     updateDentistSchedule,
     blockDentistAvailability,
+    bulkBlockDentistAvailability, // NEW
     viewDentistBlocks,
     removeDentistBlock,
     openEmergencySlot,
@@ -163,6 +164,7 @@ router.get('/dentists/:id/day-schedule', getDentistDayScheduleHandler);
 router.put('/dentists/:id/schedule', updateDentistSchedule);
 router.post('/dentists/:id/schedule/bulk', bulkUpdateSchedule); // NEW: Bulk update
 router.post('/dentists/:id/block', blockDentistAvailability);
+router.post('/dentists/:id/block/bulk', bulkBlockDentistAvailability); // NEW
 router.get('/dentists/:id/blocks', viewDentistBlocks);
 router.delete('/dentists/:id/block/:blockId', removeDentistBlock);
 router.post('/emergency-slot', openEmergencySlot);

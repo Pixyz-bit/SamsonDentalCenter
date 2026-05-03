@@ -133,6 +133,17 @@ export const useDoctors = (fetchOnMount = true) => {
         }
     }, [token]);
 
+    const bulkAddDoctorBlocks = useCallback(async (dentistId, blocks, force = false) => {
+        try {
+            const body = { blocks, overwrite: force };
+            const response = await api.post(`/admin/dentists/${dentistId}/block/bulk`, body, token);
+            return response;
+        } catch (err) {
+            console.error('Failed to bulk add doctor blocks:', err);
+            throw err;
+        }
+    }, [token]);
+
     const deleteDoctorBlock = useCallback(async (dentistId, blockId) => {
         try {
             const response = await api.delete(`/admin/dentists/${dentistId}/block/${blockId}`, token);
@@ -193,6 +204,7 @@ export const useDoctors = (fetchOnMount = true) => {
         updateDoctorScheduleBulk,
         fetchDoctorBlocks,
         addDoctorBlock,
+        bulkAddDoctorBlocks,
         deleteDoctorBlock,
         fetchDoctorAppointments,
         fetchDoctorHistory

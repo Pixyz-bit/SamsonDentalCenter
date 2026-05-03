@@ -8,7 +8,7 @@ import { useSettings } from '../../../../hooks/useSettings';
 
 const WeeklyRoutine = ({ doctor, externalBlockModalOpen, setExternalBlockModalOpen, onScheduleUpdate }) => {
     const { showToast } = useToast();
-    const { fetchDoctorSchedule, updateDoctorScheduleBulk, fetchDoctorBlocks, addDoctorBlock, deleteDoctorBlock, fetchDoctorAppointments } = useDoctors(false);
+    const { fetchDoctorSchedule, updateDoctorScheduleBulk, fetchDoctorBlocks, addDoctorBlock, bulkAddDoctorBlocks, deleteDoctorBlock, fetchDoctorAppointments } = useDoctors(false);
 
     const initialDays = [
         { id: 'Monday', isWorking: false, start: '08:00', end: '17:00' },
@@ -348,18 +348,18 @@ const WeeklyRoutine = ({ doctor, externalBlockModalOpen, setExternalBlockModalOp
                 return Promise.resolve();
             });
 
-            // 2. Process Additions (Blocks)
-            const additionPromises = Array.from(draftBlockedDates).map(dateKey => {
-                return addDoctorBlock(doctor.id, {
+            await Promise.all(deletionPromises);
+
+            // 2. Process Additions (Bulk Blocks)
+            if (draftBlockedDates.size > 0) {
+                const blocks = Array.from(draftBlockedDates).map(dateKey => ({
                     block_date: dateKey,
                     reason: blockReason,
                     notes: blockReason === 'other' ? otherReason : '',
-                    cancel_appointments: false,
-                    overwrite: force // Using 'overwrite' as backend expected
-                });
-            });
+                }));
 
-            await Promise.all([...deletionPromises, ...additionPromises]);
+                await bulkAddDoctorBlocks(doctor.id, blocks, force);
+            }
 
             await loadData();
             if (onScheduleUpdate) onScheduleUpdate();

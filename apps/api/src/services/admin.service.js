@@ -1464,6 +1464,88 @@ export const blockDentistSchedule = async (
 };
 
 /**
+ * Bulk block a dentist's availability across multiple dates.
+ *
+ * @param {string} dentistId - Dentist UUID
+ * @param {Array} blocks - Array of { block_date, start_time, end_time, reason, notes }
+ * @param {string} createdBy - Admin UUID who created the blocks
+ * @param {boolean} overwrite - Whether to force save and displace
+ * @returns {object} { results, conflicts }
+ */
+export const bulkBlockDentistSchedule = async (
+    dentistId,
+    blocks,
+    createdBy,
+    overwrite = false
+) => {
+    // 1. Conflict Check for all dates
+    let allConflicts = [];
+    
+    for (const b of blocks) {
+        const { data: conflicts, error: conflictErr } = await supabaseAdmin
+            .from('appointments')
+            .select(`
+                *,
+                profiles:patient_id (full_name, phone),
+                services:service_id (name),
+                dentists:dentist_id (profiles:profile_id (full_name))
+            `)
+            .eq('dentist_id', dentistId)
+            .eq('appointment_date', b.block_date)
+            .in('status', ['PENDING', 'CONFIRMED']);
+
+        if (conflictErr) throw { status: 500, message: conflictErr.message };
+
+        const blockStart = b.start_time || '00:00';
+        const blockEnd = b.end_time || '23:59';
+
+        const affected = (conflicts || []).filter(appt => 
+            appt.start_time < blockEnd && appt.end_time > blockStart
+        );
+
+        if (affected.length > 0) {
+            allConflicts = [...allConflicts, ...affected];
+        }
+    }
+
+    if (allConflicts.length > 0 && !overwrite) {
+        throw { 
+            status: 409, 
+            message: 'Conflicts detected', 
+            conflicts: allConflicts 
+        };
+    }
+
+    // 2. Perform blocks
+    const results = [];
+    for (const b of blocks) {
+        // Auto-displacement (if force/overwrite)
+        if (overwrite) {
+            await bulkCancelForBlock(dentistId, b.block_date, b.start_time || null, b.end_time || null, true);
+        }
+
+        const { data: block, error: blockErr } = await supabaseAdmin
+            .from('dentist_availability_blocks')
+            .insert({
+                dentist_id: dentistId,
+                block_date: b.block_date,
+                start_time: b.start_time || null,
+                end_time: b.end_time || null,
+                reason: b.reason,
+                notes: b.notes || null,
+                created_by: createdBy
+            })
+            .select()
+            .single();
+
+        if (blockErr) throw { status: 500, message: blockErr.message };
+        results.push(block);
+    }
+
+    return { results };
+};
+
+/**
  * Remove a dentist availability block.
  *
  * @param {string} blockId - Block UUID
