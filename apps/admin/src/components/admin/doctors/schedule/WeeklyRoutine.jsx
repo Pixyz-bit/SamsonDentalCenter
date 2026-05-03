@@ -40,7 +40,7 @@ const WeeklyRoutine = ({ doctor, externalBlockModalOpen, setExternalBlockModalOp
     const [blockConflictCount, setBlockConflictCount] = useState(0);
 
     // Clinic schedule for Clone Logic
-    const { schedule: clinicSchedule } = useSettings();
+    const { schedule: clinicSchedule, holidays: clinicHolidays } = useSettings();
 
     // Track DB block IDs for deletion logic
     const [dbBlocks, setDbBlocks] = useState({}); // { dateKey: blockId }
@@ -199,6 +199,14 @@ const WeeklyRoutine = ({ doctor, externalBlockModalOpen, setExternalBlockModalOp
     // Format YYYY-MM-DD
     const formatDateKey = (y, m, d) => {
         return `${y}-${String(m + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+    };
+
+    const isHoliday = (dateKey) => {
+        return (clinicHolidays || []).some(h => h.date === dateKey);
+    };
+
+    const getHolidayName = (dateKey) => {
+        return (clinicHolidays || []).find(h => h.date === dateKey)?.name || 'Holiday';
     };
 
     const jsDayToScheduleIndex = (jsDay) => jsDay === 0 ? 6 : jsDay - 1;
@@ -512,7 +520,8 @@ const WeeklyRoutine = ({ doctor, externalBlockModalOpen, setExternalBlockModalOp
                         const dateKey = formatDateKey(year, month, dateNum);
 
                         const isBlocked = blockedDates.has(dateKey);
-                        const isEffectivelyWorking = dayConfig.isWorking && !isBlocked;
+                        const isHolidayToday = isHoliday(dateKey);
+                        const isEffectivelyWorking = dayConfig.isWorking && !isBlocked && !isHolidayToday;
 
                         const isSelected = isSameDay(dateObj, currentDate);
                         const isToday = isSameDay(dateObj, new Date());
@@ -558,8 +567,9 @@ const WeeklyRoutine = ({ doctor, externalBlockModalOpen, setExternalBlockModalOp
                                     ) : (
                                         <div className='w-full flex items-center gap-1 opacity-60'>
                                             {isBlocked && <CalendarOff size={10} className="text-red-500" />}
-                                            <span className='text-[7px] sm:text-[10px] font-bold uppercase tracking-widest text-gray-400 truncate'>
-                                                {isBlocked ? 'Blocked' : 'Closed'}
+                                            {isHolidayToday && <CalendarIcon size={10} className="text-indigo-500" />}
+                                            <span className={`text-[7px] sm:text-[10px] font-bold uppercase tracking-widest truncate ${isHolidayToday ? 'text-indigo-500' : isBlocked ? 'text-red-500' : 'text-gray-400'}`}>
+                                                {isHolidayToday ? 'Holiday' : isBlocked ? 'Blocked' : 'Closed'}
                                             </span>
                                         </div>
                                     )}
@@ -834,13 +844,20 @@ const WeeklyRoutine = ({ doctor, externalBlockModalOpen, setExternalBlockModalOp
                                         const scheduleIdx = jsDayToScheduleIndex(jsDow);
                                         const isRoutineClosed = !schedule[scheduleIdx]?.isWorking;
 
+                                        const holidayToday = isHoliday(dKey);
+                                        const holidayName = holidayToday ? getHolidayName(dKey) : '';
+
                                         let cellClass = 'bg-white dark:bg-gray-900 border-transparent text-gray-700 dark:text-gray-300';
                                         let isDisabled = true;
                                         let renderCheck = null;
 
-                                        if (blockModalMode === 'block') {
+                                        if (holidayToday) {
+                                            cellClass = 'bg-indigo-50 dark:bg-indigo-500/10 border-indigo-500 text-indigo-700 dark:text-indigo-400 opacity-90 cursor-not-allowed shadow-theme-xs';
+                                            renderCheck = <span className="text-[7.5px] sm:text-[8px] font-black uppercase tracking-tight sm:tracking-widest text-indigo-500 opacity-80 truncate px-1">Holiday</span>;
+                                        } else if (blockModalMode === 'block') {
                                             if (isRoutineClosed) {
                                                 cellClass = 'bg-gray-50 dark:bg-gray-800/20 border-transparent opacity-40 cursor-not-allowed text-gray-400';
+                                                renderCheck = <span className="text-[7.5px] sm:text-[8px] font-bold uppercase tracking-tight sm:tracking-widest text-gray-400 opacity-60">Closed</span>;
                                             } else if (isSavedBlocked) {
                                                 cellClass = 'bg-red-50 dark:bg-red-500/10 border-red-500 text-red-700 dark:text-red-400 opacity-90 cursor-not-allowed';
                                                 renderCheck = <span className="text-[7.5px] sm:text-[8px] font-bold uppercase tracking-tight sm:tracking-widest text-red-500 opacity-80 mix-blend-multiply dark:mix-blend-lighten">Blocked</span>;
@@ -870,6 +887,7 @@ const WeeklyRoutine = ({ doctor, externalBlockModalOpen, setExternalBlockModalOp
                                         } else {
                                             if (isRoutineClosed) {
                                                 cellClass = 'bg-gray-50 dark:bg-gray-800/20 border-transparent opacity-40 cursor-not-allowed text-gray-400';
+                                                renderCheck = <span className="text-[7.5px] sm:text-[8px] font-bold uppercase tracking-tight sm:tracking-widest text-gray-400 opacity-60">Closed</span>;
                                             } else if (isSavedBlocked) {
                                                 cellClass = 'bg-red-50 dark:bg-red-500/10 border-red-500 text-red-700 dark:text-red-400 opacity-90 cursor-not-allowed shadow-theme-xs';
                                                 renderCheck = <span className="text-[7.5px] sm:text-[8px] font-bold uppercase tracking-tight sm:tracking-widest text-red-500 opacity-80 mix-blend-multiply dark:mix-blend-lighten">Blocked</span>;

@@ -54,8 +54,8 @@
       Password Reset/Creation" button. Identify if the account is already active or just invited.
 - [ ] **Services Tab:** Change from inline to a pop-up list. Add warning: "Removing a service will
       displace [X] upcoming appointments to the holding tab."
-- [ ] **Schedule Tab:** Combine Calendar. Toggle between Month view (grid) and Day view (weekly).
-      Polish the "Block Date/Time" popup for better UX and validation.
+- [x] **Schedule Tab:** Combine Calendar. Toggle between Month view (grid) and Day view (weekly).
+      Polish the "Block Date/Time" popup for better UX and validation. (VERIFIED: Blocks correctly sync to User App).
 - [ ] **History Tab:** Improve the data table (sorting, filters). Clicking a row shows read-only
       details. No actions required.
 - [x] **Weekly Schedule UX Polish:**

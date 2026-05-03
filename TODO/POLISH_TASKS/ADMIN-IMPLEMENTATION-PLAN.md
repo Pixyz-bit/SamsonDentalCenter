@@ -206,6 +206,7 @@ accidentally wiping out appointment histories while building Phase 4._
 - [x] **Narrowing Conflict:** When removing a custom day or shifting hours, the system triggers the "Conflicts Detected" modal. Force-saving results in automated displacement. (VERIFIED)
 - [x] **Switch Back Conflict:** Returning to Global inheritance now checks for orphaned appointments (days/hours active in custom but closed in global) and triggers the displacement flow. (VERIFIED)
 - [x] **?? Critical:** All conflict queries MUST use `appointment_date >= NOW()` — only check future appointments. (VERIFIED)
+- [x] **Doctor Block Date Sync:** Administrative blocks now correctly disable dates in the Guest Booking calendar by comparing blocked doctor counts against scheduled doctor counts per day. (VERIFIED)
 
 ### Doctor Visibility & Dropdown Stability (Stabilization Phase)
 - [x] **Automated Onboarding:** Implemented a DB trigger that ensures every doctor starts with 7 schedule rows (`is_using_global = TRUE`) immediately upon creation. This prevents "hidden doctor" bugs in the booking flow.

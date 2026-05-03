@@ -528,12 +528,27 @@ The doctor's weekly routine and date blocks now follow the same "Conflict Gateke
     - **Action**: Click "Force Save & Displace".
     - **Verification**: The 8:00 AM appointment is `DISPLACED` and the slot opens up for other doctors (if available).
 
-- [ ] **Doctor Block Date (Full Day):**
+- [x] **Doctor Block Date (Full Day):**
     - **Setup**: Note a doctor's appointments for a specific date.
     - **Action**: Click "Block Date" in the Doctor's calendar, select the date, and keep "Whole Day" checked. Save.
     - **Expectation**: The "Conflicts Detected" modal lists all appointments for that specific doctor on that date.
     - **Action**: Click "Force Save & Displace".
     - **Verification**: The block is created. All appointments for that day are `DISPLACED`.
+
+- [x] **Doctor Block Date Sync (User Side):**
+    - **Setup**: Block a doctor's entire day (e.g., Next Wednesday).
+    - **Action**: Go to the **User Booking App**. Select that doctor and navigate to Next Wednesday.
+    - **Expectation**: The date is visually disabled in the calendar (un-clickable).
+    - **Verification**: Success. Date is correctly blocked in the frontend based on `getServiceAvailabilityStatus` logic.
+
+- [x] **"Any Doctor" Mode Availability Sync:**
+    - **Setup**: Service has 2 active doctors (Dr. A and Dr. B). Both are scheduled for Monday.
+    - **Action**: Block Dr. A for the whole day on a specific Monday.
+    - **Action**: Go to **User Booking App**, select the service, and choose **"Any Available Doctor"**.
+    - **Expectation**: Monday should **REMAIN AVAILABLE** because Dr. B is still free.
+    - **Action**: Block Dr. B as well for the same Monday.
+    - **Expectation**: Monday should now be **DISABLED** in the calendar because no doctors are available.
+    - **Verification**: Success. Availability aggregation correctly counts scheduled vs blocked doctors.
 
 - [ ] **Doctor Block Date (Time Range):**
     - **Setup**: Find a doctor with a 2:00 PM appointment.
