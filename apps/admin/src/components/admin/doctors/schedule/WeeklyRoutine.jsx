@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { format, isSameDay, isSameMonth } from 'date-fns';
-import { Clock, Calendar as CalendarIcon, ChevronLeft, ChevronRight, CalendarOff, CheckSquare } from 'lucide-react';
+import { format, isSameDay } from 'date-fns';
+import { Clock, Calendar as CalendarIcon, ChevronLeft, ChevronRight, CalendarOff, CheckSquare, AlertTriangle, X, Phone, Link2, Settings2 } from 'lucide-react';
 import { Switch, Input, Button, Modal } from '../../../ui';
 import { useToast } from '../../../../context/ToastContext.jsx';
 import { useDoctors } from '../../../../hooks/useDoctors';
+import { useSettings } from '../../../../hooks/useSettings';
 
 const WeeklyRoutine = ({ doctor, externalBlockModalOpen, setExternalBlockModalOpen, onScheduleUpdate }) => {
     const { showToast } = useToast();
@@ -23,6 +24,18 @@ const WeeklyRoutine = ({ doctor, externalBlockModalOpen, setExternalBlockModalOp
     const [draftSchedule, setDraftSchedule] = useState(initialDays);
     const [isSaving, setIsSaving] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
+
+    // ── Inheritance toggle ──
+    const [isUsingGlobal, setIsUsingGlobal] = useState(true);
+    const [draftIsUsingGlobal, setDraftIsUsingGlobal] = useState(true);
+
+    // ── Conflict modal (replaces window.confirm) ──
+    const [conflictModalOpen, setConflictModalOpen] = useState(false);
+    const [conflictingCount, setConflictingCount] = useState(0);
+    const [pendingPayload, setPendingPayload] = useState(null);
+
+    // Clinic schedule for Clone Logic
+    const { schedule: clinicSchedule } = useSettings();
     
     // Track DB block IDs for deletion logic
     const [dbBlocks, setDbBlocks] = useState({}); // { dateKey: blockId }
@@ -70,6 +83,11 @@ const WeeklyRoutine = ({ doctor, externalBlockModalOpen, setExternalBlockModalOp
             if (fetchedSchedule && fetchedSchedule.length > 0) {
                 // Ensure we start with a fresh DEEP copy of initialDays
                 const newSchedule = initialDays.map(day => ({ ...day }));
+
+                // Read is_using_global from first row (same for all rows of a doctor)
+                const globalFlag = fetchedSchedule[0]?.is_using_global ?? true;
+                setIsUsingGlobal(globalFlag);
+                setDraftIsUsingGlobal(globalFlag);
 
                 fetchedSchedule.forEach(item => {
                     // Map 0 (Sun) -> 6, 1 (Mon) -> 0, etc.
@@ -175,7 +193,30 @@ const WeeklyRoutine = ({ doctor, externalBlockModalOpen, setExternalBlockModalOp
         showToast('Monday\'s hours applied to all working days.', 'success');
     };
 
-    const saveWeekly = async () => {
+    // \u2500\u2500 Clone clinic hours into doctor draft \u2500\u2500
+    const cloneFromClinic = useCallback(() => {
+        if (!clinicSchedule || clinicSchedule.length === 0) {
+            showToast('Clinic schedule not loaded yet.', 'error');
+            return;
+        }
+        const dayNameMap = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        // clinic_schedule uses day_of_week 0=Sun..6=Sat; doctor schedule array is Mon=0..Sun=6
+        const newDraft = draftSchedule.map((day, idx) => {
+            const dow = idx === 6 ? 0 : idx + 1; // convert to JS day_of_week
+            const clinicDay = clinicSchedule.find(c => c.day_of_week === dow);
+            if (!clinicDay) return day;
+            return {
+                ...day,
+                isWorking: clinicDay.is_open ?? day.isWorking,
+                start: clinicDay.open_time?.substring(0, 5) || day.start,
+                end: clinicDay.close_time?.substring(0, 5) || day.end,
+            };
+        });
+        setDraftSchedule(newDraft);
+        showToast('Clinic hours cloned into doctor schedule.', 'success');
+    }, [clinicSchedule, draftSchedule, showToast]);
+
+    const saveWeekly = async (overwrite = false) => {
         if (!doctor?.id) return;
         setIsSaving(true);
         try {
@@ -186,61 +227,68 @@ const WeeklyRoutine = ({ doctor, externalBlockModalOpen, setExternalBlockModalOp
                     is_working: day.isWorking,
                     start_time: day.start,
                     end_time: day.end,
+                    is_using_global: draftIsUsingGlobal,
                     break_start_time: (day.isWorking && globalBreakEnabled) ? globalBreakStart : null,
                     break_end_time: (day.isWorking && globalBreakEnabled) ? globalBreakEnd : null
                 };
             });
 
-            // === MASS OVERLAP DETECTION PHASE ===
-            const allAppointments = await fetchDoctorAppointments(doctor.id);
-            let overlapCount = 0;
-            
-            allAppointments.forEach(appt => {
-                if (['CANCELLED', 'LATE_CANCEL', 'NO_SHOW', 'COMPLETED', 'RESCHEDULED'].includes((appt.status || '').toUpperCase())) return;
+            if (!overwrite) {
+                // \u2500\u2500 Conflict detection (same logic, no window.confirm) \u2500\u2500
+                const allAppointments = await fetchDoctorAppointments(doctor.id);
+                let count = 0;
                 
-                const [y, m, d] = (appt.date || '').split('-');
-                const jsDow = new Date(parseInt(y), parseInt(m) - 1, parseInt(d)).getDay(); 
-                const draftDay = payload.find(d => d.day_of_week === jsDow);
-                
-                if (!draftDay || !draftDay.is_working) {
-                    overlapCount++;
-                } else {
-                    const ast = (appt.start_time || '').substring(0, 5);
-                    const aet = (appt.end_time || '').substring(0, 5);
+                allAppointments.forEach(appt => {
+                    if (['CANCELLED', 'LATE_CANCEL', 'NO_SHOW', 'COMPLETED', 'RESCHEDULED', 'DISPLACED'].includes((appt.status || '').toUpperCase())) return;
                     
-                    if (ast < draftDay.start_time || aet > draftDay.end_time) {
-                        overlapCount++;
-                    } else if (draftDay.break_start_time && draftDay.break_end_time) {
-                        if (ast < draftDay.break_end_time && aet > draftDay.break_start_time) {
-                            overlapCount++;
+                    const [y, m, d] = (appt.date || '').split('-');
+                    const jsDow = new Date(parseInt(y), parseInt(m) - 1, parseInt(d)).getDay(); 
+                    const draftDay = payload.find(p => p.day_of_week === jsDow);
+                    
+                    if (!draftDay || !draftDay.is_working) {
+                        count++;
+                    } else {
+                        const ast = (appt.start_time || '').substring(0, 5);
+                        const aet = (appt.end_time || '').substring(0, 5);
+                        if (ast < draftDay.start_time || aet > draftDay.end_time) {
+                            count++;
+                        } else if (draftDay.break_start_time && draftDay.break_end_time) {
+                            if (ast < draftDay.break_end_time && aet > draftDay.break_start_time) {
+                                count++;
+                            }
                         }
                     }
-                }
-            });
+                });
 
-            let overwrite = false;
-            if (overlapCount > 0) {
-                const confirmed = window.confirm(`Warning: Altering your Master Weekly Routine will displace ${overlapCount} existing appointment(s).\n\nThey will permanently fall into the Secretary Displaced Queue.\n\nContinue with mass displacement?`);
-                if (!confirmed) {
+                if (count > 0) {
+                    // Show polished modal instead of window.confirm
+                    setConflictingCount(count);
+                    setPendingPayload(payload);
                     setIsSaving(false);
+                    setConflictModalOpen(true);
                     return;
                 }
-                overwrite = true;
             }
 
-            await updateDoctorScheduleBulk(doctor.id, payload, overwrite);
+            await updateDoctorScheduleBulk(doctor.id, { schedules: payload, overwrite });
+            setIsUsingGlobal(draftIsUsingGlobal);
             await loadData();
-            if (onScheduleUpdate) {
-                onScheduleUpdate();
-            }
+            if (onScheduleUpdate) onScheduleUpdate();
             setIsEditModalOpen(false);
-            showToast('Weekly routine updated and saved to database.', 'success');
+            setConflictModalOpen(false);
+            setPendingPayload(null);
+            showToast('Weekly routine updated and saved.', 'success');
         } catch (err) {
             showToast('Failed to save weekly routine.', 'error');
         } finally {
             setIsSaving(false);
         }
     };
+
+    const handleForceDisplace = async () => {
+        await saveWeekly(true);
+    };
+
 
     // --- Block Date Actions ---
     const toggleBlockDate = (dateKey) => {
@@ -372,6 +420,17 @@ const WeeklyRoutine = ({ doctor, externalBlockModalOpen, setExternalBlockModalOp
                     <p className='text-sm font-medium text-gray-500 dark:text-gray-400 mt-1'>
                         Manage recurring availability and specific date exceptions.
                     </p>
+                    <div className='mt-2'>
+                        {isUsingGlobal ? (
+                            <span className='inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded-full bg-brand-50 dark:bg-brand-500/10 text-brand-600 dark:text-brand-400 border border-brand-200 dark:border-brand-500/20'>
+                                <Link2 size={9} /> Synced to Clinic
+                            </span>
+                        ) : (
+                            <span className='inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded-full bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-500/20'>
+                                <Settings2 size={9} /> Custom Schedule
+                            </span>
+                        )}
+                    </div>
                 </div>
                 <div className='hidden sm:flex items-center gap-3'>
                     <Button 
@@ -521,18 +580,59 @@ const WeeklyRoutine = ({ doctor, externalBlockModalOpen, setExternalBlockModalOp
             {/* 1. Edit Weekly Schedule Modal */}
             <Modal isOpen={isEditModalOpen} onClose={() => !isSaving && setIsEditModalOpen(false)} className='max-w-5xl w-[95%] sm:w-full m-auto'>
                 <div className='no-scrollbar relative w-full overflow-y-auto rounded-xl bg-white p-5 dark:bg-gray-900 sm:p-10 max-h-[90vh] flex flex-col'>
-                    <div className='mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4'>
-                        <div>
-                            <h4 className='text-[clamp(18px,2.5vw,22px)] font-black text-gray-900 dark:text-white font-outfit uppercase tracking-tight'>
-                                Edit Weekly Schedule
-                            </h4>
-                            <p className='text-xs text-gray-500 dark:text-gray-400 mt-1'>
-                                Set default availability and working hours.
-                            </p>
+                    <div className='mb-6 flex flex-col gap-4'>
+                        <div className='flex flex-col sm:flex-row sm:items-center justify-between gap-4'>
+                            <div>
+                                <h4 className='text-[clamp(18px,2.5vw,22px)] font-black text-gray-900 dark:text-white font-outfit uppercase tracking-tight'>
+                                    Edit Weekly Schedule
+                                </h4>
+                                <p className='text-xs text-gray-500 dark:text-gray-400 mt-1'>
+                                    Set default availability and working hours.
+                                </p>
+                            </div>
+                            <Button variant="outline" onClick={applyToAll} type="button" className="text-xs font-bold h-9 px-3 flex items-center gap-2 whitespace-nowrap">
+                                <Clock size={14} /> Apply Monday's Hours to All
+                            </Button>
                         </div>
-                        <Button variant="outline" onClick={applyToAll} type="button" className="text-xs font-bold h-9 px-3 flex items-center gap-2 whitespace-nowrap">
-                            <Clock size={14} /> Apply Monday's Hours to All
-                        </Button>
+
+                        {/* ── Inheritance Toggle Row ── */}
+                        <div className='flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-xl border border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-white/[0.02]'>
+                            <div className='flex items-center gap-3'>
+                                {draftIsUsingGlobal
+                                    ? <Link2 size={16} className='text-brand-500' />
+                                    : <Settings2 size={16} className='text-amber-500' />
+                                }
+                                <div>
+                                    <p className='text-xs font-black text-gray-900 dark:text-white uppercase tracking-wide'>
+                                        {draftIsUsingGlobal ? 'Synced to Clinic Hours' : 'Custom Schedule'}
+                                    </p>
+                                    <p className='text-[10px] text-gray-400'>
+                                        {draftIsUsingGlobal
+                                            ? 'Doctor inherits global clinic operating hours'
+                                            : 'Doctor uses their own independent schedule'}
+                                    </p>
+                                </div>
+                            </div>
+                            <div className='flex items-center gap-3'>
+                                {!draftIsUsingGlobal && (
+                                    <Button
+                                        variant='outline'
+                                        type='button'
+                                        onClick={cloneFromClinic}
+                                        className='text-[10px] font-black h-8 px-3 whitespace-nowrap flex items-center gap-1.5 border-brand-200 dark:border-brand-800 text-brand-600 dark:text-brand-400 hover:bg-brand-50 dark:hover:bg-brand-500/10'
+                                    >
+                                        <Link2 size={12} /> Clone from Clinic
+                                    </Button>
+                                )}
+                                <div className='flex items-center gap-2'>
+                                    <span className='text-[10px] font-bold uppercase tracking-widest text-gray-400'>Inherit</span>
+                                    <Switch
+                                        checked={draftIsUsingGlobal}
+                                        onChange={(checked) => setDraftIsUsingGlobal(checked)}
+                                    />
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     {/* Card Grid Layout for Days + Break */}
@@ -803,6 +903,43 @@ const WeeklyRoutine = ({ doctor, externalBlockModalOpen, setExternalBlockModalOp
                     </div>
                 </div>
             </Modal>
+
+            {/* ── Schedule Conflict Modal (replaces window.confirm) ── */}
+            {conflictModalOpen && (
+                <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+                    <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl w-full max-w-md flex flex-col">
+                        <div className="flex items-start gap-4 p-6 border-b border-gray-100 dark:border-gray-800">
+                            <div className="p-3 rounded-xl bg-amber-100 dark:bg-amber-500/10 shrink-0">
+                                <AlertTriangle size={22} className="text-amber-600" />
+                            </div>
+                            <div className="flex-1">
+                                <h3 className="text-base font-black text-gray-900 dark:text-white">Schedule Conflict</h3>
+                                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                                    <strong className="text-amber-600">{conflictingCount}</strong> appointment{conflictingCount !== 1 ? 's' : ''} will fall outside the new schedule hours and will be moved to the <strong>Displaced Holding Area</strong>.
+                                </p>
+                            </div>
+                            <button onClick={() => setConflictModalOpen(false)} className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-400">
+                                <X size={16} />
+                            </button>
+                        </div>
+                        <div className="p-6 flex flex-col sm:flex-row gap-3 sm:justify-end">
+                            <Button
+                                onClick={() => setConflictModalOpen(false)}
+                                className="h-11 px-6 rounded-xl text-sm font-black border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:bg-gray-50"
+                            >
+                                Cancel
+                            </Button>
+                            <Button
+                                onClick={handleForceDisplace}
+                                disabled={isSaving}
+                                className="h-11 px-6 rounded-xl text-sm font-black bg-amber-500 hover:bg-amber-600 text-white shadow-lg shadow-amber-500/20 disabled:opacity-50"
+                            >
+                                {isSaving ? 'Displacing...' : `Displace & Save`}
+                            </Button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

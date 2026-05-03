@@ -71,15 +71,99 @@ export const getSchedule = async () => {
 };
 
 /**
- * Update clinic schedule.
+ * Update clinic schedule — with Conflict Gatekeeper.
+ *
+ * If any future appointment falls outside the new clinic hours for that weekday,
+ * this throws a 409 with the conflicting appointments so the frontend can show
+ * the Conflict Modal.
+ *
+ * If force=true, those appointments are displaced with an auto-generated reason.
+ *
+ * @param {Array}   schedules  - Array of clinic_schedule rows to upsert
+ * @param {boolean} force      - If true, displace conflicting appointments
+ * @param {string}  actorId    - Admin UUID for audit
+ * @param {string}  actorRole  - Admin role for audit
  */
-export const updateSchedule = async (schedules, actorId, actorRole) => {
-    // 1. Fetch old schedule for audit
+export const updateSchedule = async (schedules, force = false, actorId, actorRole) => {
+    const today = new Date().toISOString().split('T')[0];
+
+    // ── 1. Fetch current schedule for diff (audit) ──
     const { data: oldSchedule } = await supabaseAdmin
         .from('clinic_schedule')
         .select('*');
 
-    // 2. Bulk upsert schedule
+    // ── 2. Conflict Detection: Find appointments that fall outside new hours ──
+    // For each day being changed, scan future appointments of that weekday.
+    const conflictingAppointments = [];
+
+    for (const newDay of schedules) {
+        // Only check days that are open — closing a day entirely is handled by holidays
+        if (!newDay.is_open) continue;
+
+        const newOpen = newDay.open_time?.substring(0, 5);
+        const newClose = newDay.close_time?.substring(0, 5);
+        if (!newOpen || !newClose) continue;
+
+        // Fetch all future active appointments on this weekday
+        const { data: dayAppts } = await supabaseAdmin
+            .from('appointments')
+            .select(`
+                id, appointment_date, start_time, end_time, status,
+                patient:profiles!appointments_patient_id_fkey(first_name, last_name, full_name, phone),
+                guest_name, guest_first_name, guest_last_name, guest_phone,
+                service:services(name),
+                dentist:dentists(profile:profiles(first_name, last_name, full_name))
+            `)
+            .gte('appointment_date', today)
+            .in('status', [APPOINTMENT_STATUS.PENDING, APPOINTMENT_STATUS.CONFIRMED]);
+
+        if (!dayAppts) continue;
+
+        for (const appt of dayAppts) {
+            // Filter to this specific weekday
+            const apptDow = new Date(appt.appointment_date).getDay();
+            if (apptDow !== newDay.day_of_week) continue;
+
+            const apptStart = appt.start_time?.substring(0, 5);
+            const apptEnd = appt.end_time?.substring(0, 5);
+
+            // Conflict: appointment starts before clinic opens OR ends after clinic closes
+            if (apptStart < newOpen || apptEnd > newClose) {
+                conflictingAppointments.push(appt);
+            }
+        }
+    }
+
+    // ── 3. If conflicts exist and not forcing → return 409 ──
+    if (conflictingAppointments.length > 0 && !force) {
+        throw new AppError('Conflicts detected', 409, { conflictingAppointments });
+    }
+
+    // ── 4. If forcing → displace conflicting appointments ──
+    if (conflictingAppointments.length > 0 && force) {
+        for (const appt of conflictingAppointments) {
+            const apptDow = new Date(appt.appointment_date).getDay();
+            const newDay = schedules.find(s => s.day_of_week === apptDow);
+            const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+            const dayName = dayNames[apptDow] || 'Unknown';
+            const reason = `Clinic Hours Shift: ${dayName} now closes at ${newDay?.close_time?.substring(0, 5) || 'updated time'}`;
+
+            const { error: updateError } = await supabaseAdmin
+                .from('appointments')
+                .update({
+                    status: APPOINTMENT_STATUS.DISPLACED,
+                    displacement_reason: reason,
+                    updated_at: new Date().toISOString()
+                })
+                .eq('id', appt.id);
+
+            if (updateError) {
+                console.error(`Failed to displace appointment ${appt.id}:`, updateError.message);
+            }
+        }
+    }
+
+    // ── 5. Save the new schedule ──
     const { data: newSchedule, error } = await supabaseAdmin
         .from('clinic_schedule')
         .upsert(schedules, { onConflict: 'day_of_week' })
@@ -87,7 +171,7 @@ export const updateSchedule = async (schedules, actorId, actorRole) => {
 
     if (error) throw new AppError(error.message, 500);
 
-    // 3. Log to audit_log
+    // ── 6. Audit log ──
     supabaseAdmin.from('audit_log').insert({
         actor_id: actorId,
         actor_role: actorRole,
@@ -97,13 +181,17 @@ export const updateSchedule = async (schedules, actorId, actorRole) => {
         resource_type: 'schedule',
         old_values: oldSchedule,
         new_values: newSchedule,
-        details: { source: 'ADMIN_SETTINGS_PORTAL' }
+        details: {
+            source: 'ADMIN_SETTINGS_PORTAL',
+            force_displaced: conflictingAppointments.length,
+        }
     }).then(({ error: auditErr }) => {
         if (auditErr) console.error('Audit log failed:', auditErr.message);
     });
 
     return newSchedule;
 };
+
 
 /**
  * Get active holidays.

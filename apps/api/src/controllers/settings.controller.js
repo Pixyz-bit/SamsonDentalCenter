@@ -33,11 +33,12 @@ export const getClinicSchedule = async (req, res, next) => {
 
 export const updateClinicSchedule = async (req, res, next) => {
     try {
+        const force = req.query.force === 'true';
         const schedule = await settingsService.updateSchedule(
             req.body,
+            force,
             req.user.id,
-            req.user.role,
-            req.query.force
+            req.user.role
         );
         res.json({ message: 'Clinic schedule updated successfully.', schedule });
     } catch (err) {

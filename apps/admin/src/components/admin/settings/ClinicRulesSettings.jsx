@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Clock, ShieldCheck, Calendar, Hourglass, Coffee, Moon, Sun } from 'lucide-react';
+import { Clock, ShieldCheck, Calendar, Hourglass, Coffee, Moon, Sun, AlertTriangle, X, Phone } from 'lucide-react';
 import { Button, Label, Switch, Input } from '../../ui';
 import { useSettings } from '../../../hooks/useSettings';
 import { useToast } from '../../../context/ToastContext';
@@ -15,6 +15,11 @@ const ClinicRulesSettings = () => {
     });
 
     const [scheduleData, setScheduleData] = useState([]);
+
+    // ── Conflict Modal State ──
+    const [conflictModalOpen, setConflictModalOpen] = useState(false);
+    const [conflictingAppointments, setConflictingAppointments] = useState([]);
+    const [pendingSchedule, setPendingSchedule] = useState(null);
 
     useEffect(() => {
         if (settings) {
@@ -52,13 +57,25 @@ const ClinicRulesSettings = () => {
         }
     };
 
-    const handleSaveSchedule = async () => {
+    const handleSaveSchedule = async (force = false) => {
         try {
-            await updateSchedule(scheduleData);
+            await updateSchedule(scheduleData, force);
             showToast('Weekly schedule updated successfully!', 'success');
+            setConflictModalOpen(false);
+            setPendingSchedule(null);
         } catch (err) {
-            showToast('Failed to update schedule: ' + err.message, 'error');
+            if (err.status === 409 && err.data?.details?.conflictingAppointments) {
+                setConflictingAppointments(err.data.details.conflictingAppointments);
+                setPendingSchedule(scheduleData);
+                setConflictModalOpen(true);
+            } else {
+                showToast('Failed to update schedule: ' + err.message, 'error');
+            }
         }
+    };
+
+    const handleForceSave = async () => {
+        await handleSaveSchedule(true);
     };
 
     const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
@@ -252,7 +269,7 @@ const ClinicRulesSettings = () => {
 
                 <div className='mt-10 pt-6 border-t border-gray-100 dark:border-gray-800 flex justify-end'>
                     <Button 
-                        onClick={handleSaveSchedule}
+                        onClick={() => handleSaveSchedule(false)}
                         disabled={updating}
                         className='px-10 h-12 rounded-xl text-sm font-black bg-gray-900 dark:bg-white text-white dark:text-gray-900 hover:bg-black dark:hover:bg-gray-100 transition-all shadow-xl shadow-black/10'
                     >
@@ -260,6 +277,105 @@ const ClinicRulesSettings = () => {
                     </Button>
                 </div>
             </div>
+
+            {/* ── Hour Shift Conflict Modal ── */}
+            {conflictModalOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+                    <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl w-full max-w-2xl flex flex-col max-h-[90vh]">
+                        {/* Header */}
+                        <div className="flex items-start justify-between p-6 border-b border-gray-100 dark:border-gray-800 shrink-0">
+                            <div className="flex items-center gap-4">
+                                <div className="p-3 rounded-xl bg-amber-100 dark:bg-amber-500/10">
+                                    <AlertTriangle size={22} className="text-amber-600" />
+                                </div>
+                                <div>
+                                    <h3 className="text-lg font-black text-gray-900 dark:text-white">Hour Shift Conflict</h3>
+                                    <p className="text-[11px] font-bold uppercase tracking-widest text-gray-400 mt-0.5">
+                                        {conflictingAppointments.length} appointment{conflictingAppointments.length !== 1 ? 's' : ''} fall outside the new hours
+                                    </p>
+                                </div>
+                            </div>
+                            <button onClick={() => setConflictModalOpen(false)} className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-400 transition-colors">
+                                <X size={18} />
+                            </button>
+                        </div>
+
+                        {/* Scrollable Content */}
+                        <div className="overflow-y-auto flex-1 p-6 space-y-3">
+                            {conflictingAppointments.map((appt) => {
+                                const patientName = appt.patient?.first_name
+                                    ? `${appt.patient.last_name}, ${appt.patient.first_name}`
+                                    : (appt.patient?.full_name || appt.guest_first_name
+                                        ? `${appt.guest_last_name || ''}, ${appt.guest_first_name || ''}`.trim()
+                                        : (appt.guest_name || 'Guest'));
+                                const phone = appt.patient?.phone || appt.guest_phone;
+                                const fmt = (t) => {
+                                    if (!t) return '';
+                                    const [h, m] = t.substring(0, 5).split(':');
+                                    const hr = parseInt(h);
+                                    return `${hr % 12 || 12}:${m} ${hr >= 12 ? 'PM' : 'AM'}`;
+                                };
+
+                                return (
+                                    <div key={appt.id} className="flex gap-4 p-4 rounded-xl border border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-white/[0.02]">
+                                        {/* Time */}
+                                        <div className="shrink-0 w-20 flex flex-col items-center justify-center bg-white dark:bg-gray-800 rounded-lg p-2 border border-gray-100 dark:border-gray-700 gap-1">
+                                            <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">Start</span>
+                                            <span className="text-sm font-black text-gray-900 dark:text-white">{fmt(appt.start_time)}</span>
+                                            <div className="w-full border-t border-gray-100 dark:border-gray-700" />
+                                            <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">End</span>
+                                            <span className="text-sm font-black text-gray-900 dark:text-white">{fmt(appt.end_time)}</span>
+                                        </div>
+                                        {/* Info */}
+                                        <div className="flex-1 min-w-0">
+                                            <p className="font-black text-gray-900 dark:text-white text-sm truncate">{patientName}</p>
+                                            <p className="text-[11px] text-gray-500 dark:text-gray-400 mt-0.5 truncate">
+                                                {appt.service?.name}
+                                                {appt.dentist?.profile?.first_name && (
+                                                    <> &bull; Dr. {appt.dentist.profile.last_name}, {appt.dentist.profile.first_name}</>
+                                                )}
+                                            </p>
+                                            {phone && (
+                                                <span className="flex items-center gap-1 mt-1 text-[10px] text-emerald-600 font-bold">
+                                                    <Phone size={9} /> {phone}
+                                                </span>
+                                            )}
+                                            <p className="text-[10px] font-bold text-gray-400 mt-1">{appt.appointment_date}</p>
+                                        </div>
+                                        {/* Status */}
+                                        <div className="shrink-0 flex items-center">
+                                            <span className={`text-[9px] font-black uppercase tracking-widest px-2 py-1 rounded-full ${
+                                                appt.status === 'CONFIRMED'
+                                                    ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400'
+                                                    : 'bg-amber-100 text-amber-700 dark:bg-amber-500/10 dark:text-amber-400'
+                                            }`}>
+                                                {appt.status}
+                                            </span>
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+
+                        {/* Footer */}
+                        <div className="p-6 border-t border-gray-100 dark:border-gray-800 shrink-0 flex flex-col sm:flex-row gap-3 sm:justify-end">
+                            <Button
+                                onClick={() => setConflictModalOpen(false)}
+                                className="h-11 px-6 rounded-xl text-sm font-black border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700"
+                            >
+                                Cancel
+                            </Button>
+                            <Button
+                                onClick={handleForceSave}
+                                disabled={updating}
+                                className="h-11 px-6 rounded-xl text-sm font-black bg-amber-500 hover:bg-amber-600 text-white shadow-lg shadow-amber-500/20 disabled:opacity-50"
+                            >
+                                {updating ? 'Displacing...' : `Force Save & Displace ${conflictingAppointments.length} Appointment${conflictingAppointments.length !== 1 ? 's' : ''}`}
+                            </Button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
