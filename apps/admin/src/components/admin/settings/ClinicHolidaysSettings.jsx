@@ -251,22 +251,34 @@ const ClinicHolidaysSettings = () => {
 
                                 const contactInfo = appt.profiles?.phone || appt.guest_phone || 'No contact';
                                 const serviceName = appt.services?.name || 'Dental Service';
-                                const serviceTier = appt.services?.tier?.toUpperCase() || 'GENERAL';
-                                const doctorName = appt.dentists?.profiles?.full_name ? `Dr. ${appt.dentists.profiles.full_name}` : 'No Doctor Assigned';
+                                
+                                // Robust doctor name extraction
+                                const doctorProfile = appt.dentists?.profiles || appt.dentist?.profile || appt.dentists?.[0]?.profiles;
+                                const doctorName = doctorProfile?.full_name 
+                                    ? `Dr. ${doctorProfile.full_name}` 
+                                    : (appt.dentists?.profiles?.full_name ? `Dr. ${appt.dentists.profiles.full_name}` : 'No Doctor Assigned');
+                                
                                 const initials = getInitials(patientName);
 
                                 return (
                                     <div key={appt.id} className="flex flex-col sm:flex-row bg-white dark:bg-white/[0.02] border border-gray-100 dark:border-gray-800 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-                                        {/* Left Side: Time */}
-                                        <div className="flex sm:flex-col justify-between sm:justify-center sm:w-32 bg-gray-50/50 dark:bg-gray-800/30 border-b sm:border-b-0 sm:border-r border-gray-100 dark:border-gray-800 shrink-0">
+                                        {/* Left Side: Date & Time */}
+                                        <div className="flex sm:flex-col justify-between sm:justify-center sm:w-40 bg-gray-50/50 dark:bg-gray-800/30 border-b sm:border-b-0 sm:border-r border-gray-100 dark:border-gray-800 shrink-0 text-center sm:text-left">
                                             <div className="px-4 py-3">
-                                                <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest mb-1.5">Start Time</p>
-                                                <p className="text-sm font-black text-gray-900 dark:text-white leading-none">{formatTime(appt.start_time)}</p>
+                                                <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest mb-1">Date</p>
+                                                <p className="text-[11px] font-black text-gray-900 dark:text-white leading-none whitespace-nowrap">
+                                                    {(appt.date || appt.appointment_date) ? (() => {
+                                                        const d = new Date(appt.date || appt.appointment_date);
+                                                        return isNaN(d.getTime()) ? 'Invalid Date' : d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }).toUpperCase();
+                                                    })() : 'N/A'}
+                                                </p>
                                             </div>
                                             <div className="h-[1px] w-full bg-gray-100 dark:bg-gray-800" />
                                             <div className="px-4 py-3">
-                                                <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest mb-1.5">End Time</p>
-                                                <p className="text-sm font-black text-gray-600 dark:text-gray-400 leading-none">{formatTime(appt.end_time)}</p>
+                                                <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest mb-1">Time Slot</p>
+                                                <p className="text-[11px] font-black text-brand-500 leading-none">
+                                                    {formatTime(appt.start_time)} - {formatTime(appt.end_time)}
+                                                </p>
                                             </div>
                                         </div>
 
@@ -301,7 +313,7 @@ const ClinicHolidaysSettings = () => {
                                         </div>
 
                                         {/* Right Side: Status & Source Badges (Stacked with Full Labels) */}
-                                        <div className="flex flex-row sm:flex-col items-stretch justify-center border-t sm:border-t-0 sm:border-l border-gray-100 dark:border-gray-800 bg-gray-50/20 dark:bg-white/[0.01] shrink-0 min-w-[160px]">
+                                        <div className="flex flex-row sm:flex-col items-stretch justify-center border-t sm:border-t-0 sm:border-l border-gray-100 dark:border-gray-800 bg-gray-50/20 dark:bg-white/[0.01] shrink-0 min-w-[200px]">
                                             {/* Source */}
                                             <div className="px-5 py-4 flex flex-col sm:items-start items-center gap-2">
                                                 <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest leading-none">Appointment Source</p>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { format, isSameDay } from 'date-fns';
-import { Clock, Calendar as CalendarIcon, ChevronLeft, ChevronRight, CalendarOff, CheckSquare, AlertTriangle, X, Phone, Link2, Settings2 } from 'lucide-react';
+import { Clock, Calendar as CalendarIcon, ChevronLeft, ChevronRight, CalendarOff, CheckSquare, AlertTriangle, X, Phone, Link2, Settings2, Info } from 'lucide-react';
 import { Switch, Input, Button, Modal } from '../../../ui';
 import { useToast } from '../../../../context/ToastContext.jsx';
 import { useDoctors } from '../../../../hooks/useDoctors';
@@ -32,7 +32,12 @@ const WeeklyRoutine = ({ doctor, externalBlockModalOpen, setExternalBlockModalOp
     // ── Conflict modal (replaces window.confirm) ──
     const [conflictModalOpen, setConflictModalOpen] = useState(false);
     const [conflictingCount, setConflictingCount] = useState(0);
+    const [conflictingAppointments, setConflictingAppointments] = useState([]);
     const [pendingPayload, setPendingPayload] = useState(null);
+
+    // ── Block Conflict Modal States ──
+    const [blockConflictModalOpen, setBlockConflictModalOpen] = useState(false);
+    const [blockConflictCount, setBlockConflictCount] = useState(0);
 
     // Clinic schedule for Clone Logic
     const { schedule: clinicSchedule } = useSettings();
@@ -221,14 +226,12 @@ const WeeklyRoutine = ({ doctor, externalBlockModalOpen, setExternalBlockModalOp
         showToast('Monday\'s hours applied to all working days.', 'success');
     };
 
-    // \u2500\u2500 Clone clinic hours into doctor draft \u2500\u2500
+    // ── Clone clinic hours into doctor draft ──
     const cloneFromClinic = useCallback(() => {
         if (!clinicSchedule || clinicSchedule.length === 0) {
             showToast('Clinic schedule not loaded yet.', 'error');
             return;
         }
-        const dayNameMap = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-        // clinic_schedule uses day_of_week 0=Sun..6=Sat; doctor schedule array is Mon=0..Sun=6
         const newDraft = draftSchedule.map((day, idx) => {
             const dow = idx === 6 ? 0 : idx + 1; // convert to JS day_of_week
             const clinicDay = clinicSchedule.find(c => c.day_of_week === dow);
@@ -262,9 +265,9 @@ const WeeklyRoutine = ({ doctor, externalBlockModalOpen, setExternalBlockModalOp
             });
 
             if (!overwrite) {
-                // \u2500\u2500 Conflict detection (same logic, no window.confirm) \u2500\u2500
+                // ── Conflict detection (same logic, no window.confirm) ──
                 const allAppointments = await fetchDoctorAppointments(doctor.id);
-                let count = 0;
+                const conflicts = [];
 
                 allAppointments.forEach(appt => {
                     if (['CANCELLED', 'LATE_CANCEL', 'NO_SHOW', 'COMPLETED', 'RESCHEDULED', 'DISPLACED'].includes((appt.status || '').toUpperCase())) return;
@@ -274,23 +277,23 @@ const WeeklyRoutine = ({ doctor, externalBlockModalOpen, setExternalBlockModalOp
                     const draftDay = payload.find(p => p.day_of_week === jsDow);
 
                     if (!draftDay || !draftDay.is_working) {
-                        count++;
+                        conflicts.push(appt);
                     } else {
                         const ast = (appt.start_time || '').substring(0, 5);
                         const aet = (appt.end_time || '').substring(0, 5);
                         if (ast < draftDay.start_time || aet > draftDay.end_time) {
-                            count++;
+                            conflicts.push(appt);
                         } else if (draftDay.break_start_time && draftDay.break_end_time) {
                             if (ast < draftDay.break_end_time && aet > draftDay.break_start_time) {
-                                count++;
+                                conflicts.push(appt);
                             }
                         }
                     }
                 });
 
-                if (count > 0) {
-                    // Show polished modal instead of window.confirm
-                    setConflictingCount(count);
+                if (conflicts.length > 0) {
+                    setConflictingCount(conflicts.length);
+                    setConflictingAppointments(conflicts);
                     setPendingPayload(payload);
                     setIsSaving(false);
                     setConflictModalOpen(true);
@@ -305,6 +308,7 @@ const WeeklyRoutine = ({ doctor, externalBlockModalOpen, setExternalBlockModalOp
             setIsEditModalOpen(false);
             setConflictModalOpen(false);
             setPendingPayload(null);
+            setConflictingAppointments([]);
             showToast('Weekly routine updated and saved.', 'success');
         } catch (err) {
             showToast('Failed to save weekly routine.', 'error');
@@ -333,34 +337,43 @@ const WeeklyRoutine = ({ doctor, externalBlockModalOpen, setExternalBlockModalOp
         }
     };
 
-    const saveBlocks = async () => {
+    const saveBlocks = async (overwrite = false) => {
         if (!doctor?.id) return;
         setIsSaving(true);
         try {
-            // === OVERLAP DETECTION PHASE ===
             const allAppointments = await fetchDoctorAppointments(doctor.id);
             const newBlockDates = Array.from(draftBlockedDates);
-            let overlapCount = 0;
+            const conflicts = [];
 
-            // Any active appointment landing on a newly blocked date is displaced
-            allAppointments.forEach(appt => {
-                if (newBlockDates.includes(appt.date)) {
-                    if (!['CANCELLED', 'LATE_CANCEL', 'NO_SHOW', 'COMPLETED', 'RESCHEDULED'].includes((appt.status || '').toUpperCase())) {
-                        overlapCount++;
+            if (!overwrite) {
+                allAppointments.forEach(appt => {
+                    if (newBlockDates.includes(appt.date)) {
+                        if (!['CANCELLED', 'LATE_CANCEL', 'NO_SHOW', 'COMPLETED', 'RESCHEDULED', 'DISPLACED'].includes((appt.status || '').toUpperCase())) {
+                            conflicts.push(appt);
+                        }
                     }
-                }
-            });
+                });
 
-            let overwrite = false;
-            if (overlapCount > 0) {
-                const confirmed = window.confirm(`Warning: Blocking these dates will displace ${overlapCount} existing appointment(s).\n\nThey will fall into the Secretary Displaced Queue. Continue with displacement?`);
-                if (!confirmed) {
+                if (conflicts.length > 0) {
+                    setBlockConflictCount(conflicts.length);
+                    setConflictingAppointments(conflicts);
+                    setBlockConflictModalOpen(true);
                     setIsSaving(false);
                     return;
                 }
-                overwrite = true;
             }
 
+            await performBlockSave(overwrite);
+        } catch (err) {
+            console.error('Save blocks error:', err);
+            showToast('Error updating blocked dates.', 'error');
+            setIsSaving(false);
+        }
+    };
+
+    const performBlockSave = async (overwrite) => {
+        setIsSaving(true);
+        try {
             // 1. Process Deletions (Unblocks)
             const deletionPromises = Array.from(draftUnblockedDates).map(dateKey => {
                 const blockId = dbBlocks[dateKey];
@@ -371,7 +384,7 @@ const WeeklyRoutine = ({ doctor, externalBlockModalOpen, setExternalBlockModalOp
             });
 
             // 2. Process Additions (Blocks)
-            const additionPromises = newBlockDates.map(dateKey => {
+            const additionPromises = Array.from(draftBlockedDates).map(dateKey => {
                 return addDoctorBlock(doctor.id, {
                     block_date: dateKey,
                     reason: blockReason,
@@ -383,18 +396,17 @@ const WeeklyRoutine = ({ doctor, externalBlockModalOpen, setExternalBlockModalOp
 
             await Promise.all([...deletionPromises, ...additionPromises]);
 
-            // 3. Reload everything to be sync with DB
             await loadData();
-            if (onScheduleUpdate) {
-                onScheduleUpdate();
-            }
+            if (onScheduleUpdate) onScheduleUpdate();
 
             setIsSaving(false);
             setIsBlockModalOpen(false);
+            setBlockConflictModalOpen(false);
+            setConflictingAppointments([]);
             showToast('Blocked dates successfully updated.', 'success');
         } catch (err) {
-            console.error('Save blocks error:', err);
-            showToast('Error updating blocked dates.', 'error');
+            console.error('Perform block save error:', err);
+            showToast('Error saving blocks.', 'error');
             setIsSaving(false);
         }
     };
@@ -420,7 +432,7 @@ const WeeklyRoutine = ({ doctor, externalBlockModalOpen, setExternalBlockModalOp
         const h = parseInt(hours, 10);
         const ampm = h >= 12 ? 'pm' : 'am';
         const h12 = h % 12 || 12;
-        const mins = minutes === '00' ? '' : `:${minutes}`;
+                const mins = minutes === '00' ? '' : `:${minutes}`;
         return `${h12}${mins} ${ampm}`;
     };
 
@@ -430,6 +442,21 @@ const WeeklyRoutine = ({ doctor, externalBlockModalOpen, setExternalBlockModalOp
     const daysInMonth = getDaysInMonth(year, month);
     const startingDay = getFirstDayOfMonth(year, month);
     const monthName = currentDate.toLocaleString('default', { month: 'long' });
+
+    const getInitials = (name) => {
+        if (!name) return 'GP';
+        return name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
+    };
+
+    const formatTimeDisplay = (time) => {
+        if (!time) return '';
+        const [h, m] = time.split(':');
+        const hour = parseInt(h);
+        const ampm = hour >= 12 ? 'PM' : 'AM';
+        const h12 = hour % 12 || 12;
+        return `${h12}:${m} ${ampm}`;
+    };
+
 
     // Block modal calendar vars
     const blockYear = blockCalDate.getFullYear();
@@ -832,7 +859,7 @@ const WeeklyRoutine = ({ doctor, externalBlockModalOpen, setExternalBlockModalOp
                                 ))}
                             </div>
 
-                            <div className='max-h-[340px] overflow-y-auto no-scrollbar bg-gray-200 dark:bg-gray-800'>
+                            <div className='max-h-[340px] overflow-y-auto bg-gray-200 dark:bg-gray-800'>
                                 <div className='grid grid-cols-7 gap-[1px]'>
                                     {Array.from({ length: blockStartingDay }).map((_, i) => <div key={`bem-${i}`} className='bg-white dark:bg-gray-900 aspect-square' />)}
 
@@ -969,16 +996,15 @@ const WeeklyRoutine = ({ doctor, externalBlockModalOpen, setExternalBlockModalOp
 
                             <div className='mt-6 p-4 rounded-xl bg-gray-50 dark:bg-white/[0.02] border border-gray-100 dark:border-gray-800 flex-grow'>
                                 <h5 className='text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2'>Selection Summary</h5>
-                                <span className='text-[11px] font-bold text-gray-600 dark:text-gray-300'>
-                                    {(draftBlockedDates.size > 0 || draftUnblockedDates.size > 0) ? `${draftBlockedDates.size > 0 ? `+${draftBlockedDates.size} To Block` : ''} ${draftUnblockedDates.size > 0 ? `-${draftUnblockedDates.size} To Remove` : ''}` : 'No Pending Changes'}
-                                </span>
+                                        <span className='text-[11px] font-bold text-gray-600 dark:text-gray-300'>
+                                            {(draftBlockedDates.size > 0 || draftUnblockedDates.size > 0) ? `${draftBlockedDates.size > 0 ? `+${draftBlockedDates.size} To Block` : ''} ${draftUnblockedDates.size > 0 ? `-${draftUnblockedDates.size} To Remove` : ''}` : 'No Pending Changes'}
+                                        </span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </div>
-            </Modal>
+                    </Modal>
 
-            {/* ── Conflict Resolution Modal (1:1 matching Holiday Style) ── */}
             {conflictModalOpen && (
                 <Modal 
                     isOpen={conflictModalOpen} 
@@ -1008,29 +1034,129 @@ const WeeklyRoutine = ({ doctor, externalBlockModalOpen, setExternalBlockModalOp
                     <div className="space-y-6">
                         <div className="flex items-center gap-4 p-4 bg-amber-50 dark:bg-amber-500/10 border border-amber-100 dark:border-amber-500/20 rounded-2xl">
                             <div className="w-12 h-12 bg-amber-500 text-white rounded-xl flex items-center justify-center shrink-0 shadow-lg shadow-amber-500/20">
-                                <AlertTriangle size={24} />
+                                <Info size={24} />
                             </div>
                             <p className="text-sm font-bold text-amber-800 dark:text-amber-200 leading-relaxed">
-                                Updating this routine will affect <strong>{conflictingCount}</strong> existing appointment(s). These will be flagged as <span className="font-black text-amber-600 dark:text-amber-400">DISPLACED</span> and moved to the holding area.
+                                Updating this routine will affect the following <strong>{conflictingAppointments?.length}</strong> future appointments. If you proceed, these appointments will be flagged as <span className="font-black text-amber-600 dark:text-amber-400">DISPLACED</span>.
                             </p>
                         </div>
-                        <div className="p-4 rounded-xl border border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-white/5 flex items-start gap-3">
-                            <div className="mt-0.5 text-blue-500"><Info size={16} /></div>
-                            <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
-                                Displacement ensures your schedule stays clean while protecting patient bookings. The secretary will be notified to reschedule these manually.
-                            </p>
+
+                        <div className="space-y-3">
+                            <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-2">
+                                <div className="w-1 h-1 rounded-full bg-brand-500" />
+                                Affected Appointments
+                            </h4>
+                            <div className="space-y-4 pb-2">
+                                {conflictingAppointments?.map(appt => {
+                                    const patientName = appt.profiles?.full_name || (appt.guest_first_name ? `${appt.guest_first_name} ${appt.guest_last_name}` : appt.guest_name) || 'Guest Patient';
+                                    const contactInfo = appt.profiles?.phone || appt.guest_phone || 'No contact';
+                                    const serviceName = appt.services?.name || 'Dental Service';
+                                    
+                                    // Use appointment's dentist if available, otherwise fallback to the current doctor prop
+                                    const doctorProfile = appt.dentists?.profiles || appt.dentist?.profile;
+                                    const doctorName = doctorProfile?.full_name ? `Dr. ${doctorProfile.full_name}` : (doctor?.full_name ? `Dr. ${doctor.full_name}` : 'No Doctor Assigned');
+                                    
+                                    const initials = getInitials(patientName);
+                                    const formattedDate = (appt.date || appt.appointment_date) ? (() => {
+                                        const d = new Date(appt.date || appt.appointment_date);
+                                        return isNaN(d.getTime()) ? 'Invalid Date' : format(d, 'MMM dd yyyy').toUpperCase();
+                                    })() : 'N/A';
+
+                                    return (
+                                        <div key={appt.id} className="flex flex-col sm:flex-row bg-white dark:bg-white/[0.02] border border-gray-100 dark:border-gray-800 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+                                            {/* Left Side: Date & Time */}
+                                            <div className="flex sm:flex-col justify-between sm:justify-center sm:w-40 bg-gray-50/50 dark:bg-gray-800/30 border-b sm:border-b-0 sm:border-r border-gray-100 dark:border-gray-800 shrink-0 text-center sm:text-left">
+                                                <div className="px-4 py-3">
+                                                    <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest mb-1">Date</p>
+                                                    <p className="text-[11px] font-black text-gray-900 dark:text-white leading-none whitespace-nowrap">{formattedDate}</p>
+                                                </div>
+                                                <div className="h-[1px] w-full bg-gray-100 dark:bg-gray-800" />
+                                                <div className="px-4 py-3">
+                                                    <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest mb-1">Time Slot</p>
+                                                    <p className="text-[11px] font-black text-brand-500 leading-none">
+                                                        {formatTimeDisplay(appt.start_time)} - {formatTimeDisplay(appt.end_time)}
+                                                    </p>
+                                                </div>
+                                            </div>
+
+                                            {/* Main Content Area */}
+                                            <div className="flex-grow p-4 sm:p-5 flex items-center gap-4">
+                                                <div className="relative shrink-0">
+                                                    <div className="w-12 h-12 rounded-full bg-brand-500 text-white flex items-center justify-center text-sm font-black shadow-lg shadow-brand-500/20 border-2 border-white dark:border-gray-900">
+                                                        {initials}
+                                                    </div>
+                                                    <div className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-green-500 border-2 border-white dark:border-gray-900 rounded-full" />
+                                                </div>
+
+                                                <div className="flex-grow">
+                                                    <p className="text-base font-black text-gray-900 dark:text-white leading-tight mb-1">{patientName}</p>
+                                                    <div className="space-y-1">
+                                                        <div className="flex items-center gap-2">
+                                                            <p className="text-[11px] font-black text-gray-900 dark:text-white uppercase tracking-tighter">{serviceName}</p>
+                                                            <span className="text-gray-300 dark:text-gray-600">•</span>
+                                                            <p className="text-[11px] font-bold text-gray-500 dark:text-gray-400">{doctorName}</p>
+                                                        </div>
+                                                        <div className="flex items-center gap-3">
+                                                            <p className="text-[11px] font-medium text-gray-500 flex items-center gap-2">
+                                                                <Phone size={10} className="text-green-500" />
+                                                                <span className="text-gray-800 dark:text-gray-200">{contactInfo}</span>
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {/* Right Side: Status & Source Badges (Stacked with Full Labels) */}
+                                            <div className="flex flex-row sm:flex-col items-stretch justify-center border-t sm:border-t-0 sm:border-l border-gray-100 dark:border-gray-800 bg-gray-50/20 dark:bg-white/[0.01] shrink-0 min-w-[200px]">
+                                                {/* Source */}
+                                                <div className="px-5 py-4 flex flex-col sm:items-start items-center gap-2">
+                                                    <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest leading-none">Appointment Source</p>
+                                                    {(() => {
+                                                        const source = appt.source || 'USER_BOOKING';
+                                                        const sourceColors = {
+                                                            'GUEST_BOOKING': 'bg-blue-50 text-blue-600 border-blue-100 dark:bg-blue-500/10 dark:text-blue-400 dark:border-blue-500/20',
+                                                            'USER_BOOKING': 'bg-indigo-50 text-indigo-600 border-indigo-100 dark:bg-indigo-500/10 dark:text-indigo-400 dark:border-indigo-500/20',
+                                                            'WALK_IN': 'bg-teal-50 text-teal-600 border-teal-100 dark:bg-teal-500/10 dark:text-teal-400 dark:border-teal-500/20',
+                                                            'WAITLIST': 'bg-amber-50 text-amber-600 border-amber-100 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20'
+                                                        };
+                                                        const sourceClass = sourceColors[source] || sourceColors['USER_BOOKING'];
+                                                        const sourceLabel = source.replace('_', ' ');
+                                                        return (
+                                                            <span className={`px-2 py-0.5 text-[9px] font-black uppercase tracking-widest rounded border shadow-sm ${sourceClass}`}>
+                                                                {sourceLabel}
+                                                            </span>
+                                                        );
+                                                    })()}
+                                                </div>
+
+                                                <div className="h-[1px] w-full bg-gray-100 dark:bg-gray-800" />
+
+                                                {/* Status */}
+                                                <div className="px-5 py-4 flex flex-col sm:items-start items-center gap-2">
+                                                    <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest leading-none">Appointment Status</p>
+                                                    <span className={`px-2 py-1 text-[9px] font-black uppercase tracking-widest rounded-lg shadow-sm border ${appt.status === 'CONFIRMED'
+                                                            ? 'bg-green-50 text-green-600 border-green-100 dark:bg-green-500/10 dark:text-green-400 dark:border-green-500/20'
+                                                            : 'bg-amber-50 text-amber-600 border-amber-100 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20'
+                                                        }`}>
+                                                        {appt.status}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
                         </div>
                     </div>
                 </Modal>
             )}
 
-            {/* ── Block Conflict Modal (1:1 matching Holiday Style) ── */}
             {blockConflictModalOpen && (
                 <Modal 
                     isOpen={blockConflictModalOpen} 
                     onClose={() => setBlockConflictModalOpen(false)}
                     title="Conflicts Detected"
-                    subtitle="Appointments found on the dates you are blocking."
+                    subtitle="Future appointments found on this date."
                     className="max-w-5xl"
                     footer={(
                         <>
@@ -1054,11 +1180,118 @@ const WeeklyRoutine = ({ doctor, externalBlockModalOpen, setExternalBlockModalOp
                     <div className="space-y-6">
                         <div className="flex items-center gap-4 p-4 bg-amber-50 dark:bg-amber-500/10 border border-amber-100 dark:border-amber-500/20 rounded-2xl">
                             <div className="w-12 h-12 bg-amber-500 text-white rounded-xl flex items-center justify-center shrink-0 shadow-lg shadow-amber-500/20">
-                                <AlertTriangle size={24} />
+                                <Info size={24} />
                             </div>
                             <p className="text-sm font-bold text-amber-800 dark:text-amber-200 leading-relaxed">
-                                Blocking these dates will affect <strong>{blockConflictCount}</strong> existing appointment(s). These will be flagged as <span className="font-black text-amber-600 dark:text-amber-400">DISPLACED</span> and moved to the rescheduling queue.
+                                Saving this block will affect the following <strong>{conflictingAppointments?.length}</strong> future appointments. If you proceed, these appointments will be flagged as <span className="font-black text-amber-600 dark:text-amber-400">DISPLACED</span>.
                             </p>
+                        </div>
+
+                        <div className="space-y-3">
+                            <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-2">
+                                <div className="w-1 h-1 rounded-full bg-brand-500" />
+                                Affected Appointments
+                            </h4>
+                            <div className="space-y-4 pb-2">
+                                {conflictingAppointments?.map(appt => {
+                                    const patientName = appt.profiles?.full_name || (appt.guest_first_name ? `${appt.guest_first_name} ${appt.guest_last_name}` : appt.guest_name) || 'Guest Patient';
+                                    const contactInfo = appt.profiles?.phone || appt.guest_phone || 'No contact';
+                                    const serviceName = appt.services?.name || 'Dental Service';
+                                    
+                                    // Use appointment's dentist if available, otherwise fallback to the current doctor prop
+                                    const doctorProfile = appt.dentists?.profiles || appt.dentist?.profile;
+                                    const doctorName = doctorProfile?.full_name ? `Dr. ${doctorProfile.full_name}` : (doctor?.full_name ? `Dr. ${doctor.full_name}` : 'No Doctor Assigned');
+                                    
+                                    const initials = getInitials(patientName);
+                                    const formattedDate = (appt.date || appt.appointment_date) ? (() => {
+                                        const d = new Date(appt.date || appt.appointment_date);
+                                        return isNaN(d.getTime()) ? 'Invalid Date' : format(d, 'MMM dd yyyy').toUpperCase();
+                                    })() : 'N/A';
+
+                                    return (
+                                        <div key={appt.id} className="flex flex-col sm:flex-row bg-white dark:bg-white/[0.02] border border-gray-100 dark:border-gray-800 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+                                            {/* Left Side: Date & Time */}
+                                            <div className="flex sm:flex-col justify-between sm:justify-center sm:w-40 bg-gray-50/50 dark:bg-gray-800/30 border-b sm:border-b-0 sm:border-r border-gray-100 dark:border-gray-800 shrink-0 text-center sm:text-left">
+                                                <div className="px-4 py-3">
+                                                    <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest mb-1">Date</p>
+                                                    <p className="text-[11px] font-black text-gray-900 dark:text-white leading-none whitespace-nowrap">{formattedDate}</p>
+                                                </div>
+                                                <div className="h-[1px] w-full bg-gray-100 dark:bg-gray-800" />
+                                                <div className="px-4 py-3">
+                                                    <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest mb-1">Time Slot</p>
+                                                    <p className="text-[11px] font-black text-brand-500 leading-none">
+                                                        {formatTimeDisplay(appt.start_time)} - {formatTimeDisplay(appt.end_time)}
+                                                    </p>
+                                                </div>
+                                            </div>
+
+                                            {/* Main Content Area */}
+                                            <div className="flex-grow p-4 sm:p-5 flex items-center gap-4">
+                                                <div className="relative shrink-0">
+                                                    <div className="w-12 h-12 rounded-full bg-brand-500 text-white flex items-center justify-center text-sm font-black shadow-lg shadow-brand-500/20 border-2 border-white dark:border-gray-900">
+                                                        {initials}
+                                                    </div>
+                                                    <div className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-green-500 border-2 border-white dark:border-gray-900 rounded-full" />
+                                                </div>
+
+                                                <div className="flex-grow">
+                                                    <p className="text-base font-black text-gray-900 dark:text-white leading-tight mb-1">{patientName}</p>
+                                                    <div className="space-y-1">
+                                                        <div className="flex items-center gap-2">
+                                                            <p className="text-[11px] font-black text-gray-900 dark:text-white uppercase tracking-tighter">{serviceName}</p>
+                                                            <span className="text-gray-300 dark:text-gray-600">•</span>
+                                                            <p className="text-[11px] font-bold text-gray-500 dark:text-gray-400">{doctorName}</p>
+                                                        </div>
+                                                        <div className="flex items-center gap-3">
+                                                            <p className="text-[11px] font-medium text-gray-500 flex items-center gap-2">
+                                                                <Phone size={10} className="text-green-500" />
+                                                                <span className="text-gray-800 dark:text-gray-200">{contactInfo}</span>
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {/* Right Side: Status & Source Badges (Stacked with Full Labels) */}
+                                            <div className="flex flex-row sm:flex-col items-stretch justify-center border-t sm:border-t-0 sm:border-l border-gray-100 dark:border-gray-800 bg-gray-50/20 dark:bg-white/[0.01] shrink-0 min-w-[200px]">
+                                                {/* Source */}
+                                                <div className="px-5 py-4 flex flex-col sm:items-start items-center gap-2">
+                                                    <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest leading-none">Appointment Source</p>
+                                                    {(() => {
+                                                        const source = appt.source || 'USER_BOOKING';
+                                                        const sourceColors = {
+                                                            'GUEST_BOOKING': 'bg-blue-50 text-blue-600 border-blue-100 dark:bg-blue-500/10 dark:text-blue-400 dark:border-blue-500/20',
+                                                            'USER_BOOKING': 'bg-indigo-50 text-indigo-600 border-indigo-100 dark:bg-indigo-500/10 dark:text-indigo-400 dark:border-indigo-500/20',
+                                                            'WALK_IN': 'bg-teal-50 text-teal-600 border-teal-100 dark:bg-teal-500/10 dark:text-teal-400 dark:border-teal-500/20',
+                                                            'WAITLIST': 'bg-amber-50 text-amber-600 border-amber-100 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20'
+                                                        };
+                                                        const sourceClass = sourceColors[source] || sourceColors['USER_BOOKING'];
+                                                        const sourceLabel = source.replace('_', ' ');
+                                                        return (
+                                                            <span className={`px-2 py-0.5 text-[9px] font-black uppercase tracking-widest rounded border shadow-sm ${sourceClass}`}>
+                                                                {sourceLabel}
+                                                            </span>
+                                                        );
+                                                    })()}
+                                                </div>
+
+                                                <div className="h-[1px] w-full bg-gray-100 dark:bg-gray-800" />
+
+                                                {/* Status */}
+                                                <div className="px-5 py-4 flex flex-col sm:items-start items-center gap-2">
+                                                    <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest leading-none">Appointment Status</p>
+                                                    <span className={`px-2 py-1 text-[9px] font-black uppercase tracking-widest rounded-lg shadow-sm border ${appt.status === 'CONFIRMED'
+                                                            ? 'bg-green-50 text-green-600 border-green-100 dark:bg-green-500/10 dark:text-green-400 dark:border-green-500/20'
+                                                            : 'bg-amber-50 text-amber-600 border-amber-100 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20'
+                                                        }`}>
+                                                        {appt.status}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
                         </div>
                     </div>
                 </Modal>

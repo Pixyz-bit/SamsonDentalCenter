@@ -391,7 +391,7 @@ i test example i im on date and time on guest booking now i see the dates on cal
 
 ...
 
-- [] **Clone-on-Switch Test:** Switch a doctor from Global to Custom. Expected: The custom day checkboxes are pre-populated with the current Global days (no days are unchecked by default).
+- [x] **Clone-on-Switch Test:** Switch a doctor from Global to Custom. Expected: The custom day checkboxes are pre-populated with the current Global days (no days are unchecked by default).
 - [x] **Narrowing Guard Test:** On a doctor with a custom schedule, uncheck a day that has a future patient booked. Click Save. Expected: Save is blocked. A modal shows the list of affected patients for that day.
 - [x] **Clean Narrowing Test:** Uncheck a day with no future appointments. Expected: Saves successfully.
 - [x] **Switch-Back Conflict Test:** A doctor has a custom schedule including Sunday. The Global schedule is closed on Sunday. Toggle the doctor back to "Inherit Global". Expected: Switch is blocked. Modal lists the Sunday patients that need to be rescheduled.

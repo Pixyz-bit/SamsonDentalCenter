@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Clock, ShieldCheck, Calendar, Hourglass, Coffee, Moon, Sun, AlertTriangle, X, Phone } from 'lucide-react';
+import { Clock, ShieldCheck, Calendar, Hourglass, Coffee, Moon, Sun, AlertTriangle, X, Phone, Info } from 'lucide-react';
 import { Button, Label, Switch, Input, Modal } from '../../ui';
 import { useSettings } from '../../../hooks/useSettings';
 import { useToast } from '../../../context/ToastContext';
@@ -307,7 +307,7 @@ const ClinicRulesSettings = () => {
                 <div className="space-y-6">
                     <div className="flex items-center gap-4 p-4 bg-amber-50 dark:bg-amber-500/10 border border-amber-100 dark:border-amber-500/20 rounded-2xl">
                         <div className="w-12 h-12 bg-amber-500 text-white rounded-xl flex items-center justify-center shrink-0 shadow-lg shadow-amber-500/20">
-                            <AlertTriangle size={24} />
+                            <Info size={24} />
                         </div>
                         <p className="text-sm font-bold text-amber-800 dark:text-amber-200 leading-relaxed">
                             Saving these hours will affect the following <strong>{conflictingAppointments.length}</strong> future appointments. If you proceed, these appointments will be flagged as <span className="font-black text-amber-600 dark:text-amber-400">DISPLACED</span>.
@@ -337,16 +337,23 @@ const ClinicRulesSettings = () => {
 
                                 return (
                                     <div key={appt.id} className="flex flex-col sm:flex-row bg-white dark:bg-white/[0.02] border border-gray-100 dark:border-gray-800 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-                                        {/* Left Side: Time */}
-                                        <div className="flex sm:flex-col justify-between sm:justify-center sm:w-32 bg-gray-50/50 dark:bg-gray-800/30 border-b sm:border-b-0 sm:border-r border-gray-100 dark:border-gray-800 shrink-0">
+                                        {/* Left Side: Date & Time */}
+                                        <div className="flex sm:flex-col justify-between sm:justify-center sm:w-40 bg-gray-50/50 dark:bg-gray-800/30 border-b sm:border-b-0 sm:border-r border-gray-100 dark:border-gray-800 shrink-0 text-center sm:text-left">
                                             <div className="px-4 py-3">
-                                                <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest mb-1.5">Start Time</p>
-                                                <p className="text-sm font-black text-gray-900 dark:text-white leading-none">{fmt(appt.start_time)}</p>
+                                                <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest mb-1">Date</p>
+                                                <p className="text-[11px] font-black text-gray-900 dark:text-white leading-none whitespace-nowrap">
+                                                    {(appt.date || appt.appointment_date) ? (() => {
+                                                        const d = new Date(appt.date || appt.appointment_date);
+                                                        return isNaN(d.getTime()) ? 'Invalid Date' : d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }).toUpperCase();
+                                                    })() : 'N/A'}
+                                                </p>
                                             </div>
                                             <div className="h-[1px] w-full bg-gray-100 dark:bg-gray-800" />
                                             <div className="px-4 py-3">
-                                                <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest mb-1.5">End Time</p>
-                                                <p className="text-sm font-black text-gray-600 dark:text-gray-400 leading-none">{fmt(appt.end_time)}</p>
+                                                <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest mb-1">Time Slot</p>
+                                                <p className="text-[11px] font-black text-brand-500 leading-none">
+                                                    {fmt(appt.start_time)} - {fmt(appt.end_time)}
+                                                </p>
                                             </div>
                                         </div>
 
@@ -361,7 +368,7 @@ const ClinicRulesSettings = () => {
                                                         </p>
                                                         <span className="text-gray-300 dark:text-gray-600">•</span>
                                                         <p className="text-[11px] font-bold text-gray-500 dark:text-gray-400">
-                                                            {appt.dentist?.profile?.first_name ? `Dr. ${appt.dentist.profile.last_name}` : 'No Doctor Assigned'}
+                                                            {appt.dentist?.profile?.full_name ? `Dr. ${appt.dentist.profile.full_name}` : (appt.dentist?.profile?.first_name ? `Dr. ${appt.dentist.profile.first_name} ${appt.dentist.profile.last_name}` : 'No Doctor Assigned')}
                                                         </p>
                                                     </div>
                                                     <p className="text-[11px] font-medium text-gray-500 flex items-center gap-2">
@@ -373,7 +380,7 @@ const ClinicRulesSettings = () => {
                                         </div>
 
                                         {/* Right Side: Status Badges */}
-                                        <div className="flex flex-row sm:flex-col items-stretch justify-center border-t sm:border-t-0 sm:border-l border-gray-100 dark:border-gray-800 bg-gray-50/20 dark:bg-white/[0.01] shrink-0 min-w-[160px]">
+                                        <div className="flex flex-row sm:flex-col items-stretch justify-center border-t sm:border-t-0 sm:border-l border-gray-100 dark:border-gray-800 bg-gray-50/20 dark:bg-white/[0.01] shrink-0 min-w-[200px]">
                                             <div className="px-5 py-4 flex flex-col sm:items-start items-center gap-2">
                                                 <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest leading-none">Appointment Status</p>
                                                 <span className={`px-2 py-1 text-[9px] font-black uppercase tracking-widest rounded-lg shadow-sm border ${
