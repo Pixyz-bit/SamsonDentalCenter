@@ -84,19 +84,16 @@
     - This prevents a "Blackout" — the doctor's schedule stays identical to the clinic's until the admin manually unchecks a day.
 
     **Scenario 2 — Narrowing Conflict (Removing Days):**
-    - When admin unchecks a previously-active day (e.g., Tuesday) and clicks Save:
-    - System queries: `SELECT count(*) FROM appointments WHERE doctor_id = ? AND day_of_week = 'Tuesday' AND appointment_date >= NOW() AND status IN ('pending', 'confirmed')`.
-    - If count > 0: **Block the save.** Show modal: *"Cannot remove Tuesday. 3 patients are booked. [View List]"*
-    - Admin must reschedule those patients first.
-    - ⚠️ **Note:** Only check FUTURE appointments (use `appointment_date >= NOW()`), not past ones.
+    - [x] When admin unchecks a previously-active day (e.g., Tuesday) and clicks Save:
+    - [x] System queries overlapping future appointments.
+    - [x] If conflicts exist, trigger the "Conflicts Detected" displacement modal.
+    - [x] Admin can force save to displace affected patients. (VERIFIED)
 
     **Scenario 3 — Switch Back Conflict (Returning to Global):**
-    - When admin toggles back to "Inherit Clinic Schedule" ON:
-    - Compare doctor's current active custom days vs. Global active days.
-    - Identify any days that exist in doctor's custom set but NOT in Global (e.g., Sunday custom, closed globally).
-    - Query future appointments for those orphaned days.
-    - If count > 0: **Block the switch.** Show same "patients are booked" modal for those days.
-    - Only allow switch after all conflicting future appointments are resolved.
+    - [x] When admin toggles back to "Inherit Clinic Schedule" ON:
+    - [x] Compare doctor's current active custom days vs. Global active days.
+    - [x] Identify any days that exist in doctor's custom set but NOT in Global (e.g., Sunday custom, closed globally).
+    - [x] Trigger displacement modal for those orphaned future appointments. (VERIFIED)
 
 ### Doctor Availability & Access Controls
 

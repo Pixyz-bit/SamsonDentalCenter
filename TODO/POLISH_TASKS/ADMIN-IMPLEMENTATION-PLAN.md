@@ -203,8 +203,8 @@ accidentally wiping out appointment histories while building Phase 4._
     - `false` + days set ? Use specific days only.
     - `false` + empty array ? Doctor is Strictly Closed (NOT global fallback).
 - [x] **Clone Logic:** On first toggle from Global -> Custom, pre-populate the doctor's checkboxes from the current Global Settings to prevent a `Blackout` on all days.
-- [x] **Narrowing Conflict:** When removing a custom day, verify if `appointments > 0` for that specific day. Block save if true.
-- [x] **Switch Back Conflict:** When returning to Global, verify if the doctor has custom days active that are NOT active globally. Query future appointments. Block switch if true. Block until resolved.
+- [x] **Narrowing Conflict:** When removing a custom day or shifting hours, the system triggers the "Conflicts Detected" modal. Force-saving results in automated displacement. (VERIFIED)
+- [x] **Switch Back Conflict:** Returning to Global inheritance now checks for orphaned appointments (days/hours active in custom but closed in global) and triggers the displacement flow. (VERIFIED)
 - [x] **?? Critical:** All conflict queries MUST use `appointment_date >= NOW()` — only check future appointments. (VERIFIED)
 
 ### Doctor Visibility & Dropdown Stability (Stabilization Phase)

@@ -811,11 +811,16 @@ export const getSuggestedSlots = async (date, serviceId, requestedTime) => {
  * Used for early validation in the booking wizard.
  */
 export const getServiceAvailabilityStatus = async (serviceId, dentistId = null) => {
-    // 1. Identify doctors who HAVE this service explicitly
+    // 1. Identify ACTIVE doctors who HAVE this service explicitly
     const { data: dentistsWithThisService } = await supabaseAdmin
         .from('dentist_services')
-        .select('dentist_id')
-        .eq('service_id', serviceId);
+        .select(`
+            dentist_id,
+            dentists!inner(is_active)
+        `)
+        .eq('service_id', serviceId)
+        .eq('dentists.is_active', true);
+
     const serviceMatchIds = (dentistsWithThisService || []).map((ds) => ds.dentist_id).filter(id => !!id);
 
     let matchIds = [];
@@ -875,10 +880,51 @@ export const getServiceAvailabilityStatus = async (serviceId, dentistId = null) 
     });
 
     const workingDays = Array.from(workingDaysSet);
+    
+    // 2b. Map how many doctors work each day of the week
+    const scheduledDoctorsPerDay = {}; // { dow: count }
+    (allSchedules || []).forEach(s => {
+        if (s.is_working) {
+            scheduledDoctorsPerDay[s.day_of_week] = (scheduledDoctorsPerDay[s.day_of_week] || 0) + 1;
+        }
+    });
 
-    // 3. Find next available date (search up to 90 days)
-    const today = new Date().toISOString().split('T')[0];
-    const nextDate = await findNextAvailableDate(today, serviceId, null, dentistId);
+    // 3. Find fully blocked dates
+    const horizon = 90;
+    const start = new Date();
+    start.setHours(0,0,0,0);
+    
+    const { data: allBlocks } = await supabaseAdmin
+        .from('dentist_availability_blocks')
+        .select('dentist_id, block_date')
+        .in('dentist_id', matchIds)
+        .is('start_time', null)
+        .is('end_time', null)
+        .gte('block_date', start.toISOString().split('T')[0])
+        .lte('block_date', new Date(start.getTime() + horizon * 86400000).toISOString().split('T')[0]);
+
+    const blockedDates = [];
+    const dateBlockMap = {}; // { '2026-05-04': Set([dentistId1, dentistId2]) }
+
+    (allBlocks || []).forEach(b => {
+        if (!dateBlockMap[b.block_date]) dateBlockMap[b.block_date] = new Set();
+        dateBlockMap[b.block_date].add(b.dentist_id);
+    });
+
+    Object.keys(dateBlockMap).forEach(date => {
+        const dateObj = new Date(date);
+        const dow = dateObj.getDay();
+        const requiredBlocks = scheduledDoctorsPerDay[dow] || 0;
+        
+        // If the number of blocks >= the number of people who normally work this day
+        if (requiredBlocks > 0 && dateBlockMap[date].size >= requiredBlocks) {
+            blockedDates.push(date);
+        }
+    });
+
+    // 4. Find next available date (search up to 90 days)
+    const todayStr = new Date().toISOString().split('T')[0];
+    const nextDate = await findNextAvailableDate(todayStr, serviceId, null, dentistId);
 
     if (!nextDate) {
         return {
@@ -887,6 +933,7 @@ export const getServiceAvailabilityStatus = async (serviceId, dentistId = null) 
             message: 'This service is fully booked for the next 90 days.',
             dentist_count: matchIds.length,
             working_days: [],
+            blocked_dates: blockedDates
         };
     }
 
@@ -895,6 +942,7 @@ export const getServiceAvailabilityStatus = async (serviceId, dentistId = null) 
         next_available_date: nextDate,
         dentist_count: matchIds.length,
         working_days: workingDays,
+        blocked_dates: blockedDates
     };
 };
 

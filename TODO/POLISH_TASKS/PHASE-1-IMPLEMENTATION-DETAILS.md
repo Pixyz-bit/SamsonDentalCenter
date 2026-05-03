@@ -507,3 +507,47 @@ Follow these steps to verify that changing clinic hours or adding holidays corre
 1. **Action**: Trigger any of the conflict modals above.
 2. **Verification**: Verify that the 'Date' column in the modal shows a proper date (e.g., 'MAY 15, 2026') and NOT 'Invalid Date'.
 3. **Verification**: Verify the 'Doctor' name correctly shows 'Dr. [Name]' or 'No Doctor Assigned' instead of blank.
+
+### 10. Doctor-Specific Schedule Conflict Resolution
+
+The doctor's weekly routine and date blocks now follow the same "Conflict Gatekeeper" architecture as the global clinic settings. The backend serves as the single source of truth, detecting overlapping appointments and requiring administrative confirmation via a displacement modal.
+
+#### Test Checklist (Doctor Schedule Tab)
+
+- [ ] **Doctor Weekly Routine (Day Removal):**
+    - **Setup**: Find a doctor with an appointment on a Monday.
+    - **Action**: In the **Doctor -> Schedule** tab, toggle **Monday** to "OFF" (Unchecked) and click "Save Weekly Routine".
+    - **Expectation**: The "Conflicts Detected" modal appears showing all future Monday appointments.
+    - **Action**: Click "Force Save & Displace".
+    - **Verification**: Routine saves. Appointments switch to `DISPLACED` status.
+
+- [ ] **Doctor Weekly Routine (Time Narrowing):**
+    - **Setup**: Find a doctor with an 8:00 AM appointment on a future date.
+    - **Action**: Change the doctor's **Start Time** for that day of the week to 10:00 AM. Save.
+    - **Expectation**: The modal identifies the 8:00 AM appointment as a conflict.
+    - **Action**: Click "Force Save & Displace".
+    - **Verification**: The 8:00 AM appointment is `DISPLACED` and the slot opens up for other doctors (if available).
+
+- [ ] **Doctor Block Date (Full Day):**
+    - **Setup**: Note a doctor's appointments for a specific date.
+    - **Action**: Click "Block Date" in the Doctor's calendar, select the date, and keep "Whole Day" checked. Save.
+    - **Expectation**: The "Conflicts Detected" modal lists all appointments for that specific doctor on that date.
+    - **Action**: Click "Force Save & Displace".
+    - **Verification**: The block is created. All appointments for that day are `DISPLACED`.
+
+- [ ] **Doctor Block Date (Time Range):**
+    - **Setup**: Find a doctor with a 2:00 PM appointment.
+    - **Action**: Create a block from 1:00 PM to 3:00 PM on that date.
+    - **Expectation**: The 2:00 PM appointment is flagged in the modal.
+    - **Action**: Force save.
+    - **Verification**: Only the 2:00 PM appointment is displaced; morning appointments on the same day remain active.
+
+- [ ] **Post-Displacement Booking Availability:**
+    - **Setup**: Displace a doctor's appointment using any method above.
+    - **Action**: Go to the **User Booking App** or use the **Admin Slot Check**.
+    - **Expectation**: The time slot previously occupied by the displaced appointment is now **AVAILABLE** (assuming the doctor is still working and not blocked at that time, or another doctor is available).
+    - **Verification**: Confirm the slot is bookable again.
+
+- [ ] **UI Integrity (Local Time & Labels):**
+    - **Verification**: Ensure the Displacement Modal correctly shows the patient's full name, the specific service, and the time slot.
+    - **Verification**: Confirm dates are formatted correctly (e.g., "JUN 12, 2026") and no "Invalid Date" errors occur.

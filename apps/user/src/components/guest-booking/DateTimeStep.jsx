@@ -106,7 +106,9 @@ const DateTimeStep = ({
         if (serviceId) {
             const fetchSpecialists = async () => {
                 setSpecialists([]); // 🎯 Clear old data to trigger skeleton
+                setAvailabilityStatus(null); 
                 setSpecialistsLoading(true);
+                setStatusLoading(true);
                 setSpecialistsError(null);
                 try {
                     const data = await api.get(`/services/${serviceId}/specialists`);
@@ -153,7 +155,7 @@ const DateTimeStep = ({
     }, [refetchSettings, fetchAvailabilityStatus, refetchSlots, selectedDate, slotHold]);
 
     const isLoading = slotsLoading || isPending;
-    const isProcessing = isLoading || !!pendingSlot || !!pendingDate || holdLoading;
+    const isProcessing = isLoading || !!pendingSlot || !!pendingDate || holdLoading || statusLoading;
 
     // ✅ Clear pendingDate when slots finish loading
     useEffect(() => {
@@ -574,8 +576,15 @@ const DateTimeStep = ({
                                                 const daySchedule = schedule?.find(s => s.day_of_week === date.getDay());
                                                 const isClosedDay = daySchedule ? !daySchedule.is_open : (date.getDay() === 0);
 
-                                                // ✅ Combine disabling rules (minDate handles Lead Time)
-                                                let isDisabled = date < minDate || date > maxDate || isHoliday || isClosedDay || isProcessing;
+                                                // ✅ Combine disabling rules
+                                                let isDisabled = 
+                                                    date < minDate || 
+                                                    date > maxDate || 
+                                                    isHoliday || 
+                                                    isClosedDay || 
+                                                    (availabilityStatus && !availabilityStatus.is_bookable) ||
+                                                    availabilityStatus?.blocked_dates?.includes(key) || 
+                                                    isProcessing;
                                                 
                                                 // ✅ Doctor-specific working day check (if applicable)
                                                 if (!isDisabled && availabilityStatus?.working_days?.length > 0) {

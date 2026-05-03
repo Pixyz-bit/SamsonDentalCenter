@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Clock, Calendar as CalendarIcon, CheckSquare, AlertCircle, X, ChevronLeft, ChevronRight, Trash2 } from 'lucide-react';
+import { Clock, Calendar as CalendarIcon, CheckSquare, AlertCircle, X, ChevronLeft, ChevronRight, Trash2, Info, Phone } from 'lucide-react';
 import { Modal, Button, Input, Badge } from '../../../ui';
 import { format, addMinutes, isSameDay } from 'date-fns';
 import { useDoctors } from '../../../../hooks/useDoctors';
@@ -14,6 +14,12 @@ const BlockTimeModal = ({ isOpen, onClose, events = [], doctor, timeBounds = { m
     const [blockReason, setBlockReason] = useState('leave');
     const [otherReason, setOtherReason] = useState('');
     const [isSaving, setIsSaving] = useState(false);
+    
+    // Conflict modal states
+    const [conflictModalOpen, setConflictModalOpen] = useState(false);
+    const [conflictingAppointments, setConflictingAppointments] = useState([]);
+    const [pendingGroups, setPendingGroups] = useState([]);
+    const [isForcedSaving, setIsForcedSaving] = useState(false);
 
     // Generate Dynamic Times based on bounds
     const TIMES = [];
@@ -77,7 +83,7 @@ const BlockTimeModal = ({ isOpen, onClose, events = [], doctor, timeBounds = { m
         });
     };
 
-    const handleSave = async () => {
+    const handleSave = async (force = false) => {
         if (!doctor?.id) return;
         setIsSaving(true);
         try {
@@ -110,50 +116,32 @@ const BlockTimeModal = ({ isOpen, onClose, events = [], doctor, timeBounds = { m
                     groups.push(currentGroup);
                 }
 
-                // CHECK FOR DISPLACEMENTS
-                let displacedCount = 0;
-                groups.forEach(group => {
-                    const start24 = convertTo24h(group.start);
-                    const [eh, em] = convertTo24h(group.end).split(':').map(Number);
-                    const [sh, sm] = start24.split(':').map(Number);
-                    const startMin = sh * 60 + sm;
-                    const endMin = eh * 60 + em + slotGap;
+                // Call API for each group - TRY WITHOUT OVERWRITE FIRST
+                try {
+                    await Promise.all(groups.map(group => {
+                        const start24 = convertTo24h(group.start);
+                        const [eh, em] = convertTo24h(group.end).split(':').map(Number);
+                        const end24 = format(addMinutes(new Date().setHours(eh, em, 0, 0), slotGap), 'HH:mm');
 
-                    events.forEach(event => {
-                        if (event.type === 'appointment' && event.date === selectedDate) {
-                             const [evh, evm] = event.start.split(':').map(Number);
-                             const eventStart = evh * 60 + evm;
-                             const eventEnd = eventStart + event.duration;
-                             if (startMin < eventEnd && eventStart < endMin) {
-                                 displacedCount++;
-                             }
-                        }
-                    });
-                });
-
-                if (displacedCount > 0) {
-                    const confirmOverwrite = window.confirm(`WARNING: This block will displace ${displacedCount} appointment(s).\n\nThey will be moved to the Secretary Displaced Queue.\n\nDo you want to continue?`);
-                    if (!confirmOverwrite) {
+                        return addDoctorBlock(doctor.id, {
+                            block_date: selectedDate,
+                            start_time: start24,
+                            end_time: end24,
+                            reason: reasonText,
+                            cancel_appointments: false,
+                            overwrite: force || false
+                        });
+                    }));
+                } catch (err) {
+                    if (err.status === 409) {
+                        setConflictingAppointments(err.data.conflicts || []);
+                        setPendingGroups(groups);
+                        setConflictModalOpen(true);
                         setIsSaving(false);
                         return;
                     }
+                    throw err;
                 }
-
-                // Call API for each group
-                await Promise.all(groups.map(group => {
-                    const start24 = convertTo24h(group.start);
-                    const [eh, em] = convertTo24h(group.end).split(':').map(Number);
-                    const end24 = format(addMinutes(new Date().setHours(eh, em, 0, 0), slotGap), 'HH:mm');
-
-                    return addDoctorBlock(doctor.id, {
-                        block_date: selectedDate,
-                        start_time: start24,
-                        end_time: end24,
-                        reason: reasonText,
-                        cancel_appointments: false,
-                        overwrite: true
-                    });
-                }));
             } else {
                 // Unblock logic: Find blocks spanning these slots
                 const blockIdsToDelete = new Set();
@@ -191,8 +179,36 @@ const BlockTimeModal = ({ isOpen, onClose, events = [], doctor, timeBounds = { m
             setIsSaving(false);
         }
     };
+    const handleForceSave = async () => {
+        setIsForcedSaving(true);
+        try {
+            await handleSave(true);
+            setConflictModalOpen(false);
+            setConflictingAppointments([]);
+            setPendingGroups([]);
+        } catch (err) {
+            console.error('Failed to force save blocks:', err);
+        } finally {
+            setIsForcedSaving(false);
+        }
+    };
+
+    const getInitials = (name) => {
+        if (!name) return 'GP';
+        return name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
+    };
+
+    const formatTimeDisplay = (time) => {
+        if (!time) return '';
+        const [h, m] = time.split(':');
+        const hour = parseInt(h);
+        const ampm = hour >= 12 ? 'PM' : 'AM';
+        const h12 = hour % 12 || 12;
+        return `${h12}:${m} ${ampm}`;
+    };
 
     return (
+        <>
         <Modal isOpen={isOpen} onClose={() => !isSaving && onClose()} className="max-w-[1000px] w-[95%] sm:w-full m-auto">
             <div className="no-scrollbar relative w-full overflow-y-auto rounded-xl bg-white dark:bg-gray-900 p-6 sm:p-8 max-h-[90vh] flex flex-col shadow-2xl">
                 
@@ -413,6 +429,153 @@ const BlockTimeModal = ({ isOpen, onClose, events = [], doctor, timeBounds = { m
                 </div>
             </div>
         </Modal>
+
+            {conflictModalOpen && (
+                <Modal 
+                    isOpen={conflictModalOpen} 
+                    onClose={() => !isForcedSaving && setConflictModalOpen(false)}
+                    title="Conflicts Detected"
+                    subtitle="Appointments found in the selected slots."
+                    className="max-w-5xl"
+                    footer={(
+                        <>
+                            <Button 
+                                variant="secondary" 
+                                onClick={() => setConflictModalOpen(false)}
+                                className="flex-1 sm:flex-none"
+                            >
+                                Cancel & Adjust
+                            </Button>
+                            <Button 
+                                onClick={handleForceSave}
+                                disabled={isForcedSaving}
+                                className="flex-1 sm:flex-none bg-amber-500 hover:bg-amber-600 text-white border-0 font-bold"
+                            >
+                                {isForcedSaving ? 'Saving...' : 'Force Save & Displace'}
+                            </Button>
+                        </>
+                    )}
+                >
+                    <div className="space-y-6">
+                        <div className="flex items-center gap-4 p-4 bg-amber-50 dark:bg-amber-500/10 border border-amber-100 dark:border-amber-500/20 rounded-2xl">
+                            <div className="w-12 h-12 bg-amber-500 text-white rounded-xl flex items-center justify-center shrink-0 shadow-lg shadow-amber-500/20">
+                                <Info size={24} />
+                            </div>
+                            <p className="text-sm font-bold text-amber-800 dark:text-amber-200 leading-relaxed">
+                                Saving these blocks will affect the following <strong>{conflictingAppointments?.length}</strong> future appointments. If you proceed, these appointments will be flagged as <span className="font-black text-amber-600 dark:text-amber-400">DISPLACED</span>.
+                            </p>
+                        </div>
+
+                        <div className="space-y-3">
+                            <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-2">
+                                <div className="w-1 h-1 rounded-full bg-brand-500" />
+                                Affected Appointments
+                            </h4>
+                            <div className="space-y-4 pb-2">
+                                {conflictingAppointments?.map(appt => {
+                                    const patientName = appt.profiles?.full_name || (appt.guest_first_name ? `${appt.guest_first_name} ${appt.guest_last_name}` : appt.guest_name) || 'Guest Patient';
+                                    const contactInfo = appt.profiles?.phone || appt.guest_phone || 'No contact';
+                                    const serviceName = appt.services?.name || 'Dental Service';
+                                    
+                                    const doctorProfile = appt.dentists?.profiles || appt.dentist?.profile;
+                                    const doctorName = doctorProfile?.full_name ? `Dr. ${doctorProfile.full_name}` : (doctor?.full_name ? `Dr. ${doctor.full_name}` : 'No Doctor Assigned');
+                                    
+                                    const initials = getInitials(patientName);
+                                    const formattedDate = (appt.date || appt.appointment_date) ? (() => {
+                                        const dateStr = appt.date || appt.appointment_date;
+                                        const d = new Date(dateStr + 'T00:00:00');
+                                        return isNaN(d.getTime()) ? 'Invalid Date' : format(d, 'MMM dd yyyy').toUpperCase();
+                                    })() : 'N/A';
+
+                                    return (
+                                        <div key={appt.id} className="flex flex-col sm:flex-row bg-white dark:bg-white/[0.02] border border-gray-100 dark:border-gray-800 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+                                            {/* Left Side: Date & Time */}
+                                            <div className="flex sm:flex-col justify-between sm:justify-center sm:w-40 bg-gray-50/50 dark:bg-gray-800/30 border-b sm:border-b-0 sm:border-r border-gray-100 dark:border-gray-800 shrink-0 text-center sm:text-left">
+                                                <div className="px-4 py-3">
+                                                    <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest mb-1">Date</p>
+                                                    <p className="text-[11px] font-black text-gray-900 dark:text-white leading-none whitespace-nowrap">{formattedDate}</p>
+                                                </div>
+                                                <div className="h-[1px] w-full bg-gray-100 dark:bg-gray-800" />
+                                                <div className="px-4 py-3">
+                                                    <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest mb-1">Time Slot</p>
+                                                    <p className="text-[11px] font-black text-brand-500 leading-none">
+                                                        {formatTimeDisplay(appt.start_time)} - {formatTimeDisplay(appt.end_time)}
+                                                    </p>
+                                                </div>
+                                            </div>
+
+                                            {/* Main Content Area */}
+                                            <div className="flex-grow p-4 sm:p-5 flex items-center gap-4">
+                                                <div className="relative shrink-0">
+                                                    <div className="w-12 h-12 rounded-full bg-brand-500 text-white flex items-center justify-center text-sm font-black shadow-lg shadow-brand-500/20 border-2 border-white dark:border-gray-900">
+                                                        {initials}
+                                                    </div>
+                                                    <div className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-green-500 border-2 border-white dark:border-gray-900 rounded-full" />
+                                                </div>
+
+                                                <div className="flex-grow">
+                                                    <p className="text-base font-black text-gray-900 dark:text-white leading-tight mb-1">{patientName}</p>
+                                                    <div className="space-y-1">
+                                                        <div className="flex items-center gap-2">
+                                                            <p className="text-[11px] font-black text-gray-900 dark:text-white uppercase tracking-tighter">{serviceName}</p>
+                                                            <span className="text-gray-300 dark:text-gray-600">•</span>
+                                                            <p className="text-[11px] font-bold text-gray-500 dark:text-gray-400">{doctorName}</p>
+                                                        </div>
+                                                        <div className="flex items-center gap-3">
+                                                            <p className="text-[11px] font-medium text-gray-500 flex items-center gap-2">
+                                                                <Phone size={10} className="text-green-500" />
+                                                                <span className="text-gray-800 dark:text-gray-200">{contactInfo}</span>
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {/* Right Side: Status & Source Badges */}
+                                            <div className="flex flex-row sm:flex-col items-stretch justify-center border-t sm:border-t-0 sm:border-l border-gray-100 dark:border-gray-800 bg-gray-50/20 dark:bg-white/[0.01] shrink-0 min-w-[200px]">
+                                                {/* Source */}
+                                                <div className="px-5 py-4 flex flex-col sm:items-start items-center gap-2">
+                                                    <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest leading-none">Appointment Source</p>
+                                                    {(() => {
+                                                        const source = appt.source || 'USER_BOOKING';
+                                                        const sourceColors = {
+                                                            'GUEST_BOOKING': 'bg-blue-50 text-blue-600 border-blue-100 dark:bg-blue-500/10 dark:text-blue-400 dark:border-blue-500/20',
+                                                            'USER_BOOKING': 'bg-indigo-50 text-indigo-600 border-indigo-100 dark:bg-indigo-500/10 dark:text-indigo-400 dark:border-indigo-500/20',
+                                                            'WALK_IN': 'bg-teal-50 text-teal-600 border-teal-100 dark:bg-teal-500/10 dark:text-teal-400 dark:border-teal-500/20',
+                                                            'WAITLIST': 'bg-amber-50 text-amber-600 border-amber-100 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20'
+                                                        };
+                                                        const sourceClass = sourceColors[source] || sourceColors['USER_BOOKING'];
+                                                        const sourceLabel = source.replace('_', ' ');
+                                                        return (
+                                                            <span className={`px-2 py-0.5 text-[9px] font-black uppercase tracking-widest rounded border shadow-sm ${sourceClass}`}>
+                                                                {sourceLabel}
+                                                            </span>
+                                                        );
+                                                    })()}
+                                                </div>
+
+                                                <div className="h-[1px] w-full bg-gray-100 dark:bg-gray-800" />
+
+                                                {/* Status */}
+                                                <div className="px-5 py-4 flex flex-col sm:items-start items-center gap-2">
+                                                    <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest leading-none">Appointment Status</p>
+                                                    <span className={`px-2 py-1 text-[9px] font-black uppercase tracking-widest rounded-lg shadow-sm border ${appt.status === 'CONFIRMED'
+                                                            ? 'bg-green-50 text-green-600 border-green-100 dark:bg-green-500/10 dark:text-green-400 dark:border-green-500/20'
+                                                            : 'bg-amber-50 text-amber-600 border-amber-100 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20'
+                                                        }`}>
+                                                        {appt.status}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    </div>
+                </Modal>
+            )}
+        </>
     );
 };
 
