@@ -29,6 +29,21 @@ export const updateSettingsSchema = z.object({
         booking_max_horizon_days: numberOptional,
         waitlist_enabled: booleanOptional,
         
+        /* 1. Patient Accountability */
+        cancel_penalty_window_hours: z.number().min(1).max(72).optional(),
+        cancel_restrict_threshold: z.number().min(1).max(10).optional(),
+        no_show_restrict_threshold: z.number().min(1).max(10).optional(),
+        no_show_restrict_advance_days: z.number().min(1).max(30).optional(),
+
+        /* 2. Scheduling Guardrails */
+        max_appointments_per_day_per_user: z.number().min(1).max(10).optional(),
+        max_reschedules_per_appointment: z.number().min(1).max(5).optional(),
+        max_guest_bookings_per_email: z.number().min(1).max(10).optional(),
+        slot_hold_duration_minutes: z.number().min(1).max(30).optional(),
+
+        /* 3. Security & Access */
+        max_otp_failed_attempts: z.number().min(1).max(10).optional(),
+        
         // Headless Data Fields
         short_description: stringOptional,
         business_hours_text: stringOptional,

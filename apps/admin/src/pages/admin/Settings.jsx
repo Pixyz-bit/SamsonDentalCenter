@@ -53,7 +53,7 @@ const Settings = () => {
             </div>
             
             <div className='flex-grow no-scrollbar'>
-                <div className='max-w-4xl'>
+                <div className='w-full'>
                     {activeTab === 'website' && <ClinicWebsiteSettings />}
                     {activeTab === 'rules' && <ClinicRulesSettings />}
                     {activeTab === 'notifications' && <ClinicNotificationsSettings />}
