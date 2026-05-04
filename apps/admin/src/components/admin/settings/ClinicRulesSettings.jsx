@@ -110,15 +110,15 @@ const ClinicRulesSettings = () => {
     if (loading) return <FormSkeleton />;
 
     return (
-        <div className='space-y-8 pb-20 w-full'>
+        <div className='space-y-6 sm:space-y-8 pb-20 w-full px-4 sm:px-0'>
             {/* 1. GLOBAL RULES SECTION */}
-            <div className='w-full p-6 lg:p-10 border border-gray-200 rounded-2xl dark:border-gray-800 bg-white dark:bg-white/[0.03] shadow-sm'>
-                <div className='flex items-center justify-between mb-10'>
+            <div className='w-full p-4 sm:p-6 lg:p-10 border border-gray-200 rounded-2xl dark:border-gray-800 bg-white dark:bg-white/[0.03] shadow-sm'>
+                <div className='flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 sm:mb-10'>
                     <div>
-                        <h4 className='text-2xl font-black text-gray-900 dark:text-white tracking-tight'>
+                        <h4 className='text-xl sm:text-2xl font-black text-gray-900 dark:text-white tracking-tight'>
                             Global Booking Rules
                         </h4>
-                        <p className='text-xs text-gray-500 dark:text-gray-400 uppercase tracking-[0.2em] mt-1 font-bold'>
+                        <p className='text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 uppercase tracking-[0.2em] mt-1 font-bold'>
                             System-wide operational constraints & guardrails
                         </p>
                     </div>
@@ -193,23 +193,25 @@ const ClinicRulesSettings = () => {
                                     <h5 className='text-xs font-black text-gray-900 dark:text-white uppercase tracking-tight'>Booking Lead Time</h5>
                                 </div>
                                 <p className='text-xs text-gray-600 dark:text-gray-400 mb-6 font-bold leading-relaxed tracking-tight uppercase opacity-80'>
-                                    Min. days required before booking
+                                    Min. days required before booking <span className="text-blue-500 font-black">(0-7)</span>
                                 </p>
                                 <div className="mt-auto flex items-center gap-3">
                                     <Input
                                         type="number"
                                         name="booking_lead_time_days"
                                         disabled={!isEditingRules}
+                                        min="0"
+                                        max="7"
                                         value={rulesData.booking_lead_time_days}
                                         onChange={handleRuleChange}
-                                        className="w-full h-11 text-center font-black text-lg border-gray-200 dark:border-gray-700"
+                                        className="w-full h-10 sm:h-11 text-center font-black text-lg border-gray-200 dark:border-gray-700"
                                     />
                                     <span className="text-[10px] font-black uppercase text-gray-400">Days</span>
                                 </div>
                             </div>
 
                             {/* Horizon */}
-                            <div className={`flex flex-col p-6 rounded-2xl border transition-all min-h-[180px] ${!isEditingRules ? 'border-gray-100 dark:border-gray-800 bg-gray-50/20' : 'border-brand-200 bg-white dark:bg-white/[0.05] shadow-sm'}`}>
+                            <div className={`flex flex-col p-4 sm:p-6 rounded-2xl border transition-all min-h-[160px] sm:min-h-[180px] ${!isEditingRules ? 'border-gray-100 dark:border-gray-800 bg-gray-50/20' : 'border-brand-200 bg-white dark:bg-white/[0.05] shadow-sm'}`}>
                                 <div className='flex items-center gap-4 mb-4'>
                                     <div className='p-2.5 rounded-xl bg-purple-100 dark:bg-purple-500/10 text-purple-600'>
                                         <Calendar size={18} />
@@ -217,23 +219,25 @@ const ClinicRulesSettings = () => {
                                     <h5 className='text-xs font-black text-gray-900 dark:text-white uppercase tracking-tight'>Booking Horizon</h5>
                                 </div>
                                 <p className='text-xs text-gray-600 dark:text-gray-400 mb-6 font-bold leading-relaxed tracking-tight uppercase opacity-80'>
-                                    Max days ahead a patient can book
+                                    Max days ahead a patient can book <span className="text-purple-500 font-black">(7-365)</span>
                                 </p>
                                 <div className="mt-auto flex items-center gap-3">
                                     <Input
                                         type="number"
                                         name="booking_max_horizon_days"
                                         disabled={!isEditingRules}
+                                        min="7"
+                                        max="365"
                                         value={rulesData.booking_max_horizon_days}
                                         onChange={handleRuleChange}
-                                        className="w-full h-11 text-center font-black text-lg border-gray-200 dark:border-gray-700"
+                                        className="w-full h-10 sm:h-11 text-center font-black text-lg border-gray-200 dark:border-gray-700"
                                     />
                                     <span className="text-[10px] font-black uppercase text-gray-400">Days</span>
                                 </div>
                             </div>
 
                             {/* Waitlist */}
-                            <div className={`flex flex-col p-6 rounded-2xl border transition-all min-h-[180px] ${!isEditingRules ? 'border-gray-100 dark:border-gray-800 bg-gray-50/20' : 'border-brand-200 bg-white dark:bg-white/[0.05] shadow-sm'}`}>
+                            <div className={`flex flex-col p-4 sm:p-6 rounded-2xl border transition-all min-h-[160px] sm:min-h-[180px] ${!isEditingRules ? 'border-gray-100 dark:border-gray-800 bg-gray-50/20' : 'border-brand-200 bg-white dark:bg-white/[0.05] shadow-sm'}`}>
                                 <div className='flex items-center gap-4 mb-4'>
                                     <div className='p-2.5 rounded-xl bg-amber-100 dark:bg-amber-500/10 text-amber-600'>
                                         <ShieldCheck size={18} />
@@ -241,7 +245,7 @@ const ClinicRulesSettings = () => {
                                     <h5 className='text-xs font-black text-gray-900 dark:text-white uppercase tracking-tight'>Waitlist System</h5>
                                 </div>
                                 <p className='text-xs text-gray-600 dark:text-gray-400 mb-6 font-bold leading-relaxed tracking-tight uppercase opacity-80'>
-                                    Enable waitlist for fully booked days
+                                    Enable system for fully booked days <span className="text-amber-500 font-black">WAITLIST</span>
                                 </p>
                                 <div className="mt-auto flex justify-end">
                                     <Switch
@@ -262,7 +266,7 @@ const ClinicRulesSettings = () => {
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                             {/* Penalty Window */}
-                            <div className={`flex flex-col p-6 rounded-2xl border transition-all min-h-[180px] ${!isEditingRules ? 'border-gray-100 dark:border-gray-800 bg-gray-50/20' : 'border-brand-200 bg-white dark:bg-white/[0.05] shadow-sm'}`}>
+                            <div className={`flex flex-col p-4 sm:p-6 rounded-2xl border transition-all min-h-[160px] sm:min-h-[180px] ${!isEditingRules ? 'border-gray-100 dark:border-gray-800 bg-gray-50/20' : 'border-brand-200 bg-white dark:bg-white/[0.05] shadow-sm'}`}>
                                 <div className='flex items-center gap-4 mb-4'>
                                     <div className='p-2.5 rounded-xl bg-red-100 dark:bg-red-500/10 text-red-600'>
                                         <ShieldAlert size={18} />
@@ -281,14 +285,14 @@ const ClinicRulesSettings = () => {
                                         max="72"
                                         value={rulesData.cancel_penalty_window_hours}
                                         onChange={handleRuleChange}
-                                        className="w-full h-11 text-center font-black text-lg border-gray-200 dark:border-gray-700"
+                                        className="w-full h-10 sm:h-11 text-center font-black text-lg border-gray-200 dark:border-gray-700"
                                     />
                                     <span className="text-[10px] font-black uppercase text-gray-400">Hrs</span>
                                 </div>
                             </div>
 
                             {/* Cancellation Limit */}
-                            <div className={`flex flex-col p-6 rounded-2xl border transition-all min-h-[180px] ${!isEditingRules ? 'border-gray-100 dark:border-gray-800 bg-gray-50/20' : 'border-brand-200 bg-white dark:bg-white/[0.05] shadow-sm'}`}>
+                            <div className={`flex flex-col p-4 sm:p-6 rounded-2xl border transition-all min-h-[160px] sm:min-h-[180px] ${!isEditingRules ? 'border-gray-100 dark:border-gray-800 bg-gray-50/20' : 'border-brand-200 bg-white dark:bg-white/[0.05] shadow-sm'}`}>
                                 <div className='flex items-center gap-4 mb-4'>
                                     <div className='p-2.5 rounded-xl bg-red-100 dark:bg-red-500/10 text-red-600'>
                                         <X size={18} />
@@ -307,13 +311,13 @@ const ClinicRulesSettings = () => {
                                         max="10"
                                         value={rulesData.cancel_restrict_threshold}
                                         onChange={handleRuleChange}
-                                        className="w-full h-11 text-center font-black text-lg border-gray-200 dark:border-gray-700"
+                                        className="w-full h-10 sm:h-11 text-center font-black text-lg border-gray-200 dark:border-gray-700"
                                     />
                                 </div>
                             </div>
 
                             {/* No-Show Limit */}
-                            <div className={`flex flex-col p-6 rounded-2xl border transition-all min-h-[180px] ${!isEditingRules ? 'border-gray-100 dark:border-gray-800 bg-gray-50/20' : 'border-brand-200 bg-white dark:bg-white/[0.05] shadow-sm'}`}>
+                            <div className={`flex flex-col p-4 sm:p-6 rounded-2xl border transition-all min-h-[160px] sm:min-h-[180px] ${!isEditingRules ? 'border-gray-100 dark:border-gray-800 bg-gray-50/20' : 'border-brand-200 bg-white dark:bg-white/[0.05] shadow-sm'}`}>
                                 <div className='flex items-center gap-4 mb-4'>
                                     <div className='p-2.5 rounded-xl bg-red-100 dark:bg-red-500/10 text-red-600'>
                                         <AlertTriangle size={18} />
@@ -332,13 +336,13 @@ const ClinicRulesSettings = () => {
                                         max="10"
                                         value={rulesData.no_show_restrict_threshold}
                                         onChange={handleRuleChange}
-                                        className="w-full h-11 text-center font-black text-lg border-gray-200 dark:border-gray-700"
+                                        className="w-full h-10 sm:h-11 text-center font-black text-lg border-gray-200 dark:border-gray-700"
                                     />
                                 </div>
                             </div>
 
                             {/* Restriction Duration */}
-                            <div className={`flex flex-col p-6 rounded-2xl border transition-all min-h-[180px] ${!isEditingRules ? 'border-gray-100 dark:border-gray-800 bg-gray-50/20' : 'border-brand-200 bg-white dark:bg-white/[0.05] shadow-sm'}`}>
+                            <div className={`flex flex-col p-4 sm:p-6 rounded-2xl border transition-all min-h-[160px] sm:min-h-[180px] ${!isEditingRules ? 'border-gray-100 dark:border-gray-800 bg-gray-50/20' : 'border-brand-200 bg-white dark:bg-white/[0.05] shadow-sm'}`}>
                                 <div className='flex items-center gap-4 mb-4'>
                                     <div className='p-2.5 rounded-xl bg-red-100 dark:bg-red-500/10 text-red-600'>
                                         <Lock size={18} />
@@ -357,7 +361,7 @@ const ClinicRulesSettings = () => {
                                         max="30"
                                         value={rulesData.no_show_restrict_advance_days}
                                         onChange={handleRuleChange}
-                                        className="w-full h-11 text-center font-black text-lg border-gray-200 dark:border-gray-700"
+                                        className="w-full h-10 sm:h-11 text-center font-black text-lg border-gray-200 dark:border-gray-700"
                                     />
                                     <span className="text-[10px] font-black uppercase text-gray-400">Days</span>
                                 </div>
@@ -373,7 +377,7 @@ const ClinicRulesSettings = () => {
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                             {/* Daily Limit */}
-                            <div className={`flex flex-col p-6 rounded-2xl border transition-all min-h-[180px] ${!isEditingRules ? 'border-gray-100 dark:border-gray-800 bg-gray-50/20' : 'border-brand-200 bg-white dark:bg-white/[0.05] shadow-sm'}`}>
+                            <div className={`flex flex-col p-4 sm:p-6 rounded-2xl border transition-all min-h-[160px] sm:min-h-[180px] ${!isEditingRules ? 'border-gray-100 dark:border-gray-800 bg-gray-50/20' : 'border-brand-200 bg-white dark:bg-white/[0.05] shadow-sm'}`}>
                                 <div className='flex items-center gap-4 mb-4'>
                                     <div className='p-2.5 rounded-xl bg-blue-100 dark:bg-blue-500/10 text-blue-600'>
                                         <Calendar size={18} />
@@ -392,13 +396,13 @@ const ClinicRulesSettings = () => {
                                         max="10"
                                         value={rulesData.max_appointments_per_day_per_user}
                                         onChange={handleRuleChange}
-                                        className="w-full h-11 text-center font-black text-lg border-gray-200 dark:border-gray-700"
+                                        className="w-full h-10 sm:h-11 text-center font-black text-lg border-gray-200 dark:border-gray-700"
                                     />
                                 </div>
                             </div>
 
                             {/* Reschedule Limit */}
-                            <div className={`flex flex-col p-6 rounded-2xl border transition-all min-h-[180px] ${!isEditingRules ? 'border-gray-100 dark:border-gray-800 bg-gray-50/20' : 'border-brand-200 bg-white dark:bg-white/[0.05] shadow-sm'}`}>
+                            <div className={`flex flex-col p-4 sm:p-6 rounded-2xl border transition-all min-h-[160px] sm:min-h-[180px] ${!isEditingRules ? 'border-gray-100 dark:border-gray-800 bg-gray-50/20' : 'border-brand-200 bg-white dark:bg-white/[0.05] shadow-sm'}`}>
                                 <div className='flex items-center gap-4 mb-4'>
                                     <div className='p-2.5 rounded-xl bg-blue-100 dark:bg-blue-500/10 text-blue-600'>
                                         <Repeat size={18} />
@@ -417,13 +421,13 @@ const ClinicRulesSettings = () => {
                                         max="5"
                                         value={rulesData.max_reschedules_per_appointment}
                                         onChange={handleRuleChange}
-                                        className="w-full h-11 text-center font-black text-lg border-gray-200 dark:border-gray-700"
+                                        className="w-full h-10 sm:h-11 text-center font-black text-lg border-gray-200 dark:border-gray-700"
                                     />
                                 </div>
                             </div>
 
                             {/* Guest Limit */}
-                            <div className={`flex flex-col p-6 rounded-2xl border transition-all min-h-[180px] ${!isEditingRules ? 'border-gray-100 dark:border-gray-800 bg-gray-50/20' : 'border-brand-200 bg-white dark:bg-white/[0.05] shadow-sm'}`}>
+                            <div className={`flex flex-col p-4 sm:p-6 rounded-2xl border transition-all min-h-[160px] sm:min-h-[180px] ${!isEditingRules ? 'border-gray-100 dark:border-gray-800 bg-gray-50/20' : 'border-brand-200 bg-white dark:bg-white/[0.05] shadow-sm'}`}>
                                 <div className='flex items-center gap-4 mb-4'>
                                     <div className='p-2.5 rounded-xl bg-blue-100 dark:bg-blue-500/10 text-blue-600'>
                                         <Users size={18} />
@@ -442,13 +446,13 @@ const ClinicRulesSettings = () => {
                                         max="10"
                                         value={rulesData.max_guest_bookings_per_email}
                                         onChange={handleRuleChange}
-                                        className="w-full h-11 text-center font-black text-lg border-gray-200 dark:border-gray-700"
+                                        className="w-full h-10 sm:h-11 text-center font-black text-lg border-gray-200 dark:border-gray-700"
                                     />
                                 </div>
                             </div>
 
                             {/* Checkout Timer */}
-                            <div className={`flex flex-col p-6 rounded-2xl border transition-all min-h-[180px] ${!isEditingRules ? 'border-gray-100 dark:border-gray-800 bg-gray-50/20' : 'border-brand-200 bg-white dark:bg-white/[0.05] shadow-sm'}`}>
+                            <div className={`flex flex-col p-4 sm:p-6 rounded-2xl border transition-all min-h-[160px] sm:min-h-[180px] ${!isEditingRules ? 'border-gray-100 dark:border-gray-800 bg-gray-50/20' : 'border-brand-200 bg-white dark:bg-white/[0.05] shadow-sm'}`}>
                                 <div className='flex items-center gap-4 mb-4'>
                                     <div className='p-2.5 rounded-xl bg-blue-100 dark:bg-blue-500/10 text-blue-600'>
                                         <Clock size={18} />
@@ -467,7 +471,7 @@ const ClinicRulesSettings = () => {
                                         max="30"
                                         value={rulesData.slot_hold_duration_minutes}
                                         onChange={handleRuleChange}
-                                        className="w-full h-11 text-center font-black text-lg border-gray-200 dark:border-gray-700"
+                                        className="w-full h-10 sm:h-11 text-center font-black text-lg border-gray-200 dark:border-gray-700"
                                     />
                                     <span className="text-[10px] font-black uppercase text-gray-400">Min</span>
                                 </div>
@@ -502,7 +506,7 @@ const ClinicRulesSettings = () => {
                                         max="10"
                                         value={rulesData.max_otp_failed_attempts}
                                         onChange={handleRuleChange}
-                                        className="w-full h-11 text-center font-black text-lg border-gray-200 dark:border-gray-700"
+                                        className="w-full h-10 sm:h-11 text-center font-black text-lg border-gray-200 dark:border-gray-700"
                                     />
                                 </div>
                             </div>
@@ -512,13 +516,13 @@ const ClinicRulesSettings = () => {
             </div>
 
             {/* 2. OPERATING HOURS SECTION */}
-            <div className='p-6 border border-gray-200 rounded-2xl dark:border-gray-800 lg:p-10 bg-white dark:bg-white/[0.03] shadow-sm'>
-                <div className='flex items-center justify-between mb-8'>
+            <div className='w-full p-4 sm:p-6 lg:p-10 border border-gray-200 rounded-2xl dark:border-gray-800 bg-white dark:bg-white/[0.03] shadow-sm'>
+                <div className='flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8'>
                     <div>
-                        <h4 className='text-2xl font-black text-gray-900 dark:text-white tracking-tight'>
+                        <h4 className='text-xl sm:text-2xl font-black text-gray-900 dark:text-white tracking-tight'>
                             Weekly Operating Hours
                         </h4>
-                        <p className='text-xs text-gray-500 dark:text-gray-400 uppercase tracking-widest mt-1 font-bold'>
+                        <p className='text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 uppercase tracking-widest mt-1 font-bold'>
                             Define when the clinic is open and lunch breaks
                         </p>
                     </div>
@@ -565,7 +569,7 @@ const ClinicRulesSettings = () => {
 
                 <div className='space-y-4'>
                     {scheduleData.map((day, idx) => (
-                        <div key={day.day_of_week} className={`p-5 rounded-2xl border transition-all ${day.is_open ? 'border-gray-100 dark:border-gray-800 bg-white dark:bg-white/[0.01]' : 'border-gray-100 bg-gray-50/50 dark:bg-white/[0.01] opacity-60'}`}>
+                        <div key={day.day_of_week} className={`p-4 sm:p-5 rounded-2xl border transition-all ${day.is_open ? 'border-gray-100 dark:border-gray-800 bg-white dark:bg-white/[0.01]' : 'border-gray-100 bg-gray-50/50 dark:bg-white/[0.01] opacity-60'}`}>
                             <div className='flex flex-col lg:flex-row lg:items-center justify-between gap-6'>
                                 {/* Day Name & Toggle */}
                                 <div className='flex items-center justify-between lg:justify-start lg:gap-6 lg:w-48'>
