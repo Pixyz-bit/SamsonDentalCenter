@@ -19,13 +19,10 @@ const HomePage = () => {
     <>
       <Hero />
       {/* <Promotions ref={promotionsRef} variant='light' /> */}
-      {/*<HomeServices variant='light' />*/}
+      {/* <HomeServices variant='light' /> */}
       <BookingSteps />
       <GalleryV2 variant="light" showExploreButton={true} />
-      {/*<ServicesList />*/}
-      {/*<Gallery variant="light" />*/}
-      {/*<Portfolio variant='light' />*/}
-      {/*<Testimonials variant="light" />*/}
+      {/* <Testimonials variant="light" /> */}
       <AIChatbotPromo variant="light" />
       {/* <LocationHours variant='light' /> */}
       <ContactMap />

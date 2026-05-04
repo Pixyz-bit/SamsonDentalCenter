@@ -73,6 +73,17 @@
 }
 
 @theme {
+    /* Custom Samson Dental Colors */
+    --color-red-500: #e10011; /* Primary brand red */
+    --color-red-600: #cb0010; /* Darker red */
+    --color-red-700: #ab000d; /* Crimson red */
+    --color-red-950: #1a0202; /* Very dark red for backgrounds */
+
+    --color-stone-50: #f2f5f7; /* Light gray background */
+    --color-stone-100: #e1e8ed; /* Secondary light gray */
+    --color-stone-800: #121518; /* Dark gray for text */
+    --color-stone-900: #0a0c0e; /* Almost black */
+
     /* Fonts */
     --font-sans: var(--font-main);
     --font-outfit: var(--font-main);

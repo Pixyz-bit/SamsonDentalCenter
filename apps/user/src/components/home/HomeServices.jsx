@@ -14,7 +14,7 @@ const HomeServices = ({ variant = 'light' }) => {
     const gridRef = useRef(null);
     const ctaRef = useRef(null);
 
-    const isDark = variant === 'dark';
+    const isDark = false; // forced light mode
 
     // GSAP Animations
     useEffect(() => {
@@ -124,7 +124,7 @@ const HomeServices = ({ variant = 'light' }) => {
         >
             {/* Background Decor */}
             <div
-                className={`absolute top-0 right-0 w-200 h-200 rounded-full blur-[120px] -mr-48 -mt-48 transition-all duration-700 pointer-events-none ${isDark ? 'bg-white/5' : 'bg-blue-600/5'}`}
+                className={`absolute top-0 right-0 w-200 h-200 rounded-full blur-[120px] -mr-48 -mt-48 transition-all duration-700 pointer-events-none ${isDark ? 'bg-white/5' : 'bg-red-600/5'}`}
             ></div>
 
             <div className='max-w-6xl mx-auto px-6 sm:px-8 lg:px-12 relative z-10'>
@@ -135,24 +135,24 @@ const HomeServices = ({ variant = 'light' }) => {
                     <div className='overflow-hidden mb-6'>
                         <div className='services-reveal-text flex items-center gap-3'>
                             <span
-                                className={`h-px w-8 ${isDark ? 'bg-white/30' : 'bg-blue-600'}`}
+                                className={`h-px w-8 ${isDark ? 'bg-white/30' : 'bg-red-600'}`}
                             ></span>
                             <span
-                                className={`${isDark ? 'text-slate-300' : 'text-blue-500'} font-bold uppercase tracking-widest text-[10px]`}
+                                className={`${isDark ? 'text-stone-300' : 'text-red-500'} font-bold uppercase tracking-widest text-[10px]`}
                             >
                                 Medical Services
                             </span>
                         </div>
                     </div>
                     <h2
-                        className={`text-[clamp(2.5rem,6vw,4.5rem)] font-bold leading-[1.1] tracking-tight ${isDark ? 'text-white' : 'text-slate-900'}`}
+                        className={`text-[clamp(2.5rem,6vw,4.5rem)] font-bold leading-[1.1] tracking-tight ${isDark ? 'text-white' : 'text-stone-900'}`}
                     >
                         <div className='overflow-hidden'>
                             <span className='block services-reveal-text'>Clinical</span>
                         </div>
                         <div className='overflow-hidden'>
                             <span
-                                className={`block services-reveal-text ${isDark ? 'text-slate-300/70' : 'text-slate-500'}`}
+                                className={`block services-reveal-text ${isDark ? 'text-stone-300/70' : 'text-red-500'}`}
                             >
                                 Solutions.
                             </span>
@@ -161,9 +161,9 @@ const HomeServices = ({ variant = 'light' }) => {
                 </div>
 
                 {loading ? (
-                    <div className='text-center text-slate-400 py-20 flex flex-col items-center justify-center gap-4 min-h-[80vh]'>
-                        <div className='w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full animate-spin'></div>
-                        <span className='text-sm font-medium tracking-wide text-slate-500'>
+                    <div className='text-center text-stone-400 py-20 flex flex-col items-center justify-center gap-4 min-h-[80vh]'>
+                        <div className='w-8 h-8 border-2 border-red-600 border-t-transparent rounded-full animate-spin'></div>
+                        <span className='text-sm font-medium tracking-wide text-stone-500'>
                             Loading pharmaceutical & clinical options...
                         </span>
                     </div>
@@ -178,7 +178,7 @@ const HomeServices = ({ variant = 'light' }) => {
                                 <div
                                     key={service.id}
                                     onClick={() => navigate(`/services/${service.id}`)}
-                                    className={`gsap-card group relative overflow-hidden rounded-2xl border transition-all duration-500 cursor-pointer ${getGridClasses(idx)} ${isDark ? 'border-white/5 hover:border-blue-500/30 shadow-sm' : 'border-slate-100 bg-white shadow-md hover:shadow-xl hover:shadow-blue-500/10'}`}
+                                    className={`gsap-card group relative overflow-hidden rounded-2xl border transition-all duration-500 cursor-pointer ${getGridClasses(idx)} ${isDark ? 'border-white/5 hover:border-red-500/30 shadow-sm' : 'border-stone-100 bg-white shadow-md hover:shadow-xl hover:shadow-red-500/10'}`}
                                 >
                                     <img
                                         src={service.image}
@@ -188,20 +188,20 @@ const HomeServices = ({ variant = 'light' }) => {
 
                                     {/* Subtler Overlays for Light Mode */}
                                     <div
-                                        className={`absolute inset-0 transition-colors duration-500 ${isDark ? 'bg-slate-900/40 group-hover:bg-slate-900/20' : 'bg-slate-900/20 group-hover:bg-slate-900/10'}`}
+                                        className={`absolute inset-0 transition-colors duration-500 ${isDark ? 'bg-stone-900/40 group-hover:bg-stone-900/20' : 'bg-stone-900/20 group-hover:bg-stone-900/10'}`}
                                     ></div>
                                     <div
-                                        className={`absolute inset-0 bg-linear-to-t via-transparent to-transparent opacity-80 group-hover:opacity-90 transition-opacity ${isDark ? 'from-black' : 'from-slate-900/80'}`}
+                                        className={`absolute inset-0 bg-linear-to-t via-transparent to-transparent opacity-80 group-hover:opacity-90 transition-opacity ${isDark ? 'from-black' : 'from-stone-900/80'}`}
                                     ></div>
 
                                     <div
-                                        className={`absolute top-6 left-6 font-bold text-[10px] tracking-widest transition-colors ${isDark ? 'text-white/50 group-hover:text-blue-400' : 'text-white/70 group-hover:text-white'}`}
+                                        className={`absolute top-6 left-6 font-bold text-[10px] tracking-widest transition-colors ${isDark ? 'text-white/50 group-hover:text-red-400' : 'text-white/70 group-hover:text-white'}`}
                                     >
                                         {String(idx + 1).padStart(2, '0')}
                                     </div>
 
                                     <div
-                                        className={`absolute top-5 right-5 w-10 h-10 rounded-xl backdrop-blur-md border flex items-center justify-center text-white transform transition-all duration-300 group-hover:bg-blue-600 group-hover:border-blue-500 group-hover:rotate-45 ${isDark ? 'bg-white/10 border-white/10' : 'bg-white/20 border-white/20'}`}
+                                        className={`absolute top-5 right-5 w-10 h-10 rounded-xl backdrop-blur-md border flex items-center justify-center text-white transform transition-all duration-300 group-hover:bg-red-600 group-hover:border-red-500 group-hover:rotate-45 ${isDark ? 'bg-white/10 border-white/10' : 'bg-white/20 border-white/20'}`}
                                     >
                                         <svg
                                             className='w-5 h-5'
@@ -231,7 +231,7 @@ const HomeServices = ({ variant = 'light' }) => {
 
                         {/* List View (06+) */}
                         <div
-                            className={`gsap-list-container border-t divide-y ${isDark ? 'border-white/5 divide-white/5' : 'border-slate-100 divide-slate-100'}`}
+                            className={`gsap-list-container border-t divide-y ${isDark ? 'border-white/5 divide-white/5' : 'border-stone-100 divide-stone-100'}`}
                         >
                             {listItems.map((service, idx) => {
                                 const displayIndex = idx + 6;
@@ -239,23 +239,23 @@ const HomeServices = ({ variant = 'light' }) => {
                                     <div
                                         key={service.id}
                                         onClick={() => navigate(`/services/${service.id}`)}
-                                        className={`gsap-list-item group flex items-center justify-between py-10 md:py-14 px-4 hover:px-8 transition-all duration-500 cursor-pointer ${isDark ? 'hover:bg-white/2' : 'hover:bg-slate-50/70'}`}
+                                        className={`gsap-list-item group flex items-center justify-between py-10 md:py-14 px-4 hover:px-8 transition-all duration-500 cursor-pointer ${isDark ? 'hover:bg-white/2' : 'hover:bg-stone-50/70'}`}
                                     >
                                         <div className='flex items-center gap-8 md:gap-20'>
                                             <span
-                                                className={`font-bold text-sm md:text-base transition-colors ${isDark ? 'text-white/30 group-hover:text-white/70' : 'text-slate-400 group-hover:text-blue-500'}`}
+                                                className={`font-bold text-sm md:text-base transition-colors ${isDark ? 'text-white/30 group-hover:text-white/70' : 'text-stone-400 group-hover:text-red-500'}`}
                                             >
                                                 {String(displayIndex).padStart(2, '0')}
                                             </span>
                                             <h3
-                                                className={`text-xl md:text-4xl font-bold transition-colors tracking-tight ${isDark ? 'text-white/80 group-hover:text-white' : 'text-slate-800 group-hover:text-slate-900 group-hover:translate-x-1'}`}
+                                                className={`text-xl md:text-4xl font-bold transition-colors tracking-tight ${isDark ? 'text-white/80 group-hover:text-white' : 'text-stone-800 group-hover:text-stone-900 group-hover:translate-x-1'}`}
                                             >
                                                 {service.name}
                                             </h3>
                                         </div>
 
                                         <div
-                                            className={`w-12 h-12 md:w-16 md:h-16 rounded-xl border flex items-center justify-center transition-all duration-500 ${isDark ? 'bg-white/5 border-white/10 text-white/40 group-hover:bg-white/10 group-hover:text-white group-hover:border-white/20 group-hover:rotate-6' : 'bg-white border-slate-100 text-slate-400 group-hover:bg-blue-600 group-hover:text-white group-hover:border-blue-500 shadow-sm group-hover:shadow-md'}`}
+                                            className={`w-12 h-12 md:w-16 md:h-16 rounded-xl border flex items-center justify-center transition-all duration-500 ${isDark ? 'bg-white/5 border-white/10 text-white/40 group-hover:bg-white/10 group-hover:text-white group-hover:border-white/20 group-hover:rotate-6' : 'bg-white border-stone-100 text-stone-400 group-hover:bg-red-600 group-hover:text-white group-hover:border-red-500 shadow-sm group-hover:shadow-md'}`}
                                         >
                                             <svg
                                                 className='w-6 h-6 md:w-7 md:h-7'
@@ -281,15 +281,15 @@ const HomeServices = ({ variant = 'light' }) => {
                 {/* CTA Banner */}
                 <div
                     ref={ctaRef}
-                    className={`mt-24 flex flex-col md:flex-row items-center justify-between rounded-[2.5rem] border p-6 md:p-8 group relative overflow-hidden transition-all duration-500 ${isDark ? 'bg-white/5 border-white/10' : 'bg-white border-slate-200 shadow-xl shadow-slate-200/50 hover:shadow-2xl hover:shadow-blue-500/10'}`}
+                    className={`mt-24 flex flex-col md:flex-row items-center justify-between rounded-[2.5rem] border p-6 md:p-8 group relative overflow-hidden transition-all duration-500 ${isDark ? 'bg-white/5 border-white/10' : 'bg-white border-stone-200 shadow-xl shadow-stone-200/50 hover:shadow-2xl hover:shadow-red-500/10'}`}
                 >
                     <div
-                        className={`absolute inset-0 transition-opacity duration-1000 ${isDark ? 'bg-linear-to-r from-white/5 to-transparent' : 'bg-linear-to-r from-slate-50 to-transparent'}`}
+                        className={`absolute inset-0 transition-opacity duration-1000 ${isDark ? 'bg-linear-to-r from-white/5 to-transparent' : 'bg-linear-to-r from-stone-50 to-transparent'}`}
                     ></div>
 
                     <div className='flex flex-col md:flex-row items-center gap-8 px-4 text-center md:text-left relative z-10'>
                         <div
-                            className={`w-16 h-16 rounded-2xl flex items-center justify-center shadow-lg transform transition-transform duration-500 group-hover:scale-110 ${isDark ? 'bg-white/10 text-white' : 'bg-blue-600 text-white shadow-blue-500/20'}`}
+                            className={`w-16 h-16 rounded-2xl flex items-center justify-center shadow-lg transform transition-transform duration-500 group-hover:scale-110 ${isDark ? 'bg-white/10 text-white' : 'bg-red-600 text-white shadow-red-500/20'}`}
                         >
                             <svg
                                 className='w-8 h-8'
@@ -307,12 +307,12 @@ const HomeServices = ({ variant = 'light' }) => {
                         </div>
                         <div>
                             <p
-                                className={`font-bold text-2xl md:text-3xl tracking-tight leading-tight ${isDark ? 'text-white' : 'text-slate-900'}`}
+                                className={`font-bold text-2xl md:text-3xl tracking-tight leading-tight ${isDark ? 'text-white' : 'text-stone-900'}`}
                             >
                                 Start Your Journey Today
                             </p>
                             <p
-                                className={`font-medium text-xs md:text-sm mt-2 uppercase tracking-[0.2em] ${isDark ? 'text-slate-400' : 'text-slate-500'}`}
+                                className={`font-medium text-xs md:text-sm mt-2 uppercase tracking-[0.2em] ${isDark ? 'text-stone-400' : 'text-stone-500'}`}
                             >
                                 Book a comprehensive 3D scan and diagnostic
                             </p>
@@ -323,7 +323,7 @@ const HomeServices = ({ variant = 'light' }) => {
                         className={`relative z-10 w-full md:w-auto text-white font-bold py-5 px-14 rounded-2xl text-sm transition-all duration-300 hover:-translate-y-1 mt-6 md:mt-0 ${
                             isDark
                                 ? 'bg-white/10 hover:bg-white/15 shadow-lg shadow-black/40 hover:shadow-xl hover:shadow-black/50'
-                                : 'bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/40'
+                                : 'bg-red-600 hover:bg-red-700 shadow-lg shadow-red-500/25 hover:shadow-xl hover:shadow-red-500/40'
                         }`}
                     >
                         View All Services

@@ -87,24 +87,24 @@ const features = [
 
 const WhyChooseUs = () => {
     return (
-        <section className='py-10 sm:py-16 lg:py-20 bg-slate-50 relative overflow-hidden'>
+        <section className='py-16 sm:py-24 lg:py-32 bg-white relative overflow-hidden'>
             {/* Background elements */}
-            <div className='absolute -top-80 -left-80 w-160 h-160 bg-blue-100/50 rounded-full blur-[100px] pointer-events-none'></div>
-            <div className='absolute top-80 -right-80 w-160 h-160 bg-slate-200/50 rounded-full blur-[100px] pointer-events-none'></div>
+            <div className='absolute -top-80 -left-80 w-160 h-160 bg-red-100/50 rounded-full blur-[100px] pointer-events-none'></div>
+            <div className='absolute top-80 -right-80 w-160 h-160 bg-stone-200/50 rounded-full blur-[100px] pointer-events-none'></div>
 
-            <div className='max-w-6xl mx-auto px-6 sm:px-8 lg:px-12 relative z-10'>
+            <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10'>
                 <div className='grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-24 items-center'>
                     {/* Left Column: Text & Context */}
                     <div className='flex flex-col gap-6 sm:gap-8 max-w-2xl'>
                         <div className='flex flex-col gap-4'>
-                            <span className='text-blue-600 font-semibold tracking-wide text-sm uppercase'>
+                            <span className='text-red-600 font-semibold tracking-wide text-sm uppercase'>
                                 The Primera Difference
                             </span>
-                            <h2 className='text-[clamp(2.25rem,5vw+0.5rem,3.5rem)] font-bold text-slate-900 leading-[1.15] tracking-tight'>
-                                Why trust us with your <span className='text-blue-600'>smile?</span>
+                            <h2 className='text-[clamp(2.25rem,5vw+0.5rem,3.5rem)] font-bold text-stone-900 leading-[1.15] tracking-tight'>
+                                Why trust us with your <span className='text-red-600'>smile?</span>
                             </h2>
                         </div>
-                        <p className='text-[clamp(1rem,1.5vw+0.5rem,1.125rem)] text-slate-600 leading-relaxed'>
+                        <p className='text-[clamp(1rem,1.5vw+0.5rem,1.125rem)] text-stone-600 leading-relaxed'>
                             We believe that exceptional dental care goes beyond just fixing teeth.
                             It's about combining precise medical expertise with a compassionate,
                             human touch. From the moment you walk through our doors, your comfort
@@ -112,7 +112,7 @@ const WhyChooseUs = () => {
                         </p>
 
                         <div className='pt-6'>
-                            <div className='flex items-center gap-4 p-4 rounded-xl bg-white border border-slate-200/80 shadow-sm w-fit'>
+                            <div className='flex items-center gap-4 p-4 rounded-xl bg-white border border-stone-200/80 shadow-sm w-fit'>
                                 <div className='flex -space-x-4'>
                                     {[
                                         'https://images.unsplash.com/photo-1595152772835-219674b2a8a6?auto=format&fit=crop&q=80&w=100&h=100',
@@ -142,7 +142,7 @@ const WhyChooseUs = () => {
                                             ))}
                                         </div>
                                     </div>
-                                    <span className='text-sm font-semibold text-slate-900'>
+                                    <span className='text-sm font-semibold text-stone-900'>
                                         5,000+ Happy Patients
                                     </span>
                                 </div>
@@ -155,16 +155,16 @@ const WhyChooseUs = () => {
                         {features.map((feature) => (
                             <div
                                 key={feature.id}
-                                className='bg-white rounded-2xl p-6 md:p-8 shadow-sm border border-slate-200/80 hover:shadow-md hover:border-blue-200 hover:-translate-y-0.5 transition-all duration-200 ease-in-out flex flex-col gap-4 group'
+                                className='bg-white rounded-2xl p-6 md:p-8 shadow-sm border border-stone-200/80 hover:shadow-md hover:border-red-200 hover:-translate-y-0.5 transition-all duration-200 ease-in-out flex flex-col gap-4 group'
                             >
-                                <div className='w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition-colors duration-200 ease-in-out'>
+                                <div className='w-12 h-12 rounded-xl bg-red-50 text-red-600 flex items-center justify-center group-hover:bg-red-600 group-hover:text-white transition-colors duration-200 ease-in-out'>
                                     {feature.icon}
                                 </div>
                                 <div>
-                                    <h3 className='font-bold text-slate-900 text-[clamp(1.125rem,1vw+0.5rem,1.25rem)] tracking-tight mb-2'>
+                                    <h3 className='font-bold text-stone-900 text-[clamp(1.125rem,1vw+0.5rem,1.25rem)] tracking-tight mb-2'>
                                         {feature.title}
                                     </h3>
-                                    <p className='text-sm text-slate-600 leading-relaxed'>
+                                    <p className='text-sm text-stone-600 leading-relaxed'>
                                         {feature.description}
                                     </p>
                                 </div>

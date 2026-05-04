@@ -87,7 +87,7 @@ const Mission = () => {
                 <div className='grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-6 items-stretch'>
                     {/* Left: Image card with overlay content */}
                     <div ref={imageRef} className='lg:col-span-7'>
-                        <div className='relative h-full overflow-hidden rounded-3xl bg-slate-900 shadow-xl'>
+                        <div className='relative h-full overflow-hidden rounded-3xl bg-stone-900 shadow-xl'>
                             <img
                                 src={image.src}
                                 alt={image.alt}
@@ -96,7 +96,7 @@ const Mission = () => {
                             />
 
                             {/* light dark overlay for readability (matches reference) */}
-                            <div className='absolute inset-0 bg-slate-950/50' />
+                            <div className='absolute inset-0 bg-stone-950/50' />
 
                             <div className='relative p-8 sm:p-10 flex flex-col h-full min-h-[400px]'>
                                 <div className='grow'>
@@ -117,7 +117,7 @@ const Mission = () => {
                                 <div className='mt-6 shrink-0'>
                                     <button
                                         type='button'
-                                        className='inline-flex items-center justify-center rounded-full bg-white px-7 py-3.5 text-sm font-semibold text-slate-900 shadow-sm hover:bg-white/90 focus:outline-none focus:ring-2 focus:ring-white/70'
+                                        className='inline-flex items-center justify-center rounded-full bg-white px-7 py-3.5 text-sm font-semibold text-stone-900 shadow-sm hover:bg-white/90 focus:outline-none focus:ring-2 focus:ring-white/70'
                                     >
                                         Meet our team
                                     </button>
@@ -128,7 +128,7 @@ const Mission = () => {
 
                     {/* Right: Numbered value list */}
                     <div className='lg:col-span-5'>
-                        <div className='h-full rounded-3xl border border-slate-200/80 bg-white px-8 py-8 sm:px-9 sm:py-9 shadow-sm'>
+                        <div className='h-full rounded-3xl border border-stone-200/80 bg-white px-8 py-8 sm:px-9 sm:py-9 shadow-sm'>
                             <div className='flex flex-col justify-center h-full'>
                                 {values.map((item, idx) => (
                                     <div
@@ -136,17 +136,17 @@ const Mission = () => {
                                         ref={(el) => (valuesRef.current[idx] = el)}
                                         className={idx !== 0 ? 'mt-7' : ''}
                                     >
-                                        <div className='text-xs font-semibold text-indigo-600'>
+                                        <div className='text-xs font-semibold text-red-600'>
                                             {item.number}
                                         </div>
-                                        <h3 className='mt-1.5 text-2xl font-semibold tracking-tight text-slate-900'>
+                                        <h3 className='mt-1.5 text-2xl font-semibold tracking-tight text-stone-900'>
                                             {item.title}
                                         </h3>
-                                        <p className='mt-2 text-sm text-slate-600 leading-relaxed'>
+                                        <p className='mt-2 text-sm text-stone-600 leading-relaxed'>
                                             {item.description}
                                         </p>
                                         {idx !== values.length - 1 && (
-                                            <div className='mt-7 h-px w-full bg-slate-200' />
+                                            <div className='mt-7 h-px w-full bg-stone-200' />
                                         )}
                                     </div>
                                 ))}

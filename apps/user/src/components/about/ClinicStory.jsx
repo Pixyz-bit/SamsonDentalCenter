@@ -1,18 +1,15 @@
 import React, { useEffect, useRef } from 'react';
-import { useClinicSettings } from '../../hooks/useClinicSettings';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/dist/ScrollTrigger';
 
 gsap.registerPlugin(ScrollTrigger);
 
 const ClinicStory = () => {
-    const { settings, loading } = useClinicSettings();
     const containerRef = useRef(null);
     const leftContentRef = useRef(null);
     const imageRef = useRef(null);
 
     useEffect(() => {
-        if (loading || !settings) return;
         if (!containerRef.current) return;
 
         // Animate left content from left
@@ -54,13 +51,7 @@ const ClinicStory = () => {
         return () => {
             ScrollTrigger.getAll().forEach(trigger => trigger.kill());
         };
-    }, [loading, settings]);
-
-    // "Good enough" tab state without adding dependencies
-    const [activeTab, setActiveTab] = React.useState(0);
-
-    if (loading) return <div className="py-20 animate-pulse bg-white min-h-[400px]" />;
-
+    }, []);
     const image = {
         // Using a stable Unsplash image URL (direct link) to avoid loading issues.
         src: '/images/about/clinic-exterior.jpeg',
@@ -79,30 +70,32 @@ const ClinicStory = () => {
             body: 'We’re building a modern dental experience that blends advanced technology with a calm, supportive environment — making great oral health accessible for every family we serve.',
         },
         {
-            label: 'Our Values',
+            label: 'Our Value',
             title: 'Integrity, empathy, and excellence — every day.',
             body: 'We hold ourselves to global standards: honest guidance, evidence-based treatment, and a commitment to long-term outcomes, not quick fixes.',
         },
     ];
 
+    // "Good enough" tab state without adding dependencies
+    const [activeTab, setActiveTab] = React.useState(0);
+
     return (
         <section ref={containerRef} className='py-16 sm:py-20 bg-white'>
-            <div className='max-w-6xl mx-auto px-6 sm:px-8 lg:px-12'>
+            <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
                 <div className='grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-start'>
                     {/* Left: Headline + description + tabs + panel */}
                     <div ref={leftContentRef} className='order-2 lg:order-1 lg:col-span-7'>
-                        <p className='inline-flex items-center gap-2 text-base font-bold tracking-[0.2em] text-slate-600 uppercase'>
-                            <span className='h-2.5 w-2.5 rounded-full bg-indigo-600' />
+                        <p className='inline-flex items-center gap-2 text-base font-bold tracking-[0.2em] text-stone-600 uppercase'>
+                            <span className='h-2.5 w-2.5 rounded-full bg-red-600' />
                             Our story
                         </p>
-                        <h2 className='mt-4 text-4xl sm:text-5xl lg:text-6xl font-semibold tracking-[-0.02em] text-slate-900 leading-[1.06]'>
-                            {settings?.clinic_name || 'Dentistry'} that feels calm, clear, and genuinely premium.
+                        <h2 className='mt-4 text-4xl sm:text-5xl lg:text-6xl font-semibold tracking-[-0.02em] text-stone-900 leading-[1.06]'>
+                            Dentistry that feels calm, clear, and genuinely premium.
                         </h2>
-                        <div className='mt-5 text-base sm:text-lg text-slate-600 leading-relaxed max-w-2xl prose prose-slate'>
-                            <p>
-                                No pressure. No confusing jargon. Just a modern clinic, a friendly team, and a simple plan that gets you to a healthier smile.
-                            </p>
-                        </div>
+                        <p className='mt-5 text-base sm:text-lg text-stone-600 leading-relaxed max-w-2xl'>
+                            No pressure. No confusing jargon. Just a modern clinic, a friendly team,
+                            and a simple plan that gets you to a healthier smile.
+                        </p>
 
                         {/* Tabs */}
                         <div className='mt-10'>
@@ -114,10 +107,10 @@ const ClinicStory = () => {
                                             key={t.label}
                                             type='button'
                                             onClick={() => setActiveTab(idx)}
-                                            className={`rounded-full px-4 py-2 text-sm font-semibold transition-all duration-200 border focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-600/30 focus-visible:ring-offset-2 ${
+                                            className={`rounded-full px-4 py-2 text-sm font-semibold transition-all duration-200 border focus:outline-none focus-visible:ring-2 focus-visible:ring-red-600/30 focus-visible:ring-offset-2 ${
                                                 isActive
-                                                    ? 'bg-slate-900 text-white border-slate-900 shadow-sm'
-                                                    : 'bg-white/80 text-slate-700 border-slate-200 hover:border-slate-300 hover:bg-white'
+                                                    ? 'bg-stone-900 text-white border-stone-900 shadow-sm'
+                                                    : 'bg-white/80 text-stone-700 border-stone-200 hover:border-stone-300 hover:bg-white'
                                             }`}
                                         >
                                             {t.label}
@@ -127,20 +120,20 @@ const ClinicStory = () => {
                             </div>
 
                             {/* Tab panel */}
-                            <div className='mt-6 rounded-2xl border border-slate-200/70 bg-white p-6 sm:p-7 shadow-sm ring-1 ring-slate-900/3'>
-                                <h3 className='text-xl sm:text-2xl font-semibold tracking-tight text-slate-900'>
+                            <div className='mt-6 rounded-2xl border border-stone-200/70 bg-white p-6 sm:p-7 shadow-sm ring-1 ring-stone-900/3'>
+                                <h3 className='text-xl sm:text-2xl font-semibold tracking-tight text-stone-900'>
                                     {tabs[activeTab].title}
                                 </h3>
-                                <div className='mt-3 text-base text-slate-700 leading-relaxed prose prose-slate'>
-                                    <p>{tabs[activeTab].body}</p>
-                                </div>
+                                <p className='mt-3 text-base text-stone-700 leading-relaxed'>
+                                    {tabs[activeTab].body}
+                                </p>
                             </div>
                         </div>
                     </div>
 
                     {/* Right: Image */}
                     <div ref={imageRef} className='order-1 lg:order-2 lg:col-span-5'>
-                        <div className='relative rounded-3xl overflow-hidden shadow-2xl bg-slate-900 ring-1 ring-slate-900/10'>
+                        <div className='relative rounded-3xl overflow-hidden shadow-2xl bg-stone-900 ring-1 ring-stone-900/10'>
                             <img
                                 src={image.src}
                                 alt={image.alt}
@@ -148,12 +141,12 @@ const ClinicStory = () => {
                                 loading='lazy'
                             />
                             {/* Dark overlay filter for better aesthetic and readability */}
-                            <div className='absolute inset-0 bg-slate-950/45' />
+                            <div className='absolute inset-0 bg-stone-950/45' />
 
                             {/* Small caption chip to match site theme */}
                             <div className='absolute left-5 bottom-5 right-5'>
                                 <div className='inline-flex items-center gap-3 rounded-full border border-white/15 bg-black/35 px-4 py-2 text-sm font-semibold text-white shadow-sm'>
-                                    <span className='h-2 w-2 rounded-full bg-indigo-400' />
+                                    <span className='h-2 w-2 rounded-full bg-red-400' />
                                     Elevated care, without the stress.
                                 </div>
                             </div>

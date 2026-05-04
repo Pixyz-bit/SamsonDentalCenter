@@ -78,11 +78,11 @@ const ChatBot = () => {
             {open && (
                 <div className='mb-4 w-90 max-w-[calc(100vw-3rem)]'>
                     {/* Phone-style Container (matches AIChatbotPromo mockup) */}
-                    <div className='rounded-[2.5rem] border border-slate-100 bg-white shadow-[0_50px_100px_-20px_rgba(0,0,0,0.15)] overflow-hidden'>
+                    <div className='rounded-[2.5rem] border border-stone-100 bg-white shadow-[0_50px_100px_-20px_rgba(0,0,0,0.15)] overflow-hidden'>
                         {/* Header */}
-                        <div className='p-6 border-b border-slate-100 bg-slate-50/80 flex items-center justify-between'>
+                        <div className='p-6 border-b border-stone-100 bg-stone-50/80 flex items-center justify-between'>
                             <div className='flex items-center gap-4'>
-                                <div className='w-10 h-10 rounded-2xl bg-linear-to-tr from-blue-600 to-indigo-500 flex items-center justify-center text-white shadow-lg'>
+                                <div className='w-10 h-10 rounded-2xl bg-linear-to-tr from-red-600 to-red-500 flex items-center justify-center text-white shadow-lg'>
                                     <svg
                                         className='w-5 h-5'
                                         fill='currentColor'
@@ -93,7 +93,7 @@ const ChatBot = () => {
                                     </svg>
                                 </div>
                                 <div className='text-left'>
-                                    <p className='font-black text-xs uppercase tracking-tighter text-slate-900'>
+                                    <p className='font-black text-xs uppercase tracking-tighter text-stone-900'>
                                         Samson AI Agent
                                     </p>
                                     <div className='flex items-center gap-1.5 mt-0.5'>
@@ -108,7 +108,7 @@ const ChatBot = () => {
                             <button
                                 type='button'
                                 onClick={() => setOpen(false)}
-                                className='w-9 h-9 rounded-2xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 flex items-center justify-center transition'
+                                className='w-9 h-9 rounded-2xl border border-stone-200 bg-white hover:bg-stone-50 text-stone-700 flex items-center justify-center transition'
                                 aria-label='Close chat'
                             >
                                 <X size={18} />
@@ -130,8 +130,8 @@ const ChatBot = () => {
                                         <div
                                             className={
                                                 isUser
-                                                    ? 'bg-blue-600 text-white rounded-2xl rounded-tr-none px-4 py-3.5 max-w-[85%] text-sm font-semibold leading-relaxed shadow-lg shadow-blue-500/10'
-                                                    : 'rounded-2xl rounded-tl-none px-4 py-3.5 max-w-[85%] text-sm font-medium leading-relaxed bg-slate-50 text-slate-700 border border-slate-100'
+                                                    ? 'bg-red-600 text-white rounded-2xl rounded-tr-none px-4 py-3.5 max-w-[85%] text-sm font-semibold leading-relaxed shadow-lg shadow-red-500/10'
+                                                    : 'rounded-2xl rounded-tl-none px-4 py-3.5 max-w-[85%] text-sm font-medium leading-relaxed bg-stone-50 text-stone-700 border border-stone-100'
                                             }
                                         >
                                             {m.content}
@@ -142,7 +142,7 @@ const ChatBot = () => {
                         </div>
 
                         {/* Footer */}
-                        <div className='p-5 border-t border-slate-100 bg-white'>
+                        <div className='p-5 border-t border-stone-100 bg-white'>
                             {/* Horizontal FAQ quick actions (ecommerce-style) */}
                             <div className='mb-3 flex items-center gap-2 overflow-x-auto no-scrollbar'>
                                 {FAQ_ITEMS.map((item) => (
@@ -164,7 +164,7 @@ const ChatBot = () => {
                                                 },
                                             ]);
                                         }}
-                                        className='shrink-0 px-3 py-2 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-100 text-xs font-bold text-slate-800 transition'
+                                        className='shrink-0 px-3 py-2 rounded-xl bg-stone-50 hover:bg-stone-100 border border-stone-100 text-xs font-bold text-stone-800 transition'
                                     >
                                         {item.q}
                                     </button>
@@ -177,7 +177,7 @@ const ChatBot = () => {
                                 >
                                     Message
                                 </label>
-                                <div className='h-11 rounded-xl border w-full flex items-center px-4 bg-slate-50 border-slate-100 hover:border-blue-200 transition-colors'>
+                                <div className='h-11 rounded-xl border w-full flex items-center px-4 bg-stone-50 border-stone-100 hover:border-red-200 transition-colors'>
                                     <input
                                         id={inputId}
                                         value={input}
@@ -186,14 +186,14 @@ const ChatBot = () => {
                                             if (e.key === 'Enter') sendMessage();
                                         }}
                                         placeholder='Ask a question...'
-                                        className='w-full bg-transparent outline-none text-sm text-slate-800 placeholder:text-slate-500'
+                                        className='w-full bg-transparent outline-none text-sm text-stone-800 placeholder:text-stone-500'
                                     />
                                 </div>
 
                                 <button
                                     type='button'
                                     onClick={sendMessage}
-                                    className='h-11 w-11 rounded-xl bg-slate-900 hover:bg-blue-600 text-white flex items-center justify-center transition shadow-lg shadow-slate-900/10'
+                                    className='h-11 w-11 rounded-xl bg-stone-900 hover:bg-red-600 text-white flex items-center justify-center transition shadow-lg shadow-stone-900/10'
                                     aria-label='Send'
                                 >
                                     <Send size={18} />
@@ -209,7 +209,7 @@ const ChatBot = () => {
                 <button
                     type='button'
                     onClick={() => setOpen(true)}
-                    className='w-14 h-14 rounded-full bg-linear-to-tr from-blue-600 to-indigo-500 text-white shadow-2xl shadow-blue-500/20 flex items-center justify-center transition-all hover:scale-105 active:scale-95'
+                    className='w-14 h-14 rounded-full bg-linear-to-tr from-red-600 to-red-500 text-white shadow-2xl shadow-red-500/20 flex items-center justify-center transition-all hover:scale-105 active:scale-95'
                     aria-label='Open AI chat'
                 >
                     <MessageCircle size={24} />

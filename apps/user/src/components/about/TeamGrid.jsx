@@ -114,8 +114,8 @@ const TeamGrid = () => {
                 <div className='max-w-6xl mx-auto px-6 sm:px-8 lg:px-12 w-full'>
                     <div className='mb-12'>
                         <div className='text-center max-w-2xl mx-auto'>
-                            <h2 className='text-3xl md:text-4xl font-brand font-black text-slate-900 mb-4'>Our Dedicated Team</h2>
-                            <p className='text-slate-600'>
+                            <h2 className='text-3xl md:text-4xl font-brand font-black text-stone-900 mb-4'>Our Dedicated Team</h2>
+                            <p className='text-stone-600'>
                                 Behind every smile is a team of passionate professionals dedicated to your comfort and care.
                             </p>
                         </div>
@@ -129,7 +129,7 @@ const TeamGrid = () => {
                                 ref={(el) => (cardsRef.current[index] = el)}
                                 className='group cursor-pointer transition-all duration-300'
                             >
-                                <div className='aspect-[3/4] rounded-[2rem] overflow-hidden mb-6 relative border border-slate-200 group-hover:border-sky-500 group-hover:shadow-xl group-hover:shadow-sky-500/10 transition-all duration-300'>
+                                <div className='aspect-[3/4] rounded-[2rem] overflow-hidden mb-6 relative border border-stone-200 group-hover:border-red-500 group-hover:shadow-xl group-hover:shadow-red-500/10 transition-all duration-300'>
                                     <img
                                         src={doctor.image}
                                         className='w-full h-full object-cover'
@@ -137,8 +137,8 @@ const TeamGrid = () => {
                                         loading='lazy'
                                     />
                                 </div>
-                                <h3 className='text-lg font-brand font-bold text-slate-900 mb-1 group-hover:text-sky-600 transition-colors duration-300'>{doctor.name}</h3>
-                                <p className='text-sm font-bold text-sky-600 uppercase tracking-widest group-hover:text-sky-500 transition-colors duration-300'>{doctor.role}</p>
+                                <h3 className='text-lg font-brand font-bold text-stone-900 mb-1 group-hover:text-red-600 transition-colors duration-300'>{doctor.name}</h3>
+                                <p className='text-sm font-bold text-red-600 uppercase tracking-widest group-hover:text-red-500 transition-colors duration-300'>{doctor.role}</p>
                             </div>
                         ))}
                     </div>

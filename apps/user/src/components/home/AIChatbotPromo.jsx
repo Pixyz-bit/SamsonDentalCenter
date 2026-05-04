@@ -74,34 +74,34 @@ const AIChatbotPromo = ({ variant = "light" }) => {
   return (
     <section
       ref={sectionRef}
-      className={`py-12 sm:py-20 lg:py-28 relative overflow-hidden transition-colors duration-500 ${isDark ? "bg-[#0B1120]" : "bg-white"}`}
+      className={`py-20 sm:py-32 lg:py-40 relative overflow-hidden transition-colors duration-500 ${isDark ? "bg-red-950" : "bg-white"}`}
     >
       {/* Background Decoration */}
       <div
-        className={`absolute top-1/2 left-0 w-[600px] h-[600px] rounded-full blur-[140px] opacity-20 -translate-x-1/2 -translate-y-1/2 pointer-events-none ${isDark ? "bg-blue-600" : "bg-blue-400"}`}
+        className={`absolute top-1/2 left-0 w-[600px] h-[600px] rounded-full blur-[140px] opacity-20 -translate-x-1/2 -translate-y-1/2 pointer-events-none ${isDark ? "bg-red-600" : "bg-red-400"}`}
       ></div>
 
-      <div className="max-w-6xl mx-auto px-6 sm:px-8 lg:px-12 relative z-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 items-center">
           {/* CONTENT SIDE */}
           <div ref={headingRef}>
             <div className="overflow-hidden mb-6">
               <div className="chatbot-reveal-text flex items-center gap-3">
-                <span className="h-px w-10 bg-sky-400"></span>
-                <span className="text-sky-400 font-bold uppercase tracking-[0.3em] text-[10px]">
+                <span className="h-px w-10 bg-red-400"></span>
+                <span className="text-red-400 font-bold uppercase tracking-[0.3em] text-[10px]">
                   Future of Dentistry
                 </span>
               </div>
             </div>
 
             <h2
-              className={`text-[clamp(2.5rem,6vw,4.5rem)] font-extrabold leading-[1.16] tracking-tighter mb-10 ${isDark ? "text-white" : "text-slate-900"}`}
+              className={`text-[clamp(2.5rem,6vw,4.5rem)] font-extrabold leading-[1.16] tracking-tighter mb-10 ${isDark ? "text-white" : "text-stone-900"}`}
             >
               <div className="overflow-hidden">
                 <span className="block chatbot-reveal-text">Intelligent</span>
               </div>
               <div className="overflow-hidden">
-                <span className="block text-transparent bg-clip-text bg-sky-400 chatbot-reveal-text">
+                <span className="block text-transparent bg-clip-text bg-red-400 chatbot-reveal-text">
                   Clinical Care.
                 </span>
               </div>
@@ -109,7 +109,7 @@ const AIChatbotPromo = ({ variant = "light" }) => {
 
             <div className="floating-badge">
               <p
-                className={`text-lg md:text-xl mb-12 leading-relaxed max-w-xl font-medium ${isDark ? "text-white" : "text-slate-600"}`}
+                className={`text-lg md:text-xl mb-12 leading-relaxed max-w-xl font-medium ${isDark ? "text-white" : "text-stone-600"}`}
               >
                 Experience 24/7 clinical support. Our advanced AI assistant
                 handles inquiries, schedules appointments, and provides instant
@@ -119,7 +119,7 @@ const AIChatbotPromo = ({ variant = "light" }) => {
               <div className="flex flex-col sm:flex-row items-center gap-5">
                 <button
                   onClick={() => navigate("/inquiries")}
-                  className="group w-full sm:w-auto bg-slate-900 text-white hover:bg-blue-600 px-10 py-5 rounded-2xl font-bold text-sm tracking-wide transition-all duration-300 shadow-xl shadow-slate-900/10 hover:shadow-blue-500/20 hover:-translate-y-1 flex items-center justify-center gap-3"
+                  className="group w-full sm:w-auto bg-stone-900 text-white hover:bg-red-600 px-10 py-5 rounded-2xl font-bold text-sm tracking-wide transition-all duration-300 shadow-xl shadow-stone-900/10 hover:shadow-red-500/20 hover:-translate-y-1 flex items-center justify-center gap-3"
                 >
                   Engage with AI
                   <svg
@@ -138,7 +138,7 @@ const AIChatbotPromo = ({ variant = "light" }) => {
                 </button>
                 <button
                   onClick={() => navigate("/services")}
-                  className={`w-full sm:w-auto border px-10 py-5 rounded-2xl font-bold text-sm tracking-wide transition-all duration-300 ${isDark ? "bg-white/5 border-white/10 text-white hover:bg-white/10" : "bg-white border-slate-200 text-slate-800 hover:border-blue-200 hover:text-blue-600 shadow-sm"}`}
+                  className={`w-full sm:w-auto border px-10 py-5 rounded-2xl font-bold text-sm tracking-wide transition-all duration-300 ${isDark ? "bg-white/5 border-white/10 text-white hover:bg-white/10" : "bg-white border-stone-200 text-stone-800 hover:border-red-200 hover:text-red-600 shadow-sm"}`}
                 >
                   View Capabilities
                 </button>
@@ -151,13 +151,13 @@ const AIChatbotPromo = ({ variant = "light" }) => {
             <div ref={mockupRef} className="chatbot-mockup-anim relative z-10">
               {/* Main Phone-style Container */}
               <div
-                className={`w-full max-w-[380px] mx-auto rounded-[3rem] border shadow-[0_50px_100px_-20px_rgba(0,0,0,0.15)] overflow-hidden transition-all duration-700 ${isDark ? "bg-slate-950/80 border-white/10" : "bg-white border-slate-100"}`}
+                className={`w-full max-w-[380px] mx-auto rounded-[3rem] border shadow-[0_50px_100px_-20px_rgba(0,0,0,0.15)] overflow-hidden transition-all duration-700 ${isDark ? "bg-stone-950/80 border-white/10" : "bg-white border-stone-100"}`}
               >
                 <div
-                  className={`p-6 border-b flex items-center justify-between ${isDark ? "bg-white/5 border-white/5" : "bg-slate-50/80 border-slate-100"}`}
+                  className={`p-6 border-b flex items-center justify-between ${isDark ? "bg-white/5 border-white/5" : "bg-stone-50/80 border-stone-100"}`}
                 >
                   <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-2xl bg-blue-600 flex items-center justify-center text-white shadow-lg">
+                    <div className="w-10 h-10 rounded-2xl bg-red-600 flex items-center justify-center text-white shadow-lg">
                       <svg
                         className="w-5 h-5"
                         fill="currentColor"
@@ -169,7 +169,7 @@ const AIChatbotPromo = ({ variant = "light" }) => {
                     </div>
                     <div className="text-left">
                       <p
-                        className={`font-black text-xs uppercase tracking-tighter ${isDark ? "text-white" : "text-slate-900"}`}
+                        className={`font-black text-xs uppercase tracking-tighter ${isDark ? "text-white" : "text-stone-900"}`}
                       >
                         Samson AI Agent
                       </p>
@@ -186,20 +186,20 @@ const AIChatbotPromo = ({ variant = "light" }) => {
                 <div className="p-8 space-y-6 h-[420px]">
                   <div className="flex justify-start text-left">
                     <div
-                      className={`rounded-2xl rounded-tl-none p-4 max-w-[85%] text-xs font-semibold leading-relaxed ${isDark ? "bg-white/5 text-white" : "bg-slate-100 text-slate-700 border border-slate-200/50"}`}
+                      className={`rounded-2xl rounded-tl-none p-4 max-w-[85%] text-xs font-semibold leading-relaxed ${isDark ? "bg-white/5 text-white" : "bg-stone-100 text-stone-700 border border-stone-200/50"}`}
                     >
                       Welcome to Samson Dental. How can I assist with your
                       clinical inquiry today?
                     </div>
                   </div>
                   <div className="flex justify-end text-right">
-                    <div className="bg-blue-600 text-white rounded-2xl rounded-tr-none p-4 max-w-[85%] text-xs font-bold shadow-lg shadow-blue-500/10">
+                    <div className="bg-red-600 text-white rounded-2xl rounded-tr-none p-4 max-w-[85%] text-xs font-bold shadow-lg shadow-red-500/10">
                       Tell me about your 3D scanning.
                     </div>
                   </div>
                   <div className="flex justify-start text-left">
                     <div
-                      className={`rounded-2xl rounded-tl-none p-4 max-w-[85%] text-xs font-semibold leading-relaxed ${isDark ? "bg-white/5 text-white" : "bg-slate-100 text-slate-700 border border-slate-200/50"}`}
+                      className={`rounded-2xl rounded-tl-none p-4 max-w-[85%] text-xs font-semibold leading-relaxed ${isDark ? "bg-white/5 text-white" : "bg-stone-100 text-stone-700 border border-stone-200/50"}`}
                     >
                       Our iTero Element 5D scanner provides precise diagnostics
                       and zero radiation exposure.
@@ -211,9 +211,9 @@ const AIChatbotPromo = ({ variant = "light" }) => {
                   className={`p-6 border-t ${isDark ? "bg-white/5 border-white/5" : "bg-white"}`}
                 >
                   <div
-                    className={`h-11 rounded-xl border w-full flex items-center px-4 transition-colors ${isDark ? "bg-slate-900 border-white/10 hover:border-blue-500/30" : "bg-slate-50 border-slate-100 hover:border-blue-200"}`}
+                    className={`h-11 rounded-xl border w-full flex items-center px-4 transition-colors ${isDark ? "bg-stone-900 border-white/10 hover:border-red-500/30" : "bg-stone-50 border-stone-100 hover:border-red-200"}`}
                   >
-                    <span className="text-slate-400 text-[10px] font-bold uppercase tracking-widest">
+                    <span className="text-stone-400 text-[10px] font-bold uppercase tracking-widest">
                       System Synchronized
                     </span>
                   </div>
@@ -223,9 +223,9 @@ const AIChatbotPromo = ({ variant = "light" }) => {
               {/* Floating Decorative Badges */}
               <div className="absolute -top-6 -right-6 floating-badge z-20">
                 <div
-                  className={`p-4 rounded-3xl border shadow-2xl flex items-center gap-4 ${isDark ? "bg-slate-900/90 border-white/10" : "bg-white/95 border-slate-100"}`}
+                  className={`p-4 rounded-3xl border shadow-2xl flex items-center gap-4 ${isDark ? "bg-stone-900/90 border-white/10" : "bg-white/95 border-stone-100"}`}
                 >
-                  <div className="w-10 h-10 rounded-2xl bg-blue-600 text-white flex items-center justify-center">
+                  <div className="w-10 h-10 rounded-2xl bg-red-600 text-white flex items-center justify-center">
                     <svg
                       className="w-5 h-5"
                       fill="none"
@@ -242,11 +242,11 @@ const AIChatbotPromo = ({ variant = "light" }) => {
                   </div>
                   <div className="pr-4 text-left">
                     <p
-                      className={`text-[10px] font-black uppercase tracking-tighter ${isDark ? "text-sky-400" : "text-sky-500"}`}
+                      className={`text-[10px] font-black uppercase tracking-tighter ${isDark ? "text-red-400" : "text-red-500"}`}
                     >
                       Secure
                     </p>
-                    <p className={`text-[8px] font-bold uppercase tracking-widest leading-none ${isDark ? "text-white" : "text-slate-500"}`}>
+                    <p className={`text-[8px] font-bold uppercase tracking-widest leading-none ${isDark ? "text-white" : "text-stone-500"}`}>
                       End-to-End Privacy
                     </p>
                   </div>
@@ -255,9 +255,9 @@ const AIChatbotPromo = ({ variant = "light" }) => {
 
               <div className="absolute -bottom-6 -left-6 floating-badge z-20">
                 <div
-                  className={`p-4 rounded-3xl border shadow-2xl flex items-center gap-4 ${isDark ? "bg-slate-900/90 border-white/10" : "bg-white/95 border-slate-100"}`}
+                  className={`p-4 rounded-3xl border shadow-2xl flex items-center gap-4 ${isDark ? "bg-stone-900/90 border-white/10" : "bg-white/95 border-stone-100"}`}
                 >
-                  <div className="w-10 h-10 rounded-2xl bg-blue-600 text-white flex items-center justify-center">
+                  <div className="w-10 h-10 rounded-2xl bg-red-600 text-white flex items-center justify-center">
                     <svg
                       className="w-5 h-5"
                       fill="none"
@@ -274,11 +274,11 @@ const AIChatbotPromo = ({ variant = "light" }) => {
                   </div>
                   <div className="pr-4 text-left">
                     <p
-                      className={`text-[10px] font-black uppercase tracking-tighter ${isDark ? "text-sky-400" : "text-sky-500"}`}
+                      className={`text-[10px] font-black uppercase tracking-tighter ${isDark ? "text-red-400" : "text-red-500"}`}
                     >
                       Neural
                     </p>
-                    <p className={`text-[8px] font-bold uppercase tracking-widest leading-none ${isDark ? "text-white" : "text-slate-500"}`}>
+                    <p className={`text-[8px] font-bold uppercase tracking-widest leading-none ${isDark ? "text-white" : "text-stone-500"}`}>
                       Deep Learning Model
                     </p>
                   </div>

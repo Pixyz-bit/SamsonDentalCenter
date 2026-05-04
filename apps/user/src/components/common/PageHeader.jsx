@@ -114,12 +114,12 @@ const PageHeader = ({ overline, title, subtitle }) => {
   return (
     <div
       ref={containerRef}
-      className="relative w-full min-h-[300px] md:min-h-[380px] lg:min-h-[420px] flex items-center justify-center overflow-hidden bg-gradient-to-tr from-blue-800 via-blue-500 to-cyan-300
+      className="relative w-full min-h-[300px] md:min-h-[380px] lg:min-h-[420px] flex items-center justify-center overflow-hidden bg-[#171b1e]
 "
     >
       {/* Background effects */}
       <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
-        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-transparent to-blue-900/10"></div>
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-transparent to-stone-900/10"></div>
       </div>
 
       {/* Image — absolutely fills the right half, top to bottom */}

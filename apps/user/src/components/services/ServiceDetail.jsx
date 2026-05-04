@@ -263,14 +263,14 @@ const ServiceDetail = ({ service: dbService, loading, error: dbError }) => {
 
     if (loading && !staticService) {
         return (
-            <div className='min-h-[70vh] flex items-center justify-center bg-slate-50'>
+            <div className='min-h-[70vh] flex items-center justify-center bg-stone-50'>
                 <div className='flex flex-col items-center gap-6'>
                     <div className='relative'>
-                        <div className='w-16 h-16 border-4 border-sky-100 rounded-full'></div>
-                        <div className='absolute inset-0 w-16 h-16 border-4 border-sky-500 border-t-transparent rounded-full animate-spin'></div>
+                        <div className='w-16 h-16 border-4 border-red-100 rounded-full'></div>
+                        <div className='absolute inset-0 w-16 h-16 border-4 border-red-500 border-t-transparent rounded-full animate-spin'></div>
                     </div>
-                    <div className='text-center text-slate-400'>
-                        <p className='text-slate-900 font-bold uppercase text-xs mb-2 animate-pulse'>Clinical Analysis</p>
+                    <div className='text-center text-stone-400'>
+                        <p className='text-stone-900 font-bold uppercase text-xs mb-2 animate-pulse'>Clinical Analysis</p>
                         <p className='text-sm'>Synchronizing data...</p>
                     </div>
                 </div>
@@ -280,10 +280,10 @@ const ServiceDetail = ({ service: dbService, loading, error: dbError }) => {
 
     if (isNotFound) {
         return (
-            <div className='min-h-[70vh] flex flex-col items-center justify-center bg-slate-50 px-4 text-center'>
+            <div className='min-h-[70vh] flex flex-col items-center justify-center bg-stone-50 px-4 text-center'>
                 <Activity size={40} className="text-amber-500 mb-6" />
-                <h2 className='text-2xl font-bold text-slate-900 mb-2'>Service Not Found</h2>
-                <button onClick={() => navigate('/services')} className='mt-8 bg-[#0B1120] text-white px-8 py-4 rounded-2xl font-bold'>
+                <h2 className='text-2xl font-bold text-stone-900 mb-2'>Service Not Found</h2>
+                <button onClick={() => navigate('/services')} className='mt-8 bg-stone-900 text-white px-8 py-4 rounded-2xl font-bold'>
                     Return to Services
                 </button>
             </div>
@@ -303,24 +303,24 @@ const ServiceDetail = ({ service: dbService, loading, error: dbError }) => {
     };
 
     return (
-        <main className='bg-slate-50 min-h-screen pb-20'>
+        <main className='bg-white min-h-screen pb-20'>
             {/* Header / Hero */}
-            <div className='relative h-[350px] md:h-[450px] bg-[#0B1120] overflow-hidden flex items-end'>
+            <div className='relative h-[350px] md:h-[450px] bg-white overflow-hidden flex items-end'>
                 <div className='absolute inset-0 opacity-40'>
                     <img src="/images/services/service-chair-close.jpg" alt="" className="w-full h-full object-cover" />
-                    <div className='absolute inset-0 bg-gradient-to-t from-[#0B1120] via-[#0B1120]/60 to-[#0B1120]/20'></div>
+                    <div className='absolute inset-0 bg-gradient-to-t from-white via-white/80 to-transparent'></div>
                 </div>
 
                 <div className='max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 pb-16 relative z-10'>
-                    <button onClick={() => navigate(-1)} className='flex items-center gap-2 text-sky-400 font-bold uppercase tracking-widest text-[10px] mb-8 transition-colors hover:text-white'>
+                    <button onClick={() => navigate(-1)} className='flex items-center gap-2 text-red-400 font-bold uppercase tracking-widest text-[10px] mb-8 transition-colors hover:text-white'>
                         <ChevronLeft size={14} /> Back to Clinical Solutions
                     </button>
                     
                     <div className='max-w-3xl'>
-                        <div className='inline-flex items-center gap-2 px-3 py-1 bg-sky-500/20 border border-sky-500/30 rounded-full text-sky-400 text-[10px] font-bold uppercase tracking-widest mb-6 detail-reveal'>
+                        <div className='inline-flex items-center gap-2 px-3 py-1 bg-red-500/20 border border-red-500/30 rounded-full text-red-400 text-[10px] font-bold uppercase tracking-widest mb-6 detail-reveal'>
                             <Sparkles size={12} /> {service.tier || 'Clinical Excellence'}
                         </div>
-                        <h1 className='text-4xl md:text-6xl font-black text-white tracking-tight detail-reveal leading-none'>
+                        <h1 className='text-4xl md:text-6xl font-black text-stone-900 tracking-tight detail-reveal leading-none'>
                             {service.name}
                         </h1>
                     </div>
@@ -330,48 +330,48 @@ const ServiceDetail = ({ service: dbService, loading, error: dbError }) => {
             <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-10 relative z-20'>
                 <div className='grid grid-cols-1 lg:grid-cols-3 gap-8'>
                     <div className='lg:col-span-2 space-y-8'>
-                        <div className='bg-white rounded-[2rem] p-8 md:p-12 shadow-xl shadow-slate-200/60 border border-slate-100 detail-reveal'>
-                            <h2 className='text-2xl font-bold text-slate-900 mb-6'>Clinical Overview</h2>
-                            <p className='text-slate-600 text-lg leading-relaxed mb-12'>{activeData.desc}</p>
-                            <div className='grid grid-cols-1 md:grid-cols-3 gap-8 pt-10 border-t border-slate-100'>
+                        <div className='bg-white rounded-[2rem] p-8 md:p-12 shadow-xl shadow-stone-200/60 border border-stone-100 detail-reveal'>
+                            <h2 className='text-2xl font-bold text-stone-900 mb-6'>Clinical Overview</h2>
+                            <p className='text-stone-600 text-lg leading-relaxed mb-12'>{activeData.desc}</p>
+                            <div className='grid grid-cols-1 md:grid-cols-3 gap-8 pt-10 border-t border-stone-100'>
                                 <div className='flex items-start gap-4'>
-                                    <div className='w-12 h-12 bg-sky-50 text-sky-600 rounded-2xl flex items-center justify-center shrink-0 shadow-sm'><Clock size={22} /></div>
+                                    <div className='w-12 h-12 bg-red-50 text-red-600 rounded-2xl flex items-center justify-center shrink-0 shadow-sm'><Clock size={22} /></div>
                                     <div>
-                                        <p className='text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1'>Duration</p>
-                                        <p className='text-lg font-black text-slate-900'>{activeData.duration} min</p>
+                                        <p className='text-[10px] font-bold text-stone-400 uppercase tracking-widest mb-1'>Duration</p>
+                                        <p className='text-lg font-black text-stone-900'>{activeData.duration} min</p>
                                     </div>
                                 </div>
                                 <div className='flex items-start gap-4'>
                                     <div className='w-12 h-12 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center shrink-0 shadow-sm'><Shield size={22} /></div>
                                     <div>
-                                        <p className='text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1'>Focus</p>
-                                        <p className='text-lg font-black text-slate-900'>{activeData.guarantee}</p>
+                                        <p className='text-[10px] font-bold text-stone-400 uppercase tracking-widest mb-1'>Focus</p>
+                                        <p className='text-lg font-black text-stone-900'>{activeData.guarantee}</p>
                                     </div>
                                 </div>
                                 <div className='flex items-start gap-4'>
                                     <div className='w-12 h-12 bg-purple-50 text-purple-600 rounded-2xl flex items-center justify-center shrink-0 shadow-sm'><Sparkles size={22} /></div>
                                     <div>
-                                        <p className='text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1'>Precision</p>
-                                        <p className='text-lg font-black text-slate-900'>AI-Driven</p>
+                                        <p className='text-[10px] font-bold text-stone-400 uppercase tracking-widest mb-1'>Precision</p>
+                                        <p className='text-lg font-black text-stone-900'>AI-Driven</p>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <div className='bg-white rounded-[2rem] p-8 md:p-12 shadow-xl shadow-slate-200/60 border border-slate-100 detail-reveal'>
-                            <h2 className='text-2xl font-bold text-slate-900 mb-10'>How It Works</h2>
+                        <div className='bg-white rounded-[2rem] p-8 md:p-12 shadow-xl shadow-stone-200/60 border border-stone-100 detail-reveal'>
+                            <h2 className='text-2xl font-bold text-stone-900 mb-10'>How It Works</h2>
                             <div className='space-y-12'>
                                 {activeData.workflow.map((item, index) => (
                                     <div key={item.id} className='relative flex gap-8 group'>
                                         {index !== activeData.workflow.length - 1 && (
-                                            <div className='absolute left-6 top-14 bottom-[-56px] w-0.5 bg-slate-100 group-hover:bg-sky-100 transition-colors'></div>
+                                            <div className='absolute left-6 top-14 bottom-[-56px] w-0.5 bg-stone-100 group-hover:bg-red-100 transition-colors'></div>
                                         )}
-                                        <div className='w-12 h-12 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-center shrink-0 font-black text-slate-400 group-hover:bg-sky-500 group-hover:text-white group-hover:border-sky-500 transition-all shadow-sm'>
+                                        <div className='w-12 h-12 rounded-2xl bg-stone-50 border border-stone-100 flex items-center justify-center shrink-0 font-black text-stone-400 group-hover:bg-red-500 group-hover:text-white group-hover:border-red-500 transition-all shadow-sm'>
                                             {item.id}
                                         </div>
                                         <div>
-                                            <h3 className='text-xl font-bold text-slate-900 mb-2 group-hover:text-sky-600 transition-colors'>{item.title}</h3>
-                                            <p className='text-slate-500 leading-relaxed'>{item.desc}</p>
+                                            <h3 className='text-xl font-bold text-stone-900 mb-2 group-hover:text-red-600 transition-colors'>{item.title}</h3>
+                                            <p className='text-stone-500 leading-relaxed'>{item.desc}</p>
                                         </div>
                                     </div>
                                 ))}
@@ -380,18 +380,18 @@ const ServiceDetail = ({ service: dbService, loading, error: dbError }) => {
                     </div>
 
                     <div className='space-y-6 h-fit'>
-                        <div className='bg-[#0B1120] rounded-[2rem] p-8 text-white shadow-2xl shadow-sky-900/20 detail-reveal'>
-                            <p className='text-sky-400 font-bold uppercase tracking-[0.2em] text-[10px] mb-4'>Clinical Rate</p>
+                        <div className='bg-white border border-stone-200 rounded-[2rem] p-8 text-stone-900 shadow-2xl shadow-stone-200/60 detail-reveal'>
+                            <p className='text-red-500 font-bold uppercase tracking-[0.2em] text-[10px] mb-4'>Clinical Rate</p>
                             <div className='flex items-baseline gap-2 mb-8'>
                                 <span className='text-4xl font-black'>₱{Number(service.price || 0).toLocaleString()}</span>
-                                <span className='text-slate-400 text-xs font-medium'>Initial Estimate</span>
+                                <span className='text-stone-500 text-xs font-medium'>Initial Estimate</span>
                             </div>
                             <ul className='space-y-5 mb-10'>
-                                <li className='flex items-center gap-3 text-sm text-slate-300'><CheckCircle2 size={14} className='text-sky-500' /> Instant Confirmation</li>
-                                <li className='flex items-center gap-3 text-sm text-slate-300'><CheckCircle2 size={14} className='text-sky-500' /> Expert Specialists</li>
-                                <li className='flex items-center gap-3 text-sm text-slate-300'><CheckCircle2 size={14} className='text-sky-500' /> Zero Reschedule Fees</li>
+                                <li className='flex items-center gap-3 text-sm text-stone-600'><CheckCircle2 size={14} className='text-red-500' /> Instant Confirmation</li>
+                                <li className='flex items-center gap-3 text-sm text-stone-600'><CheckCircle2 size={14} className='text-red-500' /> Expert Specialists</li>
+                                <li className='flex items-center gap-3 text-sm text-stone-600'><CheckCircle2 size={14} className='text-red-500' /> Zero Reschedule Fees</li>
                             </ul>
-                            <button onClick={() => navigate(`/book?service=${service.id || id}`)} className='w-full bg-sky-500 hover:bg-sky-600 text-white font-bold py-5 rounded-2xl shadow-lg transition-all active:scale-95'>
+                            <button onClick={() => navigate(`/book?service=${service.id || id}`)} className='w-full bg-red-500 hover:bg-red-600 text-white font-bold py-5 rounded-2xl shadow-lg transition-all active:scale-95'>
                                 Secure Appointment
                             </button>
                         </div>
