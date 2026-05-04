@@ -3,6 +3,7 @@ import { ChevronLeft, ChevronRight, ChevronDown, RefreshCw, Lock, Calendar as Ca
 import useSlots from '../../hooks/useSlots';
 import { useClinicSettings } from '../../hooks/useClinicSettings';
 import { api } from '../../utils/api';
+import { useToast } from '../../context/ToastContext';
 import ErrorState from '../common/ErrorState';
 
 const DateTimeStep = ({
@@ -203,6 +204,8 @@ const DateTimeStep = ({
         setVisibleCount(INITIAL_VISIBLE_COUNT); // RESET visibility when date changes or toggles
     };
 
+    const toast = useToast();
+
     const handleTimeClick = async (slotData) => {
         if (!serviceId || !selectedDate) return;
         
@@ -219,6 +222,7 @@ const DateTimeStep = ({
                 const holdResult = await holdSlot(serviceId, selectedDate, slotData.rawTime, dentistId);
                 if (holdResult?.success) {
                     onUpdate({ time: slotData.rawTime });
+                    toast.success('Slot hold success! You have 10 minutes to finish your booking.');
                 } else if (holdResult?.error === 'SLOT_TAKEN') {
                     refetchSlots();
                     return;
@@ -504,10 +508,10 @@ const DateTimeStep = ({
                     {/* Header Section */}
                     <div className='mb-8 sm:mb-10'>
                         <h2 className='text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-2 sm:mb-3 tracking-tight uppercase'>
-                            Date & Time
+                            Select Date & Time
                         </h2>
                         <p className='text-[13px] sm:text-sm md:text-base text-gray-500 dark:text-gray-400 max-w-3xl leading-relaxed font-medium'>
-                            Select your preferred dentist and choose an available schedule for your {formData.service_name || 'appointment'}.
+                            Pick a date and time slot. Choose a specific dentist or "Any Available Dentist" for more flexibility.
                         </p>
                     </div>
 
@@ -716,7 +720,7 @@ const DateTimeStep = ({
                                                                         onClick={() => isAvailable && handleTimeClick(slot)} 
                                                                         disabled={holdLoading || (!isAvailable && !isHeldByMe)} 
                                                                         title={isAvailable ? `${slot.available} slots available` : 'Fully booked'} 
-                                                                        className={`py-3 rounded-xl text-[12px] font-bold transition-all relative flex items-center justify-center ${
+                                                                        className={`py-2 sm:py-3 rounded-xl text-[10px] sm:text-[12px] font-bold transition-all relative flex items-center justify-center ${
                                                                             isSelected ? 'bg-brand-500 text-white shadow-lg shadow-brand-500/20 ring-4 ring-brand-500/10' 
                                                                             : isHeldByMe ? 'bg-brand-50 dark:bg-brand-500/10 border-2 border-brand-200 text-brand-700 dark:text-brand-400' 
                                                                             : isAvailable ? 'bg-white dark:bg-white/[0.03] border-2 border-transparent hover:border-brand-200 dark:hover:border-brand-500/50 hover:bg-white dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 shadow-theme-sm'

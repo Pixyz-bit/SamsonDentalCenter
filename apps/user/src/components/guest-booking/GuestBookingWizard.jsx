@@ -39,6 +39,29 @@ const formatTime = (time24) => {
     }
 };
 
+const formatTimeRange = (startTime, durationMinutes) => {
+    if (!startTime) return '';
+    try {
+        const [h, m] = startTime.split(':').map(Number);
+        const startDate = new Date();
+        startDate.setHours(h, m, 0, 0);
+        
+        const endDate = new Date(startDate.getTime() + (durationMinutes || 60) * 60000);
+        
+        const format = (date) => {
+            const hour = date.getHours();
+            const min = date.getMinutes().toString().padStart(2, '0');
+            const ampm = hour >= 12 ? 'PM' : 'AM';
+            const h12 = hour > 12 ? hour - 12 : hour === 0 ? 12 : hour;
+            return `${h12}:${min} ${ampm}`;
+        };
+
+        return `${format(startDate)} – ${format(endDate)}`;
+    } catch (e) {
+        return formatTime(startTime);
+    }
+};
+
 const GuestBookingWizard = ({ booking }) => {
     const navigate = useNavigate();
     const {
@@ -58,8 +81,7 @@ const GuestBookingWizard = ({ booking }) => {
         submit,
         reset,
     } = booking;
-
-    const { showToast } = useToast();
+    const toast = useToast();
 
     const [isCheckingRecovery, setIsCheckingRecovery] = useState(false);
     const [showRecoveryModal, setShowRecoveryModal] = useState(false);
@@ -105,36 +127,34 @@ const GuestBookingWizard = ({ booking }) => {
     // ✅ Phase 2: Recovery Interceptor
     useEffect(() => {
         const verifySession = async () => {
-            // Only check if we are at least on the date/time step and haven't finished
-            if (step >= 1 && !result && !hasCheckedRecovery) {
+            // Only check ONCE at the very beginning of Step 1 (DateTime)
+            if (step === 1 && !result && !hasCheckedRecovery) {
                 setIsCheckingRecovery(true);
                 try {
                     // checkActiveHold will update slotHold.activeHold state internally
-                    const hold = await slotHold.checkActiveHold();
-                    if (hold) {
-                        setWasRecovered(true);
-                    } else {
-                        // Handle initial expiry/invalid session - Reset to Date/Time selection
-                        goToStep(1);
-                        updateFields({ date: '', time: '' });
-                        // Removed redundant toast to prevent alert spam
+                    // IMPORTANT: We only care about holds that existed BEFORE the user picked one in this session
+                    if (!formData.time) {
+                        const hold = await slotHold.checkActiveHold();
+                        if (hold) {
+                            setWasRecovered(true);
+                        }
                     }
                 } catch (err) {
                     console.error('Recovery check failed:', err);
                 } finally {
                     setIsCheckingRecovery(false);
-                    // Add a tiny delay to ensure state propagation before enabling the expiry effect
-                    setTimeout(() => {
-                        setHasCheckedRecovery(true);
-                    }, 100);
+                    setHasCheckedRecovery(true);
                 }
-            } else if (step <= 1) {
+            } else if (step === 0) {
+                // If they are on Service step, they haven't reached the recovery point yet
+                // but we keep hasCheckedRecovery false so it runs when they hit Step 1
+            } else {
                 setHasCheckedRecovery(true);
             }
         };
 
         verifySession();
-    }, [step, result, hasCheckedRecovery, slotHold.checkActiveHold, updateFields, goToStep]);
+    }, [step, result, hasCheckedRecovery, slotHold.checkActiveHold, formData.time]);
 
     // ✅ Phase 2: Handle Expired Holds during session
     useEffect(() => {
@@ -158,10 +178,11 @@ const GuestBookingWizard = ({ booking }) => {
         // ONLY show if we actually RECOVERED a session (wasRecovered is true)
         // AND the user hasn't already dismissed it in this page load
         // AND they are at least on the DateTime step (step >= 1)
-        if (hasCheckedRecovery && wasRecovered && step >= 1 && slotHold.activeHold && !showRecoveryModal && !hasDismissedRecovery) {
+        // AND they haven't been locked out by security (failedOtpAttempts < 5)
+        if (hasCheckedRecovery && wasRecovered && step >= 1 && slotHold.activeHold && !showRecoveryModal && !hasDismissedRecovery && booking.failedOtpAttempts < 5) {
             setShowRecoveryModal(true);
         }
-    }, [hasCheckedRecovery, wasRecovered, step, slotHold.activeHold, showRecoveryModal, hasDismissedRecovery]);
+    }, [hasCheckedRecovery, wasRecovered, step, slotHold.activeHold, showRecoveryModal, hasDismissedRecovery, booking.failedOtpAttempts]);
 
     const breadcrumbLabels = ['Service', 'Date & Time', 'Your Info', 'Review', 'Verify'];
 
@@ -219,14 +240,14 @@ const GuestBookingWizard = ({ booking }) => {
         <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
             {/* Sticky Navigation Header */}
             <header className="sticky top-0 z-40 bg-white/80 dark:bg-gray-800/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 shadow-theme-xs">
-                <div className="max-w-6xl mx-auto px-8 h-20 flex items-center justify-center relative">
+                <div className="max-w-6xl mx-auto px-4 sm:px-8 h-20 flex items-center justify-center relative">
                     {/* Exit Button - Absolute positioned on the left */}
-                    <div className="absolute left-4 top-1/2 -translate-y-1/2">
+                    <div className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 flex items-center">
                         <button
                             onClick={handleExit}
-                            className="flex items-center gap-2 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white font-bold text-base transition-colors px-4 py-2.5 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700"
+                            className="flex items-center gap-2 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white font-bold text-base transition-colors p-2 sm:px-4 sm:py-2.5 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700"
                         >
-                            <X size={20} />
+                            <X size={18} className="sm:w-5 sm:h-5" />
                             <span className="hidden sm:inline">Exit</span>
                         </button>
                     </div>
@@ -241,11 +262,13 @@ const GuestBookingWizard = ({ booking }) => {
 
                     {/* ✅ Phase 3: Global Timer (Right Side) */}
                     {slotHold.activeHold && (
-                        <div className="absolute right-4 top-1/2 -translate-y-1/2 hidden md:flex items-center gap-3 px-4 py-2 bg-amber-50/50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-800/30 rounded-xl animate-in slide-in-from-right-10 duration-500">
-                            <Clock className="text-amber-600 dark:text-amber-400 animate-pulse" size={18} />
+                        <div className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 flex items-center gap-1.5 sm:gap-3 px-2.5 sm:px-4 py-1.5 sm:py-2 bg-amber-50/50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-800/30 rounded-xl animate-in slide-in-from-right-10 duration-500 shadow-theme-xs sm:shadow-none">
+                            <Clock className="text-amber-600 dark:text-amber-400 animate-pulse hidden sm:block" size={18} />
                             <div className="flex flex-col">
-                                <span className="text-[9px] uppercase tracking-wider font-black text-amber-600/60 dark:text-amber-400/50 leading-none mb-1">Hold Active</span>
-                                <span className="text-[13px] font-mono font-black text-amber-700 dark:text-amber-300 leading-none">
+                                <span className="text-[7px] sm:text-[9px] uppercase tracking-widest font-black text-amber-600/60 dark:text-amber-400/50 leading-none mb-0.5 sm:mb-1">
+                                    <span className="hidden sm:inline">Slot </span>Hold
+                                </span>
+                                <span className="text-[11px] sm:text-[13px] font-mono font-black text-amber-700 dark:text-amber-300 leading-none">
                                     {slotHold.formattedTime}
                                 </span>
                             </div>
@@ -288,45 +311,36 @@ const GuestBookingWizard = ({ booking }) => {
                     </div>
 
                     {/* Body */}
-                    <div className="px-6 py-8 flex-1 overflow-y-auto">
-                        <div className="p-5 bg-primary-50 dark:bg-primary-900/10 border border-primary-100 dark:border-primary-800/30 rounded-2xl flex items-start gap-4 shadow-sm">
-                            <div className="w-12 h-12 rounded-xl bg-white dark:bg-primary-800 flex items-center justify-center shrink-0 shadow-sm">
-                                <Calendar className="text-primary-600 dark:text-primary-400" size={24} />
+                    <div className="px-6 py-6 flex-1 overflow-y-auto">
+                        <div className="p-6 bg-primary-50/50 dark:bg-primary-900/10 border border-primary-100/50 dark:border-primary-800/30 rounded-3xl flex flex-col items-center text-center gap-5 shadow-theme-xs">
+                            <div className="w-14 h-14 rounded-2xl bg-white dark:bg-primary-800 flex items-center justify-center shrink-0 shadow-theme-sm">
+                                <Calendar className="text-primary-600 dark:text-primary-400" size={28} />
                             </div>
-                            <div className="space-y-1">
-                                <h4 className="font-bold text-gray-900 dark:text-white leading-tight">Pending Appointment</h4>
-                                <p className="text-sm text-gray-600 dark:text-gray-400">
-                                    You were in the middle of booking for:
+                            <div className="space-y-2">
+                                <h4 className="text-lg font-black text-gray-900 dark:text-white leading-tight uppercase tracking-tight">Pending Appointment</h4>
+                                <p className="text-[13px] text-gray-500 dark:text-gray-400 font-medium">
+                                    We've held your selected slot while you were away:
                                 </p>
-                                <div className="mt-3 py-2 px-3 bg-white dark:bg-gray-800 rounded-lg inline-flex flex-col">
-                                    <span className="text-sm font-black text-primary-700 dark:text-primary-300 uppercase tracking-tight">
-                                        {formatDate(slotHold.activeHold?.date)}
-                                    </span>
-                                    <span className="text-lg font-black text-gray-900 dark:text-white">
-                                        at {formatTime(slotHold.activeHold?.time)}
-                                    </span>
-                                </div>
-                                <div className="mt-2 flex items-center gap-1.5 text-xs font-medium text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 w-fit px-2 py-0.5 rounded-full">
-                                    <Clock size={12} />
-                                    <span>Slot held for {slotHold.formattedTime} more minutes</span>
-                                </div>
+                            </div>
+
+                            <div className="w-full py-4 px-6 bg-white dark:bg-gray-800 rounded-2xl border border-primary-100 dark:border-primary-900/20 shadow-theme-xs flex flex-col items-center">
+                                <span className="text-[10px] font-black text-primary-600 dark:text-primary-400 uppercase tracking-[0.2em] mb-1">
+                                    {formatDate(slotHold.activeHold?.date)}
+                                </span>
+                                <span className="text-xl font-black text-gray-900 dark:text-white">
+                                    {formatTimeRange(slotHold.activeHold?.time, formData.service_duration)}
+                                </span>
+                            </div>
+
+                            <div className="flex items-center gap-2 text-[12px] font-bold text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 px-4 py-2 rounded-xl">
+                                <Clock size={14} className="animate-pulse" />
+                                <span>Slot expires in {slotHold.formattedTime}</span>
                             </div>
                         </div>
                     </div>
 
                     {/* Footer */}
-                    <div className="px-6 py-6 bg-gray-50 dark:bg-gray-900/40 border-t border-gray-100 dark:border-gray-800 flex flex-col gap-3">
-                        <Button 
-                            variant="primary" 
-                            fullWidth 
-                            onClick={() => {
-                                setShowRecoveryModal(false);
-                                setHasDismissedRecovery(true);
-                            }}
-                            className="h-13 text-base font-black shadow-lg shadow-primary-500/20"
-                        >
-                            CONTINUE BOOKING
-                        </Button>
+                    <div className="px-6 py-5 bg-gray-50 dark:bg-gray-900/40 border-t border-gray-100 dark:border-gray-800 flex flex-row gap-3">
                         <Button 
                             variant="ghost" 
                             fullWidth 
@@ -334,9 +348,20 @@ const GuestBookingWizard = ({ booking }) => {
                                 setShowRecoveryModal(false);
                                 handleReset();
                             }}
-                            className="h-12 text-sm font-bold text-gray-400 hover:text-red-500 hover:bg-red-50 dark:text-gray-500 dark:hover:text-red-400 dark:hover:bg-red-900/10 transition-all duration-300"
+                            className="flex-1 h-12 text-[11px] sm:text-xs font-bold text-gray-400 hover:text-red-500 hover:bg-red-50 dark:text-gray-500 dark:hover:text-red-400 dark:hover:bg-red-900/10 transition-all duration-300 uppercase tracking-widest border border-transparent hover:border-red-100 dark:hover:border-red-900/20"
                         >
-                            No thanks, start fresh
+                            No, start fresh
+                        </Button>
+                        <Button 
+                            variant="primary" 
+                            fullWidth 
+                            onClick={() => {
+                                setShowRecoveryModal(false);
+                                setHasDismissedRecovery(true);
+                            }}
+                            className="flex-1 h-12 text-[11px] sm:text-sm font-black shadow-lg shadow-primary-500/20 uppercase tracking-widest"
+                        >
+                            CONTINUE
                         </Button>
                     </div>
                 </div>
@@ -364,13 +389,16 @@ const GuestBookingWizard = ({ booking }) => {
                     {/* Body */}
                     <div className="px-6 py-8 flex-1 overflow-y-auto">
                         <div className="space-y-4">
-                            <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed font-medium">
-                                Are you sure you want to start over? This will <span className="text-red-600 dark:text-red-400 font-bold">release your held time slot</span> and clear all information you've entered so far.
+                            <p className="text-[15px] text-gray-700 dark:text-gray-300 leading-relaxed font-medium">
+                                Do you want to <span className="text-red-600 dark:text-red-400 font-bold">release your slot hold</span> and start fresh?
                             </p>
-                            <div className="p-4 bg-gray-50 dark:bg-gray-800/50 rounded-2xl border border-gray-100 dark:border-gray-800">
-                                <div className="flex items-center gap-3 text-gray-700 dark:text-gray-300">
-                                    <Clock size={18} className="text-gray-400" />
-                                    <span className="text-sm font-bold">Slot will be made available to others</span>
+                            <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">
+                                If you start over, your selected time will be made available to other patients, and any information you've entered will be cleared.
+                            </p>
+                            <div className="p-4 bg-amber-50 dark:bg-amber-900/10 rounded-2xl border border-amber-100 dark:border-amber-800/30">
+                                <div className="flex items-center gap-3 text-amber-700 dark:text-amber-300">
+                                    <Clock size={18} className="text-amber-500" />
+                                    <span className="text-sm font-bold italic">Your {slotHold.formattedTime || '10:00'} hold will end immediately.</span>
                                 </div>
                             </div>
                         </div>
@@ -554,38 +582,46 @@ const GuestBookingWizard = ({ booking }) => {
                         />
                     )}
 
-                    {currentStep === 'review' && (
-                        <ConfirmStep
-                            formData={formData}
-                            onSubmit={async () => {
-                                const success = await booking.sendGuestOTP();
-                                if (success) nextStep();
-                            }}
-                            onBack={prevStep}
-                            onEdit={goToStep}
-                            onReset={() => setShowResetModal(true)}
-                            submitting={booking.isVerifying}
-                            error={error}
-                        />
-                    )}
+                            {currentStep === 'review' && (
+                                <ConfirmStep
+                                    formData={formData}
+                                    onSubmit={async () => {
+                                        const success = await booking.sendGuestOTP();
+                                        if (success) {
+                                            toast.success('Verification code sent to your email!');
+                                            nextStep();
+                                        }
+                                    }}
+                                    onBack={prevStep}
+                                    onEdit={goToStep}
+                                    onReset={() => setShowResetModal(true)}
+                                    submitting={booking.isVerifying}
+                                    error={error}
+                                />
+                            )}
 
-                    {currentStep === 'verification' && (
-                        <OTPStep
-                            email={formData.email}
-                            onVerify={async (code) => {
-                                const res = await booking.verifyGuestOTP(code);
-                                if (res.success) {
-                                    await submit(res.token);
-                                }
-                            }}
-                            onResend={booking.sendGuestOTP}
-                            isVerifying={submitting || booking.isVerifying}
-                            error={error}
-                            onReset={handlePartialReset}
-                            resendCount={booking.otpResendCount}
-                            failedAttempts={booking.failedOtpAttempts}
-                        />
-                    )}
+                            {currentStep === 'verification' && (
+                                <OTPStep
+                                    email={formData.email}
+                                    onVerify={async (code) => {
+                                        const res = await booking.verifyGuestOTP(code);
+                                        if (res.success) {
+                                            await submit(res.token);
+                                        }
+                                    }}
+                                    onResend={async () => {
+                                        const success = await booking.sendGuestOTP();
+                                        if (success) {
+                                            toast.success('A new code has been sent!');
+                                        }
+                                    }}
+                                    isVerifying={submitting || booking.isVerifying}
+                                    error={error}
+                                    onReset={() => setShowResetModal(true)}
+                                    resendCount={booking.otpResendCount}
+                                    failedAttempts={booking.failedOtpAttempts}
+                                />
+                            )}
                 </div>
             </main>
         </div>

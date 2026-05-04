@@ -8,15 +8,23 @@ export const useToast = () => {
     if (!context) {
         throw new Error('useToast must be used within a ToastProvider');
     }
-    return context;
+    
+    // Provide nice helpers
+    return {
+        ...context,
+        success: (message, title) => context.showToast(message, 'success', title),
+        error: (message, title) => context.showToast(message, 'error', title),
+        info: (message, title) => context.showToast(message, 'info', title),
+    };
 };
 
 export const ToastProvider = ({ children }) => {
     const [toasts, setToasts] = useState([]);
 
-    const showToast = useCallback((message, type = 'success', title = 'Success') => {
+    const showToast = useCallback((message, type = 'success', title) => {
         const id = Math.random().toString(36).substr(2, 9);
-        setToasts((prev) => [...prev, { id, message, type, title }]);
+        const defaultTitle = type === 'success' ? 'Success' : type === 'error' ? 'Attention Required' : 'Information';
+        setToasts((prev) => [...prev, { id, message, type, title: title || defaultTitle }]);
         
         // Auto remove after 5 seconds
         setTimeout(() => {

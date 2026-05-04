@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ArrowRight, UserCircle, Contact, Info, ChevronDown, X } from 'lucide-react';
+import { ArrowRight, UserCircle, Contact, Info, ChevronDown, X, Mail, Check, Calendar, Clock } from 'lucide-react';
 
 const InfoStep = ({ formData, onUpdate, onNext, onBack }) => {
     const [errors, setErrors] = useState({});
@@ -95,39 +95,93 @@ const InfoStep = ({ formData, onUpdate, onNext, onBack }) => {
     };
 
     const getInputClasses = (fieldError) => {
-        const base = "h-11 w-full rounded-lg border appearance-none px-4 py-2.5 text-[clamp(14px,1vw,15px)] shadow-theme-xs placeholder:text-gray-400 focus:outline-hidden focus:ring-3 transition-colors bg-white dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 font-medium";
+        const base = "h-10 w-full rounded-lg border appearance-none px-3 py-2 text-[13px] sm:text-sm shadow-theme-xs placeholder:text-gray-400 focus:outline-hidden focus:ring-3 transition-colors bg-white dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 font-medium";
         if (fieldError) {
             return `${base} border-error-500 focus:border-error-300 focus:ring-error-500/20 dark:text-error-400 dark:border-error-500 dark:focus:border-error-800`;
         }
         return `${base} text-gray-800 border-gray-300 focus:border-brand-300 focus:ring-brand-500/20 dark:border-gray-700 dark:text-white/90 dark:focus:border-brand-800`;
     };
 
-    const labelClasses = "mb-1.5 block text-[clamp(12px,0.8vw,13px)] font-bold text-gray-700 dark:text-gray-400 uppercase tracking-widest opacity-80 leading-none";
+    const formatTime = (timeString) => {
+        if (!timeString) return '';
+        try {
+            const [hours, minutes] = timeString.split(':');
+            const h = parseInt(hours, 10);
+            const ampm = h >= 12 ? 'PM' : 'AM';
+            const formattedHour = h % 12 || 12;
+            return `${formattedHour}:${minutes} ${ampm}`;
+        } catch (e) {
+            return timeString;
+        }
+    };
+
+    const formatTimeRange = (startTime, durationMinutes) => {
+        if (!startTime) return '';
+        try {
+            const [h, m] = startTime.split(':').map(Number);
+            const startDate = new Date();
+            startDate.setHours(h, m, 0, 0);
+            
+            const endDate = new Date(startDate.getTime() + (durationMinutes || 60) * 60000);
+            
+            const format = (date) => {
+                const hour = date.getHours();
+                const min = date.getMinutes().toString().padStart(2, '0');
+                const ampm = hour >= 12 ? 'PM' : 'AM';
+                const h12 = hour > 12 ? hour - 12 : hour === 0 ? 12 : hour;
+                return `${h12}:${min} ${ampm}`;
+            };
+
+            return `${format(startDate)} – ${format(endDate)}`;
+        } catch (e) {
+            return formatTime(startTime);
+        }
+    };
+
+    const labelClasses = "mb-1.5 block text-[11px] sm:text-xs font-bold text-gray-700 dark:text-gray-400 uppercase tracking-widest opacity-80 leading-none";
 
     return (
         <div className="animate-in fade-in slide-in-from-bottom-2 duration-500 pb-10 sm:pb-6">
             {/* Header Section */}
-            <div className='mb-8 sm:mb-10'>
+            {/* Appointment Summary Badge */}
+            <div className="flex flex-wrap items-center gap-3 mb-6 sm:mb-8 animate-in fade-in slide-in-from-left-4 duration-700">
+                <div className="flex items-center gap-2 px-3 py-1.5 bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-xl shadow-theme-xs">
+                    <Calendar size={14} className="text-brand-500" />
+                    <span className="text-[11px] sm:text-xs font-black text-gray-700 dark:text-gray-300 uppercase tracking-tight">
+                        {new Date(formData.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                    </span>
+                </div>
+                <div className="flex items-center gap-2 px-3 py-1.5 bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-xl shadow-theme-xs">
+                    <Clock size={14} className="text-brand-500" />
+                    <span className="text-[11px] sm:text-xs font-black text-gray-700 dark:text-gray-300 uppercase tracking-tight">
+                        {formatTimeRange(formData.time, formData.service_duration)}
+                    </span>
+                </div>
+            </div>
+
+            <div className='mb-6 sm:mb-8'>
                 <h2 className='text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-2 sm:mb-3 tracking-tight uppercase'>
-                    Your Information
+                    Patient Information
                 </h2>
                 <p className='text-[13px] sm:text-sm md:text-base text-gray-500 dark:text-gray-400 leading-relaxed font-medium'>
-                    Please provide your contact details. We'll use this information to send you a booking confirmation and reminders.
+                    Enter your details below to receive your appointment confirmation and status updates.
                 </p>
             </div>
+
+
 
             {/* Premium Card - Full-width stretched container */}
             <div className='w-full bg-white dark:bg-white/[0.03] border border-gray-100 dark:border-gray-800 rounded-3xl shadow-theme-sm overflow-hidden'>
                 
                 {/* Section: Personal Details */}
                 <section>
-                    {/* Header with icon and title - No underline border */}
-                    <div className="px-6 py-6 sm:px-10 flex items-center gap-3">
-                        <UserCircle size={20} className="text-brand-500" />
-                        <h3 className="text-sm sm:text-base font-bold text-gray-800 dark:text-white/90 uppercase tracking-widest">Personal Details</h3>
+                    {/* Header with icon and title */}
+                    <div className="px-5 pt-7 pb-4 sm:px-10 flex items-center gap-3">
+                        <UserCircle size={18} className="text-brand-500" />
+                        <h3 className="text-xs sm:text-sm font-bold text-gray-800 dark:text-white/90 uppercase tracking-widest">Personal Details</h3>
                     </div>
 
-                    <div className="px-6 pb-10 sm:px-10 space-y-6">
+                    <div className="px-5 pb-10 sm:px-10 space-y-6">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8">
                             {/* Last Name */}
                             <div>
@@ -232,15 +286,15 @@ const InfoStep = ({ formData, onUpdate, onNext, onBack }) => {
                 </section>
 
                 {/* Section: Contact Information */}
-                <section>
-                    {/* Header with icon and title - No underline border */}
-                    <div className="px-6 py-6 sm:px-10 flex items-center gap-3">
-                        <Contact size={20} className="text-brand-500" />
-                        <h3 className="text-sm sm:text-base font-bold text-gray-800 dark:text-white/90 uppercase tracking-widest">Contact Information</h3>
+                <section className="border-t border-gray-100 dark:border-gray-800/50">
+                    {/* Header with icon and title */}
+                    <div className="px-5 pt-7 pb-4 sm:px-10 flex items-center gap-3">
+                        <Contact size={18} className="text-brand-500" />
+                        <h3 className="text-xs sm:text-sm font-bold text-gray-800 dark:text-white/90 uppercase tracking-widest">Contact Information</h3>
                     </div>
 
-                    <div className="px-6 pb-10 sm:px-10 space-y-6">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8">
+                    <div className="px-5 pb-10 sm:px-10 space-y-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
                             {/* Email Address */}
                             <div>
                                 <label className={labelClasses}>Email address <span className='text-brand-500'>*</span></label>
@@ -259,7 +313,9 @@ const InfoStep = ({ formData, onUpdate, onNext, onBack }) => {
                                 <label className={labelClasses}>Phone Number <span className='text-brand-500'>*</span></label>
                                 <div className="flex gap-2">
                                     <select 
-                                        className="h-11 w-24 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-800 dark:text-white/90 px-2 text-sm font-bold focus:ring-3 focus:ring-brand-500/20 focus:border-brand-300 outline-hidden"
+                                        value={formData.country_code || '+63'}
+                                        onChange={(e) => handleFieldChange('country_code', e.target.value)}
+                                        className="h-10 w-24 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-800 dark:text-white/90 px-2 text-[12px] font-bold focus:ring-3 focus:ring-brand-500/20 focus:border-brand-300 outline-hidden"
                                     >
                                         <option value="+63">PH (+63)</option>
                                         <option value="+1">US (+1)</option>
@@ -270,7 +326,12 @@ const InfoStep = ({ formData, onUpdate, onNext, onBack }) => {
                                         type='tel'
                                         value={formData.phone}
                                         onChange={(e) => handleFieldChange('phone', e.target.value)}
-                                        placeholder='9171234567'
+                                        placeholder={
+                                            (formData.country_code || '+63') === '+63' ? '9171234567' :
+                                            formData.country_code === '+1' ? '2025550123' :
+                                            formData.country_code === '+61' ? '0412345678' :
+                                            formData.country_code === '+44' ? '07700900123' : 'Phone number'
+                                        }
                                         className={getInputClasses(errors.phone)}
                                     />
                                 </div>
@@ -279,34 +340,42 @@ const InfoStep = ({ formData, onUpdate, onNext, onBack }) => {
                         </div>
 
                         {/* Section: Additional Notes */}
-                        <div className="pt-4">
-                            <div className="flex justify-between items-end mb-1.5">
+                        <div className="pt-2">
+                            <div className="flex justify-between items-end mb-1">
                                 <label className={labelClasses}>Note for the clinic <span className="opacity-40 font-normal italic">(optional)</span></label>
-                                <span className={`text-[10px] font-bold uppercase tracking-wider ${formData.patient_note?.length >= 100 ? 'text-error-500' : 'text-gray-400'}`}>
+                                <span className={`text-[9px] font-bold uppercase tracking-wider ${formData.patient_note?.length >= 100 ? 'text-error-500' : 'text-gray-400'}`}>
                                     {formData.patient_note?.length || 0} / 100
                                 </span>
                             </div>
                             <textarea
                                 value={formData.patient_note || ''}
                                 onChange={(e) => handleFieldChange('patient_note', e.target.value)}
-                                placeholder="Any special requests or details we should know?"
+                                placeholder="Any special requests?"
                                 maxLength={100}
-                                className={`${getInputClasses()} min-h-[100px] py-3 resize-none`}
+                                className={`${getInputClasses()} min-h-[80px] py-2 resize-none`}
                             />
                         </div>
-
-                        {/* Information Banner (Exclusive Guest Communication) */}
-                        <div className="mt-8 bg-brand-50/50 dark:bg-brand-500/5 border border-brand-100/50 dark:border-brand-500/10 rounded-2xl p-6 sm:p-8 animate-in zoom-in-95 duration-500 overflow-hidden">
-                            <div className="flex flex-col gap-4">
-                                <div className="flex items-center gap-4">
+                        {/* Verification Email Highlight Banner */}
+                        <div className='mt-6 bg-brand-50/50 dark:bg-brand-500/5 border border-brand-100 dark:border-brand-500/10 rounded-2xl p-5 sm:p-6 animate-in slide-in-from-bottom-4 duration-500'>
+                            <div className="flex flex-col gap-3">
+                                <div className="flex items-center gap-3">
                                     <div className="w-10 h-10 rounded-xl bg-brand-500 text-white flex items-center justify-center shrink-0 shadow-lg shadow-brand-500/20">
-                                        <Info size={22} />
+                                        <Mail size={20} />
                                     </div>
-                                    <h4 className="text-[14px] sm:text-base font-black text-gray-900 dark:text-white uppercase tracking-tight leading-tight">Please double-check your email address</h4>
+                                    <h4 className="text-[13px] sm:text-base font-black text-gray-900 dark:text-white uppercase tracking-tight">
+                                        Verify Your Email
+                                    </h4>
                                 </div>
-                                <p className="text-[12px] sm:text-[14px] text-gray-600 dark:text-gray-400 leading-relaxed font-medium min-w-0 break-words">
-                                    Since you are booking as a guest, the address provided above is our **exclusive way** to send your appointment confirmation, clinic approvals, and important status updates.
-                                </p>
+                                <div className='text-[12px] sm:text-[14px] text-gray-600 dark:text-gray-400 leading-relaxed font-medium'>
+                                    <p>This email is our <strong className="text-brand-600 dark:text-brand-400">only way</strong> to send your confirmation and status updates.</p>
+                                    <p className="mt-1.5 flex flex-wrap items-center gap-1.5">
+                                        Please double-check 
+                                        <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md font-black break-all transition-all ${formData.email ? 'bg-brand-50 dark:bg-brand-500/10 text-brand-600 dark:text-brand-400 border border-brand-100 dark:border-brand-500/20' : 'text-gray-400 italic'}`}>
+                                            {formData.email || 'your email'}
+                                        </span> 
+                                        before proceeding.
+                                    </p>
+                                </div>
                             </div>
                         </div>
                     </div>
