@@ -307,7 +307,8 @@ const GuestBookingWizard = ({ booking }) => {
                 onClose={() => setShowRecoveryModal(false)}
                 showCloseButton={false}
                 closeOnOverlayClick={false}
-                className="max-w-md"
+                className="max-w-md sm:max-w-md"
+                isBottomSheet={true}
             >
                 <div className="flex flex-col h-full">
                     {/* Header */}
@@ -316,35 +317,35 @@ const GuestBookingWizard = ({ booking }) => {
                             <AlertCircle className="text-amber-600 dark:text-amber-400" size={22} />
                         </div>
                         <div>
-                            <h3 className="text-lg font-bold text-gray-900 dark:text-white">Continue Booking?</h3>
-                            <p className="text-xs text-gray-500 dark:text-gray-400">We saved your progress from earlier</p>
+                            <h3 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white">Continue Booking?</h3>
+                            <p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400">We saved your progress from earlier</p>
                         </div>
                     </div>
 
                     {/* Body */}
-                    <div className="px-6 py-6 flex-1 overflow-y-auto">
-                        <div className="p-6 bg-primary-50/50 dark:bg-primary-900/10 border border-primary-100/50 dark:border-primary-800/30 rounded-3xl flex flex-col items-center text-center gap-5 shadow-theme-xs">
-                            <div className="w-14 h-14 rounded-2xl bg-white dark:bg-primary-800 flex items-center justify-center shrink-0 shadow-theme-sm">
-                                <Calendar className="text-primary-600 dark:text-primary-400" size={28} />
+                    <div className="px-6 py-5 sm:py-6 flex-1 overflow-y-auto">
+                        <div className="p-5 sm:p-6 bg-primary-50/50 dark:bg-primary-900/10 border border-primary-100/50 dark:border-primary-800/30 rounded-2xl sm:rounded-3xl flex flex-col items-center text-center gap-4 sm:gap-5 shadow-theme-xs">
+                            <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl bg-white dark:bg-primary-800 flex items-center justify-center shrink-0 shadow-theme-sm">
+                                <Calendar className="text-primary-600 dark:text-primary-400" size={24} sm:size={28} />
                             </div>
-                            <div className="space-y-2">
-                                <h4 className="text-lg font-black text-gray-900 dark:text-white leading-tight uppercase tracking-tight">Pending Appointment</h4>
-                                <p className="text-[13px] text-gray-500 dark:text-gray-400 font-medium">
+                            <div className="space-y-1.5 sm:space-y-2">
+                                <h4 className="text-base sm:text-lg font-black text-gray-900 dark:text-white leading-tight uppercase tracking-tight">Pending Appointment</h4>
+                                <p className="text-[12px] sm:text-[13px] text-gray-500 dark:text-gray-400 font-medium leading-snug">
                                     We've held your selected slot while you were away:
                                 </p>
                             </div>
 
-                            <div className="w-full py-4 px-6 bg-white dark:bg-gray-800 rounded-2xl border border-primary-100 dark:border-primary-900/20 shadow-theme-xs flex flex-col items-center">
-                                <span className="text-[10px] font-black text-primary-600 dark:text-primary-400 uppercase tracking-[0.2em] mb-1">
+                            <div className="w-full py-3 sm:py-4 px-4 sm:px-6 bg-white dark:bg-gray-800 rounded-xl sm:rounded-2xl border border-primary-100 dark:border-primary-900/20 shadow-theme-xs flex flex-col items-center">
+                                <span className="text-[9px] sm:text-[10px] font-black text-primary-600 dark:text-primary-400 uppercase tracking-[0.2em] mb-1">
                                     {formatDate(slotHold.activeHold?.date)}
                                 </span>
-                                <span className="text-xl font-black text-gray-900 dark:text-white">
+                                <span className="text-lg sm:text-xl font-black text-gray-900 dark:text-white">
                                     {formatTimeRange(slotHold.activeHold?.time, formData.service_duration)}
                                 </span>
                             </div>
 
-                            <div className="flex items-center gap-2 text-[12px] font-bold text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 px-4 py-2 rounded-xl">
-                                <Clock size={14} className="animate-pulse" />
+                            <div className="flex items-center gap-2 text-[11px] sm:text-[12px] font-bold text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg sm:rounded-xl">
+                                <Clock size={13} sm:size={14} className="animate-pulse" />
                                 <span>Slot expires in {slotHold.formattedTime}</span>
                             </div>
                         </div>
@@ -384,6 +385,7 @@ const GuestBookingWizard = ({ booking }) => {
                 onClose={() => setShowResetModal(false)}
                 showCloseButton={true}
                 className="max-w-md"
+                isBottomSheet={true}
             >
                 <div className="flex flex-col h-full">
                     {/* Header */}
@@ -392,24 +394,24 @@ const GuestBookingWizard = ({ booking }) => {
                             <AlertCircle className="text-red-600 dark:text-red-400" size={22} />
                         </div>
                         <div>
-                            <h3 className="text-lg font-bold text-gray-900 dark:text-white">Start Over?</h3>
-                            <p className="text-xs text-gray-500 dark:text-gray-400">This action cannot be undone</p>
+                            <h3 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white">Start Over?</h3>
+                            <p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400">This action cannot be undone</p>
                         </div>
                     </div>
 
                     {/* Body */}
-                    <div className="px-6 py-8 flex-1 overflow-y-auto">
-                        <div className="space-y-4">
-                            <p className="text-[15px] text-gray-700 dark:text-gray-300 leading-relaxed font-medium">
+                    <div className="px-6 py-6 sm:py-8 flex-1 overflow-y-auto">
+                        <div className="space-y-3 sm:space-y-4">
+                            <p className="text-[14px] sm:text-[15px] text-gray-700 dark:text-gray-300 leading-relaxed font-medium">
                                 Do you want to <span className="text-red-600 dark:text-red-400 font-bold">release your slot hold</span> and start fresh?
                             </p>
-                            <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">
+                            <p className="text-[12px] sm:text-sm text-gray-500 dark:text-gray-400 leading-relaxed">
                                 If you start over, your selected time will be made available to other patients, and any information you've entered will be cleared.
                             </p>
-                            <div className="p-4 bg-amber-50 dark:bg-amber-900/10 rounded-2xl border border-amber-100 dark:border-amber-800/30">
+                            <div className="p-3 sm:p-4 bg-amber-50 dark:bg-amber-900/10 rounded-xl sm:rounded-2xl border border-amber-100 dark:border-amber-800/30">
                                 <div className="flex items-center gap-3 text-amber-700 dark:text-amber-300">
-                                    <Clock size={18} className="text-amber-500" />
-                                    <span className="text-sm font-bold italic">Your {slotHold.formattedTime || '10:00'} hold will end immediately.</span>
+                                    <Clock size={16} sm:size={18} className="text-amber-500" />
+                                    <span className="text-[12px] sm:text-sm font-bold italic">Your {slotHold.formattedTime || '10:00'} hold will end immediately.</span>
                                 </div>
                             </div>
                         </div>
@@ -446,6 +448,7 @@ const GuestBookingWizard = ({ booking }) => {
                 onClose={() => setShowExpiryModal(false)}
                 showCloseButton={true}
                 className="max-w-md"
+                isBottomSheet={true}
             >
                 <div className="flex flex-col h-full">
                     {/* Header */}
