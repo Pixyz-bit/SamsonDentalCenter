@@ -1,140 +1,183 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { CheckCircle, Mail, Loader2, MailWarning, Clock, Hash, ShieldCheck, ArrowRight, Home as HomeIcon, CalendarPlus } from 'lucide-react';
+import { CheckCircle, Mail, Clock, Hash, ShieldCheck, ArrowRight, Home as HomeIcon, CalendarPlus, Calendar, User, Check, Info } from 'lucide-react';
 
 const GuestBookingSuccess = ({ result, onReset, booking }) => {
     const navigate = useNavigate();
-    const [resending, setResending] = useState(false);
-    const [resendStatus, setResendStatus] = useState(null);
-    const [cooldown, setCooldown] = useState(0);
-    const [password, setPassword] = useState('');
-    const [upgrading, setUpgrading] = useState(false);
-    const [upgradeResult, setUpgradeResult] = useState(null);
-    const [upgradeError, setUpgradeError] = useState(null);
-
-    // Countdown effect for the resend button
-    useEffect(() => {
-        if (cooldown <= 0) return;
-        const timer = setInterval(() => {
-            setCooldown((prev) => prev - 1);
-        }, 1000);
-        return () => clearInterval(timer);
-    }, [cooldown]);
+    const formData = booking?.formData || {};
+    const appointment = result?.appointment || {};
 
     // Auto-scroll to top when success screen mounts
     useEffect(() => {
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }, []);
 
-    const handleResend = async () => {
-        if (!booking?.resendVerification || cooldown > 0) return;
-        setResending(true);
-        setResendStatus(null);
-        
-        const res = await booking.resendVerification(
-            result.appointment.id,
-            result.appointment.guest_email || booking.formData.email
-        );
-        
-        setResending(false);
-        
-        if (res?.success) {
-            setResendStatus({ success: true, message: "Verification email resent!" });
-            setCooldown(300); // 5 minutes block
-        } else {
-            setResendStatus(res);
+    const formatDate = (dateString) => {
+        if (!dateString) return '---';
+        try {
+            return new Date(dateString).toLocaleDateString('en-US', {
+                weekday: 'long',
+                month: 'long',
+                day: 'numeric',
+                year: 'numeric'
+            });
+        } catch (e) {
+            return dateString;
         }
-        
-        // Remove status message after 10 seconds to keep UI clean
-        setTimeout(() => setResendStatus(null), 10000);
     };
 
-    const handleUpgrade = async (e) => {
-        e.preventDefault();
-        setUpgrading(true);
-        setUpgradeError(null);
-        
+    const formatTimeRange = (startTime, durationMinutes) => {
+        if (!startTime) return '---';
         try {
-            const res = await booking.upgradeToUser(password);
-            if (res.success) {
-                setUpgradeResult(true);
-            } else {
-                setUpgradeError(res.message);
-            }
-        } catch (err) {
-            setUpgradeError("An unexpected error occurred.");
-        } finally {
-            setUpgrading(false);
+            const [h, m] = startTime.split(':').map(Number);
+            const startDate = new Date();
+            startDate.setHours(h, m, 0, 0);
+            const endDate = new Date(startDate.getTime() + (durationMinutes || 60) * 60000);
+            
+            const format = (date) => {
+                const hour = date.getHours();
+                const min = date.getMinutes().toString().padStart(2, '0');
+                const ampm = hour >= 12 ? 'PM' : 'AM';
+                const h12 = hour > 12 ? hour - 12 : hour === 0 ? 12 : hour;
+                return `${h12}:${min} ${ampm}`;
+            };
+            return `${format(startDate)} – ${format(endDate)}`;
+        } catch (e) {
+            return startTime;
         }
     };
 
     return (
-        <div className="w-full max-w-[550px] mx-auto animate-in fade-in zoom-in-95 duration-700">
-            {/* Success Card */}
-            <div className="bg-white dark:bg-gray-800/40 border border-gray-100 dark:border-gray-800 rounded-[40px] p-6 sm:p-10 shadow-theme-xl overflow-hidden relative">
-                {/* Celebratory Gradient Header */}
-                <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-brand-400 via-brand-500 to-brand-600"></div>
-
-                {/* Header Section */}
-                <div className='mb-8 text-center'>
-                    <div className='w-20 h-20 bg-brand-50 dark:bg-brand-500/10 rounded-3xl flex items-center justify-center mx-auto mb-6 border border-brand-100 dark:border-brand-500/20 shadow-theme-sm rotate-3 animate-bounce-subtle'>
-                        <CheckCircle className='w-10 h-10 text-brand-500' />
+        <div className="w-full max-w-[600px] mx-auto animate-in fade-in zoom-in-95 duration-1000 pb-24 sm:pb-0">
+            {/* 1. The Visual Confirmation */}
+            <div className='mb-8 sm:mb-10 text-center px-4'>
+                <div className='w-20 h-20 sm:w-24 sm:h-24 bg-emerald-50 dark:bg-emerald-500/10 rounded-[1.5rem] sm:rounded-[2rem] flex items-center justify-center mx-auto mb-6 sm:mb-8 border border-emerald-100 dark:border-emerald-500/20 shadow-theme-lg animate-in zoom-in-50 duration-700 delay-300'>
+                    <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-emerald-500 flex items-center justify-center text-white shadow-lg shadow-emerald-500/40 animate-in fade-in zoom-in duration-500 delay-500">
+                        <Check className="w-8 h-8 sm:w-10 sm:h-10" strokeWidth={4} />
                     </div>
-                    <h2 className='text-2xl sm:text-3xl font-black text-gray-900 dark:text-white tracking-tight uppercase mb-3'>
-                        Great, you're all set!
-                    </h2>
-                    <p className='text-sm sm:text-base text-gray-500 dark:text-gray-400 leading-relaxed font-medium px-4'>
-                        Your booking request has been received. Check your email for confirmation details.
-                    </p>
+                </div>
+                <h2 className='text-xl sm:text-4xl font-black text-gray-900 dark:text-white tracking-tight uppercase mb-3 sm:mb-4'>
+                    Thank you for choosing Samson Dental Center
+                </h2>
+                <p className='text-[12px] sm:text-base text-gray-500 dark:text-gray-400 leading-relaxed font-medium max-w-sm mx-auto px-2'>
+                    Your booking request has been received. We've sent the details to <span className="text-brand-500 dark:text-brand-400 font-bold break-all">{appointment.guest_email || formData.email}</span>.
+                </p>
+            </div>
+
+            {/* 2. The "Quick Summary" (Request Summary) */}
+            <div className='bg-white dark:bg-gray-800/40 border border-gray-100 dark:border-gray-800 rounded-[28px] sm:rounded-[32px] p-4 sm:p-8 shadow-theme-xl mb-6 sm:mb-10 overflow-hidden relative'>
+                <div className="absolute top-0 left-0 w-full h-1 bg-brand-500/10"></div>
+                
+                <div className="flex items-center justify-between mb-6 sm:mb-8 pb-4 border-b border-gray-50 dark:border-gray-800/50">
+                    <h3 className="text-[10px] sm:text-sm font-black text-gray-400 uppercase tracking-[0.2em]">Request Summary</h3>
+                    <div className="px-3 py-1 bg-brand-50/50 dark:bg-brand-500/10 rounded-full border border-brand-100/50 dark:border-brand-500/20 flex items-center">
+                        <span className="text-[10px] sm:text-xs font-black font-mono tracking-tighter">
+                            <span className="text-brand-400 dark:text-brand-500 mr-1.5">REF</span>
+                            <span className="text-brand-600 dark:text-brand-400">
+                                {appointment.reference_id || `#PRM-${Math.floor(1000 + Math.random() * 9000)}`}
+                            </span>
+                        </span>
+                    </div>
                 </div>
 
-                {/* Status Badge */}
-                <div className='bg-emerald-50/50 dark:bg-emerald-500/5 border border-emerald-100 dark:border-emerald-500/10 rounded-3xl p-5 mb-8'>
-                    <div className="flex gap-4 items-center">
-                        <div className="w-12 h-12 rounded-2xl bg-emerald-500 text-white flex items-center justify-center shrink-0 shadow-lg shadow-emerald-500/20">
-                            <ShieldCheck size={24} />
+                <div className="space-y-5 sm:space-y-6">
+                    {/* Service */}
+                    <div className="flex items-start gap-3 sm:gap-4">
+                        <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-brand-50 dark:bg-brand-900/20 flex items-center justify-center shrink-0 border border-brand-100 dark:border-brand-800/50">
+                            <ShieldCheck className="text-brand-500" size={18} sm:size={20} />
                         </div>
-                        <div className="grow">
-                            <h4 className="text-sm font-black text-gray-900 dark:text-white uppercase tracking-wide">Identity Verified</h4>
-                            <p className='text-xs sm:text-sm text-gray-600 dark:text-gray-400 font-medium'>
-                                Your request is now being reviewed by our clinic staff.
+                        <div>
+                            <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-0.5 leading-none">Service</p>
+                            <p className="text-[13px] sm:text-base font-bold text-gray-900 dark:text-white leading-tight">
+                                {appointment.service_name || formData.service_name || 'Cleaning & X-Ray'}
+                            </p>
+                        </div>
+                    </div>
+
+                    {/* Date */}
+                    <div className="flex items-start gap-3 sm:gap-4">
+                        <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-gray-50 dark:bg-gray-800 flex items-center justify-center shrink-0 border border-gray-100 dark:border-gray-700">
+                            <Calendar className="text-gray-500" size={18} sm:size={20} />
+                        </div>
+                        <div>
+                            <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-0.5 leading-none">Date</p>
+                            <p className="text-[13px] sm:text-base font-bold text-gray-900 dark:text-white leading-tight">
+                                {formatDate(appointment.date || formData.date)}
+                            </p>
+                        </div>
+                    </div>
+
+                    {/* Time */}
+                    <div className="flex items-start gap-3 sm:gap-4">
+                        <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-gray-50 dark:bg-gray-800 flex items-center justify-center shrink-0 border border-gray-100 dark:border-gray-700">
+                            <Clock className="text-gray-500" size={18} sm:size={20} />
+                        </div>
+                        <div>
+                            <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-0.5 leading-none">Time Window</p>
+                            <p className="text-[13px] sm:text-base font-bold text-gray-900 dark:text-white leading-tight">
+                                {formatTimeRange(appointment.time || formData.time, appointment.service_duration || formData.service_duration)}
+                            </p>
+                        </div>
+                    </div>
+
+                    {/* Guest Name */}
+                    <div className="flex items-start gap-3 sm:gap-4">
+                        <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-gray-50 dark:bg-gray-800 flex items-center justify-center shrink-0 border border-gray-100 dark:border-gray-700">
+                            <User className="text-gray-500" size={18} sm:size={20} />
+                        </div>
+                        <div>
+                            <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-0.5 leading-none">Guest Patient</p>
+                            <p className="text-[13px] sm:text-base font-bold text-gray-900 dark:text-white leading-tight capitalize">
+                                {`${appointment.guest_first_name || formData.first_name || ''} ${appointment.guest_last_name || formData.last_name || ''}`}
                             </p>
                         </div>
                     </div>
                 </div>
+            </div>
 
-                {/* Confirmation Footer Information */}
-                <div className='bg-gray-50 dark:bg-gray-800/50 rounded-3xl p-6 text-center border border-gray-100 dark:border-gray-800'>
-                    <p className='text-xs sm:text-sm text-gray-500 dark:text-gray-400 font-medium leading-relaxed'>
-                        We've sent a detailed confirmation to your email. Please present the booking ID at the clinic if requested.
-                    </p>
-                </div>
-
-                {/* Primary Action */}
-                <div className="mt-10 pt-8 border-t border-gray-100 dark:border-gray-800">
-                    <button
-                        onClick={onReset}
-                        className='w-full bg-brand-500 hover:bg-brand-600 active:scale-95 text-white font-black py-5 rounded-2xl transition-all shadow-lg shadow-brand-500/20 text-[10px] sm:text-base uppercase tracking-widest flex items-center justify-center gap-3'
-                    >
-                        <CalendarPlus size={20} />
-                        Book Another Appointment
-                    </button>
+            {/* 3. The "Next Steps" */}
+            <div className='bg-brand-50/30 dark:bg-brand-500/5 rounded-2xl sm:rounded-3xl p-4 sm:p-6 mb-12 sm:mb-12 border border-brand-100/50 dark:border-brand-500/10'>
+                <div className="flex gap-3 sm:gap-4 items-start">
+                    <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-white dark:bg-brand-500/20 text-brand-500 flex items-center justify-center shrink-0 shadow-theme-xs">
+                        <Info size={18} sm:size={20} />
+                    </div>
+                    <div className="space-y-2 sm:space-y-3">
+                        <h4 className="text-[12px] sm:text-sm font-black text-gray-900 dark:text-white uppercase tracking-wide">What happens now?</h4>
+                        <div className="space-y-1.5 sm:space-y-2">
+                            <p className='text-[11px] sm:text-[13px] text-gray-600 dark:text-gray-400 font-medium leading-relaxed flex items-start gap-2'>
+                                <span className="w-1 h-1 rounded-full bg-brand-400 mt-1.5 shrink-0" />
+                                Our team will review your request and send a final confirmation within 24 hours.
+                            </p>
+                            <p className='text-[11px] sm:text-[13px] text-gray-600 dark:text-gray-400 font-medium leading-relaxed flex items-start gap-2'>
+                                <span className="w-1 h-1 rounded-full bg-brand-400 mt-1.5 shrink-0" />
+                                Please wait for the final confirmation before heading to the clinic.
+                            </p>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            {/* Secondary Navigation (Outside the card) */}
-            <div className="mt-8 flex justify-center">
-                <button
-                    onClick={() => navigate('/')}
-                    className='group flex items-center gap-3 px-8 py-3 rounded-full text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-all hover:bg-white dark:hover:bg-gray-800 shadow-sm hover:shadow-theme-md'
-                >
-                    <HomeIcon size={18} className="transition-transform group-hover:-translate-y-0.5" />
-                    <span className="text-xs font-black uppercase tracking-[0.2em]">Return to Home</span>
-                </button>
+            {/* 4. Action Buttons (Sticky Footer on Mobile) */}
+            <div className="fixed bottom-0 left-0 w-full bg-white/90 dark:bg-gray-900/90 backdrop-blur-md border-t border-gray-100 dark:border-gray-800 p-4 sm:relative sm:bg-transparent sm:border-0 sm:p-0 sm:flex sm:flex-row gap-4 sm:mt-8 z-50">
+                <div className="max-w-[600px] mx-auto flex flex-row gap-3 sm:w-full">
+                    <button
+                        onClick={() => navigate('/')}
+                        className='flex-1 group flex items-center justify-center gap-2 h-12 sm:h-14 rounded-xl sm:rounded-2xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-all shadow-theme-xs'
+                    >
+                        <HomeIcon size={16} className="sm:size-[18px]" />
+                        <span className="text-[10px] sm:text-xs font-black uppercase tracking-widest">Home</span>
+                    </button>
+                    <button
+                        onClick={onReset}
+                        className='flex-[2] flex items-center justify-center gap-2 h-12 sm:h-14 rounded-xl sm:rounded-2xl bg-brand-500 hover:bg-brand-600 text-white font-black transition-all shadow-lg shadow-brand-500/20'
+                    >
+                        <CalendarPlus size={18} className="sm:size-5" />
+                        <span className="text-[10px] sm:text-xs font-black uppercase tracking-widest">Book Another</span>
+                    </button>
+                </div>
             </div>
         </div>
     );
 };
 
 export default GuestBookingSuccess;
-
