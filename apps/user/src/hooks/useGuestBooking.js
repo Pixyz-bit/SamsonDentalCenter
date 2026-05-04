@@ -55,6 +55,7 @@ const DEFAULT_FORM_DATA = {
     service_tier: '',
     patient_note: '',
     birthday: '', // ✅ NEW: Guest birthday
+    agreed_to_terms: false, // ✅ NEW: Terms agreement
 };
 
 /**
@@ -202,6 +203,29 @@ const useGuestBooking = (initialServiceId = null, initialServiceName = null) => 
     };
 
     /**
+     * Pre-flight validation before OTP.
+     */
+    const validateBooking = async () => {
+        setIsVerifying(true);
+        setError(null);
+        try {
+            await api.post('/appointments/guest-validate', {
+                email: formData.email,
+                date: formData.date,
+                time: formData.time,
+                service_id: formData.service_id,
+                duration: formData.service_duration || 60,
+            });
+            return { success: true };
+        } catch (err) {
+            setError(err.message || 'Validation failed.');
+            return { success: false };
+        } finally {
+            setIsVerifying(false);
+        }
+    };
+
+    /**
      * Phase 1: Send OTP to the guest's email.
      */
     const sendGuestOTP = async () => {
@@ -281,6 +305,8 @@ const useGuestBooking = (initialServiceId = null, initialServiceName = null) => 
                 verification_token: tokenToUse,
                 notes: formData.patient_note,
                 birthday: formData.birthday, // ✅ Pass birthday
+                accepted_terms: formData.agreed_to_terms, // ✅ Pass terms agreement
+                terms_accepted_at: new Date().toISOString(), // ✅ Record timestamp
             };
 
             const data = await api.post('/appointments/book-guest', body);
@@ -401,6 +427,7 @@ const useGuestBooking = (initialServiceId = null, initialServiceName = null) => 
         nextStep,
         prevStep,
         goToStep,
+        validateBooking,
         sendGuestOTP,
         verifyGuestOTP,
         submit,

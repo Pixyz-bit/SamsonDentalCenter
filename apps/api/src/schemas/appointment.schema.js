@@ -172,3 +172,15 @@ export const releaseHoldSchema = z.object({
     query: z.any(),
     params: z.any(),
 }).passthrough();
+
+export const guestValidateSchema = z.object({
+    body: z.object({
+        email: z.string().email(),
+        date: stringRequired,
+        time: stringRequired,
+        service_id: stringRequired,
+        duration: z.number().int().positive(),
+    }).passthrough(),
+    query: z.any(),
+    params: z.any(),
+}).passthrough();

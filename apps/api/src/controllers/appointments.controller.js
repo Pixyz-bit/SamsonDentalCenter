@@ -10,6 +10,7 @@ import {
     insertConfirmedGuestAppointment,
     rescheduleGuestAppointment,
 } from '../services/appointment.service.js';
+import { validateGuestBooking } from '../services/appointment-validation.service.js';
 import {
     confirmAppointmentByToken,
     resendConfirmationEmail,
@@ -52,7 +53,9 @@ export const bookGuest = async (req, res, next) => {
             user_session_id, 
             verification_token,
             notes,
-            birthday // ✅ Extract birthday
+            birthday, // ✅ Extract birthday
+            accepted_terms,
+            terms_accepted_at
         } = req.body;
 
         if (!verification_token) {
@@ -75,9 +78,30 @@ export const bookGuest = async (req, res, next) => {
             user_session_id,
             0, // rescheduleCount
             notes,
-            birthday // ✅ Pass birthday
+            birthday, // ✅ Pass birthday
+            accepted_terms,
+            terms_accepted_at
         );
         return res.status(result.booked ? 201 : 409).json(result);
+    } catch (err) {
+        next(err);
+    }
+};
+
+/**
+ * POST /api/appointments/guest-validate
+ * Pre-flight validation before OTP for guest bookings.
+ */
+export const guestValidate = async (req, res, next) => {
+    try {
+        const { email, date, time, service_id, duration } = req.body;
+        
+        await validateGuestBooking(email, date, time, service_id, duration);
+        
+        return res.status(200).json({ 
+            success: true, 
+            message: 'Booking request is valid.' 
+        });
     } catch (err) {
         next(err);
     }

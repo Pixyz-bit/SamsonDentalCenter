@@ -3,7 +3,7 @@ import { ArrowRight, UserCircle, Contact, Info, ChevronDown, X, Mail, Check, Cal
 
 const InfoStep = ({ formData, onUpdate, onNext, onBack }) => {
     const [errors, setErrors] = useState({});
-    
+
     // Internal state synced with parent fields for the breakdown
     const [nameParts, setNameParts] = useState({
         first: formData.first_name || '',
@@ -43,7 +43,7 @@ const InfoStep = ({ formData, onUpdate, onNext, onBack }) => {
         }
 
         if (!formData.birthday) newErrors.birthday = 'Date of birth is required.';
-        
+
         if (!formData.email?.trim()) {
             newErrors.email = 'Email address is required.';
         } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
@@ -60,6 +60,19 @@ const InfoStep = ({ formData, onUpdate, onNext, onBack }) => {
         }
 
         setErrors(newErrors);
+        
+        // Scroll to first error
+        const firstError = Object.keys(newErrors)[0];
+        if (firstError) {
+            setTimeout(() => {
+                const element = document.getElementById(`field-${firstError}`);
+                if (element) {
+                    element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    element.focus({ preventScroll: true });
+                }
+            }, 100);
+        }
+
         return Object.keys(newErrors).length === 0;
     };
 
@@ -121,9 +134,9 @@ const InfoStep = ({ formData, onUpdate, onNext, onBack }) => {
             const [h, m] = startTime.split(':').map(Number);
             const startDate = new Date();
             startDate.setHours(h, m, 0, 0);
-            
+
             const endDate = new Date(startDate.getTime() + (durationMinutes || 60) * 60000);
-            
+
             const format = (date) => {
                 const hour = date.getHours();
                 const min = date.getMinutes().toString().padStart(2, '0');
@@ -141,7 +154,7 @@ const InfoStep = ({ formData, onUpdate, onNext, onBack }) => {
     const labelClasses = "mb-1.5 block text-[11px] sm:text-xs font-bold text-gray-700 dark:text-gray-400 uppercase tracking-widest opacity-80 leading-none";
 
     return (
-        <div className="animate-in fade-in slide-in-from-bottom-2 duration-500 pb-10 sm:pb-6">
+        <div className="animate-in fade-in slide-in-from-bottom-2 duration-500 pb-6 sm:pb-4">
             {/* Header Section */}
             <div className='mb-6 sm:mb-8'>
                 <h2 className='text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-2 sm:mb-3 tracking-tight uppercase'>
@@ -156,7 +169,7 @@ const InfoStep = ({ formData, onUpdate, onNext, onBack }) => {
 
             {/* Premium Card - Full-width stretched container */}
             <div className='w-full bg-white dark:bg-white/[0.03] border border-gray-100 dark:border-gray-800 rounded-3xl shadow-theme-sm overflow-hidden'>
-                
+
                 {/* Section: Personal Details */}
                 <section>
                     {/* Header with icon and title */}
@@ -165,12 +178,13 @@ const InfoStep = ({ formData, onUpdate, onNext, onBack }) => {
                         <h3 className="text-xs sm:text-sm font-bold text-gray-800 dark:text-white/90 uppercase tracking-widest">Personal Details</h3>
                     </div>
 
-                    <div className="px-5 pb-10 sm:px-10 space-y-6">
+                    <div className="px-5 pb-6 sm:px-10 sm:pb-8 space-y-6">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8">
                             {/* Last Name */}
                             <div>
                                 <label className={labelClasses}>Last Name <span className='text-brand-500'>*</span></label>
                                 <input
+                                    id="field-last"
                                     type='text'
                                     value={nameParts.last}
                                     onChange={(e) => handleNamePartChange('last', e.target.value)}
@@ -180,10 +194,11 @@ const InfoStep = ({ formData, onUpdate, onNext, onBack }) => {
                                 {errors.last && <p className='text-error-500 text-[10px] font-bold mt-1.5 ml-1'>{errors.last}</p>}
                             </div>
 
-                             {/* First Name */}
+                            {/* First Name */}
                             <div>
                                 <label className={labelClasses}>First Name <span className='text-brand-500'>*</span></label>
                                 <input
+                                    id="field-first"
                                     type='text'
                                     value={nameParts.first}
                                     onChange={(e) => handleNamePartChange('first', e.target.value)}
@@ -197,6 +212,7 @@ const InfoStep = ({ formData, onUpdate, onNext, onBack }) => {
                             <div>
                                 <label className={labelClasses}>Date of Birth <span className='text-brand-500'>*</span></label>
                                 <input
+                                    id="field-birthday"
                                     type='date'
                                     value={formData.birthday || ''}
                                     onChange={(e) => handleFieldChange('birthday', e.target.value)}
@@ -256,7 +272,7 @@ const InfoStep = ({ formData, onUpdate, onNext, onBack }) => {
                                             autoFocus
                                             className={getInputClasses()}
                                         />
-                                        <button 
+                                        <button
                                             onClick={() => { setShowCustomSuffix(false); handleNamePartChange('suffix', ''); }}
                                             className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-bold text-brand-500 hover:text-brand-600 underline uppercase tracking-tight"
                                         >
@@ -277,12 +293,13 @@ const InfoStep = ({ formData, onUpdate, onNext, onBack }) => {
                         <h3 className="text-xs sm:text-sm font-bold text-gray-800 dark:text-white/90 uppercase tracking-widest">Contact Information</h3>
                     </div>
 
-                    <div className="px-5 pb-10 sm:px-10 space-y-6">
+                    <div className="px-5 pb-6 sm:px-10 sm:pb-8 space-y-6">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
                             {/* Email Address */}
                             <div>
                                 <label className={labelClasses}>Email address <span className='text-brand-500'>*</span></label>
                                 <input
+                                    id="field-email"
                                     type='email'
                                     value={formData.email}
                                     onChange={(e) => handleFieldChange('email', e.target.value)}
@@ -296,7 +313,7 @@ const InfoStep = ({ formData, onUpdate, onNext, onBack }) => {
                             <div>
                                 <label className={labelClasses}>Phone Number <span className='text-brand-500'>*</span></label>
                                 <div className="flex gap-2">
-                                    <select 
+                                    <select
                                         value={formData.country_code || '+63'}
                                         onChange={(e) => handleFieldChange('country_code', e.target.value)}
                                         className="h-10 w-24 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-800 dark:text-white/90 px-2 text-[12px] font-bold focus:ring-3 focus:ring-brand-500/20 focus:border-brand-300 outline-hidden"
@@ -307,14 +324,15 @@ const InfoStep = ({ formData, onUpdate, onNext, onBack }) => {
                                         <option value="+44">UK (+44)</option>
                                     </select>
                                     <input
+                                        id="field-phone"
                                         type='tel'
                                         value={formData.phone}
                                         onChange={(e) => handleFieldChange('phone', e.target.value)}
                                         placeholder={
                                             (formData.country_code || '+63') === '+63' ? '9171234567' :
-                                            formData.country_code === '+1' ? '2025550123' :
-                                            formData.country_code === '+61' ? '0412345678' :
-                                            formData.country_code === '+44' ? '07700900123' : 'Phone number'
+                                                formData.country_code === '+1' ? '2025550123' :
+                                                    formData.country_code === '+61' ? '0412345678' :
+                                                        formData.country_code === '+44' ? '07700900123' : 'Phone number'
                                         }
                                         className={getInputClasses(errors.phone)}
                                     />
@@ -353,10 +371,10 @@ const InfoStep = ({ formData, onUpdate, onNext, onBack }) => {
                                 <div className='text-[12px] sm:text-[14px] text-gray-600 dark:text-gray-400 leading-relaxed font-medium'>
                                     <p>This email is our <strong className="text-brand-600 dark:text-brand-400">only way</strong> to send your confirmation and status updates.</p>
                                     <p className="mt-1.5 flex flex-wrap items-center gap-1.5">
-                                        Please double-check 
+                                        Please double-check
                                         <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md font-black break-all transition-all ${formData.email ? 'bg-brand-50 dark:bg-brand-500/10 text-brand-600 dark:text-brand-400 border border-brand-100 dark:border-brand-500/20' : 'text-gray-400 italic'}`}>
                                             {formData.email || 'your email'}
-                                        </span> 
+                                        </span>
                                         before proceeding.
                                     </p>
                                 </div>
@@ -364,23 +382,49 @@ const InfoStep = ({ formData, onUpdate, onNext, onBack }) => {
                         </div>
                     </div>
                 </section>
+
+                {/* Terms Checkbox - Now outside the fixed container to avoid crowding on mobile */}
+                <div className='mx-5 sm:mx-10 mb-6 flex items-start gap-3 p-4 sm:p-5 bg-gray-50/50 dark:bg-gray-800/30 rounded-2xl border border-gray-100/80 dark:border-gray-800/50 mt-3 sm:mt-4 animate-in slide-in-from-bottom-4 duration-700'>
+                    <div className="pt-0.5">
+                        <input
+                            type="checkbox"
+                            id="terms"
+                            checked={formData.agreed_to_terms || false}
+                            onChange={(e) => onUpdate('agreed_to_terms', e.target.checked)}
+                            className="w-4 h-4 sm:w-6 sm:h-6 rounded-lg border-gray-300 text-brand-500 focus:ring-brand-500/20 cursor-pointer transition-all"
+                        />
+                    </div>
+                    <label htmlFor="terms" className="text-[11px] sm:text-[14px] text-gray-600 dark:text-gray-400 font-medium leading-relaxed cursor-pointer select-none">
+                        I agree to the <a href="/terms-of-service" target="_blank" className="text-brand-600 dark:text-brand-400 font-bold hover:underline">Terms of Service</a> and <a href="/privacy-policy" target="_blank" className="text-brand-600 dark:text-brand-400 font-bold hover:underline">Privacy Policy</a>.
+                        <span className="block mt-1 text-[10px] sm:text-[12px] opacity-60 font-normal italic leading-snug">
+                            I understand my data will be handled securely per clinic policy.
+                        </span>
+                    </label>
+                </div>
             </div>
 
-            <div className='fixed bottom-0 left-0 right-0 sm:relative z-40 px-6 py-4 sm:px-0 sm:py-0 sm:mt-6 sm:pt-2 bg-white/95 dark:bg-gray-900/95 sm:bg-transparent backdrop-blur-md sm:backdrop-blur-none border-t border-gray-100 dark:border-gray-800 sm:border-t-0 shadow-[0_-8px_20px_rgba(0,0,0,0.05)] sm:shadow-none transition-all'>
-                <div className='flex items-center gap-2 w-full sm:justify-between'>
-                    <button 
-                        onClick={onBack} 
-                        className='flex-1 sm:flex-none sm:min-w-[120px] text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white font-black text-[9px] sm:text-sm px-2 py-3.5 sm:px-8 transition-colors uppercase tracking-widest bg-gray-50 dark:bg-gray-800 sm:bg-transparent rounded-2xl border border-transparent shadow-theme-xs'
-                    >
-                        Back to Date & Time
-                    </button>
-                    <button 
-                        onClick={handleNext} 
-                        className='flex-1 sm:flex-none sm:min-w-[240px] bg-brand-500 hover:bg-brand-600 active:scale-95 text-white font-black px-2 py-3.5 sm:px-10 sm:py-4 rounded-2xl transition-all shadow-theme-md flex items-center justify-center gap-1 sm:gap-2.5 text-[9px] sm:text-base uppercase tracking-widest'
-                    >
-                        Continue to Review
-                        <ArrowRight size={16} className="w-3.5 h-3.5 sm:w-5 sm:h-5" />
-                    </button>
+            <div className='fixed bottom-0 left-0 right-0 sm:relative z-40 px-6 py-4 sm:px-0 sm:py-0 sm:mt-8 sm:pt-4 bg-white/95 dark:bg-gray-900/95 sm:bg-transparent backdrop-blur-md sm:backdrop-blur-none border-t border-gray-100 dark:border-gray-800 sm:border-t-0 shadow-[0_-8px_20px_rgba(0,0,0,0.05)] sm:shadow-none transition-all'>
+                <div className='flex flex-col gap-4'>
+
+                    <div className='flex items-center gap-2 w-full sm:justify-between'>
+                        <button
+                            onClick={onBack}
+                            className='flex-1 sm:flex-none sm:min-w-[120px] text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white font-black text-[9px] sm:text-sm px-2 py-3.5 sm:px-8 transition-colors uppercase tracking-widest bg-gray-50 dark:bg-gray-800 sm:bg-transparent rounded-2xl border border-transparent shadow-theme-xs'
+                        >
+                            Back
+                        </button>
+                        <button
+                            onClick={handleNext}
+                            disabled={!formData.agreed_to_terms}
+                            className={`flex-1 sm:flex-none sm:min-w-[240px] font-black px-2 py-3.5 sm:px-10 sm:py-4 rounded-2xl transition-all shadow-theme-md flex items-center justify-center gap-1 sm:gap-2.5 text-[9px] sm:text-base uppercase tracking-widest ${formData.agreed_to_terms
+                                ? 'bg-brand-500 hover:bg-brand-600 active:scale-95 text-white'
+                                : 'bg-gray-100 dark:bg-gray-800 text-gray-400 cursor-not-allowed grayscale opacity-50'
+                                }`}
+                        >
+                            Continue to Review
+                            <ArrowRight size={16} className="w-3.5 h-3.5 sm:w-5 sm:h-5" />
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>

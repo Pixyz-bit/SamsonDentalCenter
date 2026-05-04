@@ -10,29 +10,29 @@ calendar spam, overlapping slots, and "double-dipping".
 
 **UI/UX Polish**
 
-- [ ] **Optional Note Field:** Add an optional "Note for the clinic" textarea at the bottom of the
-      Info Step (Step 3).
-- [ ] **Remove Redundant Timer:** Remove the old time hold visual indicator from the bottom of
+- [x] **Optional Note Field:** Add an optional "Note for the clinic" textarea at the bottom of the
+      Info Step (Step 3). [ALREADY IMPLEMENTED]
+- [x] **Remove Redundant Timer:** Remove the old time hold visual indicator from the bottom of
       `DateTimeStep.jsx`.
-- [ ] **Polish Step Navbar:** Clean up `StepIndicator.jsx` so it is less crowded. Ensure it
+- [x] **Polish Step Navbar:** Clean up `StepIndicator.jsx` so it is less crowded. Ensure it
       accurately reflects the dynamic progress sync of the time hold.
-- [ ] **Refine Success Step Banner:** Expand the Step Navbar to cleanly show a visually distinct
+- [x] **Refine Success Step Banner:** Expand the Step Navbar to cleanly show a visually distinct
       "Success" (Complete) state.
-- [ ] **Guest Success Card Overhaul:** Extract the "Home" button outside the white card. Remove the
+- [x] **Guest Success Card Overhaul:** Extract the "Home" button outside the white card. Remove the
       "Upgrade to User / Create Account" section. Only show the booking summary: Service Name, Date,
-      Start Time, and End Time (compute using duration). Remove Doctor name, Request ID, and
-      Reference ID.
-- [ ] **Hide Footer:** Ensure the global Footer is hidden during the entire Guest Booking flow to
+      Start Time, and End Time (compute using duration).
+- [x] **Terms Checkbox:** Add a mandatory Terms of Service checkbox in Info Step.
+- [x] **Hide Footer:** Ensure the global Footer is hidden during the entire Guest Booking flow to
       minimize distractions.
 
 **Friction & Abuse Prevention Rules (Backend Validations)**
 
-- [ ] **1. The Overlap Guard:** Strictly prevent the same email from booking overlapping times, even
+- [x] **1. The Overlap Guard:** Strictly prevent the same email from booking overlapping times, even
       under different guest names.
-- [ ] **2. The Volume Cap:** Hard limit of max 3 active (pending/confirmed) bookings per email.
-- [ ] **3. The Service Lock:** Prevent the same email from booking the exact same service on the
+- [x] **2. The Volume Cap:** Hard limit of max 3 active (pending/confirmed) bookings per email.
+- [x] **3. The Service Lock:** Prevent the same email from booking the exact same service on the
       same day.
-- [ ] **Validation Injection Point:** These rules must run when "Confirm Booking" is clicked on Step
+- [x] **Validation Injection Point:** These rules must run when "Confirm Booking" is clicked on Step
       4, _before_ sending the OTP email.
 
 ---

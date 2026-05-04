@@ -98,11 +98,32 @@ const ConfirmStep = ({ formData, onSubmit, onBack, onEdit, onReset, submitting, 
             </div>
 
             {error && (
-                <div className='bg-red-50 dark:bg-red-900/10 border border-red-100 dark:border-red-900/20 text-red-700 dark:text-red-400 px-5 py-4 rounded-2xl text-sm font-bold mb-8 flex gap-3 items-center animate-in shake duration-500'>
-                    <div className="w-8 h-8 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center shrink-0">
-                        <Info size={16} />
+                <div className='group relative overflow-hidden bg-white dark:bg-red-950/20 border-2 border-red-500/30 dark:border-red-500/20 rounded-3xl p-6 mb-8 animate-in shake duration-500 shadow-2xl shadow-red-500/10'>
+                    {/* Decorative Background Pattern */}
+                    <div className="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-red-500/5 rounded-full blur-2xl group-hover:bg-red-500/10 transition-colors" />
+                    
+                    <div className="relative flex flex-col sm:flex-row items-center sm:items-start gap-5">
+                        <div className="w-14 h-14 rounded-2xl bg-red-500 text-white flex items-center justify-center shrink-0 shadow-lg shadow-red-500/30">
+                            <ShieldCheck size={28} strokeWidth={2.5} />
+                        </div>
+                        
+                        <div className="flex-1 text-center sm:text-left">
+                            <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-2">
+                                <h3 className="text-lg font-black text-red-600 dark:text-red-400 uppercase tracking-tight">
+                                    Booking Blocked
+                                </h3>
+                                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-black bg-red-100 dark:bg-red-900/40 text-red-600 dark:text-red-400 uppercase tracking-widest border border-red-200 dark:border-red-800/50 w-fit mx-auto sm:mx-0">
+                                    Security Notice
+                                </span>
+                            </div>
+                            <p className="text-[14px] sm:text-[15px] text-gray-700 dark:text-gray-300 leading-relaxed font-bold">
+                                {error}
+                            </p>
+                            <p className="mt-3 text-[12px] text-gray-500 dark:text-gray-400 font-medium">
+                                To protect our scheduling system, we enforce strict limits on guest accounts. If you believe this is an error, please reach out to us directly.
+                            </p>
+                        </div>
                     </div>
-                    {error}
                 </div>
             )}
 

@@ -488,7 +488,7 @@ const GuestBookingWizard = ({ booking }) => {
                             }}
                             className="flex-1 h-10 sm:h-12 text-[10px] sm:text-xs font-bold text-gray-400 hover:text-red-500 hover:bg-red-50 dark:text-gray-500 dark:hover:text-red-400 transition-all duration-300 uppercase tracking-widest"
                         >
-                            Reset
+                            RESTART
                         </Button>
                         <Button 
                             variant="primary" 
@@ -603,6 +603,11 @@ const GuestBookingWizard = ({ booking }) => {
                                 <ConfirmStep
                                     formData={formData}
                                     onSubmit={async () => {
+                                        // 1. Run Pre-validation (Overlap, Volume Cap, Service Lock)
+                                        const isValid = await booking.validateBooking();
+                                        if (!isValid.success) return; // Error is already set in state
+
+                                        // 2. If valid, proceed to OTP
                                         const success = await booking.sendGuestOTP();
                                         if (success) {
                                             toast.success('Verification code sent to your email!');

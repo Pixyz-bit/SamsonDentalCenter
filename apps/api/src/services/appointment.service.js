@@ -46,7 +46,9 @@ export const bookAppointmentGuest = async (
     userSessionId = null,
     rescheduleCount = 0,
     notes = null,
-    birthday = null // ✅ Added birthday parameter
+    birthday = null, // ✅ Added birthday parameter
+    acceptedTerms = false,
+    termsAcceptedAt = null
 ) => {
     const { first, last, middle, suffix } = guestNameParts;
     const guestName = `${last}, ${first} ${middle || ''} ${suffix || ''}`.replace(/\s+/g, ' ').trim();
@@ -148,7 +150,9 @@ export const bookAppointmentGuest = async (
             confirmed_at: new Date().toISOString(),
             source: APPOINTMENT_SOURCE.GUEST_BOOKING,
             reschedule_count: rescheduleCount,
-            notes: notes // ✅ Save patient note
+            notes: notes, // ✅ Save patient note
+            accepted_terms: acceptedTerms,
+            terms_accepted_at: termsAcceptedAt
         })
         .select(`
             *,
