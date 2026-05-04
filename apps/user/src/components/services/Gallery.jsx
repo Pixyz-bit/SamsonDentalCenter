@@ -83,7 +83,7 @@ const Gallery = ({ variant = "light" }) => {
   const gridRef = useRef(null);
   const headingRef = useRef(null);
 
-  const isDark = variant === "dark";
+  const isDark = false; // forced light mode
 
   useEffect(() => {
     let ctx = gsap.context(() => {
@@ -125,33 +125,33 @@ const Gallery = ({ variant = "light" }) => {
   return (
     <section
       ref={sectionRef}
-      className={`py-16 sm:py-24 lg:py-32 relative overflow-hidden transition-colors duration-500 ${isDark ? "bg-[#0B1120]" : "bg-white"}`}
+      className={`py-16 sm:py-24 lg:py-32 relative overflow-hidden transition-colors duration-500 ${isDark ? "bg-red-950" : "bg-white"}`}
     >
       {/* Background Decor */}
       <div
-        className={`absolute bottom-0 left-0 w-150 h-150 rounded-full blur-[100px] -ml-24 -mb-24 transition-opacity pointer-events-none ${isDark ? "bg-white/5" : "bg-blue-600/5"}`}
+        className={`absolute bottom-0 left-0 w-150 h-150 rounded-full blur-[100px] -ml-24 -mb-24 transition-opacity pointer-events-none ${isDark ? "bg-white/5" : "bg-red-600/5"}`}
       ></div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div ref={headingRef} className="max-w-3xl mb-12 md:mb-20">
           <div className="gallery-heading-item flex items-center gap-3 mb-6">
             <span
-              className={`h-px w-8 ${isDark ? "bg-sky-400" : "bg-sky-400"}`}
+              className={`h-px w-8 ${isDark ? "bg-red-400" : "bg-red-400"}`}
             ></span>
             <span
-              className={`${isDark ? "text-sky-400" : "text-sky-400"} font-bold uppercase tracking-widest text-[10px]`}
+              className={`${isDark ? "text-red-400" : "text-red-400"} font-bold uppercase tracking-widest text-[10px]`}
             >
               Smile Gallery
             </span>
           </div>
           <h2
-            className={`text-[clamp(2.25rem,5vw,4rem)] font-bold leading-[1.1] tracking-tight ${isDark ? "text-white" : "text-slate-900"}`}
+            className={`text-[clamp(2.25rem,5vw,4rem)] font-bold leading-[1.1] tracking-tight ${isDark ? "text-white" : "text-stone-900"}`}
           >
             <span className="block gallery-heading-item">
               Our patients' smiles
             </span>
             <span
-              className={`block gallery-heading-item ${isDark ? "text-sky-400" : "text-sky-400"}`}
+              className={`block gallery-heading-item ${isDark ? "text-red-400" : "text-red-400"}`}
             >
               speak for themselves.
             </span>
@@ -172,7 +172,7 @@ const Gallery = ({ variant = "light" }) => {
 
               {/* Overlay */}
               <div
-                className={`absolute inset-0 transition-colors duration-500 ${isDark ? "bg-black/30 group-hover:bg-transparent" : "bg-slate-900/10 group-hover:bg-transparent"}`}
+                className={`absolute inset-0 transition-colors duration-500 ${isDark ? "bg-black/30 group-hover:bg-transparent" : "bg-stone-900/10 group-hover:bg-transparent"}`}
               ></div>
 
               {/* Tags/Badges */}
@@ -180,7 +180,7 @@ const Gallery = ({ variant = "light" }) => {
                 {item.tags.map((tag, tIdx) => (
                   <span
                     key={tIdx}
-                    className={`backdrop-blur-sm text-[8px] md:text-[10px] font-bold px-2 py-1 rounded shadow-sm tracking-wide uppercase whitespace-nowrap ${isDark ? "bg-slate-900/90 text-white" : "bg-white/95 text-slate-900"}`}
+                    className={`backdrop-blur-sm text-[8px] md:text-[10px] font-bold px-2 py-1 rounded shadow-sm tracking-wide uppercase whitespace-nowrap ${isDark ? "bg-stone-900/90 text-white" : "bg-white/95 text-stone-900"}`}
                   >
                     {tag}
                   </span>

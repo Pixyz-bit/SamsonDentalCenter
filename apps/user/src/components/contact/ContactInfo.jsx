@@ -33,7 +33,7 @@ const ContactInfo = () => {
           <div className="relative flex justify-center">
             {/* Decorative Blue Diagonal Background */}
 <div
-    className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] md:w-[450px] md:h-[450px] bg-gradient-to-br from-blue-500 to-blue-600"
+    className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] md:w-[450px] md:h-[450px] bg-gradient-to-br from-red-500 to-red-600"
     style={{
         clipPath: "polygon(50% 0%, 100% 34.5%, 79.4% 100%, 20.6% 100%, 0% 34.5%)",
     }}
@@ -53,7 +53,7 @@ const ContactInfo = () => {
           <div className="space-y-8">
             {/* Heading */}
             <div className="space-y-3">
-              <h2 className="text-4xl sm:text-5xl font-bold text-blue-600">
+              <h2 className="text-4xl sm:text-5xl font-bold text-red-600">
                 We'd love to hear from you
               </h2>
               <p className="text-xl text-gray-900 font-semibold">
@@ -76,12 +76,12 @@ const ContactInfo = () => {
                         : undefined
                     }
                     className="flex items-center gap-4 p-4 bg-white border border-gray-200 rounded-xl
-                                                   hover:border-blue-400 hover:bg-blue-50 transition-all duration-300
+                                                   hover:border-red-400 hover:bg-red-50 transition-all duration-300
                                                    group cursor-pointer"
                   >
-                    <div className="flex-shrink-0 w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center group-hover:bg-blue-500 transition-colors duration-300">
+                    <div className="flex-shrink-0 w-12 h-12 bg-red-100 rounded-full flex items-center justify-center group-hover:bg-red-500 transition-colors duration-300">
                       <Icon
-                        className="text-blue-600 group-hover:text-white transition-colors duration-300"
+                        className="text-red-600 group-hover:text-white transition-colors duration-300"
                         size={24}
                       />
                     </div>
@@ -89,7 +89,7 @@ const ContactInfo = () => {
                       <p className="text-sm text-gray-600 font-medium">
                         {item.label}
                       </p>
-                      <p className="text-sm sm:text-base text-gray-900 font-semibold hover:text-blue-600 transition-colors truncate">
+                      <p className="text-sm sm:text-base text-gray-900 font-semibold hover:text-red-600 transition-colors truncate">
                         {item.display}
                       </p>
                     </div>

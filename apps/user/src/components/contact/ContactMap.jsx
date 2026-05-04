@@ -59,7 +59,7 @@ const ContactMap = () => {
                         
                         {/* Visit Us Section */}
                         <div className="space-y-6">
-                            <h2 className='text-[2.5rem] font-bold text-[#44B1E6] tracking-tight'>Visit Us</h2>
+                            <h2 className='text-[2.5rem] font-bold text-red-500 tracking-tight'>Visit Us</h2>
                             <div className='flex items-start gap-4'>
                                 <div className='mt-1 shrink-0'>
                                     <svg viewBox="0 0 384 512" fill="currentColor" className="w-[1.8rem] h-[1.8rem] text-[#CE2B37]">
@@ -67,10 +67,10 @@ const ContactMap = () => {
                                     </svg>
                                 </div>
                                 <div className='flex flex-col space-y-2.5'>
-                                    <h3 className='text-[1.35rem] font-normal text-slate-800 leading-snug'>
+                                    <h3 className='text-[1.35rem] font-normal text-stone-800 leading-snug'>
                                         7 Himlayan Rd, Tandang Sora,<br />Quezon City, Metro Manila
                                     </h3>
-                                    <p className='text-slate-500 text-[1.05rem] italic leading-relaxed'>
+                                    <p className='text-stone-500 text-[1.05rem] italic leading-relaxed'>
                                         Located near Tandang Sora Market, easily<br className="hidden sm:block" /> accessible via Commonwealth Avenue.
                                     </p>
                                 </div>
@@ -79,8 +79,8 @@ const ContactMap = () => {
 
                         {/* Operating Hours Section */}
                         <div className="space-y-6">
-                            <h2 className='text-[2.5rem] font-bold text-[#44B1E6] tracking-tight'>Operating Hours</h2>
-                            <div className='space-y-3.5 text-[1.2rem] text-slate-800'>
+                            <h2 className='text-[2.5rem] font-bold text-red-500 tracking-tight'>Operating Hours</h2>
+                            <div className='space-y-3.5 text-[1.2rem] text-stone-800'>
                                 <div className='grid grid-cols-[160px_1fr] sm:grid-cols-[180px_1fr] gap-4'>
                                     <span className="text-right pr-4">Monday - Friday</span>
                                     <span>9:00 AM - 6:00 PM</span>
@@ -100,7 +100,7 @@ const ContactMap = () => {
 
                     {/* Google Map Column */}
                     <div 
-                        className='w-full h-full min-h-[450px] lg:min-h-[470px] xl:min-h-[500px] rounded-[1rem] overflow-hidden bg-white shadow-2xl shadow-slate-300/50 relative transform-gpu' 
+                        className='w-full h-full min-h-[450px] lg:min-h-[470px] xl:min-h-[500px] rounded-[1rem] overflow-hidden bg-white shadow-2xl shadow-stone-300/50 relative transform-gpu' 
                         ref={mapRef}
                     >
                         <iframe
@@ -112,7 +112,7 @@ const ContactMap = () => {
                             loading="lazy"
                             referrerPolicy="no-referrer-when-downgrade"
                             title="Samson Dental Center Location"
-                            className="bg-slate-100"
+                            className="bg-stone-100"
                         />
                     </div>
                 </div>

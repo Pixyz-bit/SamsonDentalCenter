@@ -49,7 +49,7 @@ const Testimonials = ({ variant = 'light' }) => {
     const sectionRef = useRef(null);
     const trackRef = useRef(null);
     const headingRef = useRef(null);
-    const isDark = variant === 'dark';
+    const isDark = false; // forced light mode
 
     // GSAP Animations
     useEffect(() => {
@@ -134,7 +134,7 @@ const Testimonials = ({ variant = 'light' }) => {
     return (
         <section
             ref={sectionRef}
-            className={`py-12 sm:py-16 overflow-hidden transition-colors duration-500 ${isDark ? 'bg-[#0B1120] text-white' : 'bg-white text-slate-900'}`}
+            className={`py-12 sm:py-16 overflow-hidden transition-colors duration-500 ${isDark ? 'bg-red-950 text-white' : 'bg-white text-stone-900'}`}
         >
             <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
                 <div className='flex flex-col lg:flex-row items-center gap-8 lg:gap-16'>
@@ -145,20 +145,20 @@ const Testimonials = ({ variant = 'light' }) => {
                     >
                         <div className='overflow-hidden mb-4'>
                             <div className='testimonial-reveal-text flex items-center justify-center lg:justify-start gap-3'>
-                                <span className='h-px w-8 bg-sky-400'></span>
-                                <span className='text-sky-400 font-bold uppercase tracking-widest text-[10px]'>
+                                <span className='h-px w-8 bg-red-400'></span>
+                                <span className='text-red-400 font-bold uppercase tracking-widest text-[10px]'>
                                     Testimonials
                                 </span>
                             </div>
                         </div>
                         <h2
-                            className={`text-[clamp(2.5rem,6vw,4.5rem)] font-bold leading-[1.1] tracking-tight mb-8 ${isDark ? 'text-white' : 'text-slate-900'}`}
+                            className={`text-[clamp(2.5rem,6vw,4.5rem)] font-bold leading-[1.1] tracking-tight mb-8 ${isDark ? 'text-white' : 'text-stone-900'}`}
                         >
                             <div className='overflow-hidden'>
                                 <span className='block testimonial-reveal-text'>What makes</span>
                             </div>
                             <div className='overflow-hidden'>
-                                <span className='block text-sky-400 testimonial-reveal-text'>
+                                <span className='block text-red-400 testimonial-reveal-text'>
                                     us smile.
                                 </span>
                             </div>
@@ -169,8 +169,8 @@ const Testimonials = ({ variant = 'light' }) => {
                                 disabled={isPrevDisabled}
                                 className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-200 ease-in-out shadow-sm hover:shadow-md active:translate-y-0 hover:-translate-y-0.5 group border ${
                                     isDark
-                                        ? 'bg-white/5 border-white/10 text-white hover:bg-blue-600 hover:border-blue-500'
-                                        : 'bg-slate-100 border-slate-200 text-slate-600 hover:bg-blue-600 hover:text-white hover:border-blue-600'
+                                        ? 'bg-white/5 border-white/10 text-white hover:bg-red-600 hover:border-red-500'
+                                        : 'bg-stone-100 border-stone-200 text-stone-600 hover:bg-red-600 hover:text-white hover:border-red-600'
                                 } disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-inherit disabled:hover:border-inherit`}
                             >
                                 <svg
@@ -192,8 +192,8 @@ const Testimonials = ({ variant = 'light' }) => {
                                 disabled={isNextDisabled}
                                 className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-200 ease-in-out shadow-sm hover:shadow-md active:translate-y-0 hover:-translate-y-0.5 group border ${
                                     isDark
-                                        ? 'bg-white/5 border-white/10 text-white hover:bg-blue-600 hover:border-blue-500'
-                                        : 'bg-slate-100 border-slate-200 text-slate-600 hover:bg-blue-600 hover:text-white hover:border-blue-600'
+                                        ? 'bg-white/5 border-white/10 text-white hover:bg-red-600 hover:border-red-500'
+                                        : 'bg-stone-100 border-stone-200 text-stone-600 hover:bg-red-600 hover:text-white hover:border-red-600'
                                 } disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-inherit disabled:hover:border-inherit`}
                             >
                                 <svg
@@ -226,7 +226,7 @@ const Testimonials = ({ variant = 'light' }) => {
                                         className='w-full lg:w-[calc(50%-16px)] shrink-0 testimonial-card' // Added 'testimonial-card' class
                                     >
                                         <div
-                                            className={`rounded-2xl p-8 shadow-sm transition-all duration-200 ease-in-out hover:shadow-md hover:-translate-y-0.5 h-full flex flex-col relative border ${isDark ? 'bg-slate-800/50 border-white/5' : 'bg-slate-50 border-slate-200/80'}`}
+                                            className={`rounded-2xl p-8 shadow-sm transition-all duration-200 ease-in-out hover:shadow-md hover:-translate-y-0.5 h-full flex flex-col relative border ${isDark ? 'bg-stone-800/50 border-white/5' : 'bg-stone-50 border-stone-200/80'}`}
                                         >
                                             {/* Google Logo */}
                                             <div className='absolute top-8 right-8 grayscale opacity-40 group-hover:grayscale-0 group-hover:opacity-100 transition-all'>
@@ -263,12 +263,12 @@ const Testimonials = ({ variant = 'light' }) => {
                                                 <div>
                                                     <h4
                                                         className={`font-bold text-base leading-tight ${
-                                                            isDark ? 'text-white' : 'text-slate-900'
+                                                            isDark ? 'text-white' : 'text-stone-900'
                                                         }`}
                                                     >
                                                         {review.name}
                                                     </h4>
-                                                    <p className='text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1'>
+                                                    <p className='text-[10px] font-bold text-stone-500 uppercase tracking-widest mt-1'>
                                                         {review.date}
                                                     </p>
                                                 </div>
@@ -287,9 +287,9 @@ const Testimonials = ({ variant = 'light' }) => {
                                                         </svg>
                                                     ))}
                                                 </div>
-                                                <div className='w-1 h-1 bg-slate-200/20 rounded-full'></div>
+                                                <div className='w-1 h-1 bg-stone-200/20 rounded-full'></div>
                                                 <svg
-                                                    className='w-4 h-4 text-blue-500'
+                                                    className='w-4 h-4 text-red-500'
                                                     viewBox='0 0 24 24'
                                                     fill='currentColor'
                                                 >
@@ -299,13 +299,13 @@ const Testimonials = ({ variant = 'light' }) => {
 
                                             {/* Content */}
                                             <p
-                                                className={`text-sm leading-[1.5] mb-6 grow font-medium ${isDark ? 'text-slate-400' : 'text-slate-600'}`}
+                                                className={`text-sm leading-[1.5] mb-6 grow font-medium ${isDark ? 'text-stone-400' : 'text-stone-600'}`}
                                             >
                                                 &ldquo;{review.text}&rdquo;
                                             </p>
 
-                                            <div className='pt-4 border-t border-slate-200/10'>
-                                                <button className='text-[10px] font-bold text-blue-500 uppercase tracking-widest hover:text-blue-400 transition-colors'>
+                                            <div className='pt-4 border-t border-stone-200/10'>
+                                                <button className='text-[10px] font-bold text-red-500 uppercase tracking-widest hover:text-red-400 transition-colors'>
                                                     Read Full Review
                                                 </button>
                                             </div>
@@ -321,10 +321,10 @@ const Testimonials = ({ variant = 'light' }) => {
                                 <button
                                     key={idx}
                                     onClick={() => goToSlide(idx)}
-                                    className={`relative h-1 rounded-full transition-all duration-500 overflow-hidden ${activeIndex === idx ? 'w-12 bg-blue-500/20' : `w-4 ${isDark ? 'bg-white/10' : 'bg-slate-100'}`}`}
+                                    className={`relative h-1 rounded-full transition-all duration-500 overflow-hidden ${activeIndex === idx ? 'w-12 bg-red-500/20' : `w-4 ${isDark ? 'bg-white/10' : 'bg-stone-100'}`}`}
                                 >
                                     {activeIndex === idx && (
-                                        <div className='absolute inset-0 bg-blue-600 origin-left shadow-[0_0_8px_rgba(37,99,235,0.3)]'></div>
+                                        <div className='absolute inset-0 bg-red-600 origin-left shadow-[0_0_8px_rgba(37,99,235,0.3)]'></div>
                                     )}
                                 </button>
                             ))}

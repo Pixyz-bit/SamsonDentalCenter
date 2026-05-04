@@ -121,7 +121,7 @@ const Navbar = () => {
                             {/* Mobile Menu Toggle (Left on mobile) */}
                             <button
                                 className={`lg:hidden p-2 rounded-xl transition-all duration-300 ring-1 ${isScrolled || isMobileMenuOpen
-                                        ? 'text-slate-600 ring-slate-200 hover:bg-slate-100'
+                                        ? 'text-stone-600 ring-stone-200 hover:bg-stone-100'
                                         : 'text-white/90 ring-white/10 hover:bg-white/10'
                                     }`}
                                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -146,7 +146,7 @@ const Navbar = () => {
                                     <div className='flex flex-col items-start justify-center'>
                                         <span
                                             className={`font-black text-[22px] tracking-[-0.04em] leading-none ${isScrolled || isMobileMenuOpen
-                                                ? 'text-slate-800'
+                                                ? 'text-stone-800'
                                                 : 'text-white'
                                                 }`}
                                         >
@@ -154,8 +154,8 @@ const Navbar = () => {
                                         </span>
                                         <span
                                             className={`text-[10px] uppercase tracking-[0.28em] font-bold mt-[2px] ${isScrolled || isMobileMenuOpen
-                                                ? 'text-blue-600'
-                                                : 'text-blue-400'
+                                                ? 'text-red-600'
+                                                : 'text-red-400'
                                                 }`}
                                         >
                                             Dental Center
@@ -185,10 +185,10 @@ const Navbar = () => {
                                             className={({ isActive }) =>
                                                 `font-medium text-sm transition-all duration-300 px-5 py-1.5 rounded-2xl ${isActive
                                                     ? isScrolled
-                                                        ? 'bg-blue-600 text-white shadow-sm'
+                                                        ? 'bg-red-600 text-white shadow-sm'
                                                         : 'bg-white/20 text-white backdrop-blur-sm shadow-sm'
                                                     : isScrolled
-                                                        ? 'text-slate-600 hover:text-blue-600 hover:bg-slate-100/50'
+                                                        ? 'text-stone-600 hover:text-red-600 hover:bg-stone-100/50'
                                                         : 'text-white/80 hover:text-white hover:bg-white/10'
                                                 }`
                                             }
@@ -211,15 +211,15 @@ const Navbar = () => {
                                 ref={profileRef}
                             >
                                 {loading ? (
-                                    <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full transition-all duration-300 ${isScrolled ? 'bg-slate-100 ring-1 ring-slate-200' : 'bg-white/10 ring-1 ring-white/20'}`}>
-                                        <span className={`w-9 h-9 rounded-full overflow-hidden flex items-center justify-center transition-all duration-300 ${isScrolled ? 'bg-slate-200' : 'bg-white/20'} animate-pulse`}>
-                                            <svg className={`w-5 h-5 animate-spin ${isScrolled ? 'text-slate-400' : 'text-white/70'}`} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full transition-all duration-300 ${isScrolled ? 'bg-stone-100 ring-1 ring-stone-200' : 'bg-white/10 ring-1 ring-white/20'}`}>
+                                        <span className={`w-9 h-9 rounded-full overflow-hidden flex items-center justify-center transition-all duration-300 ${isScrolled ? 'bg-stone-200' : 'bg-white/20'} animate-pulse`}>
+                                            <svg className={`w-5 h-5 animate-spin ${isScrolled ? 'text-stone-400' : 'text-white/70'}`} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                                                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                             </svg>
                                         </span>
                                         <svg
-                                            className={`transition-transform duration-200 flex-shrink-0 opacity-50 ${isScrolled ? 'text-slate-400' : 'text-white/50'}`}
+                                            className={`transition-transform duration-200 flex-shrink-0 opacity-50 ${isScrolled ? 'text-stone-400' : 'text-white/50'}`}
                                             width='18'
                                             height='20'
                                             viewBox='0 0 18 20'
@@ -234,7 +234,7 @@ const Navbar = () => {
                                         <button
                                             onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
                                             className={`flex items-center gap-2 px-3 py-1.5 rounded-full transition-all duration-300 ${isScrolled
-                                                ? 'hover:bg-slate-100 bg-white ring-1 ring-slate-200'
+                                                ? 'hover:bg-stone-100 bg-white ring-1 ring-stone-200'
                                                 : 'hover:bg-white/20 bg-white/10 ring-1 ring-white/20'
                                                 }`}
                                             title={user ? (user.first_name ? `${user.last_name}, ${user.first_name}` : user.email) : 'Guest Menu'}
@@ -243,7 +243,7 @@ const Navbar = () => {
                                                 className={`w-9 h-9 rounded-full overflow-hidden flex items-center justify-center text-white font-bold text-sm transition-all duration-300 ${user
                                                     ? 'bg-gradient-to-br from-brand-400 to-brand-600'
                                                     : isScrolled
-                                                        ? 'bg-slate-400'
+                                                        ? 'bg-stone-400'
                                                         : 'bg-white/20'
                                                     }`}
                                             >
@@ -278,7 +278,7 @@ const Navbar = () => {
                                             </span>
                                             <svg
                                                 className={`transition-transform duration-200 flex-shrink-0 ${isProfileMenuOpen ? 'rotate-180' : ''
-                                                    } ${isScrolled ? 'text-slate-500' : 'text-white/70'}`}
+                                                    } ${isScrolled ? 'text-stone-500' : 'text-white/70'}`}
                                                 width='18'
                                                 height='20'
                                                 viewBox='0 0 18 20'
@@ -333,7 +333,7 @@ const Navbar = () => {
                                                         </Link>
                                                         <Link
                                                             to='/book'
-                                                            className='flex items-center gap-3 px-3 py-2.5 mt-1 font-medium rounded-lg text-sm transition-colors bg-blue-600 text-white hover:bg-blue-700'
+                                                            className='flex items-center gap-3 px-3 py-2.5 mt-1 font-medium rounded-lg text-sm transition-colors bg-red-600 text-white hover:bg-red-700'
                                                             onClick={() => setIsProfileMenuOpen(false)}
                                                         >
                                                             Book as a Guest
@@ -355,7 +355,7 @@ const Navbar = () => {
                                                             <li>
                                                                 <Link
                                                                     to='/book'
-                                                                    className='flex items-center gap-3 px-3 py-2 mt-1 font-medium rounded-lg text-sm transition-colors bg-blue-600 text-white hover:bg-blue-700'
+                                                                    className='flex items-center gap-3 px-3 py-2 mt-1 font-medium rounded-lg text-sm transition-colors bg-red-600 text-white hover:bg-red-700'
                                                                     onClick={() => setIsProfileMenuOpen(false)}
                                                                 >
                                                                     <Calendar size={18} className='text-white/80' />
@@ -418,17 +418,17 @@ const Navbar = () => {
                             <img src="/images/logo/samson-logo.png" alt="Samson Dental Logo" className="w-full h-auto drop-shadow-sm" />
                         </div>
                         <div className='flex flex-col items-start justify-center'>
-                            <span className='font-black text-[20px] tracking-[-0.04em] text-slate-800 uppercase leading-none'>
+                            <span className='font-black text-[20px] tracking-[-0.04em] text-stone-800 uppercase leading-none'>
                                 SAMSON
                             </span>
-                            <span className='text-[9px] uppercase tracking-[0.28em] mt-[2px] font-bold text-blue-600'>
+                            <span className='text-[9px] uppercase tracking-[0.28em] mt-[2px] font-bold text-red-600'>
                                 Dental Center
                             </span>
                         </div>
                     </Link>
                     <button
                         onClick={() => setIsMobileMenuOpen(false)}
-                        className='p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors'
+                        className='p-2 text-stone-400 hover:text-stone-600 hover:bg-stone-100 rounded-lg transition-colors'
                     >
                         <X size={20} />
                     </button>
@@ -438,7 +438,7 @@ const Navbar = () => {
                 <div className='flex flex-col h-[calc(100vh-88px)] justify-between overflow-y-auto no-scrollbar'>
                     {/* Navigation Links */}
                     <div className='px-4 py-6'>
-                        <h3 className='px-4 text-[10px] uppercase font-bold tracking-[0.15em] text-slate-400 mb-4'>
+                        <h3 className='px-4 text-[10px] uppercase font-bold tracking-[0.15em] text-stone-400 mb-4'>
                             Menu
                         </h3>
                         <ul className='space-y-1'>
@@ -448,8 +448,8 @@ const Navbar = () => {
                                         to={link.path}
                                         className={({ isActive }) =>
                                             `flex items-center px-4 py-3 text-sm font-semibold rounded-xl transition-all duration-300 ${isActive
-                                                ? 'bg-blue-600 text-white shadow-md shadow-blue-100 border border-blue-600'
-                                                : 'text-slate-600 hover:bg-slate-50 hover:text-blue-600 border border-transparent'
+                                                ? 'bg-red-600 text-white shadow-md shadow-red-100 border border-red-600'
+                                                : 'text-stone-600 hover:bg-stone-50 hover:text-red-600 border border-transparent'
                                             }`
                                         }
                                         onClick={() => setIsMobileMenuOpen(false)}
@@ -462,10 +462,10 @@ const Navbar = () => {
                     </div>
 
                     {/* Sidebar Footer: Profile/Guest Actions */}
-                    <div className='p-6 border-t border-gray-100 bg-slate-50/50'>
+                    <div className='p-6 border-t border-gray-100 bg-stone-50/50'>
                         {loading ? (
                             <div className='flex items-center justify-center py-4'>
-                                <svg className="w-8 h-8 animate-spin text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <svg className="w-8 h-8 animate-spin text-red-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                 </svg>
@@ -475,14 +475,14 @@ const Navbar = () => {
                                 <Link
                                     to='/login'
                                     state={{ from: location.pathname }}
-                                    className='flex items-center justify-center gap-2 w-full py-2.5 font-semibold text-blue-600 bg-white border border-blue-100 rounded-xl hover:bg-blue-50 transition-colors'
+                                    className='flex items-center justify-center gap-2 w-full py-2.5 font-semibold text-red-600 bg-white border border-red-100 rounded-xl hover:bg-red-50 transition-colors'
                                     onClick={() => setIsMobileMenuOpen(false)}
                                 >
                                     Log In
                                 </Link>
                                 <Link
                                     to='/book'
-                                    className='flex items-center justify-center gap-2 w-full py-2.5 font-semibold text-white bg-blue-600 rounded-xl hover:bg-blue-700 shadow-md shadow-blue-100 transition-colors'
+                                    className='flex items-center justify-center gap-2 w-full py-2.5 font-semibold text-white bg-red-600 rounded-xl hover:bg-red-700 shadow-md shadow-red-100 transition-colors'
                                     onClick={() => setIsMobileMenuOpen(false)}
                                 >
                                     Book as a Guest
@@ -499,10 +499,10 @@ const Navbar = () => {
                                         )}
                                     </div>
                                     <div className='flex flex-col min-w-0'>
-                                        <span className='font-bold text-sm text-slate-800 truncate'>
+                                        <span className='font-bold text-sm text-stone-800 truncate'>
                                             {user.first_name ? `${user.first_name} ${user.last_name}` : 'Authorized User'}
                                         </span>
-                                        <span className='text-xs text-slate-500 truncate'>
+                                        <span className='text-xs text-stone-500 truncate'>
                                             {user.email}
                                         </span>
                                     </div>
@@ -510,7 +510,7 @@ const Navbar = () => {
                                 <div className='grid grid-cols-1 gap-2'>
                                     <Link
                                         to='/patient'
-                                        className='flex items-center gap-3 px-4 py-2.5 text-sm font-semibold text-slate-600 hover:bg-white rounded-xl transition-colors border border-transparent hover:border-slate-100'
+                                        className='flex items-center gap-3 px-4 py-2.5 text-sm font-semibold text-stone-600 hover:bg-white rounded-xl transition-colors border border-transparent hover:border-stone-100'
                                         onClick={() => setIsMobileMenuOpen(false)}
                                     >
                                         <Settings size={18} />
@@ -518,7 +518,7 @@ const Navbar = () => {
                                     </Link>
                                     <Link
                                         to='/patient/notifications'
-                                        className='flex items-center gap-3 px-4 py-2.5 text-sm font-semibold text-slate-600 hover:bg-white rounded-xl transition-colors border border-transparent hover:border-slate-100'
+                                        className='flex items-center gap-3 px-4 py-2.5 text-sm font-semibold text-stone-600 hover:bg-white rounded-xl transition-colors border border-transparent hover:border-stone-100'
                                         onClick={() => setIsMobileMenuOpen(false)}
                                     >
                                         <Bell size={18} />
@@ -526,7 +526,7 @@ const Navbar = () => {
                                     </Link>
                                     <Link
                                         to='/book'
-                                        className='flex items-center gap-3 px-4 py-2.5 text-sm font-semibold text-white bg-blue-600 rounded-xl hover:bg-blue-700 shadow-md shadow-blue-100 transition-colors'
+                                        className='flex items-center gap-3 px-4 py-2.5 text-sm font-semibold text-white bg-red-600 rounded-xl hover:bg-red-700 shadow-md shadow-red-100 transition-colors'
                                         onClick={() => setIsMobileMenuOpen(false)}
                                     >
                                         <Calendar size={18} />

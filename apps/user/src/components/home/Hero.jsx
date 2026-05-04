@@ -98,7 +98,7 @@ const Hero = () => {
     return (
         <section
             ref={heroRef}
-            className='relative min-h-svh flex items-center overflow-hidden bg-slate-950'
+            className='relative min-h-svh flex items-center overflow-hidden bg-stone-950'
         >
             {/* Background with overlay */}
             <div
@@ -111,7 +111,7 @@ const Hero = () => {
                     className='w-full h-full object-cover object-center'
                 />
                 <div className='absolute inset-0 bg-black/20 backdrop-blur-[1px]' />
-                <div className='absolute inset-0 bg-linear-to-r from-slate-900/40 via-slate-900/10 to-transparent' />
+                <div className='absolute inset-0 bg-linear-to-r from-stone-900/40 via-stone-900/10 to-transparent' />
             </div>
 
             <div
@@ -134,7 +134,7 @@ const Hero = () => {
                     </h1>
 
                     {/* Subheading - fluid typography */}
-                    <p className='hero-anim text-[clamp(0.875rem,1.5vw+0.25rem,1.125rem)] text-slate-300 leading-relaxed max-w-2xl font-medium'>
+                    <p className='hero-anim text-[clamp(0.875rem,1.5vw+0.25rem,1.125rem)] text-stone-300 leading-relaxed max-w-2xl font-medium'>
                         Exceptional Dental Care Powered by Expertise, Innovation and Advanced Technology. Trusted by companies and individuals for over 60 years.
                     </p>
 
@@ -160,7 +160,7 @@ const Hero = () => {
                         </button>
                         <button
                             onClick={() => navigate('/services')}
-                            className='inline-flex items-center justify-center px-6 py-3 text-[clamp(0.875rem,1vw+0.25rem,1rem)] font-bold transition-all duration-300 ease-out bg-slate-800/40 backdrop-blur-md border-[1.5px] border-white/10 text-slate-200 rounded-2xl hover:bg-slate-700/50 hover:border-white/20 hover:text-white hover:shadow-[0_8px_30px_rgba(0,0,0,0.2)] focus:outline-none w-full sm:w-auto hover:-translate-y-1'
+                            className='inline-flex items-center justify-center px-6 py-3 text-[clamp(0.875rem,1vw+0.25rem,1rem)] font-bold transition-all duration-300 ease-out bg-stone-800/40 backdrop-blur-md border-[1.5px] border-white/10 text-stone-200 rounded-2xl hover:bg-stone-700/50 hover:border-white/20 hover:text-white hover:shadow-[0_8px_30px_rgba(0,0,0,0.2)] focus:outline-none w-full sm:w-auto hover:-translate-y-1'
                         >
                             Explore Services
                         </button>
@@ -178,7 +178,7 @@ const Hero = () => {
                                 <img
                                     key={i}
                                     src={src}
-                                    className='w-12 h-12 rounded-full border-[3px] border-slate-900 object-cover shadow-sm ring-1 ring-white/10 transition-all duration-300 ease-in-out hover:-translate-y-1 hover:z-10 hover:shadow-md hover:scale-110 relative grayscale-[20%]'
+                                    className='w-12 h-12 rounded-full border-[3px] border-stone-900 object-cover shadow-sm ring-1 ring-white/10 transition-all duration-300 ease-in-out hover:-translate-y-1 hover:z-10 hover:shadow-md hover:scale-110 relative grayscale-[20%]'
                                     alt='Reviewer'
                                 />
                             ))}
@@ -195,7 +195,7 @@ const Hero = () => {
                                     </svg>
                                 ))}
                             </div>
-                            <p className='text-[clamp(0.75rem,1vw+0.25rem,0.875rem)] text-slate-400 font-medium'>
+                            <p className='text-[clamp(0.75rem,1vw+0.25rem,0.875rem)] text-stone-400 font-medium'>
                                 Trusted by <span className='font-bold text-white'>2,000+</span>{' '}
                                 Happy Patients
                             </p>
@@ -218,15 +218,15 @@ const Hero = () => {
             <div className="absolute bottom-0 left-0 w-full overflow-hidden leading-[0] z-20 h-[150px] pointer-events-none">
                 {/* Layer 1 (Back wave, starts very high on left, wavy) */}
                 <svg className="absolute bottom-0 left-0 block w-[calc(100%+1.3px)] h-full opacity-30" preserveAspectRatio="none" viewBox="0 0 1440 320">
-                    <path fill="currentColor" className="text-white dark:text-slate-950" d="M0,40 C180,140 360,0 540,100 C720,200 900,60 1080,140 C1260,220 1350,60 1440,40 L1440,320 L0,320 Z"></path>
+                    <path fill="currentColor" className="text-white dark:text-stone-950" d="M0,40 C180,140 360,0 540,100 C720,200 900,60 1080,140 C1260,220 1350,60 1440,40 L1440,320 L0,320 Z"></path>
                 </svg>
                 {/* Layer 2 (Middle wave, criss-crosses, wavy) */}
                 <svg className="absolute bottom-0 left-0 block w-[calc(100%+1.3px)] h-full opacity-60" preserveAspectRatio="none" viewBox="0 0 1440 320">
-                    <path fill="currentColor" className="text-white dark:text-slate-950" d="M0,90 C200,190 400,30 600,130 C800,230 1000,90 1200,170 C1300,210 1400,130 1440,90 L1440,320 L0,320 Z"></path>
+                    <path fill="currentColor" className="text-white dark:text-stone-950" d="M0,90 C200,190 400,30 600,130 C800,230 1000,90 1200,170 C1300,210 1400,130 1440,90 L1440,320 L0,320 Z"></path>
                 </svg>
                 {/* Layer 3 (Front solid wave, thicker overall, wavy, swoops high on right) */}
                 <svg className="absolute bottom-0 left-0 block w-[calc(100%+1.3px)] h-full" preserveAspectRatio="none" viewBox="0 0 1440 320">
-                    <path fill="currentColor" className="text-white dark:text-slate-950" d="M0,160 C180,260 360,60 540,160 C720,260 900,100 1080,200 C1260,300 1350,120 1440,60 L1440,320 L0,320 Z"></path>
+                    <path fill="currentColor" className="text-white dark:text-stone-950" d="M0,160 C180,260 360,60 540,160 C720,260 900,100 1080,200 C1260,300 1350,120 1440,60 L1440,320 L0,320 Z"></path>
                 </svg>
             </div>
         </section>
