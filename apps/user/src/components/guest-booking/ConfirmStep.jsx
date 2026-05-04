@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Calendar, Clock, User, Mail, Phone, Stethoscope, ShieldCheck, MailWarning, Edit2, ArrowRight, Info } from 'lucide-react';
 
-const ConfirmStep = ({ formData, onSubmit, onBack, onEdit, submitting, error }) => {
+const ConfirmStep = ({ formData, onSubmit, onBack, onEdit, onReset, submitting, error }) => {
     // Auto-scroll to top on error
     useEffect(() => {
         if (error) {
@@ -158,7 +158,6 @@ const ConfirmStep = ({ formData, onSubmit, onBack, onEdit, submitting, error }) 
                 {/* Verification Email Highlight Banner */}
                 <div className='bg-brand-50/50 dark:bg-brand-500/5 border border-brand-100 dark:border-brand-500/10 rounded-2xl p-6 md:p-8 animate-in zoom-in-95 duration-500 overflow-hidden'>
                     <div className="flex flex-col gap-5">
-                        {/* Title Bar: Icon + Title */}
                         <div className="flex items-center gap-4">
                             <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-brand-500 text-white flex items-center justify-center shrink-0 shadow-lg shadow-brand-500/20">
                                 <MailWarning size={22} className="sm:w-6 sm:h-6" />
@@ -167,11 +166,8 @@ const ConfirmStep = ({ formData, onSubmit, onBack, onEdit, submitting, error }) 
                                 Action Required: Verify Your Appointment
                             </h4>
                         </div>
-                        
-                        {/* Detailed Information: Flows Underneath */}
                         <div className='space-y-4 text-[13px] sm:text-[14px] md:text-[15px] text-gray-600 dark:text-gray-400 leading-relaxed font-medium min-w-0'>
                             <p className="min-w-0 break-words">To secure your booking as a guest, please complete the following verification steps:</p>
-                            
                             <ul className="space-y-3 pt-2">
                                 <li className="flex items-start gap-3">
                                     <div className="w-1.5 h-1.5 rounded-full bg-brand-500 mt-1.5 shrink-0" />
@@ -192,22 +188,43 @@ const ConfirmStep = ({ formData, onSubmit, onBack, onEdit, submitting, error }) 
             </div>
 
             {/* Final Navigation Controls */}
-            <div className='fixed bottom-0 left-0 right-0 sm:relative z-40 px-6 py-4 sm:px-0 sm:py-0 sm:mt-6 sm:pt-2 bg-white/95 dark:bg-gray-900/95 sm:bg-transparent backdrop-blur-md sm:backdrop-blur-none border-t border-gray-100 dark:border-gray-800 sm:border-t-0 shadow-[0_-8px_20px_rgba(0,0,0,0.05)] sm:shadow-none transition-all'>
-                <div className='flex items-center gap-3 w-full sm:justify-between'>
-                    <button onClick={onBack} disabled={submitting} className='flex-1 sm:flex-none sm:min-w-[120px] text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white font-black text-[11px] sm:text-sm px-6 py-3.5 sm:px-8 transition-colors disabled:opacity-30 uppercase tracking-widest bg-gray-50 dark:bg-gray-800 sm:bg-transparent rounded-2xl sm:rounded-2xl border border-transparent shadow-theme-xs'>Back</button>
-                    <button onClick={onSubmit} disabled={submitting} className='flex-[2] sm:flex-none sm:min-w-[240px] group bg-brand-500 hover:bg-brand-600 active:scale-95 text-white font-black px-6 py-3.5 sm:px-12 sm:py-4.5 rounded-2xl transition-all shadow-theme-lg disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center gap-2 sm:gap-3 text-[12px] sm:text-base uppercase tracking-widest'>
-                        {submitting ? (
-                            <>
-                                <div className='w-4 h-4 sm:w-5 sm:h-5 border-[3px] border-white border-t-transparent rounded-full animate-spin' />
-                                Finalizing...
-                            </>
-                        ) : (
-                            <>
-                                Confirm Booking
-                                <ShieldCheck size={20} className="sm:w-[22px] sm:h-[22px] group-hover:scale-110 transition-transform" />
-                            </>
-                        )}
+            <div className='fixed bottom-0 left-0 right-0 sm:relative z-40 px-6 py-4 sm:px-0 sm:py-0 sm:mt-10 sm:pt-6 bg-white/95 dark:bg-gray-900/95 sm:bg-transparent backdrop-blur-md sm:backdrop-blur-none border-t border-gray-100 dark:border-gray-800 sm:border-t-0 shadow-[0_-8px_20px_rgba(0,0,0,0.05)] sm:shadow-none transition-all'>
+                <div className='flex flex-wrap items-center gap-3 w-full sm:justify-between'>
+                    <button 
+                        onClick={onBack} 
+                        disabled={submitting} 
+                        className='flex-1 sm:flex-none sm:min-w-[100px] text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white font-black text-[11px] sm:text-sm px-4 py-3.5 sm:px-8 transition-colors disabled:opacity-30 uppercase tracking-widest bg-gray-50 dark:bg-gray-800 sm:bg-transparent rounded-2xl sm:rounded-2xl border border-transparent shadow-theme-xs'
+                    >
+                        Back
                     </button>
+
+                    <div className='flex items-center gap-2 flex-[2] sm:flex-none'>
+                        <button 
+                            onClick={onReset}
+                            disabled={submitting}
+                            className='flex-1 sm:flex-none sm:min-w-[120px] bg-red-50 hover:bg-red-100 text-red-600 dark:bg-red-900/10 dark:hover:bg-red-900/20 dark:text-red-400 font-black text-[11px] sm:text-sm px-4 py-3.5 sm:px-6 transition-colors disabled:opacity-30 uppercase tracking-widest rounded-2xl border border-red-100 dark:border-red-900/20 shadow-theme-xs'
+                        >
+                            Start Over
+                        </button>
+                        
+                        <button 
+                            onClick={onSubmit} 
+                            disabled={submitting} 
+                            className='flex-[2] sm:flex-none sm:min-w-[200px] group bg-brand-500 hover:bg-brand-600 active:scale-95 text-white font-black px-6 py-3.5 sm:px-10 sm:py-4.5 rounded-2xl transition-all shadow-theme-lg disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center gap-2 sm:gap-3 text-[12px] sm:text-base uppercase tracking-widest'
+                        >
+                            {submitting ? (
+                                <>
+                                    <div className='w-4 h-4 sm:w-5 sm:h-5 border-[3px] border-white border-t-transparent rounded-full animate-spin' />
+                                    Finalizing...
+                                </>
+                            ) : (
+                                <>
+                                    Confirm
+                                    <ShieldCheck size={20} className="sm:w-[22px] sm:h-[22px] group-hover:scale-110 transition-transform hidden sm:block" />
+                                </>
+                            )}
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>

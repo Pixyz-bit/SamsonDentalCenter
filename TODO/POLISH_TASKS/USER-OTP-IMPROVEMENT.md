@@ -212,7 +212,13 @@ Perform these tests to ensure the resilience logic is performing as architected:
 ### 1. The "Safety Net" (Basic Persistence)
 
 - **Action:** Go to **Step 3 (Info)** and fill in your name and email. **Refresh the page.**
-- **Expected:** You should still be on Step 3. All your typed information must remain in the inputs.
+- **Expected:** You should be greeted by the **Recovery Modal**. Clicking "Continue" should keep you on Step 3 with all your typed information restored.
+- **Action:** Go to **Step 2 (Date/Time)**, select a slot. **Refresh the page.**
+- **Expected:** You should see the **Recovery Modal** even on Step 2. Clicking "Continue" should restore your slot and show the countdown timer.WORKINGGGGGGGGGGG
+
+it works now and also when i reload i can see that it propmp if i continue or not and if ireset it reset the hold also no then keep it like this for now.
+
+what i did not test is if example the hold is already finnised then what will be hte pop up like your hold is expired or something then pick time again it to do later.
 
 ### 2. The "Resume" Logic (OTP Recovery)
 
@@ -223,11 +229,20 @@ Perform these tests to ensure the resilience logic is performing as architected:
 ### 3. The "Conflict Resolver" Modal
 
 - **Action:** Select a time (Step 2), go to Step 3, and **Refresh**.
-- **Expected:** A modal should appear: _"Unfinished Booking Found... Continue or Start Fresh?"_
-- **Test "Continue":** Modal closes, you stay on Step 3 with your data.
-- **Test "Start Fresh":** The system should clear everything and drop you back at Step 1 (Service).
+- **Expected:** A high-fidelity modal appears: _"Unfinished Booking Found... Continue or Start Fresh?"_
+- **Test "Continue":** Modal closes, you stay on Step 3 with your data restored.
+- **Test "Start Fresh":** The system should call the backend to **release the hold**, clear everything, and drop you back at Step 1 (Service). Verify that the released slot becomes available immediately.
+
+its working, ### 3. The "Conflict Resolver" Modal
 
 ### 4. The "Silent Expiry" (Security Guard)
+
+- **Action:** Select a time (Step 2), go to Step 3, and **Wait 30 seconds** (Current test timeout).
+- **Expected:** A high-fidelity **"Session Expired" Modal** (Amber theme) appears.
+- **Verification:** 
+    - The system should automatically redirect you to **Step 2 (Date/Time)** in the background.
+    - All date/time fields should be **cleared**.
+    - Clicking **"PICK NEW TIME"** in the modal closes it and allows you to select a fresh slot immediately.
 
 - **Action:** Select a time. Wait for the 5-minute timer to run out (0:00). **Refresh the page.**
 - **Expected:** The app should detect the hold is dead. You should be automatically redirected to

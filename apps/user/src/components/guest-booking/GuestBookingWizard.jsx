@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { X, Calendar, Clock, AlertCircle } from 'lucide-react';
+import { useEffect, useState, useRef } from 'react';
+import { X, Calendar, Clock, AlertCircle, Info } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '../../context/ToastContext';
 import { Modal } from '../ui/Modal';
@@ -63,9 +63,19 @@ const GuestBookingWizard = ({ booking }) => {
 
     const [isCheckingRecovery, setIsCheckingRecovery] = useState(false);
     const [showRecoveryModal, setShowRecoveryModal] = useState(false);
+    const [showResetModal, setShowResetModal] = useState(false);
+    const [showExpiryModal, setShowExpiryModal] = useState(false);
     const [hasDismissedRecovery, setHasDismissedRecovery] = useState(false);
     const [hasCheckedRecovery, setHasCheckedRecovery] = useState(false);
     const [wasRecovered, setWasRecovered] = useState(false);
+    const hadHoldRef = useRef(false);
+
+    // Track if we HAD a hold so we can detect when it disappears (expiry)
+    useEffect(() => {
+        if (slotHold.activeHold) {
+            hadHoldRef.current = true;
+        }
+    }, [slotHold.activeHold]);
 
     // ✅ Release hold on page exit (close browser, navigate away, refresh)
     useEffect(() => {
@@ -90,8 +100,8 @@ const GuestBookingWizard = ({ booking }) => {
     // ✅ Phase 2: Recovery Interceptor
     useEffect(() => {
         const verifySession = async () => {
-            // Only check if we are past the date/time step and haven't finished
-            if (step > 1 && !result && !hasCheckedRecovery) {
+            // Only check if we are at least on the date/time step and haven't finished
+            if (step >= 1 && !result && !hasCheckedRecovery) {
                 setIsCheckingRecovery(true);
                 try {
                     // checkActiveHold will update slotHold.activeHold state internally
@@ -123,22 +133,25 @@ const GuestBookingWizard = ({ booking }) => {
 
     // ✅ Phase 2: Handle Expired Holds during session
     useEffect(() => {
-        // If we were past step 1, had an active hold check, and now it's null
-        // We also check slotHold.isCheckingHold to ensure we aren't mid-re-verification
-        if (hasCheckedRecovery && !slotHold.isCheckingHold && !isCheckingRecovery && step > 1 && !slotHold.activeHold && !result) {
+        // If we HAD a hold and now it's null (and we aren't currently checking/loading)
+        if (hasCheckedRecovery && !slotHold.isCheckingHold && !isCheckingRecovery && !slotHold.holdLoading && step >= 1 && hadHoldRef.current && !slotHold.activeHold && !result) {
             // Auto-redirect to Step 2 (DateTime) if hold expires
+            hadHoldRef.current = false;
             goToStep(1);
-            // Optionally clear the sensitive data from subsequent steps
+            
+            // Force deep clean
+            slotHold.clearHold();
             updateFields({ date: '', time: '' });
-            showToast('Your previous booking session expired. Please select a new time.', 'info', 'Session Expired');
+            setShowExpiryModal(true);
         }
-    }, [slotHold.activeHold, slotHold.isCheckingHold, step, result, hasCheckedRecovery, isCheckingRecovery, goToStep, updateFields, showToast]);
+    }, [slotHold.activeHold, slotHold.isCheckingHold, slotHold.holdLoading, step, result, hasCheckedRecovery, isCheckingRecovery, goToStep, updateFields, showToast]);
 
     // ✅ Phase 2: Show Recovery Modal once we know the hold status
     useEffect(() => {
         // ONLY show if we actually RECOVERED a session (wasRecovered is true)
         // AND the user hasn't already dismissed it in this page load
-        if (hasCheckedRecovery && wasRecovered && step > 1 && slotHold.activeHold && !showRecoveryModal && !hasDismissedRecovery) {
+        // AND they are at least on the DateTime step (step >= 1)
+        if (hasCheckedRecovery && wasRecovered && step >= 1 && slotHold.activeHold && !showRecoveryModal && !hasDismissedRecovery) {
             setShowRecoveryModal(true);
         }
     }, [hasCheckedRecovery, wasRecovered, step, slotHold.activeHold, showRecoveryModal, hasDismissedRecovery]);
@@ -306,6 +319,114 @@ const GuestBookingWizard = ({ booking }) => {
                 </div>
             </Modal>
 
+            {/* ✅ Standard Reset Confirmation Modal */}
+            <Modal
+                isOpen={showResetModal}
+                onClose={() => setShowResetModal(false)}
+                showCloseButton={true}
+                className="max-w-md"
+            >
+                <div className="flex flex-col h-full">
+                    {/* Header */}
+                    <div className="px-6 py-5 border-b border-gray-100 dark:border-gray-800 flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-red-100 dark:bg-red-900/30 flex items-center justify-center shrink-0">
+                            <AlertCircle className="text-red-600 dark:text-red-400" size={22} />
+                        </div>
+                        <div>
+                            <h3 className="text-lg font-bold text-gray-900 dark:text-white">Start Over?</h3>
+                            <p className="text-xs text-gray-500 dark:text-gray-400">This action cannot be undone</p>
+                        </div>
+                    </div>
+
+                    {/* Body */}
+                    <div className="px-6 py-8 flex-1 overflow-y-auto">
+                        <div className="space-y-4">
+                            <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed font-medium">
+                                Are you sure you want to start over? This will <span className="text-red-600 dark:text-red-400 font-bold">release your held time slot</span> and clear all information you've entered so far.
+                            </p>
+                            <div className="p-4 bg-gray-50 dark:bg-gray-800/50 rounded-2xl border border-gray-100 dark:border-gray-800">
+                                <div className="flex items-center gap-3 text-gray-700 dark:text-gray-300">
+                                    <Clock size={18} className="text-gray-400" />
+                                    <span className="text-sm font-bold">Slot will be made available to others</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Footer */}
+                    <div className="px-6 py-6 bg-gray-50 dark:bg-gray-900/40 border-t border-gray-100 dark:border-gray-800 flex flex-col gap-3">
+                        <Button 
+                            variant="primary" 
+                            fullWidth 
+                            onClick={() => {
+                                setShowResetModal(false);
+                                reset();
+                            }}
+                            className="h-13 text-base font-black bg-red-500 hover:bg-red-600 border-red-500 shadow-lg shadow-red-500/20"
+                        >
+                            YES, START OVER
+                        </Button>
+                        <Button 
+                            variant="ghost" 
+                            fullWidth 
+                            onClick={() => setShowResetModal(false)}
+                            className="h-12 text-sm font-bold text-gray-400 hover:text-gray-900 dark:text-gray-500 dark:hover:text-white transition-all duration-300"
+                        >
+                            Nevermind, keep booking
+                        </Button>
+                    </div>
+                </div>
+            </Modal>
+
+            {/* ✅ Phase 2: Expiry Notification Modal */}
+            <Modal
+                isOpen={showExpiryModal}
+                onClose={() => setShowExpiryModal(false)}
+                showCloseButton={true}
+                className="max-w-md"
+            >
+                <div className="flex flex-col h-full">
+                    {/* Header */}
+                    <div className="px-6 py-5 border-b border-gray-100 dark:border-gray-800 flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center shrink-0">
+                            <Clock className="text-amber-600 dark:text-amber-400" size={22} />
+                        </div>
+                        <div>
+                            <h3 className="text-lg font-bold text-gray-900 dark:text-white">Session Expired</h3>
+                            <p className="text-xs text-gray-500 dark:text-gray-400">Your time slot was released</p>
+                        </div>
+                    </div>
+
+                    {/* Body */}
+                    <div className="px-6 py-8 flex-1 overflow-y-auto text-center">
+                        <div className="space-y-4">
+                            <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed font-medium">
+                                For security and fairness, we can only hold a time slot for 5 minutes. Your previous selection has expired.
+                            </p>
+                            <div className="p-4 bg-amber-50 dark:bg-amber-900/10 rounded-2xl border border-amber-100 dark:border-amber-800/30 flex items-center justify-center gap-3 mx-auto">
+                                <Info size={18} className="text-amber-600 dark:text-amber-400 shrink-0" />
+                                <p className="text-sm font-bold text-amber-800 dark:text-amber-300 leading-tight">
+                                    Please pick a new date and time to continue.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Footer */}
+                    <div className="px-6 py-6 bg-gray-50 dark:bg-gray-900/40 border-t border-gray-100 dark:border-gray-800 flex flex-col gap-3">
+                        <Button 
+                            variant="primary" 
+                            fullWidth 
+                            onClick={() => setShowExpiryModal(false)}
+                            className="h-13 text-base font-black shadow-lg shadow-primary-500/20"
+                        >
+                            PICK NEW TIME
+                        </Button>
+                    </div>
+                </div>
+            </Modal>
+
+
             {/* Main Content Area */}
             <main className="max-w-6xl mx-auto px-8 md:px-12 py-10 md:py-16">
                 <div className="min-h-[60vh]">
@@ -354,6 +475,7 @@ const GuestBookingWizard = ({ booking }) => {
                             }}
                             onBack={prevStep}
                             onEdit={goToStep}
+                            onReset={() => setShowResetModal(true)}
                             submitting={booking.isVerifying}
                             error={error}
                         />
@@ -371,8 +493,7 @@ const GuestBookingWizard = ({ booking }) => {
                             onResend={booking.sendGuestOTP}
                             isVerifying={submitting || booking.isVerifying}
                             error={error}
-                            onBack={prevStep}
-                            onReset={reset}
+                            onReset={() => setShowResetModal(true)}
                         />
                     )}
                 </div>

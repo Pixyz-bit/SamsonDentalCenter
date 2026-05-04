@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Mail, ShieldCheck, ArrowRight, RotateCw, AlertCircle } from 'lucide-react';
 
-const OTPStep = ({ email, onVerify, onResend, isVerifying, error, onBack, onReset }) => {
+const OTPStep = ({ email, onVerify, onResend, isVerifying, error, onReset }) => {
     const [otp, setOtp] = useState(['', '', '', '', '', '']);
     const [timer, setTimer] = useState(60);
     const [canResend, setCanResend] = useState(false);
@@ -152,22 +152,12 @@ const OTPStep = ({ email, onVerify, onResend, isVerifying, error, onBack, onRese
                         )}
                     </button>
                     
-                    <button 
-                        onClick={onBack}
-                        disabled={isVerifying}
-                        className="w-full text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white font-bold text-sm py-4 transition-colors disabled:opacity-30 uppercase tracking-widest"
-                    >
-                        Back to Info
-                    </button>
+
 
                     <div className="h-px bg-gray-100 dark:bg-gray-800 my-2" />
 
                     <button 
-                        onClick={() => {
-                            if (window.confirm('This will release your time slot hold. Are you sure you want to start over?')) {
-                                onReset();
-                            }
-                        }}
+                        onClick={onReset}
                         disabled={isVerifying}
                         className="w-full text-red-500/70 hover:text-red-600 dark:text-red-400/70 dark:hover:text-red-400 font-bold text-[11px] py-2 transition-colors disabled:opacity-30 uppercase tracking-widest"
                     >

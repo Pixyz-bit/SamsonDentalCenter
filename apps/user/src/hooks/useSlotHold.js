@@ -67,6 +67,8 @@ const useSlotHold = (sessionId) => {
 
             // Auto-clear when expired
             if (secondsLeft === 0) {
+                // Explicitly call release on server just in case, then clear local state
+                releaseHold(); 
                 setActiveHold(null);
                 if (countdownIntervalRef.current) {
                     clearInterval(countdownIntervalRef.current);

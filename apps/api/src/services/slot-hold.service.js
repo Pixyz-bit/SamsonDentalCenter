@@ -5,7 +5,7 @@ import { getAvailableSlots } from './slot.service.js';
 import { assignDentist } from './dentist-assignment.service.js';
 import { addMinutesToTime } from '../utils/time.js';
 
-const HOLD_DURATION_MINUTES = 5;
+const HOLD_DURATION_MINUTES = 0.5; // Temporarily 30 seconds for testing
 
 /**
  * Hold a time slot for a user (5-minute temporary reservation).
