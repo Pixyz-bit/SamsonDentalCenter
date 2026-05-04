@@ -200,10 +200,13 @@ const ApprovalsPage = () => {
     }
 
     return (
-        <div className="flex flex-col h-full overflow-hidden">
-            <div className="mb-6">
-                <PageBreadcrumb pageTitle={breadcrumbTitle} parentName={parentName} parentPath={parentPath} />
-            </div>
+        <div className="flex flex-col h-full w-full max-w-full overflow-x-hidden pb-8">
+            <PageBreadcrumb 
+                pageTitle={breadcrumbTitle} 
+                subtitle={selectedId ? 'Review detailed request information and history.' : 'Review and manage appointment booking requests.'}
+                parentName={parentName} 
+                parentPath={parentPath} 
+            />
 
             {!selectedId && (
                 <ApprovalHeader 

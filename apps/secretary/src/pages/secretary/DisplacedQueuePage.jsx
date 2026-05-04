@@ -34,11 +34,11 @@ const DisplacedQueuePage = () => {
     };
 
     return (
-        <div className="flex flex-col h-full bg-gray-50/30 dark:bg-gray-900/10 min-h-[calc(100vh-80px)]">
-            <div className="mb-6 px-4">
-                <PageBreadcrumb pageTitle="Displaced Appointments" />
-                <p className="text-sm text-gray-500 mt-1">Appointments overlapping with emergency blocks that require manual outreach.</p>
-            </div>
+        <div className="flex flex-col h-full w-full max-w-full overflow-x-hidden pb-8">
+            <PageBreadcrumb 
+                pageTitle="Displaced Appointments" 
+                subtitle="Appointments overlapping with emergency blocks that require manual outreach."
+            />
             
             <div className="flex-1 px-4 pb-8">
                 {loading ? (
