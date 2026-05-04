@@ -29,11 +29,9 @@ file-by-file developer steps tailored to your current codebase.
 
 ## Stage 2: Frontend State & Timer Migration
 
-### 1. Update State Hook (`apps/user/src/hooks/useGuestBooking.js`)
-
-- Update the default `initialFormData` object to include `patient_note: ''` and
+- [x] Update the default `initialFormData` object to include `patient_note: ''` and
   `agreed_to_terms: false`.
-- Ensure the `guest_booking_state` is continuously persisted to `localStorage` (from your
+- [x] Ensure the `guest_booking_state` is continuously persisted to `localStorage` (from your
   `USER-OTP-IMPROVEMENT.md` plan).
 
 ### 2. Relocate the Timer Visual (`DateTimeStep.jsx` -> `GuestBookingWizard.jsx`) [DONE]
@@ -51,7 +49,7 @@ file-by-file developer steps tailored to your current codebase.
 ## Stage 3: Backend API Validation & DB Updates [DONE]
 
 ### 0. Database Schema Update (Pre-requisite)
-- [PENDING MANUAL SQL] Run migration to add `accepted_terms` and `terms_accepted_at`.
+- [PENDING MANUAL SQL] Run migration to add `accepted_terms` and `terms_accepted_at`.[DONE]
 
 ### 1. New Validator Service (`apps/api/src/services/appointment-validation.service.js`) [DONE]
 - Implemented Overlap Guard, Volume Cap, and Service Lock logic.
@@ -68,3 +66,23 @@ file-by-file developer steps tailored to your current codebase.
 
 ### 2. Final Payload Injection [DONE]
 - Updated `useGuestBooking.js` to send `patient_note`, `accepted_terms`, and `terms_accepted_at` in the final booking payload.
+
+---
+
+## ⏳ PENDING / NOT DONE TASKS
+
+### 1. Final Polish & Edge Cases
+- [x] **Email Format Real-time Validation:** Add a small checkmark or error indicator as the user types their email in `InfoStep.jsx`.
+- [x] **Slot Hold Expiry Warning:** Show a "Your slot hold expires in 2 minutes" toast when the timer gets low.
+- [x] **High-Fidelity Exit Modal:** Replaced `window.confirm` with a premium exit confirmation modal.
+
+### 2. Verification Hardening
+- [x] **Verification Injection Point:** These rules must run when "Confirm Booking" is clicked on Step 4, _before_ sending the OTP email.
+- [x] **Scroll to Error:** Automatically scroll to the first invalid field on Info Step if validation fails.
+- [x] **High-Fidelity Failure Alerts:** Redesigned the "Booking Blocked" alert banner to be more prominent and descriptive.
+- [x] **Global Error Toast:** Added a global toast notification for booking failures.
+- [x] **Dynamic Clinic Info:** Pulse clinic phone number directly from settings for error guidance.
+- [x] **Region-Specific Validation:** Enforced strict 10-digit limit and validation for PH (+63) phone numbers.
+- [x] **Success Email Polish:** Ensure the confirmation email sent to the guest matches the new high-fidelity UI of the success card.
+- [x] **Email Format Real-time Validation:** Add visual icons for email validity in `InfoStep.jsx`.
+- [x] **Slot Hold Expiry Warning:** 2-minute toast notification for pending holds.

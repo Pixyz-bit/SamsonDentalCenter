@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ArrowRight, UserCircle, Contact, Info, ChevronDown, X, Mail, Check, Calendar, Clock } from 'lucide-react';
+import { ArrowRight, UserCircle, Contact, Info, ChevronDown, X, Mail, Check, Calendar, Clock, CheckCircle2, AlertCircle } from 'lucide-react';
 
 const InfoStep = ({ formData, onUpdate, onNext, onBack }) => {
     const [errors, setErrors] = useState({});
@@ -17,6 +17,10 @@ const InfoStep = ({ formData, onUpdate, onNext, onBack }) => {
     );
 
     const commonSuffixes = ['', 'Jr.', 'Sr.', 'II', 'III', 'IV'];
+
+    const isValidEmail = (email) => {
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    };
 
     const validateNames = (name) => {
         // Only allow letters, spaces, and hyphens
@@ -313,14 +317,25 @@ const InfoStep = ({ formData, onUpdate, onNext, onBack }) => {
                             {/* Email Address */}
                             <div>
                                 <label className={labelClasses}>Email address <span className='text-brand-500'>*</span></label>
-                                <input
-                                    id="field-email"
-                                    type='email'
-                                    value={formData.email}
-                                    onChange={(e) => handleFieldChange('email', e.target.value)}
-                                    placeholder='juan@email.com'
-                                    className={getInputClasses(errors.email)}
-                                />
+                                <div className="relative">
+                                    <input
+                                        id="field-email"
+                                        type='email'
+                                        value={formData.email}
+                                        onChange={(e) => handleFieldChange('email', e.target.value)}
+                                        placeholder='juan@email.com'
+                                        className={`${getInputClasses(errors.email)} ${formData.email ? (isValidEmail(formData.email) ? 'pr-10' : 'pr-10') : ''}`}
+                                    />
+                                    {formData.email && (
+                                        <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center">
+                                            {isValidEmail(formData.email) ? (
+                                                <CheckCircle2 size={16} className="text-green-500 animate-in zoom-in duration-300" />
+                                            ) : (
+                                                <AlertCircle size={16} className="text-amber-500 animate-in zoom-in duration-300" />
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
                                 {errors.email && <p className='text-error-500 text-[10px] font-bold mt-1.5 ml-1'>{errors.email}</p>}
                             </div>
 

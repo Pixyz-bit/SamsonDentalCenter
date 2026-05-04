@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
-import { X, Calendar, Clock, AlertCircle, Info } from 'lucide-react';
+import { X, Calendar, Clock, AlertCircle, Info, LogOut } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '../../context/ToastContext';
 import { Modal } from '../ui/Modal';
@@ -89,15 +89,28 @@ const GuestBookingWizard = ({ booking, settings }) => {
     const [showExpiryModal, setShowExpiryModal] = useState(false);
     const [hasDismissedRecovery, setHasDismissedRecovery] = useState(false);
     const [hasCheckedRecovery, setHasCheckedRecovery] = useState(false);
+    const [showExitModal, setShowExitModal] = useState(false);
     const [wasRecovered, setWasRecovered] = useState(false);
     const hadHoldRef = useRef(false);
+    const warnedExpiryRef = useRef(false);
 
     // Track if we HAD a hold so we can detect when it disappears (expiry)
     useEffect(() => {
         if (slotHold.activeHold) {
             hadHoldRef.current = true;
         }
-    }, [slotHold.activeHold]);
+
+        // Warning at 2 minutes
+        if (slotHold.activeHold && slotHold.timeRemaining === 120 && !warnedExpiryRef.current) {
+            toast.warning('Your slot hold expires in 2 minutes. Please complete your booking soon!');
+            warnedExpiryRef.current = true;
+        }
+        
+        // Reset warning if hold is fresh or released
+        if (!slotHold.activeHold || slotHold.timeRemaining > 120) {
+            warnedExpiryRef.current = false;
+        }
+    }, [slotHold.activeHold, slotHold.timeRemaining]);
 
     // ✅ Release hold on page exit (close browser, navigate away, refresh)
     useEffect(() => {
@@ -216,10 +229,7 @@ const GuestBookingWizard = ({ booking, settings }) => {
     };
 
     const handleExit = () => {
-        if (window.confirm('Are you sure you want to exit? Your progress will be lost.')) {
-            handleReset();
-            navigate('/');
-        }
+        setShowExitModal(true);
     };
 
     // If booking succeeded, show success screen
@@ -554,6 +564,64 @@ const GuestBookingWizard = ({ booking, settings }) => {
                             className="flex-[1.5] h-11 text-[10px] sm:text-sm font-black bg-brand-500 hover:bg-brand-600 border-brand-500 shadow-lg shadow-brand-500/20 uppercase tracking-widest"
                         >
                             START FRESH
+                        </Button>
+                    </div>
+                </div>
+            </Modal>
+
+            {/* ✅ Exit Confirmation Modal */}
+            <Modal
+                isOpen={showExitModal}
+                onClose={() => setShowExitModal(false)}
+                className="max-w-md"
+                isBottomSheet={true}
+            >
+                <div className="flex flex-col h-full">
+                    {/* Header */}
+                    <div className="px-6 py-5 border-b border-gray-100 dark:border-gray-800 flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center shrink-0">
+                            <LogOut className="text-amber-600 dark:text-amber-400 rotate-180" size={22} />
+                        </div>
+                        <div>
+                            <h3 className="text-sm sm:text-lg font-black text-gray-900 dark:text-white uppercase tracking-tight">Exit Booking?</h3>
+                            <p className="text-[9px] sm:text-xs text-gray-500 dark:text-gray-400 font-bold uppercase tracking-wider">Your progress will be lost</p>
+                        </div>
+                    </div>
+
+                    {/* Body */}
+                    <div className="px-6 py-6 sm:py-8 flex-1 overflow-y-auto text-center">
+                        <div className="space-y-4">
+                            <p className="text-[14px] sm:text-[15px] text-gray-600 dark:text-gray-400 leading-relaxed font-medium">
+                                Are you sure you want to leave the booking process?
+                            </p>
+                            <div className="p-4 bg-amber-50/50 dark:bg-amber-900/10 rounded-2xl border border-amber-100/50 dark:border-amber-800/30">
+                                <p className="text-[12px] sm:text-[13px] text-amber-700 dark:text-amber-400 leading-normal font-medium italic">
+                                    If you leave now, any selected time slots will be released back to the calendar.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Footer */}
+                    <div className="px-5 py-5 bg-gray-50 dark:bg-gray-900/40 border-t border-gray-100 dark:border-gray-800 flex flex-row gap-3">
+                        <Button 
+                            variant="ghost" 
+                            fullWidth 
+                            onClick={() => setShowExitModal(false)}
+                            className="flex-1 h-11 text-[10px] sm:text-xs font-bold text-gray-400 hover:text-gray-900 dark:text-gray-500 dark:hover:text-white transition-colors uppercase tracking-widest"
+                        >
+                            KEEP BOOKING
+                        </Button>
+                        <Button 
+                            variant="primary" 
+                            fullWidth 
+                            onClick={() => {
+                                handleReset();
+                                navigate('/');
+                            }}
+                            className="flex-[1.5] h-11 text-[10px] sm:text-sm font-black bg-red-500 hover:bg-red-600 border-red-500 shadow-lg shadow-red-500/20 uppercase tracking-widest"
+                        >
+                            YES, EXIT
                         </Button>
                     </div>
                 </div>

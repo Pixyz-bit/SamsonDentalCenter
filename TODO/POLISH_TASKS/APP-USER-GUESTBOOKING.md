@@ -32,8 +32,14 @@ calendar spam, overlapping slots, and "double-dipping".
 - [x] **2. The Volume Cap:** Hard limit of max 3 active (pending/confirmed) bookings per email.
 - [x] **3. The Service Lock:** Prevent the same email from booking the exact same service on the
       same day.
-- [x] **Validation Injection Point:** These rules must run when "Confirm Booking" is clicked on Step
+- [x] **Verification Injection Point:** These rules must run when "Confirm Booking" is clicked on Step
       4, _before_ sending the OTP email.
+- [x] **Scroll to Error:** Automatically scroll to the first invalid field on Info Step if validation fails.
+- [x] **High-Fidelity Failure Alerts:** Redesigned the "Booking Blocked" alert banner to be more prominent and descriptive.
+- [x] **Global Error Toast:** Added a global toast notification for booking failures.
+- [x] **Dynamic Clinic Info:** Pulse clinic phone number directly from settings for error guidance.
+- [x] **Region-Specific Validation:** Enforced strict 10-digit limit and validation for PH (+63) phone numbers.
+- [x] **Real-time Input Polish:** Added visual email validation icons and 2-minute hold warnings.
 
 ---
 

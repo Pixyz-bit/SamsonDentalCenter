@@ -110,7 +110,10 @@ const ConfirmStep = ({ formData, onSubmit, onBack, onEdit, onReset, submitting, 
                         <div className="flex-1 text-center sm:text-left">
                             <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-2">
                                 <h3 className="text-lg font-black text-red-600 dark:text-red-400 uppercase tracking-tight">
-                                    {error.includes('limited to 3 active bookings') ? 'Booking Limit Reached' : 'Booking Blocked'}
+                                    {error.includes('limited to 3 active bookings') ? 'Booking Limit Reached' : 
+                                     error.includes('already scheduled for this email on the selected date') ? 'Duplicate Booking Detected' :
+                                     error.includes('This time overlaps with another booking') ? 'Scheduling Conflict' :
+                                     'Booking Blocked'}
                                 </h3>
                                 <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-black bg-red-100 dark:bg-red-900/40 text-red-600 dark:text-red-400 uppercase tracking-widest border border-red-200 dark:border-red-800/50 w-fit mx-auto sm:mx-0">
                                     Security Notice
@@ -128,6 +131,34 @@ const ConfirmStep = ({ formData, onSubmit, onBack, onEdit, onReset, submitting, 
                                         </p>
                                         <p className="text-[13px] text-gray-600 dark:text-gray-400 leading-relaxed font-medium">
                                             If you need to schedule additional family members, or if you believe this is an error, please contact the clinic directly at <span className="text-gray-900 dark:text-white font-black">{clinicPhone}</span> so our staff can assist you manually.
+                                        </p>
+                                    </div>
+                                </>
+                            ) : error.includes('already scheduled for this email on the selected date') ? (
+                                <>
+                                    <p className="text-[14px] sm:text-[15px] text-gray-700 dark:text-gray-300 leading-relaxed font-bold">
+                                        An appointment for this treatment is already scheduled for this date.
+                                    </p>
+                                    <div className="mt-4 space-y-3">
+                                        <p className="text-[13px] text-gray-600 dark:text-gray-400 leading-relaxed font-medium">
+                                            Our system prevents multiple bookings for the same treatment on the same day under <span className="text-brand-600 dark:text-brand-400 font-bold underline">{formData.email}</span>.
+                                        </p>
+                                        <p className="text-[13px] text-gray-600 dark:text-gray-400 leading-relaxed font-medium">
+                                            If you need to change your time or book for a second person using this email, please contact the clinic directly at <span className="text-gray-900 dark:text-white font-black">{clinicPhone}</span> so our staff can assist you manually.
+                                        </p>
+                                    </div>
+                                </>
+                            ) : error.includes('This time overlaps with another booking') ? (
+                                <>
+                                    <p className="text-[14px] sm:text-[15px] text-gray-700 dark:text-gray-300 leading-relaxed font-bold">
+                                        This time slot overlaps with another appointment.
+                                    </p>
+                                    <div className="mt-4 space-y-3">
+                                        <p className="text-[13px] text-gray-600 dark:text-gray-400 leading-relaxed font-medium">
+                                            Our records show that <span className="text-brand-600 dark:text-brand-400 font-bold underline">{formData.email}</span> already has an appointment scheduled during or near this time.
+                                        </p>
+                                        <p className="text-[13px] text-gray-600 dark:text-gray-400 leading-relaxed font-medium">
+                                            To avoid double-booking, please select a different time or contact us at <span className="text-gray-900 dark:text-white font-black">{clinicPhone}</span> for assistance.
                                         </p>
                                     </div>
                                 </>
