@@ -32,17 +32,17 @@ const EditAvatarModal = ({ isOpen, onClose, currentAvatar, onSave }) => {
 
     const footer = (
         <>
-            <Button variant='outline' onClick={onClose} className="px-8" disabled={loading}>
+            <Button variant='outline' onClick={onClose} className="h-9 sm:h-10 px-6 text-[10px] sm:text-xs font-black uppercase tracking-widest rounded-xl" disabled={loading}>
                 Cancel
             </Button>
             <Button 
                 onClick={handleSave} 
                 loading={loading}
-                className="px-8 shadow-lg shadow-brand-500/20"
+                className="h-9 sm:h-10 px-6 text-[10px] sm:text-xs font-black uppercase tracking-widest rounded-xl shadow-lg shadow-brand-500/20"
                 disabled={selected === currentAvatar}
             >
-                <Save size={18} className="mr-2" />
-                Update Avatar
+                <Save size={14} className="mr-2" />
+                Update Photo
             </Button>
         </>
     );
@@ -51,43 +51,43 @@ const EditAvatarModal = ({ isOpen, onClose, currentAvatar, onSave }) => {
         <Modal
             isOpen={isOpen}
             onClose={onClose}
-            title="Profile Photography"
-            subtitle="Choose a visual identity for this patient profile."
+            title="Profile Photo"
+            subtitle="Choose a visual identity."
             footer={footer}
-            className="max-w-2xl"
+            className="max-w-xl"
         >
-            <div className='space-y-8'>
-                <div className='flex flex-col items-center justify-center p-8 bg-gray-50/50 dark:bg-white/5 rounded-3xl border-2 border-dashed border-gray-100 dark:border-gray-800'>
-                    <div className='w-32 h-32 rounded-[2.5rem] overflow-hidden border-4 border-white dark:border-gray-800 shadow-2xl relative'>
+            <div className='space-y-6'>
+                <div className='flex flex-col items-center justify-center p-6 bg-gray-50/50 dark:bg-white/5 rounded-2xl border-2 border-dashed border-gray-100 dark:border-gray-800'>
+                    <div className='w-24 h-24 rounded-2xl overflow-hidden border-2 border-white dark:border-gray-800 shadow-xl relative'>
                         {selected ? (
                             <img src={selected} alt="Selected" className="w-full h-full object-cover" />
                         ) : (
                             <div className='w-full h-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-gray-400'>
-                                <Camera size={40} />
+                                <Camera size={30} />
                             </div>
                         )}
                     </div>
-                    <p className='mt-4 text-xs font-bold text-gray-400 uppercase tracking-widest'>Current Preview</p>
+                    <p className='mt-3 text-[9px] font-bold text-gray-400 uppercase tracking-widest'>Current Preview</p>
                 </div>
 
                 <div>
-                    <h5 className='text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-6 ml-1'>Available Selection</h5>
-                    <div className='grid grid-cols-4 sm:grid-cols-4 gap-4'>
+                    <h5 className='text-[9px] font-black uppercase tracking-[0.2em] text-gray-400 mb-4 ml-1'>Available Selection</h5>
+                    <div className='grid grid-cols-4 sm:grid-cols-8 gap-3'>
                         {AVATARS.map((url, idx) => (
                             <button
                                 key={idx}
                                 onClick={() => setSelected(url)}
-                                className={`relative aspect-square rounded-2xl overflow-hidden border-2 transition-all group ${
+                                className={`relative aspect-square rounded-xl overflow-hidden border-2 transition-all group ${
                                     selected === url 
-                                        ? 'border-brand-500 scale-95 ring-4 ring-brand-500/10' 
+                                        ? 'border-brand-500 scale-95 ring-2 ring-brand-500/10' 
                                         : 'border-transparent hover:border-gray-200 dark:hover:border-gray-700'
                                 }`}
                             >
                                 <img src={url} alt={`Avatar ${idx}`} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
                                 {selected === url && (
-                                    <div className='absolute inset-0 bg-brand-500/20 flex items-center justify-center'>
-                                        <div className='bg-brand-500 text-white p-1 rounded-full shadow-lg'>
-                                            <Check size={14} strokeWidth={3} />
+                                    <div className='absolute inset-0 bg-brand-500/10 flex items-center justify-center'>
+                                        <div className='bg-brand-500 text-white p-0.5 rounded-full shadow-lg'>
+                                            <Check size={10} strokeWidth={4} />
                                         </div>
                                     </div>
                                 )}
