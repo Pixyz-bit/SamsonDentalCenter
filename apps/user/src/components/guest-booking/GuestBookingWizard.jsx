@@ -312,13 +312,13 @@ const GuestBookingWizard = ({ booking }) => {
             >
                 <div className="flex flex-col h-full">
                     {/* Header */}
-                    <div className="px-6 py-5 border-b border-gray-100 dark:border-gray-800 flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center shrink-0">
-                            <AlertCircle className="text-amber-600 dark:text-amber-400" size={22} />
+                    <div className="px-5 py-4 sm:px-6 sm:py-5 border-b border-gray-100 dark:border-gray-800 flex items-center gap-3">
+                        <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center shrink-0">
+                            <AlertCircle className="text-amber-600 dark:text-amber-400" size={20} sm:size={22} />
                         </div>
                         <div>
-                            <h3 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white">Continue Booking?</h3>
-                            <p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400">We saved your progress from earlier</p>
+                            <h3 className="text-sm sm:text-lg font-black text-gray-900 dark:text-white uppercase tracking-tight">Continue Booking?</h3>
+                            <p className="text-[9px] sm:text-xs text-gray-500 dark:text-gray-400 font-bold uppercase tracking-wider">We saved your progress</p>
                         </div>
                     </div>
 
@@ -352,7 +352,7 @@ const GuestBookingWizard = ({ booking }) => {
                     </div>
 
                     {/* Footer */}
-                    <div className="px-6 py-5 bg-gray-50 dark:bg-gray-900/40 border-t border-gray-100 dark:border-gray-800 flex flex-row gap-3">
+                    <div className="px-5 py-5 bg-gray-50 dark:bg-gray-900/40 border-t border-gray-100 dark:border-gray-800 flex flex-row gap-3">
                         <Button 
                             variant="ghost" 
                             fullWidth 
@@ -360,9 +360,9 @@ const GuestBookingWizard = ({ booking }) => {
                                 setShowRecoveryModal(false);
                                 handleReset();
                             }}
-                            className="flex-1 h-12 text-[11px] sm:text-xs font-bold text-gray-400 hover:text-red-500 hover:bg-red-50 dark:text-gray-500 dark:hover:text-red-400 dark:hover:bg-red-900/10 transition-all duration-300 uppercase tracking-widest border border-transparent hover:border-red-100 dark:hover:border-red-900/20"
+                            className="flex-1 h-11 sm:h-12 text-[10px] sm:text-xs font-bold text-gray-400 hover:text-red-500 hover:bg-red-50 dark:text-gray-500 dark:hover:text-red-400 dark:hover:bg-red-900/10 transition-all duration-300 uppercase tracking-widest border border-transparent"
                         >
-                            No, start fresh
+                            Start Fresh
                         </Button>
                         <Button 
                             variant="primary" 
@@ -371,7 +371,7 @@ const GuestBookingWizard = ({ booking }) => {
                                 setShowRecoveryModal(false);
                                 setHasDismissedRecovery(true);
                             }}
-                            className="flex-1 h-12 text-[11px] sm:text-sm font-black shadow-lg shadow-primary-500/20 uppercase tracking-widest"
+                            className="flex-1 h-11 sm:h-12 text-[10px] sm:text-sm font-black shadow-lg shadow-primary-500/20 uppercase tracking-widest"
                         >
                             CONTINUE
                         </Button>
@@ -389,13 +389,13 @@ const GuestBookingWizard = ({ booking }) => {
             >
                 <div className="flex flex-col h-full">
                     {/* Header */}
-                    <div className="px-6 py-5 border-b border-gray-100 dark:border-gray-800 flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-red-100 dark:bg-red-900/30 flex items-center justify-center shrink-0">
-                            <AlertCircle className="text-red-600 dark:text-red-400" size={22} />
+                    <div className="px-5 py-4 sm:px-6 sm:py-5 border-b border-gray-100 dark:border-gray-800 flex items-center gap-3">
+                        <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-red-100 dark:bg-red-900/30 flex items-center justify-center shrink-0">
+                            <AlertCircle className="text-red-600 dark:text-red-400" size={20} sm:size={22} />
                         </div>
                         <div>
-                            <h3 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white">Start Over?</h3>
-                            <p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400">This action cannot be undone</p>
+                            <h3 className="text-sm sm:text-lg font-black text-gray-900 dark:text-white uppercase tracking-tight">Start Over?</h3>
+                            <p className="text-[9px] sm:text-xs text-gray-500 dark:text-gray-400 font-bold uppercase tracking-wider">This action cannot be undone</p>
                         </div>
                     </div>
 
@@ -418,7 +418,15 @@ const GuestBookingWizard = ({ booking }) => {
                     </div>
 
                     {/* Footer */}
-                    <div className="px-6 py-6 bg-gray-50 dark:bg-gray-900/40 border-t border-gray-100 dark:border-gray-800 flex flex-col gap-3">
+                    <div className="px-5 py-5 sm:px-6 sm:py-6 bg-gray-50 dark:bg-gray-900/40 border-t border-gray-100 dark:border-gray-800 flex flex-row gap-3">
+                        <Button 
+                            variant="ghost" 
+                            fullWidth 
+                            onClick={() => setShowResetModal(false)}
+                            className="flex-1 h-10 sm:h-12 text-[10px] sm:text-xs font-bold text-gray-400 hover:text-gray-900 transition-all duration-300 uppercase tracking-widest"
+                        >
+                            Cancel
+                        </Button>
                         <Button 
                             variant="primary" 
                             fullWidth 
@@ -426,17 +434,9 @@ const GuestBookingWizard = ({ booking }) => {
                                 setShowResetModal(false);
                                 handleReset();
                             }}
-                            className="h-13 text-base font-black bg-red-500 hover:bg-red-600 border-red-500 shadow-lg shadow-red-500/20"
+                            className="flex-[1.5] h-10 sm:h-12 text-[10px] sm:text-sm font-black bg-red-500 hover:bg-red-600 border-red-500 shadow-lg shadow-red-500/20 uppercase tracking-widest"
                         >
-                            YES, START OVER
-                        </Button>
-                        <Button 
-                            variant="ghost" 
-                            fullWidth 
-                            onClick={() => setShowResetModal(false)}
-                            className="h-12 text-sm font-bold text-gray-400 hover:text-gray-900 dark:text-gray-500 dark:hover:text-white transition-all duration-300"
-                        >
-                            Nevermind, keep booking
+                            START OVER
                         </Button>
                     </div>
                 </div>
@@ -478,15 +478,7 @@ const GuestBookingWizard = ({ booking }) => {
                     </div>
 
                     {/* Footer */}
-                    <div className="px-6 py-6 bg-gray-50 dark:bg-gray-900/40 border-t border-gray-100 dark:border-gray-800 flex flex-col gap-3">
-                        <Button 
-                            variant="primary" 
-                            fullWidth 
-                            onClick={() => setShowExpiryModal(false)}
-                            className="h-13 text-base font-black shadow-lg shadow-primary-500/20"
-                        >
-                            PICK NEW TIME
-                        </Button>
+                    <div className="px-5 py-5 bg-gray-50 dark:bg-gray-900/40 border-t border-gray-100 dark:border-gray-800 flex flex-row gap-3">
                         <Button 
                             variant="ghost" 
                             fullWidth 
@@ -494,9 +486,17 @@ const GuestBookingWizard = ({ booking }) => {
                                 setShowExpiryModal(false);
                                 handleReset();
                             }}
-                            className="h-12 text-sm font-bold text-gray-400 hover:text-red-500 hover:bg-red-50 dark:text-gray-500 dark:hover:text-red-400 dark:hover:bg-red-900/10 transition-all duration-300"
+                            className="flex-1 h-10 sm:h-12 text-[10px] sm:text-xs font-bold text-gray-400 hover:text-red-500 hover:bg-red-50 dark:text-gray-500 dark:hover:text-red-400 transition-all duration-300 uppercase tracking-widest"
                         >
-                            No thanks, start fresh
+                            Reset
+                        </Button>
+                        <Button 
+                            variant="primary" 
+                            fullWidth 
+                            onClick={() => setShowExpiryModal(false)}
+                            className="flex-[1.5] h-10 sm:h-12 text-[10px] sm:text-sm font-black shadow-lg shadow-primary-500/20 uppercase tracking-widest"
+                        >
+                            PICK NEW TIME
                         </Button>
                     </div>
                 </div>
@@ -509,6 +509,7 @@ const GuestBookingWizard = ({ booking }) => {
                 showCloseButton={false}
                 closeOnOverlayClick={false}
                 className="max-w-md"
+                isBottomSheet={true}
             >
                 <div className="flex flex-col h-full">
                     {/* Header */}
@@ -517,40 +518,42 @@ const GuestBookingWizard = ({ booking }) => {
                             <AlertCircle className="text-red-600 dark:text-red-400" size={22} />
                         </div>
                         <div>
-                            <h3 className="text-lg font-bold text-gray-900 dark:text-white">Too Many Attempts</h3>
-                            <p className="text-xs text-gray-500 dark:text-gray-400">Security protection active</p>
+                            <h3 className="text-sm sm:text-lg font-black text-gray-900 dark:text-white uppercase tracking-tight">Security Lock</h3>
+                            <p className="text-[9px] sm:text-xs text-gray-500 dark:text-gray-400 font-bold uppercase tracking-wider">Access paused for your safety</p>
                         </div>
                     </div>
 
                     {/* Body */}
-                    <div className="px-6 py-8 flex-1 overflow-y-auto text-center">
+                    <div className="px-6 py-6 sm:py-8 flex-1 overflow-y-auto text-center">
                         <div className="space-y-4">
-                            <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed font-medium">
-                                You have entered the wrong code 5 times. For security, this booking session has been blocked. 
+                            <p className="text-[14px] sm:text-[15px] text-gray-600 dark:text-gray-400 leading-relaxed font-medium">
+                                To protect your information, we've paused this session after <span className="text-red-500 font-bold">5 unsuccessful attempts</span>.
                             </p>
-                            <p className="text-xs text-gray-500 dark:text-gray-600 italic">
-                                Please start a new booking or return to the homepage.
-                            </p>
+                            <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700/50">
+                                <p className="text-[12px] sm:text-[13px] text-gray-500 dark:text-gray-400 leading-normal">
+                                    Don't worry—you can try again in a new session or return home to explore our services.
+                                </p>
+                            </div>
                         </div>
                     </div>
 
                     {/* Footer */}
-                    <div className="px-6 py-6 bg-gray-50 dark:bg-gray-900/40 border-t border-gray-100 dark:border-gray-800 flex flex-col gap-3">
-                        <Button 
-                            variant="primary" 
-                            fullWidth 
-                            onClick={handleReset}
-                            className="h-13 text-base font-black bg-red-500 hover:bg-red-600 border-red-500"
-                        >
-                            RESTART BOOKING
-                        </Button>
+                    <div className="px-5 py-5 bg-gray-50 dark:bg-gray-900/40 border-t border-gray-100 dark:border-gray-800 flex flex-row gap-3">
                         <Button 
                             variant="ghost" 
                             fullWidth 
                             onClick={() => navigate('/')}
-                            className="h-12 text-sm font-bold text-gray-400 hover:text-gray-900"
+                            className="flex-1 h-11 text-[10px] sm:text-xs font-bold text-gray-400 hover:text-gray-900 uppercase tracking-widest"
                         >
-                            Return to Home
+                            Go Home
+                        </Button>
+                        <Button 
+                            variant="primary" 
+                            fullWidth 
+                            onClick={handleReset}
+                            className="flex-[1.5] h-11 text-[10px] sm:text-sm font-black bg-brand-500 hover:bg-brand-600 border-brand-500 shadow-lg shadow-brand-500/20 uppercase tracking-widest"
+                        >
+                            START FRESH
                         </Button>
                     </div>
                 </div>

@@ -48,15 +48,15 @@ const GuestBookingSuccess = ({ result, onReset, booking }) => {
     };
 
     return (
-        <div className="w-full max-w-[600px] mx-auto animate-in fade-in zoom-in-95 duration-1000 pb-24 sm:pb-0">
+        <div className="w-full max-w-[600px] mx-auto animate-in fade-in zoom-in-95 duration-1000 pb-20 sm:pb-8">
             {/* 1. The Visual Confirmation */}
-            <div className='mb-8 sm:mb-10 text-center px-4'>
-                <div className='w-20 h-20 sm:w-24 sm:h-24 bg-emerald-50 dark:bg-emerald-500/10 rounded-[1.5rem] sm:rounded-[2rem] flex items-center justify-center mx-auto mb-6 sm:mb-8 border border-emerald-100 dark:border-emerald-500/20 shadow-theme-lg animate-in zoom-in-50 duration-700 delay-300'>
+            <div className='mb-6 sm:mb-6 text-center px-4'>
+                <div className='w-20 h-20 sm:w-24 sm:h-24 bg-emerald-50 dark:bg-emerald-500/10 rounded-[1.5rem] sm:rounded-[2rem] flex items-center justify-center mx-auto mb-4 sm:mb-6 border border-emerald-100 dark:border-emerald-500/20 shadow-theme-lg animate-in zoom-in-50 duration-700 delay-300'>
                     <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-emerald-500 flex items-center justify-center text-white shadow-lg shadow-emerald-500/40 animate-in fade-in zoom-in duration-500 delay-500">
                         <Check className="w-8 h-8 sm:w-10 sm:h-10" strokeWidth={4} />
                     </div>
                 </div>
-                <h2 className='text-xl sm:text-4xl font-black text-gray-900 dark:text-white tracking-tight uppercase mb-3 sm:mb-4'>
+                <h2 className='text-xl sm:text-3xl font-black text-gray-900 dark:text-white tracking-tight uppercase mb-2 sm:mb-3'>
                     Thank you for choosing Samson Dental Center
                 </h2>
                 <p className='text-[12px] sm:text-base text-gray-500 dark:text-gray-400 leading-relaxed font-medium max-w-sm mx-auto px-2'>
@@ -65,10 +65,10 @@ const GuestBookingSuccess = ({ result, onReset, booking }) => {
             </div>
 
             {/* 2. The "Quick Summary" (Request Summary) */}
-            <div className='bg-white dark:bg-gray-800/40 border border-gray-100 dark:border-gray-800 rounded-[28px] sm:rounded-[32px] p-4 sm:p-8 shadow-theme-xl mb-6 sm:mb-10 overflow-hidden relative'>
+            <div className='bg-white dark:bg-gray-800/40 border border-gray-100 dark:border-gray-800 rounded-[28px] sm:rounded-[32px] p-4 sm:p-8 shadow-theme-xl mb-4 sm:mb-6 overflow-hidden relative'>
                 <div className="absolute top-0 left-0 w-full h-1 bg-brand-500/10"></div>
                 
-                <div className="flex items-center justify-between mb-6 sm:mb-8 pb-4 border-b border-gray-50 dark:border-gray-800/50">
+                <div className="flex items-center justify-between mb-5 sm:mb-8 pb-4 border-b border-gray-50 dark:border-gray-800/50">
                     <h3 className="text-[10px] sm:text-sm font-black text-gray-400 uppercase tracking-[0.2em]">Request Summary</h3>
                     <div className="px-3 py-1 bg-brand-50/50 dark:bg-brand-500/10 rounded-full border border-brand-100/50 dark:border-brand-500/20 flex items-center">
                         <span className="text-[10px] sm:text-xs font-black font-mono tracking-tighter">
@@ -80,7 +80,7 @@ const GuestBookingSuccess = ({ result, onReset, booking }) => {
                     </div>
                 </div>
 
-                <div className="space-y-5 sm:space-y-6">
+                <div className="space-y-4 sm:space-y-6">
                     {/* Service */}
                     <div className="flex items-start gap-3 sm:gap-4">
                         <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-brand-50 dark:bg-brand-900/20 flex items-center justify-center shrink-0 border border-brand-100 dark:border-brand-800/50">
@@ -136,7 +136,7 @@ const GuestBookingSuccess = ({ result, onReset, booking }) => {
             </div>
 
             {/* 3. The "Next Steps" */}
-            <div className='bg-brand-50/30 dark:bg-brand-500/5 rounded-2xl sm:rounded-3xl p-4 sm:p-6 mb-12 sm:mb-12 border border-brand-100/50 dark:border-brand-500/10'>
+            <div className='bg-brand-50/30 dark:bg-brand-500/5 rounded-2xl sm:rounded-3xl p-4 sm:p-6 mb-4 sm:mb-6 border border-brand-100/50 dark:border-brand-500/10'>
                 <div className="flex gap-3 sm:gap-4 items-start">
                     <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-white dark:bg-brand-500/20 text-brand-500 flex items-center justify-center shrink-0 shadow-theme-xs">
                         <Info size={18} sm:size={20} />
