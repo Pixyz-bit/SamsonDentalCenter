@@ -22,6 +22,23 @@ const AppointmentDetailView = ({
 }) => {
     const [isRejecting, setIsRejecting] = useState(false);
     const [rejectionReason, setRejectionReason] = useState('');
+    
+    // Internal Notes State (Optimistic)
+    const [internalNote, setInternalNote] = useState(request.internalNotes || '');
+    const [isSavingNote, setIsSavingNote] = useState(false);
+    const [saveSuccess, setSaveSuccess] = useState(false);
+
+    const handleSaveNote = () => {
+        if (!internalNote.trim()) return;
+        setIsSavingNote(true);
+        setSaveSuccess(false);
+        // Optimistic UI update: Wait briefly to show 'Saving...' then 'Saved'
+        setTimeout(() => {
+            setIsSavingNote(false);
+            setSaveSuccess(true);
+            setTimeout(() => setSaveSuccess(false), 2000);
+        }, 600);
+    };
 
     if (!request) return null;
 
@@ -107,17 +124,18 @@ const AppointmentDetailView = ({
                 <div className="flex-grow flex flex-col bg-white dark:bg-gray-900 sm:rounded-3xl border-t sm:border border-gray-100 dark:border-gray-800 sm:shadow-theme-sm overflow-hidden h-full relative font-outfit transition-all duration-300">
                     
                     {/* Action Bar */}
-                    <div className="px-4 sm:px-6 py-4 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between sticky top-0 bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm z-30 shrink-0">
+                    <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-100 dark:border-gray-800 flex items-center sticky top-0 bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm z-30 shrink-0 relative">
                         <button 
                             onClick={onBack}
-                            className="p-2 rounded-xl bg-gray-100 dark:bg-white/[0.05] text-gray-500 hover:bg-gray-200 dark:hover:bg-white/[0.1] transition-all shadow-theme-xs active:scale-95"
+                            className="group flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 rounded-xl bg-white dark:bg-[#111827] border border-gray-200 dark:border-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800/50 hover:text-gray-900 dark:hover:text-white hover:border-gray-300 dark:hover:border-gray-700 transition-all shadow-theme-sm hover:shadow-theme-md active:scale-95 z-10"
                         >
-                            <ChevronLeft size={20} />
+                            <ChevronLeft size={18} className="text-gray-400 dark:text-gray-500 group-hover:-translate-x-0.5 transition-transform duration-300" />
+                            <span className="text-xs sm:text-sm font-bold">Back</span>
                         </button>
-                        <div className="flex items-center gap-2">
+                        
+                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                             <span className="text-[10px] sm:text-xs font-bold text-gray-400 uppercase tracking-widest">Request Details</span>
                         </div>
-                        <div className="w-10 h-10" /> 
                     </div>
 
                     <div className="flex-1 overflow-y-auto no-scrollbar relative z-10 p-4 sm:p-6 lg:p-8 space-y-6">
@@ -389,18 +407,31 @@ const AppointmentDetailView = ({
 
                                 {/* Interactive Schedule Bar */}
                                 <div className="relative h-12 sm:h-14 bg-white dark:bg-gray-950 rounded-2xl flex items-center overflow-visible border border-gray-200 dark:border-gray-700 shadow-inner px-4 sm:px-6 mt-2">
-                                    {busySlots.map((pos, idx) => (
-                                        <div 
-                                            key={`busy-${idx}`}
-                                            className="absolute h-full top-0 w-[6%] sm:w-[8%] bg-gray-100/60 dark:bg-gray-800/40 border-x border-white/5 dark:border-gray-700/10 flex items-center justify-center grayscale hover:bg-gray-200/50 dark:hover:bg-gray-700/50 transition-colors"
-                                            style={{ left: `${pos}%` }}
-                                        >
-                                            <span className="text-[5px] sm:text-[6px] text-gray-300 font-black uppercase tracking-tighter hidden sm:block">Busy</span>
-                                        </div>
-                                    ))}
+                                    {busySlots.map((pos, idx) => {
+                                        const isSlotConflict = Math.abs(pos - slotPosition) < 8;
+                                        return (
+                                            <div 
+                                                key={`busy-${idx}`}
+                                                className={`absolute h-full top-0 w-[6%] sm:w-[8%] border-x flex items-center justify-center transition-colors ${
+                                                    isSlotConflict 
+                                                        ? 'bg-error-500/20 dark:bg-error-500/30 border-error-500/50 z-10 animate-pulse' 
+                                                        : 'bg-gray-100/60 dark:bg-gray-800/40 border-white/5 dark:border-gray-700/10 grayscale hover:bg-gray-200/50 dark:hover:bg-gray-700/50'
+                                                }`}
+                                                style={{ left: `${pos}%` }}
+                                            >
+                                                <span className={`text-[5px] sm:text-[6px] font-black uppercase tracking-tighter hidden sm:block ${isSlotConflict ? 'text-error-600 dark:text-error-400' : 'text-gray-300'}`}>
+                                                    {isSlotConflict ? 'Conflict' : 'Busy'}
+                                                </span>
+                                            </div>
+                                        );
+                                    })}
                                     {slotPosition >= 0 && slotPosition <= 95 && (
                                         <div 
-                                            className="absolute h-[110%] sm:h-[120%] top-[-5%] sm:top-[-10%] w-[10%] sm:w-[12%] bg-brand-500 text-white rounded-xl flex flex-col items-center justify-center shadow-lg z-20 border-2 border-white dark:border-gray-900 transition-all duration-500"
+                                            className={`absolute h-[110%] sm:h-[120%] top-[-5%] sm:top-[-10%] w-[10%] sm:w-[12%] rounded-xl flex flex-col items-center justify-center shadow-theme-lg z-20 border-2 border-white dark:border-gray-900 transition-all duration-500 ${
+                                                isConflict 
+                                                    ? 'bg-error-500 text-white shadow-[0_0_15px_rgba(239,68,68,0.4)]'
+                                                    : 'bg-brand-500 text-white'
+                                            }`}
                                             style={{ left: `${slotPosition}%` }}
                                         >
                                             <span className="text-[7px] sm:text-[8px] font-black tabular-nums tracking-tighter leading-none">{timeStr}</span>
@@ -417,6 +448,35 @@ const AppointmentDetailView = ({
                                 </div>
                             </div>
 
+                            {/* Internal Notes (Optimistic) */}
+                            <div className="shrink-0 pt-6 mt-6 border-t border-gray-100 dark:border-gray-800">
+                                <div className="flex items-center justify-between px-2 mb-3">
+                                    <h3 className="text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-gray-400 flex items-center gap-2">
+                                        <StickyNote size={12} className="text-amber-500" /> Internal Notes
+                                    </h3>
+                                    <span className={`text-[8px] sm:text-[9px] font-bold uppercase tracking-wider transition-opacity duration-300 ${isSavingNote ? 'text-brand-500 opacity-100' : saveSuccess ? 'text-success-500 opacity-100' : 'opacity-0'}`}>
+                                        {isSavingNote ? 'Saving...' : 'Saved'}
+                                    </span>
+                                </div>
+                                <div className="relative group">
+                                    <textarea 
+                                        value={internalNote}
+                                        onChange={(e) => setInternalNote(e.target.value)}
+                                        onBlur={handleSaveNote}
+                                        placeholder="Add private staff notes here (e.g. Patient prefers morning slots)..."
+                                        className="w-full h-24 sm:h-28 bg-gray-50/50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-2xl p-4 text-xs sm:text-sm text-gray-700 dark:text-gray-300 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500/50 transition-all resize-none shadow-theme-sm group-hover:shadow-theme-md"
+                                    />
+                                    <div className="absolute bottom-3 right-3 transition-opacity">
+                                        <button 
+                                            onClick={handleSaveNote}
+                                            className="px-3 py-1.5 bg-brand-50 dark:bg-brand-500/10 text-brand-700 dark:text-brand-400 font-bold text-[10px] sm:text-xs uppercase tracking-widest rounded-lg hover:bg-brand-100 dark:hover:bg-brand-500/20 active:scale-95 transition-all shadow-theme-sm border border-brand-100 dark:border-brand-500/20"
+                                        >
+                                            Save
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
                             {/* Bottom Actions */}
                             <div className="flex flex-col sm:flex-row justify-end gap-3 sm:gap-4 mt-8 pb-12 shrink-0">
                                 <button 
@@ -427,7 +487,7 @@ const AppointmentDetailView = ({
                                 </button>
                                 <button 
                                     onClick={onApprove} 
-                                    className="order-1 sm:order-2 px-12 py-4 sm:py-3 bg-success-500 text-white font-bold text-sm rounded-2xl shadow-lg active:scale-95 hover:bg-success-600 transition-all"
+                                    className="order-1 sm:order-2 px-12 py-4 sm:py-3 bg-success-500 text-white font-bold text-sm rounded-2xl shadow-theme-lg active:scale-95 hover:bg-success-600 transition-all"
                                 >
                                     {isBookingMode ? 'Reschedule' : 'Approve Schedule'}
                                 </button>

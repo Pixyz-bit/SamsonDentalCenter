@@ -131,7 +131,7 @@ const BookingPage = () => {
         return (
             <div className="flex flex-col h-full w-full max-w-full overflow-x-hidden pb-8">
                 <PageBreadcrumb 
-                    pageTitle="Booking Details" 
+                    pageTitle="Appointment Details" 
                     parentName="Booking Desk" 
                     parentPath="/booking" 
                 />
@@ -167,12 +167,12 @@ const BookingPage = () => {
                 subtitle="Manage patient arrivals and session check-ins."
             />
 
-            <div className="grow flex flex-col bg-white dark:bg-white/[0.03] sm:rounded-3xl border border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden">
+            <div className="grow flex flex-col bg-white dark:bg-white/[0.03] sm:rounded-3xl border border-gray-100 dark:border-gray-800 shadow-theme-sm overflow-hidden">
                 {/* Header Section (Filters & Action) */}
                 <div className="p-4 sm:p-6 lg:p-8 border-b border-gray-100 dark:border-gray-800 space-y-6">
                     <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
                         <div className="flex-1 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-4">
-                            <div className="md:col-span-2 lg:col-span-7 relative">
+                            <div className="md:col-span-2 lg:col-span-4 relative">
                                 <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
                                     <Search size={20} />
                                 </div>
@@ -181,11 +181,11 @@ const BookingPage = () => {
                                     placeholder="Search by patient or service..."
                                     value={searchQuery}
                                     onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
-                                    className="w-full pl-12 pr-4 py-3 bg-gray-50 dark:bg-[#111827] border border-gray-200 dark:border-gray-800 rounded-xl text-sm font-semibold text-gray-700 dark:text-gray-200 focus:outline-none focus:border-brand-500 transition-all shadow-sm"
+                                    className="w-full pl-12 pr-4 py-3 bg-gray-50 dark:bg-[#111827] border border-gray-200 dark:border-gray-800 rounded-xl text-sm font-semibold text-gray-700 dark:text-gray-200 focus:outline-none focus:border-brand-500 transition-all shadow-theme-sm"
                                 />
                             </div>
                             
-                            <div className="md:col-span-1 lg:col-span-2 relative">
+                            <div className="md:col-span-1 lg:col-span-3 relative">
                                 <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
                                     <Calendar size={18} />
                                 </div>
@@ -212,7 +212,7 @@ const BookingPage = () => {
                             </div>
                         </div>
 
-                        <button className="flex items-center justify-center gap-2 px-6 py-3 bg-brand-500 hover:bg-brand-600 text-white rounded-xl font-bold text-sm shadow-md transition-all active:scale-95 w-full lg:w-auto shrink-0">
+                        <button className="flex items-center justify-center gap-2 px-6 py-3 bg-brand-500 hover:bg-brand-600 text-white rounded-xl font-bold text-sm shadow-theme-md transition-all active:scale-95 w-full lg:w-auto shrink-0">
                             <Plus size={20} />
                             <span>New Booking</span>
                         </button>
@@ -227,7 +227,7 @@ const BookingPage = () => {
                             <div 
                                 key={booking.id} 
                                 onClick={() => setSelectedBooking(booking)}
-                                className="flex flex-col sm:flex-row bg-white dark:bg-[#111827] border border-gray-200 dark:border-gray-800 rounded-xl shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden group cursor-pointer"
+                                className="flex flex-col sm:flex-row bg-white dark:bg-[#111827] border border-gray-200 dark:border-gray-800 rounded-xl shadow-theme-sm hover:shadow-theme-md transition-all duration-300 overflow-hidden group cursor-pointer"
                             >
                                 {/* Time Sidebar */}
                                 <div className="flex flex-row sm:flex-col w-full sm:w-[130px] bg-gray-50/50 dark:bg-gray-800/20 border-b sm:border-b-0 sm:border-r border-gray-200 dark:border-gray-800 shrink-0">
@@ -246,7 +246,7 @@ const BookingPage = () => {
                                     {/* Patient Info */}
                                     <div className="flex items-center gap-3 w-full sm:w-48 xl:w-64 shrink-0">
                                         <div className="relative shrink-0">
-                                            <img alt={booking.patient.name} className="w-10 h-10 sm:w-12 sm:h-12 rounded-full border border-gray-200 dark:border-gray-700 shadow-sm object-cover" src={booking.patient.avatar} />
+                                            <img alt={booking.patient.name} className="w-10 h-10 sm:w-12 sm:h-12 rounded-full border border-gray-200 dark:border-gray-700 shadow-theme-sm object-cover" src={booking.patient.avatar} />
                                             <div className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 border-2 border-white dark:border-[#111827] rounded-full"></div>
                                         </div>
                                         <div className="flex flex-col min-w-0">
@@ -256,20 +256,20 @@ const BookingPage = () => {
                                     </div>
 
                                     {/* Details Grid */}
-                                    <div className="grid grid-cols-2 md:grid-cols-4 xl:flex xl:flex-1 gap-y-4 gap-x-4 xl:gap-6 min-w-0">
-                                        <div className="flex flex-col min-w-0 xl:w-[30%]">
+                                    <div className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-2 xl:flex-1 gap-y-4 gap-x-4 xl:gap-x-6 min-w-0">
+                                        <div className="flex flex-col min-w-0">
                                             <span className={`text-[10px] font-semibold uppercase tracking-wider mb-0.5 ${booking.service.type === 'Specialized' ? 'text-brand-500' : 'text-gray-400'}`}>
                                                 {booking.service.type} Service
                                             </span>
                                             <span className="text-xs sm:text-sm font-semibold text-[#0B1120] dark:text-white truncate" title={booking.service.name}>{booking.service.name}</span>
                                         </div>
                                         
-                                        <div className="flex flex-col min-w-0 xl:w-[25%]">
+                                        <div className="flex flex-col min-w-0">
                                             <span className="text-[10px] font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-0.5">Doctor</span>
                                             <span className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 truncate" title={booking.doctor}>{booking.doctor}</span>
                                         </div>
 
-                                        <div className="flex flex-col min-w-0 xl:w-[25%]">
+                                        <div className="flex flex-col min-w-0">
                                             <span className="text-[10px] font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-0.5">Contact</span>
                                             <div className="flex items-center gap-1.5 text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400 truncate">
                                                 <Phone size={14} className="text-emerald-500 shrink-0" />
@@ -277,7 +277,7 @@ const BookingPage = () => {
                                             </div>
                                         </div>
 
-                                        <div className="flex flex-col min-w-0 xl:w-[20%]">
+                                        <div className="flex flex-col min-w-0">
                                             <span className="text-[10px] font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-0.5">Source</span>
                                             <div className="truncate">
                                                 <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-tighter inline-block truncate max-w-full ${
@@ -297,7 +297,7 @@ const BookingPage = () => {
                                                 e.stopPropagation();
                                                 console.log('Cancel clicked');
                                             }}
-                                            className="flex-1 sm:flex-none px-4 py-2 text-red-500 dark:text-red-400 text-xs sm:text-sm font-bold rounded-lg border border-red-100 dark:border-red-900/30 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all active:scale-95 whitespace-nowrap"
+                                            className="flex-1 sm:flex-none px-4 py-2 text-red-500 dark:text-red-400 text-xs sm:text-sm font-bold rounded-lg border border-red-100 dark:border-red-900/30 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all active:scale-95"
                                         >
                                             Cancel
                                         </button>
@@ -306,7 +306,7 @@ const BookingPage = () => {
                                                 e.stopPropagation();
                                                 console.log('Reschedule clicked');
                                             }}
-                                            className="flex-1 sm:flex-none px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white text-xs sm:text-sm font-bold rounded-lg shadow-sm hover:shadow transition-all active:scale-95 whitespace-nowrap"
+                                            className="flex-1 sm:flex-none px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white text-xs sm:text-sm font-bold rounded-lg shadow-sm hover:shadow transition-all active:scale-95"
                                         >
                                             Reschedule
                                         </button>

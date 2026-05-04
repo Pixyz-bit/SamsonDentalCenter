@@ -130,15 +130,15 @@ const CalendarPage = () => {
                         {/* Filters Section */}
                         <div className="px-4 sm:px-6 py-5 border-b border-gray-100 dark:border-gray-800 bg-gray-50/30 dark:bg-white/[0.01]">
                             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                                <div className="flex bg-white dark:bg-white/5 p-1.5 rounded-2xl w-full sm:w-auto shadow-sm border border-gray-200 dark:border-gray-800/50">
+                                <div className="flex bg-gray-50 dark:bg-white/5 p-1 rounded-xl w-full sm:w-auto border border-gray-100 dark:border-gray-800">
                                     {['all', 'general', 'specialized'].map((filter) => (
                                         <button
                                             key={filter}
                                             onClick={() => setSpecialtyFilter(filter)}
-                                            className={`flex-1 sm:flex-none px-6 py-2.5 text-sm font-bold rounded-xl transition-all duration-300 capitalize ${
+                                            className={`flex-1 sm:flex-none px-6 py-2.5 text-sm font-bold rounded-lg transition-all duration-300 capitalize ${
                                                 specialtyFilter === filter
-                                                    ? 'bg-brand-500 text-white shadow-lg shadow-brand-500/20'
-                                                    : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/5'
+                                                    ? 'bg-white dark:bg-white/10 text-brand-500 shadow-sm'
+                                                    : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'
                                             }`}
                                         >
                                             {filter}
