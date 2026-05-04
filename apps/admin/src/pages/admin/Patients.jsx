@@ -47,17 +47,16 @@ const Patients = () => {
     }, [token, searchQuery]);
 
     const tabLabel = activeTab.charAt(0).toUpperCase() + activeTab.slice(1);
-    const breadcrumbTitle = id ? `Patient ${tabLabel}` : "Patient Registry";
+    const breadcrumbTitle = id ? `Patient ${tabLabel}` : "Patient Directory";
 
     return (
         <div className='flex flex-col h-full'>
-            <div className='flex items-center justify-between mb-4'>
-                <PageBreadcrumb 
-                    pageTitle={breadcrumbTitle} 
-                    parentName={id ? "Patient Registry" : null}
-                    parentPath={id ? "/patients" : null}
-                />
-            </div>
+            <PageBreadcrumb 
+                pageTitle={breadcrumbTitle} 
+                parentName={id ? "Patient Directory" : null}
+                parentPath={id ? "/patients" : null}
+                className='mb-4'
+            />
             
             <div className='grow flex flex-col'>
                 {id ? (

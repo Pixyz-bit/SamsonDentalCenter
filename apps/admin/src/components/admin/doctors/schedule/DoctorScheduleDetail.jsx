@@ -43,24 +43,28 @@ const DoctorScheduleDetail = ({ doctor }) => {
 
             const newEvents = [];
 
-            // 1. Map Appointments
-            fetchedAppointments.forEach(appt => {
-                // Calculate duration in minutes
-                const start = new Date(`1970-01-01T${appt.start_time}`);
-                const end = new Date(`1970-01-01T${appt.end_time}`);
-                const duration = Math.round((end - start) / (1000 * 60));
+            // 1. Map Appointments — exclude cancelled/displaced, only show active statuses
+            const ACTIVE_STATUSES = ['PENDING', 'CONFIRMED', 'COMPLETED'];
+            fetchedAppointments
+                .filter(appt => ACTIVE_STATUSES.includes(appt.status))
+                .forEach(appt => {
+                    // Calculate duration in minutes
+                    const start = new Date(`1970-01-01T${appt.start_time}`);
+                    const end = new Date(`1970-01-01T${appt.end_time}`);
+                    const duration = Math.round((end - start) / (1000 * 60));
 
-                newEvents.push({
-                    id: appt.id,
-                    date: appt.date,
-                    start: appt.start_time.substring(0, 5),
-                    duration: duration,
-                    service: appt.service || 'Dental Service',
-                    patient: appt.patient?.name || 'Guest Patient',
-                    type: 'appointment',
-                    status: appt.status
+                    newEvents.push({
+                        id: appt.id,
+                        date: appt.date,
+                        start: appt.start_time.substring(0, 5),
+                        duration: duration,
+                        service: appt.service || 'Dental Service',
+                        patient: appt.patient?.name || 'Guest Patient',
+                        type: 'appointment',
+                        status: appt.status
+                    });
                 });
-            });
+
 
             // 2. Mapping Blocks
             fetchedBlocks.forEach(block => {

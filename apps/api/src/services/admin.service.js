@@ -3,6 +3,8 @@ import { supabaseAdmin } from '../config/supabase.js';
 import { assignDentist } from './dentist-assignment.service.js';
 import { APPOINTMENT_STATUS, APPROVAL_STATUS, SERVICE_TIER } from '../utils/constants.js';
 import { voidWaitlistForApprovedAppointment, notifyWaitlist } from './waitlist.service.js';
+import { sendOTPEmail } from './email-confirmation.service.js';
+
 
 // ═══════════════════════════════════════════════
 // APPROVAL WORKFLOW (Two-Tier System)
@@ -880,6 +882,53 @@ export const getDentistSchedule = async (dentistId) => {
 };
 
 /**
+ * Get a dentist's full schedule for a specific day (Schedule + Appointments + Blocks).
+ * Useful for conflict checking during appointment approval.
+ */
+export const getDentistDaySchedule = async (dentistId, date) => {
+    // 1. Get Day of Week
+    const dayOfWeek = new Date(date).getDay();
+
+    // 2. Fetch all components in parallel
+    const [scheduleRes, appointmentsRes, blocksRes] = await Promise.all([
+        supabaseAdmin
+            .from('dentist_schedule')
+            .select('*')
+            .eq('dentist_id', dentistId)
+            .eq('day_of_week', dayOfWeek)
+            .maybeSingle(),
+        supabaseAdmin
+            .from('appointments')
+            .select(`
+                id, 
+                start_time, 
+                end_time, 
+                status, 
+                patient:profiles!appointments_patient_id_fkey(full_name),
+                service:services(name)
+            `)
+            .eq('dentist_id', dentistId)
+            .eq('appointment_date', date)
+            .neq('status', APPOINTMENT_STATUS.CANCELLED),
+        supabaseAdmin
+            .from('dentist_availability_blocks')
+            .select('*')
+            .eq('dentist_id', dentistId)
+            .eq('block_date', date)
+    ]);
+
+    if (scheduleRes.error) throw new AppError(scheduleRes.error.message, 500);
+    if (appointmentsRes.error) throw new AppError(appointmentsRes.error.message, 500);
+    if (blocksRes.error) throw new AppError(blocksRes.error.message, 500);
+
+    return {
+        base_schedule: scheduleRes.data,
+        appointments: appointmentsRes.data,
+        blocks: blocksRes.data
+    };
+};
+
+/**
  * Set/update a dentist's schedule for a specific day.
  *
  * @param {string} dentistId - Dentist UUID
@@ -907,12 +956,96 @@ export const setDentistSchedule = async (dentistId, dayOfWeek, schedule) => {
 };
 
 /**
- * Bulk set a dentist's entire weekly schedule.
- *
+ * Bulk set a dentist's entire weekly schedule with Conflict Gatekeeper.
+ * 
+ * If any future appointment for this dentist falls outside the new routine hours,
+ * this throws a 409 with the conflicting appointments if force=false.
+ * 
  * @param {string} dentistId - Dentist UUID
- * @param {Array} schedules - Array of { day_of_week, is_working, start_time, end_time, break_start_time, break_end_time }
+ * @param {Array} schedules - Array of { day_of_week, is_working, start_time, end_time, break_start_time, break_end_time, is_using_global }
+ * @param {boolean} force - If true, displace conflicting appointments
  */
-export const setBulkSchedule = async (dentistId, schedules, overwrite = false) => {
+export const setBulkSchedule = async (dentistId, schedules, force = false) => {
+    const today = new Date().toISOString().split('T')[0];
+
+    // ── 1. Conflict Detection: Find appointments that fall outside new hours ──
+    const conflictingAppointments = [];
+
+    // Fetch future active appointments for this specific dentist
+    const { data: futureAppts, error: fetchError } = await supabaseAdmin
+        .from('appointments')
+        .select(`
+            id, appointment_date, start_time, end_time, status, source,
+            profiles:patient_id (first_name, last_name, full_name, phone),
+            guest_name, guest_first_name, guest_last_name, guest_phone,
+            services:service_id (name),
+            dentists:dentist_id (profiles:profile_id (first_name, last_name, full_name))
+        `)
+        .eq('dentist_id', dentistId)
+        .gte('appointment_date', today)
+        .in('status', [APPOINTMENT_STATUS.PENDING, APPOINTMENT_STATUS.CONFIRMED]);
+
+    if (fetchError) throw new AppError(fetchError.message, 500);
+
+    if (futureAppts && futureAppts.length > 0) {
+        for (const appt of futureAppts) {
+            // Robust date parsing (T00:00:00 to avoid UTC/Local drift)
+            const apptDate = new Date(appt.appointment_date + 'T00:00:00');
+            const jsDow = apptDate.getDay(); 
+            const rule = schedules.find(r => r.day_of_week === jsDow);
+
+            // Case A: The dentist is now CLOSED on this day
+            if (!rule || !rule.is_working) {
+                conflictingAppointments.push(appt);
+                continue;
+            }
+
+            // Case B: The dentist is WORKING but times shifted or break added
+            const ast = appt.start_time.substring(0, 5);
+            const aet = appt.end_time.substring(0, 5);
+            const rst = rule.start_time?.substring(0, 5);
+            const ret = rule.end_time?.substring(0, 5);
+
+            // Conflict: appointment starts before shift OR ends after shift
+            if (ast < rst || aet > ret) {
+                conflictingAppointments.push(appt);
+                continue;
+            }
+
+            // Case C: Break overlap
+            if (rule.break_start_time && rule.break_end_time) {
+                const bst = rule.break_start_time.substring(0, 5);
+                const bet = rule.break_end_time.substring(0, 5);
+                if (ast < bet && aet > bst) {
+                    conflictingAppointments.push(appt);
+                }
+            }
+        }
+    }
+
+    // ── 2. Handle Conflicts ──
+    if (conflictingAppointments.length > 0 && !force) {
+        const error = new Error('Schedule conflicts detected');
+        error.status = 409;
+        error.conflicts = conflictingAppointments;
+        throw error;
+    }
+
+    // ── 3. Displace Appointments (if forced) ──
+    if (conflictingAppointments.length > 0 && force) {
+        const conflictIds = conflictingAppointments.map(c => c.id);
+        const { error: displaceError } = await supabaseAdmin
+            .from('appointments')
+            .update({
+                status: 'DISPLACED',
+                cancellation_reason: 'SYSTEM_DISPLACED: DOCTOR_SCHEDULE_CHANGE'
+            })
+            .in('id', conflictIds);
+
+        if (displaceError) throw new AppError(`Failed to displace appointments: ${displaceError.message}`, 500);
+    }
+
+    // ── 4. Upsert Schedule ──
     const rows = schedules.map((s) => ({
         dentist_id: dentistId,
         day_of_week: s.day_of_week,
@@ -921,62 +1054,15 @@ export const setBulkSchedule = async (dentistId, schedules, overwrite = false) =
         end_time: s.end_time || null,
         break_start_time: s.break_start_time || null,
         break_end_time: s.break_end_time || null,
+        is_using_global: s.is_using_global ?? true,
     }));
 
-    const { data: scheduleData, error } = await supabaseAdmin
+    const { data: scheduleData, error: upsertError } = await supabaseAdmin
         .from('dentist_schedule')
         .upsert(rows, { onConflict: 'dentist_id,day_of_week' })
         .select();
 
-    if (error) throw new AppError(error.message, 500);
-
-    if (overwrite) {
-        // Query all active future appointments for this dentist
-        const today = new Date().toISOString().split('T')[0];
-        const { data: appointments, error: apptError } = await supabaseAdmin
-            .from('appointments')
-            .select('id, appointment_date, start_time, end_time')
-            .eq('dentist_id', dentistId)
-            .gte('appointment_date', today)
-            .not('status', 'in', `(${APPOINTMENT_STATUS.CANCELLED},${APPOINTMENT_STATUS.LATE_CANCEL},${APPOINTMENT_STATUS.NO_SHOW},${APPOINTMENT_STATUS.RESCHEDULED},${APPOINTMENT_STATUS.COMPLETED})`);
-
-        if (!apptError && appointments && appointments.length > 0) {
-            const idsToCancel = [];
-
-            appointments.forEach(appt => {
-                const [y, m, d] = (appt.appointment_date || '').split('-');
-                const jsDow = new Date(parseInt(y), parseInt(m) - 1, parseInt(d)).getDay();
-                const rule = schedules.find(r => r.day_of_week === jsDow);
-
-                if (!rule || !rule.is_working) {
-                    idsToCancel.push(appt.id);
-                } else {
-                    const ast = appt.start_time.substring(0, 5);
-                    const aet = appt.end_time.substring(0, 5);
-                    const rst = rule.start_time;
-                    const ret = rule.end_time;
-                    
-                    if (ast < rst || aet > ret) {
-                        idsToCancel.push(appt.id);
-                    } else if (rule.break_start_time && rule.break_end_time) {
-                        if (ast < rule.break_end_time && aet > rule.break_start_time) {
-                            idsToCancel.push(appt.id);
-                        }
-                    }
-                }
-            });
-
-            if (idsToCancel.length > 0) {
-                await supabaseAdmin
-                    .from('appointments')
-                    .update({ 
-                        status: APPOINTMENT_STATUS.CANCELLED,
-                        cancellation_reason: 'SYSTEM_DISPLACED'
-                    })
-                    .in('id', idsToCancel);
-            }
-        }
-    }
+    if (upsertError) throw new AppError(upsertError.message, 500);
 
     return scheduleData;
 };
@@ -1059,15 +1145,12 @@ export const bulkCancelForBlock = async (
 
     const appointmentIds = affectedAppointments.map((a) => a.id);
 
-    // ── Cancel all affected appointments ──
-    const updateReason = isOverwrite ? 'SYSTEM_DISPLACED' : 'Dentist unavailable (schedule block)';
-
+    // ── 3. Displacement Logic ──
     const { error: updateErr } = await supabaseAdmin
         .from('appointments')
         .update({
-            status: APPOINTMENT_STATUS.CANCELLED,
-            cancellation_reason: updateReason,
-            cancelled_at: new Date().toISOString(),
+            status: 'DISPLACED',
+            cancellation_reason: 'SYSTEM_DISPLACED: DOCTOR_BLOCK',
             updated_at: new Date().toISOString(),
         })
         .in('id', appointmentIds);
@@ -1089,16 +1172,27 @@ export const bulkCancelForBlock = async (
  * @param {string} patientId - Patient's profile UUID
  */
 export const getPatientAppointmentHistory = async (patientId) => {
+    // ── 1. Find all family members (Primary + Dependents) ──
+    const { data: familyProfiles, error: profilesError } = await supabaseAdmin
+        .from('profiles')
+        .select('id')
+        .or(`id.eq.${patientId},primary_profile_id.eq.${patientId}`);
+
+    if (profilesError) throw new AppError(profilesError.message, 500);
+    const familyIds = familyProfiles.map(p => p.id);
+
+    // ── 2. Get appointments for all family members ──
     const { data, error } = await supabaseAdmin
         .from('appointments')
         .select(
             `
                     *,
+                    patient: profiles!appointments_patient_id_fkey(full_name, email, phone),
                     service: services(name, price, tier),
-                        dentist: dentists(profile: profiles(full_name, first_name, last_name, middle_name, suffix))
-    `,
+                    dentist: dentists(profile: profiles(full_name, first_name, last_name, middle_name, suffix))
+            `,
         )
-        .eq('patient_id', patientId)
+        .in('patient_id', familyIds)
         .order('appointment_date', { ascending: false })
         .order('start_time', { ascending: false });
 
@@ -1154,6 +1248,29 @@ export const updatePatientProfileData = async (patientId, fields) => {
 
     if (Object.keys(updates).length === 0) {
         throw new AppError('No valid fields provided for update.', 400);
+    }
+
+    // Automatically sync full_name if any name components were updated
+    const nameFields = ['first_name', 'middle_name', 'last_name', 'suffix'];
+    const isNameUpdated = nameFields.some(field => field in updates);
+    
+    if (isNameUpdated) {
+        // Fetch current values to fill in the gaps for recalculation
+        const { data: current } = await supabaseAdmin
+            .from('profiles')
+            .select('first_name, middle_name, last_name, suffix')
+            .eq('id', patientId)
+            .single();
+
+        const fullFirst = updates.first_name !== undefined ? updates.first_name : current?.first_name;
+        const fullMiddle = updates.middle_name !== undefined ? updates.middle_name : current?.middle_name;
+        const fullLast = updates.last_name !== undefined ? updates.last_name : current?.last_name;
+        const fullSuffix = updates.suffix !== undefined ? updates.suffix : current?.suffix;
+
+        updates.full_name = [fullFirst, fullMiddle, fullLast, fullSuffix]
+            .filter(part => part && part.trim() !== '')
+            .join(' ')
+            .trim();
     }
 
     const { data, error } = await supabaseAdmin
@@ -1291,7 +1408,42 @@ export const blockDentistSchedule = async (
         throw { status: 404, message: 'Dentist not found.' };
     }
 
-    // Create the availability block
+    // 1. Conflict Check (Pre-save)
+    const { data: conflicts, error: conflictErr } = await supabaseAdmin
+        .from('appointments')
+        .select(`
+            *,
+            profiles:patient_id (full_name, phone),
+            services:service_id (name),
+            dentists:dentist_id (profiles:profile_id (full_name))
+        `)
+        .eq('dentist_id', dentistId)
+        .eq('appointment_date', blockDate)
+        .in('status', ['PENDING', 'CONFIRMED']);
+
+    if (conflictErr) throw { status: 500, message: conflictErr.message };
+
+    const blockStart = startTime || '00:00';
+    const blockEnd = endTime || '23:59';
+
+    const affected = (conflicts || []).filter(appt => 
+        appt.start_time < blockEnd && appt.end_time > blockStart
+    );
+
+    if (affected.length > 0 && !overwrite) {
+        throw { 
+            status: 409, 
+            message: 'Conflicts detected', 
+            conflicts: affected 
+        };
+    }
+
+    // 2. Auto-displacement (if force/overwrite)
+    if (affected.length > 0 && overwrite) {
+        await bulkCancelForBlock(dentistId, blockDate, startTime, endTime, true);
+    }
+
+    // 3. Create the availability block
     const { data: block, error: blockErr } = await supabaseAdmin
         .from('dentist_availability_blocks')
         .insert({
@@ -1308,13 +1460,89 @@ export const blockDentistSchedule = async (
 
     if (blockErr) throw { status: 500, message: blockErr.message };
 
-    // Optionally auto-cancel appointments that conflict with this block
-    let cancelResult = null;
-    if (cancelAppointments || overwrite) {
-        cancelResult = await bulkCancelForBlock(dentistId, blockDate, startTime, endTime, overwrite);
+    return { block };
+};
+
+/**
+ * Bulk block a dentist's availability across multiple dates.
+ *
+ * @param {string} dentistId - Dentist UUID
+ * @param {Array} blocks - Array of { block_date, start_time, end_time, reason, notes }
+ * @param {string} createdBy - Admin UUID who created the blocks
+ * @param {boolean} overwrite - Whether to force save and displace
+ * @returns {object} { results, conflicts }
+ */
+export const bulkBlockDentistSchedule = async (
+    dentistId,
+    blocks,
+    createdBy,
+    overwrite = false
+) => {
+    // 1. Conflict Check for all dates
+    let allConflicts = [];
+    
+    for (const b of blocks) {
+        const { data: conflicts, error: conflictErr } = await supabaseAdmin
+            .from('appointments')
+            .select(`
+                *,
+                profiles:patient_id (full_name, phone),
+                services:service_id (name),
+                dentists:dentist_id (profiles:profile_id (full_name))
+            `)
+            .eq('dentist_id', dentistId)
+            .eq('appointment_date', b.block_date)
+            .in('status', ['PENDING', 'CONFIRMED']);
+
+        if (conflictErr) throw { status: 500, message: conflictErr.message };
+
+        const blockStart = b.start_time || '00:00';
+        const blockEnd = b.end_time || '23:59';
+
+        const affected = (conflicts || []).filter(appt => 
+            appt.start_time < blockEnd && appt.end_time > blockStart
+        );
+
+        if (affected.length > 0) {
+            allConflicts = [...allConflicts, ...affected];
+        }
     }
 
-    return { block, cancelResult };
+    if (allConflicts.length > 0 && !overwrite) {
+        throw { 
+            status: 409, 
+            message: 'Conflicts detected', 
+            conflicts: allConflicts 
+        };
+    }
+
+    // 2. Perform blocks
+    const results = [];
+    for (const b of blocks) {
+        // Auto-displacement (if force/overwrite)
+        if (overwrite) {
+            await bulkCancelForBlock(dentistId, b.block_date, b.start_time || null, b.end_time || null, true);
+        }
+
+        const { data: block, error: blockErr } = await supabaseAdmin
+            .from('dentist_availability_blocks')
+            .insert({
+                dentist_id: dentistId,
+                block_date: b.block_date,
+                start_time: b.start_time || null,
+                end_time: b.end_time || null,
+                reason: b.reason,
+                notes: b.notes || null,
+                created_by: createdBy
+            })
+            .select()
+            .single();
+
+        if (blockErr) throw { status: 500, message: blockErr.message };
+        results.push(block);
+    }
+
+    return { results };
 };
 
 /**
@@ -1366,6 +1594,9 @@ export const getAllAppointmentsFiltered = async (filters = {}, page = 1, limit =
         query = query.eq('appointment_date', filters.date);
     } else if (filters.date_from) {
         query = query.gte('appointment_date', filters.date_from);
+        if (filters.date_to) {
+            query = query.lte('appointment_date', filters.date_to);
+        }
     }
     
     // If a specific status is requested, use it; otherwise, exclude 'zombie' statuses by default
@@ -1435,14 +1666,14 @@ export const searchPatients = async (search = null) => {
     let query = supabaseAdmin
         .from('profiles')
         .select(
-            'id, full_name, email, phone, no_show_count, cancellation_count, reschedule_count, is_booking_restricted, restriction_reason, deposit_required, created_at',
+            'id, full_name, email, phone, is_registered, primary_profile_id, relationship_to_primary, no_show_count, cancellation_count, reschedule_count, is_booking_restricted, restriction_reason, deposit_required, created_at',
         )
         .eq('role', 'patient')
         .order('created_at', { ascending: false })
         .limit(50);
 
     if (search) {
-        query = query.or(`full_name.ilike.% ${search}%, email.ilike.% ${search}% `);
+        query = query.or(`full_name.ilike.%${search}%,email.ilike.%${search}%`);
     }
 
     const { data, error } = await query;
@@ -1714,58 +1945,95 @@ export const quickRegisterPatient = async (patientData) => {
     const { 
         full_name, email, phone, 
         first_name, last_name, middle_name, suffix, 
-        date_of_birth 
+        date_of_birth, resolution, otp, primary_profile_id
     } = patientData;
 
     if (!full_name && (!first_name || !last_name)) {
         throw new AppError('Patient name is required.', 400);
     }
 
-    // Check if patient already exists by email or phone (if provided)
-    // We use separate queries to avoid complex OR filter issues
-    if (email) {
+    let finalEmail = email;
+    let finalPrimaryId = primary_profile_id || null;
+
+    if (resolution === 'FORCE_OFFLINE') {
+        finalEmail = null;
+    } else if (resolution === 'LINK_DEPENDENT') {
+        if (!primary_profile_id || !otp) {
+            throw new AppError('Primary profile ID and OTP are required to link as dependent.', 400);
+        }
+        
+        // Verify OTP
+        const { data: tokenData } = await supabaseAdmin
+            .from('dependency_consent_tokens')
+            .select('id, status, expires_at')
+            .eq('primary_profile_id', primary_profile_id)
+            .eq('token', otp)
+            .eq('status', 'active')
+            .maybeSingle();
+            
+        if (!tokenData) {
+            throw new AppError('Invalid or expired OTP for dependency consent.', 400);
+        }
+        
+        if (new Date(tokenData.expires_at) < new Date()) {
+            await supabaseAdmin.from('dependency_consent_tokens').update({ status: 'expired' }).eq('id', tokenData.id);
+            throw new AppError('OTP has expired.', 400);
+        }
+        
+        // Mark as used
+        await supabaseAdmin.from('dependency_consent_tokens').update({ status: 'used', used_at: new Date().toISOString() }).eq('id', tokenData.id);
+        
+        finalEmail = null; // Dependents shouldn't strictly require the same email, they live under the parent
+        finalPrimaryId = primary_profile_id;
+    } else if (email) {
+        // Standard flow: Check if email exists
         const { data: byEmail, error: emailErr } = await supabaseAdmin.from('profiles').select('id, full_name, is_registered').eq('email', email).maybeSingle();
         if (emailErr) {
             console.error('Email check error:', emailErr);
             throw new AppError('Error checking existing email.', 500);
         }
         if (byEmail) {
-            throw new AppError(`A patient with email ${email} already exists.`, 409);
+            throw { status: 409, message: 'CONFLICT_RESOLUTION_REQUIRED', profile: byEmail, conflictType: 'EMAIL' };
         }
     }
 
-    if (phone) {
+    if (phone && !resolution) {
         const { data: byPhone, error: phoneErr } = await supabaseAdmin.from('profiles').select('id, full_name, is_registered').eq('phone', phone).maybeSingle();
         if (phoneErr) {
             console.error('Phone check error:', phoneErr);
             throw new AppError('Error checking existing phone.', 500);
         }
         if (byPhone) {
-            throw new AppError(`A patient with phone ${phone} already exists.`, 409);
+            throw { status: 409, message: 'CONFLICT_RESOLUTION_REQUIRED', profile: byPhone, conflictType: 'PHONE' };
         }
     }
 
-    const finalFullName = full_name || `${first_name} ${last_name}`.trim();
-    console.log('Final Full Name:', finalFullName);
+    const finalFullName = full_name || [first_name, middle_name, last_name, suffix]
+        .filter(part => part && part.trim() !== '')
+        .join(' ')
+        .trim();
+    
+    console.log(' [QUICK_REGISTER] Final Full Name:', finalFullName);
+    console.log(' [QUICK_REGISTER] Parts:', { first_name, middle_name, last_name, suffix });
 
-        const { data, error } = await supabaseAdmin
-            .from('profiles')
-            .insert({
-                full_name: finalFullName,
-                first_name: first_name || null,
-                last_name: last_name || null,
-                middle_name: middle_name || null,
-                suffix: suffix || null,
-                date_of_birth: date_of_birth || null,
-                email: email || null,
-                phone: phone || null,
-                role: 'patient',
-                primary_profile_id: patientData.primary_profile_id || null,
-                is_registered: false,
-                created_at: new Date().toISOString(),
-            })
-            .select()
-            .single();
+    const { data, error } = await supabaseAdmin
+        .from('profiles')
+        .insert({
+            full_name: finalFullName,
+            first_name: first_name || null,
+            last_name: last_name || null,
+            middle_name: middle_name || null,
+            suffix: suffix || null,
+            date_of_birth: date_of_birth || null,
+            email: finalEmail || null,
+            phone: phone || null,
+            role: 'patient',
+            primary_profile_id: finalPrimaryId,
+            is_registered: false,
+            created_at: new Date().toISOString(),
+        })
+        .select()
+        .single();
 
     if (error) {
         console.error('Quick registration insert failed:', error);
@@ -1806,7 +2074,7 @@ export const checkDuplicatePatient = async (criteria) => {
 
     const { data: duplicates, error } = await supabaseAdmin
         .from('profiles')
-        .select('id, full_name, first_name, last_name, date_of_birth, phone, email, is_registered, role')
+        .select('id, full_name, first_name, middle_name, last_name, suffix, date_of_birth, phone, email, is_registered, role')
         .or(conditions.join(','));
 
     if (error) throw new AppError(error.message, 500);
@@ -1891,11 +2159,136 @@ export const mergePatientRecords = async (sourceId, targetId, asDependent = fals
             if (delErr) throw delErr;
         }
 
-        return { success: true };
+        return { success: true, message: 'Records merged successfully' };
     } catch (err) {
-        throw new AppError(`Action failed: ${err.message}`, 500);
+        console.error('Merge error:', err);
+        throw new AppError('Failed to merge patient records.', 500);
     }
 };
+
+/**
+ * Generate and send an OTP for dependency consent
+ * @param {string} primaryProfileId - The ID of the owner of the email
+ * @param {string} dependentId - The ID of the stub being linked
+ * @param {string} relationship - The relationship (Child, Spouse, etc.)
+ * @returns {object} { message: 'OTP sent' }
+ */
+export const sendDependencyConsentOTP = async (primaryProfileId, dependentId, relationship) => {
+    if (!relationship) {
+        throw new AppError('Relationship is required for dependency linking.', 400);
+    }
+    // 1. Get the primary profile email
+    const { data: profile, error } = await supabaseAdmin.from('profiles').select('email, full_name').eq('id', primaryProfileId).single();
+    if (error || !profile) {
+        throw new AppError('Primary profile not found.', 404);
+    }
+    if (!profile.email) {
+        throw new AppError('Primary profile has no email to send OTP to.', 400);
+    }
+
+    // 2. Rate limit check (e.g., no active token requested in last 1 minute)
+    const oneMinuteAgo = new Date(Date.now() - 60 * 1000).toISOString();
+    const { data: recentToken } = await supabaseAdmin
+        .from('dependency_consent_tokens')
+        .select('id')
+        .eq('primary_profile_id', primaryProfileId)
+        .eq('status', 'active')
+        .gte('created_at', oneMinuteAgo)
+        .maybeSingle();
+
+    if (recentToken) {
+        throw new AppError('Please wait a minute before requesting another OTP.', 429);
+    }
+
+    // 3. Generate a 6-digit OTP
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
+    // 4. Save to db with 15-minute expiration
+    const expiresAt = new Date(Date.now() + 15 * 60 * 1000).toISOString();
+    const { error: insertErr } = await supabaseAdmin
+        .from('dependency_consent_tokens')
+        .insert({
+            primary_profile_id: primaryProfileId,
+            token: otp,
+            expires_at: expiresAt,
+            status: 'active',
+            dependent_data: { 
+                dependent_id: dependentId,
+                relationship: relationship 
+            } // Store the target dependent and relationship
+        });
+
+    if (insertErr) {
+        throw new AppError('Failed to generate OTP.', 500);
+    }
+
+    // 5. Trigger email dispatch
+    try {
+        await sendOTPEmail(profile.email, profile.full_name, otp);
+    } catch (err) {
+        console.error('Failed to send dependency consent email:', err.message);
+    }
+
+    return { message: `Consent OTP sent to ${profile.email}.` };
+};
+
+/**
+ * Verify dependency consent OTP and link the profiles.
+ * 
+ * @param {string} primaryId - The primary profile ID
+ * @param {string} otp - The 6-digit OTP
+ * @returns {object} { success: true }
+ */
+export const verifyDependencyConsent = async (primaryId, otp) => {
+    // 1. Find active token
+    const { data: tokenData, error: tokenErr } = await supabaseAdmin
+        .from('dependency_consent_tokens')
+        .select('*')
+        .eq('primary_profile_id', primaryId)
+        .eq('token', otp)
+        .eq('status', 'active')
+        .maybeSingle();
+
+    if (tokenErr || !tokenData) {
+        throw new AppError('Invalid or expired OTP.', 400);
+    }
+
+    // 2. Check expiry
+    if (new Date(tokenData.expires_at) < new Date()) {
+        await supabaseAdmin.from('dependency_consent_tokens').update({ status: 'expired' }).eq('id', tokenData.id);
+        throw new AppError('OTP has expired.', 400);
+    }
+
+    const dependentId = tokenData.dependent_data?.dependent_id;
+    if (!dependentId) {
+        throw new AppError('Token metadata corrupted: No dependent ID found.', 500);
+    }
+
+    // 3. Perform the link via merge service (asDependent=true)
+    // This migrates data AND sets primary_profile_id
+    const mergeResult = await mergePatientRecords(dependentId, primaryId, true);
+
+    // 4. Update the dependent's profile with the relationship
+    const relationship = tokenData.dependent_data?.relationship;
+    if (relationship) {
+        await supabaseAdmin
+            .from('profiles')
+            .update({ relationship_to_primary: relationship })
+            .eq('id', dependentId);
+    }
+
+    // 5. Mark token as used
+    await supabaseAdmin
+        .from('dependency_consent_tokens')
+        .update({ 
+            status: 'used', 
+            used_at: new Date().toISOString() 
+        })
+        .eq('id', tokenData.id);
+
+    return mergeResult;
+};
+
 
 // ═══════════════════════════════════════════════
 // DENTIST SLOT & ASSIGNMENT FUNCTIONS

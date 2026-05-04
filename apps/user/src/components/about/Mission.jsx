@@ -83,7 +83,7 @@ const Mission = () => {
 
     return (
         <section ref={containerRef} className='py-10 sm:py-12 bg-white'>
-            <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
+            <div className='max-w-6xl mx-auto px-6 sm:px-8 lg:px-12'>
                 <div className='grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-6 items-stretch'>
                     {/* Left: Image card with overlay content */}
                     <div ref={imageRef} className='lg:col-span-7'>

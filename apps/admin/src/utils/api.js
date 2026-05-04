@@ -1,4 +1,4 @@
-﻿const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1';
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1';
 
 /**
  * Shared fetch wrapper.
@@ -26,6 +26,14 @@ const request = async (method, path, { body = null, token = null, keepalive = fa
     const data = await res.json();
 
     if (!res.ok) {
+        // Handle Global Session Timeout (401)
+        if (res.status === 401 && !path.includes('/auth/login')) {
+            sessionStorage.setItem('session_timeout', 'true');
+            localStorage.removeItem('token');
+            window.location.href = '/login';
+            return;
+        }
+
         // Throw a structured error that components can catch
         const error = new Error(data.error || 'Something went wrong');
         error.status = res.status;

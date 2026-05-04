@@ -41,12 +41,12 @@ export const joinWaitlist = async (
     let suffix = null;
 
     if (patientProfileId) {
-        // ── A. Fetch from saved patient profile ──
+        // ── A. Fetch from saved patient profile (Late-Binding Stub) ──
         const { data: pProfile } = await supabaseAdmin
-            .from('patient_profiles')
+            .from('profiles')
             .select('*')
             .eq('id', patientProfileId)
-            .eq('profile_id', patientId) // Ownership check
+            .eq('primary_profile_id', patientId) // Ownership check
             .single();
 
         if (pProfile) {
@@ -55,8 +55,8 @@ export const joinWaitlist = async (
             middleName = pProfile.middle_name;
             suffix = pProfile.suffix;
             finalBookedForBirthday = pProfile.date_of_birth;
-            finalBookedForRelationship = pProfile.relationship;
-            bookedForName = `${lastName}, ${firstName} ${middleName || ''} ${suffix || ''}`.replace(/\s+/g, ' ').trim();
+            finalBookedForRelationship = pProfile.relationship_to_primary;
+            bookedForName = pProfile.full_name || `${lastName}, ${firstName} ${middleName || ''} ${suffix || ''}`.replace(/\s+/g, ' ').trim();
         }
     } else {
         finalBookedForBirthday = bookedForBirthday;
@@ -138,7 +138,7 @@ export const joinWaitlist = async (
     const { data, error } = await supabaseAdmin
         .from('waitlist')
         .insert({
-            patient_id: patientId,
+            patient_id: patientProfileId || patientId, // ✅ Use dependent ID if provided
             service_id: serviceId,
             preferred_date: date,
             preferred_time: time,
@@ -151,9 +151,6 @@ export const joinWaitlist = async (
             last_name: lastName,
             middle_name: middleName,
             suffix: suffix,
-            patient_profile_id: patientProfileId, // ✅ Store the linked profile ID
-            patient_birthday: finalBookedForBirthday,
-            patient_relationship: finalBookedForRelationship,
         })
         .select(
             `

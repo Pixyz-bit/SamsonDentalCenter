@@ -101,9 +101,10 @@ export const useDoctors = (fetchOnMount = true) => {
         }
     }, [token]);
 
-    const updateDoctorScheduleBulk = useCallback(async (dentistId, schedules, overwrite = false) => {
+    const updateDoctorScheduleBulk = useCallback(async (dentistId, schedules, force = false) => {
         try {
-            const body = overwrite ? { schedules, overwrite: true } : schedules;
+            // Send as an object { schedules, force }
+            const body = { schedules, force };
             const response = await api.post(`/admin/dentists/${dentistId}/schedule/bulk`, body, token);
             return response;
         } catch (err) {
@@ -132,6 +133,17 @@ export const useDoctors = (fetchOnMount = true) => {
         }
     }, [token]);
 
+    const bulkAddDoctorBlocks = useCallback(async (dentistId, blocks, force = false) => {
+        try {
+            const body = { blocks, overwrite: force };
+            const response = await api.post(`/admin/dentists/${dentistId}/block/bulk`, body, token);
+            return response;
+        } catch (err) {
+            console.error('Failed to bulk add doctor blocks:', err);
+            throw err;
+        }
+    }, [token]);
+
     const deleteDoctorBlock = useCallback(async (dentistId, blockId) => {
         try {
             const response = await api.delete(`/admin/dentists/${dentistId}/block/${blockId}`, token);
@@ -142,15 +154,18 @@ export const useDoctors = (fetchOnMount = true) => {
         }
     }, [token]);
 
-    const fetchDoctorAppointments = useCallback(async (dentistId) => {
+    const fetchDoctorAppointments = useCallback(async (dentistId = null, params = {}) => {
         try {
-            // Fetch up to 100 upcoming appointments starting from today
-            // so we don't accidentally fetch only past appointments due to pagination
-            const today = new Date().toLocaleDateString('en-CA'); // 'YYYY-MM-DD' in local time
-            const response = await api.get(`/admin/appointments?dentist_id=${dentistId}&limit=100&date_from=${today}`, token);
+            const { limit = 100, date_from = new Date().toLocaleDateString('en-CA'), date_to = null } = params;
+            
+            let url = `/admin/appointments?limit=${limit}&date_from=${date_from}`;
+            if (dentistId) url += `&dentist_id=${dentistId}`;
+            if (date_to) url += `&date_to=${date_to}`;
+            
+            const response = await api.get(url, token);
             return response.appointments;
         } catch (err) {
-            console.error('Failed to fetch doctor appointments:', err);
+            console.error('Failed to fetch appointments:', err);
             throw err;
         }
     }, [token]);
@@ -189,6 +204,7 @@ export const useDoctors = (fetchOnMount = true) => {
         updateDoctorScheduleBulk,
         fetchDoctorBlocks,
         addDoctorBlock,
+        bulkAddDoctorBlocks,
         deleteDoctorBlock,
         fetchDoctorAppointments,
         fetchDoctorHistory

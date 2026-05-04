@@ -141,7 +141,7 @@ export const assignDentist = async (date, startTime, endTime, serviceTier = 'gen
         .from('appointments')
         .select('dentist_id')
         .eq('appointment_date', date)
-        .not('status', 'in', '("CANCELLED","LATE_CANCEL","RESCHEDULED")')
+        .not('status', 'in', '("CANCELLED","LATE_CANCEL","RESCHEDULED","DISPLACED")')
         .in('dentist_id', unblockedDentistIds)
         .lt('start_time', endTime)
         .gt('end_time', startTime);
@@ -190,7 +190,7 @@ export const assignDentist = async (date, startTime, endTime, serviceTier = 'gen
         .from('appointments')
         .select('dentist_id')
         .eq('appointment_date', date)
-        .not('status', 'in', '("CANCELLED","LATE_CANCEL","RESCHEDULED")')
+        .not('status', 'in', '("CANCELLED","LATE_CANCEL","RESCHEDULED","DISPLACED")')
         .in('dentist_id', freeDentists);
 
     // Count appointments per dentist

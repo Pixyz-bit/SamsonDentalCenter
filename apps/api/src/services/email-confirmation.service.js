@@ -5,6 +5,7 @@ import { AppError } from '../utils/errors.js';
 import { Resend } from 'resend';
 import fs from 'fs';
 import path from 'path';
+import { logCommunication } from './message-log.service.js';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -34,12 +35,22 @@ export const sendOTPEmail = async (email, name, otpCode) => {
             otpCode,
         });
 
-        await resend.emails.send({
-            from: process.env.EMAIL_FROM || 'Samson Dental <noreply@samsondental.com>',
+        const result = await resend.emails.send({
+            from: process.env.EMAIL_FROM || 'Samson Dental <noreply@mail.chrbuilds.dev>',
             to: email,
             subject: `${otpCode} is your PrimeraDental verification code`,
             html,
         });
+
+        // Log to database
+        await logCommunication({
+            recipient: email,
+            channel: 'email',
+            purpose: 'OTP',
+            status: 'sent',
+            provider_id: result.data?.id
+        });
+
         console.log(`📧 OTP email sent to ${email}`);
     } catch (err) {
         console.error('Failed to send OTP email:', err.message);
@@ -97,11 +108,12 @@ export const sendGuestConfirmationEmail = async (email, name, details) => {
         });
 
         await resend.emails.send({
-            from: process.env.EMAIL_FROM || 'Samson Dental <noreply@samsondental.com>',
+            from: process.env.EMAIL_FROM || 'Samson Dental <noreply@mail.chrbuilds.dev>',
             to: email,
             subject: 'Verify Your Booking Request — Samson Dental',
             html,
         });
+
         console.log(`📧 Confirmation email sent to ${email}`);
     } catch (err) {
         console.error('Failed to send confirmation email:', err.message);
@@ -173,7 +185,7 @@ export const confirmAppointmentByToken = async (token) => {
         });
 
         await resend.emails.send({
-            from: process.env.EMAIL_FROM || 'Samson Dental <noreply@samsondental.com>',
+            from: process.env.EMAIL_FROM || 'Samson Dental <noreply@mail.chrbuilds.dev>',
             to: updatedAppointment.guest_email,
             subject: '📧 Request Verified — Samson Dental',
             html,
@@ -260,7 +272,7 @@ export const sendBookingSuccessEmail = async (email, name, details) => {
         });
 
         const result = await resend.emails.send({
-            from: process.env.EMAIL_FROM || 'Samson Dental <noreply@samsondental.com>',
+            from: process.env.EMAIL_FROM || 'Samson Dental <noreply@mail.chrbuilds.dev>',
             to: email,
             subject: '✅ Appointment Confirmed — Samson Dental',
             html,
@@ -294,7 +306,7 @@ export const sendBookingRequestReceivedEmail = async (email, name, details) => {
         });
 
         await resend.emails.send({
-            from: process.env.EMAIL_FROM || 'Samson Dental <noreply@samsondental.com>',
+            from: process.env.EMAIL_FROM || 'Samson Dental <noreply@mail.chrbuilds.dev>',
             to: email,
             subject: '📧 Booking Request Received — Samson Dental',
             html,
@@ -341,7 +353,7 @@ export const sendCancellationEmail = async (email, name, details) => {
         });
 
         await resend.emails.send({
-            from: process.env.EMAIL_FROM || 'Samson Dental <noreply@samsondental.com>',
+            from: process.env.EMAIL_FROM || 'Samson Dental <noreply@mail.chrbuilds.dev>',
             to: email,
             subject,
             html,
@@ -376,7 +388,7 @@ export const sendRescheduleEmail = async (email, name, details) => {
         });
 
         await resend.emails.send({
-            from: process.env.EMAIL_FROM || 'Samson Dental <noreply@samsondental.com>',
+            from: process.env.EMAIL_FROM || 'Samson Dental <noreply@mail.chrbuilds.dev>',
             to: email,
             subject: '🔄 Appointment Rescheduled — Samson Dental',
             html,
@@ -424,7 +436,7 @@ export const sendGuestReminderEmail = async (email, name, details) => {
         });
 
         await resend.emails.send({
-            from: process.env.EMAIL_FROM || 'Samson Dental <noreply@samsondental.com>',
+            from: process.env.EMAIL_FROM || 'Samson Dental <noreply@mail.chrbuilds.dev>',
             to: email,
             subject: `⏰ Reminder: Your Appointment in ${hoursUntil} Hours — Samson Dental`,
             html,
@@ -462,7 +474,7 @@ export const sendPatientReminderEmail = async (email, name, details) => {
         });
 
         await resend.emails.send({
-            from: process.env.EMAIL_FROM || 'Samson Dental <noreply@samsondental.com>',
+            from: process.env.EMAIL_FROM || 'Samson Dental <noreply@mail.chrbuilds.dev>',
             to: email,
             subject: `⏰ Reminder: Your Appointment in ${hoursUntil} Hours — Samson Dental`,
             html,
@@ -600,7 +612,7 @@ export const sendWaitlistOfferEmail = async (email, name, details) => {
         });
 
         await resend.emails.send({
-            from: process.env.EMAIL_FROM || 'Samson Dental <noreply@samsondental.com>',
+            from: process.env.EMAIL_FROM || 'Samson Dental <noreply@mail.chrbuilds.dev>',
             to: email,
             subject: '⚡ Slot Available! (Priority Offer) — Samson Dental',
             html,
@@ -627,7 +639,7 @@ export const sendAccountSetupInviteEmail = async (email, name, setupUrl) => {
         });
 
         const result = await resend.emails.send({
-            from: process.env.EMAIL_FROM || 'Samson Dental <noreply@samsondental.com>',
+            from: process.env.EMAIL_FROM || 'Samson Dental <noreply@mail.chrbuilds.dev>',
             to: email,
             subject: 'Finish setting up your Samson Dental account',
             html,

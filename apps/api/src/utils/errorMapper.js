@@ -23,6 +23,9 @@ export const humanizeError = (message) => {
     }
 
     // ── Database & Constraints ──
+    if (message.includes('idx_no_double_booking')) {
+        return 'This slot is already occupied. Please choose a different time.';
+    }
     if (message.includes('duplicate key value violates unique constraint')) {
         return 'This information already exists in our system. Please check for duplicates.';
     }

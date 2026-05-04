@@ -227,8 +227,31 @@ const useSlotHold = (sessionId) => {
     };
 
     /**
+     * Re-verify active hold from server (used for manual Refresh)
+     */
+    const checkActiveHold = useCallback(async () => {
+        if (!sessionId) return;
+        try {
+            const response = await api.get(`/appointments/slots/active-hold?session_id=${sessionId}`);
+            if (response && response.hold_id) {
+                setActiveHold({
+                    hold_id: response.hold_id,
+                    service_id: response.service_id,
+                    date: response.date,
+                    time: response.time,
+                    expires_at: response.expires_at,
+                    expires_in_minutes: response.expires_in_minutes,
+                });
+            } else {
+                setActiveHold(null);
+            }
+        } catch (err) {
+            setActiveHold(null);
+        }
+    }, [sessionId]);
+
+    /**
      * Clear hold from memory and localStorage
-     * Called after successful booking submission
      */
     const clearHold = useCallback(() => {
         setActiveHold(null);
@@ -254,6 +277,7 @@ const useSlotHold = (sessionId) => {
         holdSlot,
         releaseHold,
         clearHold,
+        checkActiveHold,
     };
 };
 

@@ -26,7 +26,7 @@ export const getTodaySchedule = async (dentistId) => {
         )
         .eq('dentist_id', dentistId)
         .eq('appointment_date', today)
-        .not('status', 'in', '("CANCELLED","LATE_CANCEL","RESCHEDULED")')
+        .not('status', 'in', '("CANCELLED","LATE_CANCEL","RESCHEDULED","DISPLACED")')
         .order('start_time', { ascending: true });
 
     if (error) throw new AppError(error.message, 500);
@@ -73,7 +73,7 @@ export const getScheduleRange = async (dentistId, startDate, endDate) => {
         .eq('dentist_id', dentistId)
         .gte('appointment_date', startDate)
         .lte('appointment_date', endDate)
-        .not('status', 'in', '("CANCELLED","LATE_CANCEL","RESCHEDULED")')
+        .not('status', 'in', '("CANCELLED","LATE_CANCEL","RESCHEDULED","DISPLACED")')
         .order('appointment_date', { ascending: true })
         .order('start_time', { ascending: true });
 

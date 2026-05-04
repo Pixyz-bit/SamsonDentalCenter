@@ -138,7 +138,7 @@ const PageHeader = ({ overline, title, subtitle }) => {
       <div className="absolute top-0 inset-x-0 h-40 bg-gradient-to-b from-black/60 via-black/20 to-transparent z-10 pointer-events-none"></div>
 
       {/* Content Container */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 relative z-10 w-full font-sans">
+      <div className="max-w-6xl mx-auto px-6 sm:px-8 lg:px-12 relative z-10 w-full font-sans">
         {/* Mobile: Centered layout */}
         <div className="md:hidden flex flex-col items-center justify-center text-center min-h-[300px]">
           <h1

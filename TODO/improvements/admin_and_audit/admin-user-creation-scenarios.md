@@ -1,134 +1,186 @@
-Scenario 1: The "Pure Stub" (No Email)
-The Situation: A 70-year-old patient, Arthur, walks in. He doesn't use email.
+# Admin User Creation Scenarios & Manual Testing Guide
 
-Admin Action: The secretary enters "Arthur Pendelton", his phone number, and DOB. Leaves the email blank. Clicks Save.
+Terminology Guide:
 
-System Response: Success.
+- **Offline Patient**: A walk-in patient record with no email address on file. They do not have
+  portal access.
+- **Inactive Account**: A patient record with an email address, but the user has not yet verified
+  their email or set up a password for the online portal.
+- **Active Account**: A patient who has fully registered and uses the online portal.
 
-STUB ACCOUNT
-STUB1, STUB1v2 -SOLUTION MERGE - SOLUTION 2 SIMILAR DETECTION
+---
 
-GIVE EMAIL=> TYPO BY ADMIN => SEND ADMIN BEFORE CREATING PASSWORD NEED BDAY TO VERIFY
+## Scenario 1: The "Offline Patient" (No Email)
 
-CREATE ACOUNT => MERGE IF USER WANT TO MERGE
+**The Situation:** A patient walks in and doesn't provide an email address.
 
+**Admin Action:** Enter Name, Phone, and DOB. Leave the email field blank. Click Save.
 
+**Manual Test Steps:**
 
-Database State: Arthur is saved to the profiles table. isRegistered: false, email: null.
+1. Log in to the Admin/Secretary portal.
+2. Open the "Add Patient" form.
+3. Fill in: `Name: Arthur Pendelton`, `Phone: 09123456789`, `DOB: 1955-01-01`.
+4. Leave `Email` empty.
+5. Click **[Save]**.
 
-The Result: The secretary can instantly book appointments for Arthur. His portal access remains inactive.
+**Expected Result:**
 
-Scenario 2: The "First-Time Email" (New Stub with Email)
-The Situation: A new patient, Sarah, walks in and provides her email (sarah@email.com).
+- The patient is saved successfully.
+- Check the database/profile view: `is_registered` should be `false`, and `email` should be `null`.
+- The UI should label this patient as an "Offline Patient".
 
-Admin Action: The secretary enters her details and email, then clicks Save.
+---
 
-System Response: The database checks sarah@email.com. It finds zero matches. Success.
+## Scenario 2: The "Inactive Account" (First-Time Email)
 
-Database State: Sarah is saved to the profiles table. isRegistered: false, email: sarah@email.com.
+**The Situation:** A new patient provides an email address for the first time.
 
-The Result: Sarah is still a Stub, but the Admin UI now unlocks the "Send Setup Link" button so the clinic can invite her to the portal.
+**Admin Action:** Enter details including a new email address. Click Save.
 
-EMAIL GIVE BY USER2 IS SAME AS USER1 
-DETECT BY SYSTEM
+**Manual Test Steps:**
 
-OTP FOR A DEPENENCY
-EDIT AND CHANGE, ADD AS DEPENDECY, CONTINUE AS A STUB WITH NO EMAIL 
+1. Open the "Add Patient" form.
+2. Fill in: `Name: Sarah Miller`, `Email: sarah@example.com`, `Phone: 09123456788`.
+3. Click **[Save]**.
 
+**Expected Result:**
 
-Scenario 3: The "Identical Stub Email" (Two Stubs, One Email)
-The Situation: The next day, Sarah's husband, John, walks in. The secretary tries to create a brand new profile for John using sarah@email.com.
+- Saved successfully.
+- Database: `is_registered: false`, `email: sarah@example.com`.
+- In the patient's "Security" or "Profile" tab, the **[Send Setup Link]** button should now be
+  enabled.
 
-Admin Action: Secretary enters John's info, types sarah@email.com, and clicks Save.
+---
 
-System Response: BLOCKED. The database sees this email belongs to Sarah's Stub.
+## Scenario 3: The "Duplicate Email" (Blocked Creation)
 
-Admin UI Prompt: "The email sarah@email.com is already attached to the unregistered patient 'Sarah'. Would you like to add John as a dependent family member under Sarah's profile?"
+**The Situation:** You try to use Sarah's email (`sarah@example.com`) for her husband, John.
 
-The Result: The secretary clicks [Yes, Link as Dependent]. John is saved in the patient_profiles table, linked to Sarah's ID. No duplicate standalone accounts are created.
+**Manual Test Steps:**
 
-Scenario 4: The "Active Account Clash" (Stub using Active Email)
-The Situation: A patient named Mark already has an active portal account. A new temp secretary doesn't bother searching for him and tries to create a new Walk-In Stub using mark@email.com.
+1. Open "Add Patient".
+2. Enter `John Miller` but use `sarah@example.com`.
+3. Click **[Save]**.
 
-Admin Action: Secretary enters Mark's info, types mark@email.com, and clicks Save.
+**Expected Result:**
 
-System Response: BLOCKED. The database sees this email belongs to an Active user (isRegistered: true).
+- **The Intercept:** A modal appears stating: "This email belongs to the unregistered patient 'Sarah
+  Miller'. Patients cannot share login emails unless linked as dependents later."
+- **Test Resolution A (Edit):** Click **[Go Back]**. You can fix the email input.
+- **Test Resolution B (Offline):** Click **[Save as Offline Patient]**.
+    - _Expected:_ John is created rapidly, but his email field is cleared (null). You are not
+      blocked by OTPs.
 
-Admin UI Prompt: "This email belongs to the active portal of 'Mark'. To book an appointment for Mark, please [View His Profile]. If this is a family member, you may [Add as Dependent]."
+---
 
-The Result: The temp secretary realizes the mistake, clicks [View His Profile], and books the appointment on Mark's existing account. The database is saved from a ghost record.
+## Scenario 4: The "Active Account Clash"
 
-Scenario 5: The "Late Registration" (The Missing Scenario)
-The Situation: Sarah (from Scenario 2 and 3) finally decides to set up her portal. She goes to your staging domain (e.g., samson.synapsefrost.dev) and signs up using sarah@email.com.
+**The Situation:** You try to create a new profile using an email that already has a fully
+registered portal.
 
-User Action: Sarah enters her email and verifies it via OTP.
+**Manual Test Steps:**
 
-with email
-stub his1,2,3,4,
+1. Identify an **Active Account** (e.g., `mark@example.com`).
+2. Try to create a new patient with that same email.
 
-without email
-stub his1,2,3,4,
+**Expected Result:**
 
-account1@
-account2@
+- **The Intercept:** Modal appears: "This email belongs to the active portal user 'Mark'".
+- **Expected:** The "Create Anyway" option is strictly disabled. You can only go **[Back]** to fix
+  the typo or **[Save as Offline]**.
 
+---
 
+## Scenario 5: Self-Registration (The "OTP is King" Flow)
 
+**The Situation:** Sarah (Inactive Account) goes to the website to sign up herself.
 
-System Response: The system detects her email matches an existing Stub. It intercepts the registration and asks: "Please enter your Date of Birth to verify your identity."
+**Manual Test Steps:**
 
-The Result: Sarah enters her DOB. The system converts her Stub to Active. Because John was linked to her in Scenario 3, John automatically appears in her portal under "My Family."
+1. Open the Patient Portal (user app) signup page.
+2. Enter `sarah@example.com`.
+3. Receive and enter the Email OTP.
 
-Scenario 6: The "Merge Clean-Up" (The Missing Scenario)
-The Situation: A secretary created a Pure Stub for John (no email) on Monday. On Friday, they created a Pure Stub for John again (no email). Now John has two disconnected medical records.
+**Expected Result:**
 
-Admin Action: The Clinic Manager opens your Merge Records Utility.
+- **Identity Verified:** Because Sarah passed the OTP check, the system should NOT ask for her Date
+  of Birth.
+- **Seamless Upgrade:** She is prompted to set a password. After setting it, she is logged in.
+- **Check Database:** Sarah's `is_registered` is now `true`.
 
-System Response: The Manager selects "John (Monday)" as the target and "John (Friday)" as the source.
+---
 
-The Result: The system moves Friday's appointment history into Monday's profile, then archives the Friday duplicate.
+## Scenario 6: Admin-Initiated Invite (The "DOB Gate" & Lockout)
 
+**The Situation:** An Admin sends a link to a patient, but the link is opened by someone else or the
+admin made a typo.
 
-Here are Scenarios 7 through 10, fully updated and formatted so you can paste them directly into your master document right after Scenario 6.
+**Manual Test Steps:**
 
-Scenario 7: The "Nickname/Typo Catch" (Proactive Duplicate Prevention)
-The Situation: A patient named Jonathan Smith is already in the database as a Pure Stub (DOB: 10/12/1990). Six months later, he walks in. A busy secretary doesn't search for him first and starts typing a new form using his nickname: "Jon Smith".
-Admin Action: Secretary enters "Jon Smith", DOB "10/12/1990", and clicks to the next field.
-System Response: The database’s fuzzy search triggers a Tier 3 Match (Exact DOB + Fuzzy Name). The form pauses, the screen dims, and a modal appears.
-Admin UI Prompt: > ⚠️ Potential Existing Record Found:
+1. In Admin, find an Inactive Account and click **[Send Setup Link]**.
+2. Open the link from the email.
+3. **Identity Check:** The page should ask: "Please verify your Date of Birth to continue."
+4. **Test Lockout:** Enter the _wrong_ DOB 3 times.
 
-1. Jonathan Smith (DOB: 10/12/1990 | Phone: ****-****-4589)
+**Expected Result:**
 
-The Result: The secretary looks at the screen, asks the patient "Are you Jonathan?", and clicks [View & Book this Profile]. The form is safely discarded, and no duplicate is created.
+- On the 3rd fail, the screen should show: "Account Setup Locked. Please contact the clinic."
+- Try to use the link again; it should be invalid.
+- In Admin, the secretary must "Resend" to generate a new active token.
 
-Scenario 8: The "True Coincidence" (Safe Override)
-The Situation: Two completely unrelated women named Maria Garcia visit your clinic. Maria #1 is already in the system (DOB: 05/10/1980). Maria #2 walks in as a new patient (DOB: 05/11/1980).
-Admin Action: Secretary types "Maria Garcia", DOB "05/11/1980".
-System Response: The fuzzy search triggers a Tier 2 Match (Similar First/Last Name, close DOB). The modal pops up showing Maria #1.
-Admin UI Prompt: > ⚠️ Potential Existing Record Found:
+---
 
-1. Maria Garcia (DOB: 05/10/1980)
+## Scenario 7: Fuzzy Name/DOB Match
 
-The Result: The secretary asks the patient, "Were you born on May 10th?" The patient replies, "No, May 11th. I've never been here before." The secretary clicks [Proceed & Create as New Patient]. Because there is no email conflict, the database safely creates Maria #2 as a new Pure Stub.
+**The Situation:** Catching a duplicate before it's created based on name and birthday.
 
-Scenario 9: The "Shared Phone Number" (The Admin Choice)
-The Situation: An active patient, Sarah, has a family member walk into the clinic. This family member does not provide an email, but uses Sarah's exact phone number as their contact info.
-Admin Action: The secretary types the family member's name, DOB, and Sarah's phone number.
-System Response: The database triggers a Tier 1 Match (Absolute Match on Phone Number). It intercepts the form to prevent a blind duplicate.
-Admin UI Prompt: > ⚠️ Phone Number in Use: > This phone number is registered to the active patient 'Sarah'. Would you like to add this patient as a dependent family member under Sarah's profile?
+**Manual Test Steps:**
 
-[Link as Dependent] | [Proceed & Create as New Patient]
+1. Ensure `Jonathan Smith (1990-10-12)` is already in the system.
+2. Try to create `Jon Smith (1990-10-12)`.
 
-The Result (Outcome A - The Minor): The patient is Leo, her 12-year-old son. The secretary clicks [Link as Dependent]. Leo is saved to the patient_profiles table, directly linked to Sarah’s account so she can manage his bookings.
+**Expected Result:**
 
-The Result (Outcome B - The Independent Adult): The patient is Mark, her 22-year-old son who shares her phone plan. The secretary realizes Mark is an adult, ignores the dependency suggestion, and clicks [Proceed & Create as New Patient]. The system creates a brand new, isolated Standalone Stub for Mark in the main profiles table. The system does not force him into his mother's account.
+- As you type or click save, a modal appears: "Potential Existing Record Found: Jonathan Smith".
+- You can click **[View Existing]** to stop the duplicate creation.
 
-Scenario 10: The "Dependent Promotion" (Aging Out)
-The Situation: Leo (from Scenario 9A) turns 18. He visits the clinic and says, "I used to be under my mom's account (Sarah), but I want my own portal now. Here is my new email: leo@email.com."
-Admin Action: The secretary opens Sarah’s profile, navigates to her "Family & Dependents" tab, clicks on Leo, and selects the [Promote to Independent Account] utility. The secretary enters leo@email.com.
-System Response (The Database Transaction): 1. Creates a brand new Primary Profile (profiles table) for Leo.
-2. Moves all of his past appointments and medical logs from his old patient_profiles ID to his new Primary ID.
-3. Deletes his dependent link to Sarah.
-4. Triggers the automated "Setup your Patient Portal" email to Leo.
+---
 
-The Result: Leo now has full autonomy over his account and lifetime medical history. Sarah can no longer see his appointments when she logs into her portal, protecting Leo's adult privacy.
+## Scenario 8: The "Manual Merge"
+
+**The Situation:** An Offline Patient (Arthur) creates a portal account later with an email.
+
+**Manual Test Steps:**
+
+1. Create Arthur as an **Offline Patient** (no email).
+2. Register Arthur as a **New User** on the portal using `arthur@example.com`.
+3. Open the Admin **Merge Records Utility**.
+4. Select the "New Active Arthur" as Target and "Old Offline Arthur" as Source.
+5. Click **[Merge]**.
+
+**Expected Result:**
+
+- All appointments from the Offline record are moved to the Active record.
+- The Offline record is archived/deleted.
+
+---
+
+## Scenario 9: Adding a Dependent via Profile Tab (De-coupled Linking)
+
+**The Situation:** Sarah (Active) wants to link John (Offline) to her email account so she can book
+for him.
+
+**Manual Test Steps:**
+
+1. Navigate to Sarah's existing Profile/Appointments tab.
+2. Click the viewing dropdown (currently showing "Self: Sarah") and click **[Add Dependency]**.
+3. Select/Search for John's offline record.
+4. The system requests OTP verification for Sarah's email to authorize the linkage.
+5. Enter the OTP.
+
+**Expected Result:**
+
+- John is now linked to Sarah's profile (`primary_profile_id = Sarah's ID`).
+- The dropdown now allows toggling between "Self: Sarah" and "Dependent: John".
+- The Add Patient creation bottleneck is completely avoided.

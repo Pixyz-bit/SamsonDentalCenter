@@ -173,7 +173,7 @@ html, body {
     html,
     body {
         font-family: var(--font-main);
-        @apply bg-gray-50 text-gray-900 dark:bg-gray-900 dark:text-gray-100 antialiased;
+        @apply bg-gray-50 text-gray-900 dark:bg-gray-900 dark:text-gray-100 antialiased custom-scrollbar;
     }
 
     *,
@@ -271,6 +271,32 @@ html, body {
     from { transform: translateX(2.5rem); }
     to { transform: translateX(0); }
 }
+
+@utility custom-scrollbar {
+    &::-webkit-scrollbar {
+        width: 10px;
+        height: 10px;
+    }
+    &::-webkit-scrollbar-track {
+        @apply bg-gray-100 dark:bg-white/[0.02];
+    }
+    &::-webkit-scrollbar-thumb {
+        @apply bg-gray-400 dark:bg-white/20 rounded-full transition-colors border-2 border-transparent bg-clip-padding;
+    }
+    &:hover::-webkit-scrollbar-thumb {
+        @apply bg-gray-600 dark:bg-white/40;
+    }
+
+    /* Firefox Support */
+    scrollbar-width: thin;
+    scrollbar-color: #9ca3af transparent;
+}
+
+/* Hide sidebar scroller when modal is open */
+.modal-open .sidebar-scroll-container {
+    overflow: hidden !important;
+}
+
 
 
 

@@ -1,11 +1,7 @@
 import React from 'react';
 import { CalendarOff, Plus } from 'lucide-react';
 
-const TimeOffBlocks = () => {
-    const blocks = [
-        { label: 'Annual Leave', dates: 'Apr 25 - Apr 28', type: 'vacation' },
-        { label: 'Professional Conference', dates: 'May 12 - May 13', type: 'event' }
-    ];
+const TimeOffBlocks = ({ blocks = [] }) => {
 
     return (
         <div className='p-[clamp(1rem,5vw,1.75rem)] border border-gray-200 rounded-xl dark:border-gray-800 bg-white dark:bg-white/[0.03] space-y-6'>
@@ -42,7 +38,7 @@ const TimeOffBlocks = () => {
                                 </h5>
                                 <div className='flex items-center gap-2 text-xs font-medium text-gray-500'>
                                     <CalendarOff size={14} className='text-gray-400' />
-                                    {block.dates}
+                                    {format(new Date(block.block_date), 'MMM dd, yyyy')}
                                 </div>
                             </div>
                         </div>

@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { useClinicSettings } from '../../hooks/useClinicSettings';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
@@ -9,12 +10,14 @@ gsap.registerPlugin(ScrollTrigger);
 const Hero = () => {
     const navigate = useNavigate();
     const { user } = useAuth();
+    const { settings, loading } = useClinicSettings();
     const heroRef = useRef(null);
     const bgRef = useRef(null);
     const contentRef = useRef(null);
 
     // Helper to split text into spans for per-letter animation
     const splitText = (text, className = 'hero-letter', extraClasses = '') => {
+        if (!text) return null;
         return text.split('').map((char, i) => (
             <span
                 key={i}
@@ -26,6 +29,8 @@ const Hero = () => {
     };
 
     useEffect(() => {
+        if (loading || !settings) return;
+
         let ctx = gsap.context(() => {
             const tl = gsap.timeline({
                 delay: 0.7,
@@ -93,7 +98,9 @@ const Hero = () => {
         }, heroRef);
 
         return () => ctx.revert();
-    }, []);
+    }, [loading, settings]);
+
+    if (loading) return <div className="min-h-svh bg-slate-950 animate-pulse" />;
 
     return (
         <section

@@ -2,6 +2,7 @@ import { useState, useMemo, useEffect } from 'react';
 import { ChevronLeft, ChevronDown, ChevronRight, Lock, X, AlertCircle, RefreshCw, Clock, Plus, ArrowRight, Hourglass, Calendar, MousePointer2, Loader2, CheckCircle2, CalendarDays, Check, Users, CalendarX } from 'lucide-react';
 import { api } from '../../utils/api';
 import useSlots from '../../hooks/useSlots';
+import { useClinicSettings } from '../../hooks/useClinicSettings';
 import ErrorState from '../common/ErrorState';
 import JoinWaitlistModal from './JoinWaitlistModal';
 import WaitlistOnlyWarningModal from './WaitlistOnlyWarningModal';
@@ -36,6 +37,12 @@ const DateTimeStep = ({
     const [isDoctorDropdownOpen, setIsDoctorDropdownOpen] = useState(false);
     const [pendingDate, setPendingDate] = useState(null);
 
+    // ✅ NEW: Fetch dynamic clinic settings (lead time, horizon, holidays)
+    const { settings, holidays, schedule, loading: settingsLoading } = useClinicSettings();
+
+    // ✅ Ref for coordinating requests and debouncing
+    const fetchTimeoutRef = useRef(null);
+
     // ✅ Slot holding for user booking (passed from parent)
     const { activeHold, holdSlot, releaseHold, formattedTime, holdLoading, holdError, timeRemaining } = slotHold;
 
@@ -50,12 +57,23 @@ const DateTimeStep = ({
         return d;
     }, []);
 
-    // Max booking days ahead (90 days is reasonable, adjust as needed)
-    const MAX_BOOKING_DAYS_AHEAD = 90;
-    const maxDate = useMemo(
-        () => new Date(today.getTime() + MAX_BOOKING_DAYS_AHEAD * 24 * 60 * 60 * 1000),
-        [today],
-    );
+    // ✅ Min booking date based on lead time
+    const minDate = useMemo(() => {
+        const d = new Date();
+        const leadTimeDays = settings?.booking_lead_time_days || 1;
+        d.setDate(d.getDate() + leadTimeDays);
+        d.setHours(0, 0, 0, 0);
+        return d;
+    }, [settings]);
+
+    // Max booking days ahead
+    const maxDate = useMemo(() => {
+        const horizon = settings?.booking_max_horizon_days || 90;
+        const d = new Date(today);
+        d.setDate(d.getDate() + horizon);
+        d.setHours(23, 59, 59, 999); // End of the horizon day
+        return d;
+    }, [today, settings]);
 
     const [viewDate, setViewDate] = useState(() => {
         if (selectedDate) return new Date(selectedDate);
@@ -90,6 +108,24 @@ const DateTimeStep = ({
         return days;
     }, [viewDate]);
 
+    // ✅ Fetch overall availability status (slots for next 90 days)
+    const fetchAvailabilityStatus = useCallback(async () => {
+        if (!serviceId) return;
+        setStatusLoading(true);
+        try {
+            let url = `/slots/service-status/${serviceId}`;
+            if (formData?.dentist_id) {
+                url += `?dentistId=${formData.dentist_id}`;
+            }
+            const data = await api.get(url);
+            setAvailabilityStatus(data);
+        } catch (err) {
+            console.error('Failed to check service status:', err);
+        } finally {
+            setStatusLoading(false);
+        }
+    }, [serviceId, formData?.dentist_id]);
+
     // ✅ Fetch qualified specialists for this service
     useEffect(() => {
         if (serviceId) {
@@ -108,28 +144,11 @@ const DateTimeStep = ({
                 }
             };
             fetchSpecialists();
-
-            // ✅ Check overall availability status (slots for next 90 days)
-            const checkStatus = async () => {
-                setStatusLoading(true);
-                try {
-                    let url = `/slots/service-status/${serviceId}`;
-                    if (formData?.dentist_id) {
-                        url += `?dentistId=${formData.dentist_id}`;
-                    }
-                    const data = await api.get(url);
-                    setAvailabilityStatus(data);
-                } catch (err) {
-                    console.error('Failed to check service status:', err);
-                } finally {
-                    setStatusLoading(false);
-                }
-            };
-            checkStatus();
+            fetchAvailabilityStatus();
         } else {
             setSpecialists([]);
         }
-    }, [serviceId, formData?.dentist_id]);
+    }, [serviceId, fetchAvailabilityStatus]);
 
     // ✅ FIX: Use local date parts to avoid timezone shifting (e.g. UTC-8 or UTC+8 issues)
     const formatDateKey = (d) => {
@@ -155,6 +174,20 @@ const DateTimeStep = ({
         sessionId,
         formData?.dentist_id || null, // 🎯 Pass selected dentist to filter slots
     );
+
+    // ✅ Consolidated Global Refresh (Calendar + Slots + Hold)
+    const handleGlobalRefresh = useCallback(async () => {
+        // 1. Sync Clinic Rules & Holidays
+        // Note: useClinicSettings refetch is handled by its return
+        // 2. Sync Doctor Availability Logic
+        fetchAvailabilityStatus();
+        // 3. Sync Timeslots (if a date is selected)
+        if (selectedDate) {
+            refetchSlots();
+        }
+        // 4. Sync Hold Status
+        slotHold.checkActiveHold?.();
+    }, [fetchAvailabilityStatus, refetchSlots, selectedDate, slotHold]);
 
     const isLoading = slotsLoading || isPending;
     const isProcessing = isLoading || !!pendingSlot || !!pendingDate || holdLoading;
@@ -334,8 +367,17 @@ const DateTimeStep = ({
     };
 
     const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-    const canGoPrev = viewDate.getMonth() > today.getMonth() || viewDate.getFullYear() > today.getFullYear();
-    const canGoNext = viewDate < maxDate;
+    
+    // ✅ Navigation Restrictions
+    const canGoPrev = useMemo(() => {
+        const firstDayOfCurrentMonth = new Date(viewDate.getFullYear(), viewDate.getMonth(), 1);
+        return firstDayOfCurrentMonth > minDate;
+    }, [viewDate, minDate]);
+
+    const canGoNext = useMemo(() => {
+        const nextMonth = new Date(viewDate.getFullYear(), viewDate.getMonth() + 1, 1);
+        return nextMonth <= maxDate;
+    }, [viewDate, maxDate]);
 
     // Calculation for Progress Bar
     const holdProgress = useMemo(() => {
@@ -372,18 +414,24 @@ const DateTimeStep = ({
 
     const hasMoreSlots = slots && slots.length > visibleCount;
 
-    // ✅ NEW: Handle specialist change (reset time and release hold)
+    // ✅ NEW: Handle specialist change (reset selections and release hold)
     const handleSpecialistChange = async (dentistId) => {
         if (isLoading) return; // ✅ Block while loading
         setValidationError(null);
-        if (formData.time) {
+        
+        // 🎯 Reset everything when doctor changes
+        if (selectedDate || formData?.time || formData?.waitlist_time) {
             await releaseHold();
+            onUpdate({
+                dentist_id: dentistId,
+                date: '',
+                time: '',
+                waitlist_time: '',
+            });
+            setPendingDate(null);
+        } else {
+            onUpdate({ dentist_id: dentistId });
         }
-        onUpdate({
-            dentist_id: dentistId,
-            time: '',
-            waitlist_time: '',
-        });
     };
 
     // Custom Premium Doctor Dropdown Component
@@ -504,7 +552,7 @@ const DateTimeStep = ({
     const showNoAppointments = hasNoSpecialists || hasNoSlots;
 
     // ✅ Initial Loading State: Prevent flicker by showing a high-fidelity pulse skeleton
-    if ((specialistsLoading || statusLoading) && (specialists.length === 0 || !availabilityStatus)) {
+    if ((specialistsLoading || statusLoading || settingsLoading) && (specialists.length === 0 || !availabilityStatus || !settings)) {
         return (
             <div className="flex flex-col gap-10 animate-pulse py-2">
                 {/* Header Skeleton */}
@@ -671,22 +719,22 @@ const DateTimeStep = ({
                         {calendarDays.map((date, idx) => {
                             const key = formatDateKey(date);
                             const isCurrentMonth = date.getMonth() === viewDate.getMonth();
-                            const isPast = date < today;
+                            const isPast = date < minDate;
                             const isToday = date.getTime() === today.getTime();
                             const isSelected = key === selectedDate;
                             
-                            // ✅ Disable dates outside of the 90 day limit or in the past
-                            let isDisabled = isPast || isToday || date > maxDate || isProcessing;
-                            
-                            // ✅ Disable dates that are not in the working days array
-                            if (availabilityStatus?.working_days?.length > 0) {
-                                if (!availabilityStatus.working_days.includes(date.getDay())) {
-                                    isDisabled = true;
-                                }
-                            } else {
-                                // Fallback check if working_days isn't loaded: disable Sunday
-                                if (date.getDay() === 0) isDisabled = true;
-                            }
+                            // ✅ Check if date is a holiday (Robust check)
+                            const isHoliday = holidays?.some(h => {
+                                const hDate = typeof h.date === 'string' ? h.date.split('T')[0] : h.date;
+                                return hDate === key && h.is_closed;
+                            });
+
+                            // ✅ Check if day of week is open in schedule
+                            const daySchedule = schedule?.find(s => s.day_of_week === date.getDay());
+                            const isClosedDay = daySchedule ? !daySchedule.is_open : (date.getDay() === 0);
+
+                            // ✅ Combine disabling rules
+                            let isDisabled = isPast || date > maxDate || isHoliday || isClosedDay || isProcessing;
 
                             if (!isCurrentMonth) return <div key={idx} className="aspect-square" />;
                             return (
@@ -726,7 +774,7 @@ const DateTimeStep = ({
                                         <div className='p-1.5 bg-brand-50 dark:bg-brand-500/10 rounded-lg'><Clock size={16} className='text-brand-500' /></div>
                                         Available Times
                                     </h3>
-                                    <button onClick={refetchSlots} disabled={isProcessing} className='flex items-center gap-2 px-3 py-1.5 text-[11px] font-bold bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-400 rounded-lg border border-gray-100 dark:border-gray-700 shadow-theme-xs transition-all disabled:opacity-50'><RefreshCw size={14} className={isProcessing ? 'animate-spin' : ''} />Refresh</button>
+                                    <button onClick={handleGlobalRefresh} disabled={isProcessing} className='flex items-center gap-2 px-3 py-1.5 text-[11px] font-bold bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-400 rounded-lg border border-gray-100 dark:border-gray-700 shadow-theme-xs transition-all disabled:opacity-50'><RefreshCw size={14} className={isProcessing ? 'animate-spin' : ''} />Refresh</button>
                                 </div>
 
                                 {isLoading ? (

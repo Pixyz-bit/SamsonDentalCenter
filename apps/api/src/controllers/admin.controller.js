@@ -2,7 +2,20 @@ import crypto from 'crypto';
 import { supabaseAdmin } from '../config/supabase.js';
 import { markNoShow } from '../services/noshow.service.js';
 import { notifyWaitlist } from '../services/waitlist.service.js';
-import { bookWalkIn } from '../services/appointment.service.js';
+import {
+    bookAppointment,
+    getPatientAppointments,
+    getAppointmentById,
+    bookAppointmentGuest,
+    getPatientAppointmentStats,
+    cancelAppointment,
+    rescheduleAppointment,
+    cancelGuestAppointmentAction,
+    insertConfirmedGuestAppointment,
+    rescheduleGuestAppointment,
+    bookAppointmentAdmin,
+    rescheduleAppointmentAdmin,
+} from '../services/appointment.service.js';
 import { APPOINTMENT_STATUS } from '../utils/constants.js';
 import { sendBookingSuccessEmail, sendCancellationEmail, sendAccountSetupInviteEmail } from '../services/email-confirmation.service.js';
 import {
@@ -16,6 +29,7 @@ import {
     updateAnnouncement,
     deleteAnnouncement,
     getDentistSchedule,
+    getDentistDaySchedule,
     setDentistSchedule,
     setBulkSchedule,
     getBlocks,
@@ -25,6 +39,7 @@ import {
     markAppointmentComplete,
     adminCancelAppointment,
     blockDentistSchedule,
+    bulkBlockDentistSchedule, // NEW
     removeAvailabilityBlock,
     getAllAppointmentsFiltered,
     getTodayAppointmentsFiltered,
@@ -59,6 +74,8 @@ import {
     onboardDentistProfile,
     getPatientProfile,
     updatePatientProfileData,
+    sendDependencyConsentOTP,
+    verifyDependencyConsent
 } from '../services/admin.service.js';
 
 import {
@@ -114,11 +131,12 @@ const formatDoctorResponse = (d) => {
  */
 export const getAllAppointments = async (req, res, next) => {
     try {
-        const { date, date_from, status, dentist_id, patient_id, tier, page = 1, limit = 20 } = req.query;
+        const { date, date_from, date_to, status, dentist_id, patient_id, tier, page = 1, limit = 20 } = req.query;
 
         const filters = {
             date: date || null,
             date_from: date_from || null,
+            date_to: date_to || null,
             status: status || null,
             dentist_id: dentist_id || null,
             patient_id: patient_id || null,
@@ -250,6 +268,51 @@ export const adminCancel = async (req, res, next) => {
         next(err);
     }
 };
+
+/**
+ * PATCH /api/admin/appointments/:id/reschedule
+ *
+ * Admin/Staff reschedules any confirmed appointment on behalf of a patient.
+ * Bypasses the 1-reschedule-per-booking restriction enforced on the patient side.
+ * Body: { date, time, dentist_id? }
+ */
+export const adminReschedule = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        const { date, time, dentist_id, user_session_id } = req.body;
+
+        if (!date || !time) {
+            return res.status(400).json({ error: 'date and time are required.' });
+        }
+
+        const result = await rescheduleAppointmentAdmin(
+            id,
+            req.user.id,
+            date,
+            time,
+            dentist_id || null,
+            user_session_id || null,
+        );
+
+        // Free the old slot for waitlist
+        if (result.freed_slot) {
+            try {
+                await notifyWaitlist(result.freed_slot);
+            } catch (e) {
+                // Non-critical
+            }
+        }
+
+        res.json({
+            message: 'Appointment rescheduled successfully.',
+            ...result,
+        });
+    } catch (err) {
+        if (err.status) return res.status(err.status).json({ error: err.message });
+        next(err);
+    }
+};
+
 
 /**
  * POST /api/admin/appointments/:id/no-show
@@ -413,6 +476,56 @@ export const addWalkIn = async (req, res, next) => {
 
         const result = await bookWalkIn(patient_id, service_id, time, notes);
         res.status(201).json(result);
+    } catch (err) {
+        next(err);
+    }
+};
+
+/**
+ * POST /api/admin/patients/:id/book
+ *
+ * Admin/Staff books an appointment on behalf of a patient.
+ * Status is auto-set to CONFIRMED.
+ */
+export const bookForPatient = async (req, res, next) => {
+    try {
+        const { id: patientId } = req.params;
+        const { service_id, date, time, user_session_id, dentist_id } = req.body;
+
+        const appointment = await bookAppointmentAdmin(
+            req.user.id,
+            patientId,
+            service_id,
+            date,
+            time,
+            user_session_id,
+            dentist_id
+        );
+
+        // Audit Log: ADMIN_BOOKING
+        try {
+            await supabaseAdmin.from('audit_log').insert({
+                actor_id: req.user.id,
+                actor_role: req.user.role,
+                action: 'ADMIN_BOOKING',
+                target_type: 'appointments',
+                target_id: appointment.id,
+                resource_type: 'appointments',
+                resource_id: appointment.id,
+                new_values: appointment,
+                details: {
+                    source: 'ADMIN_WIZARD',
+                    patient_id: patientId,
+                }
+            });
+        } catch (auditErr) {
+            console.error('Audit Log failed (bookForPatient):', auditErr.message);
+        }
+
+        res.status(201).json({
+            message: 'Appointment booked and confirmed successfully.',
+            appointment
+        });
     } catch (err) {
         next(err);
     }
@@ -681,6 +794,21 @@ export const createDentistHandler = async (req, res, next) => {
  *
  * View a dentist's weekly schedule.
  */
+/**
+ * GET /api/admin/dentists/:id/day-schedule?date=YYYY-MM-DD
+ */
+export const getDentistDayScheduleHandler = async (req, res, next) => {
+    try {
+        const { date } = req.query;
+        if (!date) return res.status(400).json({ error: 'date query parameter is required.' });
+
+        const data = await getDentistDaySchedule(req.params.id, date);
+        res.json(data);
+    } catch (err) {
+        next(err);
+    }
+};
+
 export const viewDentistSchedule = async (req, res, next) => {
     try {
         const schedule = await getDentistSchedule(req.params.id);
@@ -707,7 +835,7 @@ export const updateDentistSchedule = async (req, res, next) => {
         }
 
         const schedule = await setDentistSchedule(req.params.id, day_of_week, {
-            is_available,
+            is_working: is_available, // Map is_available (UI) to is_working (DB/Service)
             start_time,
             end_time,
         });
@@ -726,43 +854,49 @@ export const updateDentistSchedule = async (req, res, next) => {
 export const bulkUpdateSchedule = async (req, res, next) => {
     try {
         let schedules = [];
-        let overwrite = false;
+        // Support both 'force' and 'overwrite' for backward compatibility
+        const force = req.query.force === 'true' || req.body.force === true || req.body.overwrite === true;
 
         if (Array.isArray(req.body)) {
             schedules = req.body;
         } else {
             schedules = req.body.schedules || [];
-            overwrite = req.body.overwrite || false;
         }
 
-        // Fetch old values
+        // Fetch old values for audit
         const { data: oldSchedule } = await supabaseAdmin
             .from('dentist_schedule')
             .select('*')
             .eq('dentist_id', req.params.id)
             .order('day_of_week', { ascending: true });
 
-        await setBulkSchedule(req.params.id, schedules, overwrite);
+        await setBulkSchedule(req.params.id, schedules, force);
 
-        // Audit Log: UPDATE_GLOBAL_SCHEDULE
+        // Audit Log: UPDATE_DOCTOR_SCHEDULE
         try {
             await supabaseAdmin.from('audit_log').insert({
                 actor_id: req.user.id,
                 actor_role: req.user.role,
-                action: 'UPDATE_GLOBAL_SCHEDULE',
+                action: 'UPDATE_DOCTOR_SCHEDULE',
                 target_type: 'dentists',
                 target_id: req.params.id,
                 resource_type: 'dentist_schedule',
                 resource_id: req.params.id,
                 old_values: oldSchedule,
-                new_values: { schedules, overwrite }
+                new_values: { schedules, force }
             });
         } catch (auditErr) {
             console.error('Audit Log failed (bulkUpdateSchedule):', auditErr.message);
         }
 
-        res.json({ message: 'Dentist schedule updated for the week.' });
+        res.json({ message: 'Doctor schedule updated successfully.' });
     } catch (err) {
+        if (err.status === 409) {
+            return res.status(409).json({
+                error: 'Conflicts detected',
+                conflicts: err.conflicts,
+            });
+        }
         next(err);
     }
 };
@@ -821,6 +955,58 @@ export const blockDentistAvailability = async (req, res, next) => {
             }),
         });
     } catch (err) {
+        next(err);
+    }
+};
+
+/**
+ * POST /api/admin/dentists/:id/block/bulk
+ *
+ * Bulk block a dentist's availability across multiple dates.
+ * Body: { blocks: [{ block_date, start_time, end_time, reason, notes }], overwrite? }
+ */
+export const bulkBlockDentistAvailability = async (req, res, next) => {
+    try {
+        const { blocks, overwrite } = req.body;
+
+        if (!blocks || !Array.isArray(blocks)) {
+            return res.status(400).json({ error: 'blocks array is required.' });
+        }
+
+        const result = await bulkBlockDentistSchedule(
+            req.params.id,
+            blocks,
+            req.user.id,
+            overwrite || false
+        );
+
+        // Audit Log: CREATE_BULK_SCHEDULE_BLOCK
+        try {
+            await supabaseAdmin.from('audit_log').insert({
+                actor_id: req.user.id,
+                actor_role: req.user.role,
+                action: 'CREATE_BULK_SCHEDULE_BLOCK',
+                target_type: 'dentists',
+                target_id: req.params.id,
+                resource_type: 'dentist_availability_blocks',
+                resource_id: req.params.id,
+                new_values: req.body
+            });
+        } catch (auditErr) {
+            console.error('Audit Log failed (bulkBlockDentistAvailability):', auditErr.message);
+        }
+
+        res.status(201).json({
+            message: `${result.results.length} blocks created successfully.`,
+            blocks: result.results
+        });
+    } catch (err) {
+        if (err.status === 409) {
+            return res.status(409).json({
+                error: 'Conflicts detected',
+                conflicts: err.conflicts,
+            });
+        }
         next(err);
     }
 };
@@ -1017,6 +1203,55 @@ export const mergePatientsHandler = async (req, res, next) => {
         const result = await mergePatientRecords(source_id, target_id);
         res.json({ message: 'Patients merged successfully.', result });
     } catch (err) {
+        next(err);
+    }
+};
+
+/**
+ * POST /api/admin/patients/:id/request-dependency-consent
+ * Body: { dependent_id }
+ */
+export const requestDependencyConsentHandler = async (req, res, next) => {
+    try {
+        const primary_id = req.params.id;
+        const { dependent_id, relationship } = req.body;
+
+        if (!dependent_id) {
+            return res.status(400).json({ error: 'dependent_id is required.' });
+        }
+        if (!relationship) {
+            return res.status(400).json({ error: 'relationship is required.' });
+        }
+
+        await sendDependencyConsentOTP(primary_id, dependent_id, relationship);
+        res.json({ message: 'Dependency consent OTP sent to primary account email.' });
+    } catch (err) {
+        if (err.status) {
+            return res.status(err.status).json({ error: err.message });
+        }
+        next(err);
+    }
+};
+
+/**
+ * POST /api/admin/patients/:id/verify-dependency-consent
+ * Body: { otp }
+ */
+export const verifyDependencyConsentHandler = async (req, res, next) => {
+    try {
+        const primary_id = req.params.id;
+        const { otp } = req.body;
+
+        if (!otp) {
+            return res.status(400).json({ error: 'OTP is required.' });
+        }
+
+        const result = await verifyDependencyConsent(primary_id, otp);
+        res.json({ message: 'Dependency linked successfully.', result });
+    } catch (err) {
+        if (err.status) {
+            return res.status(err.status).json({ error: err.message });
+        }
         next(err);
     }
 };
@@ -1525,3 +1760,15 @@ export const updatePatientHandler = async (req, res, next) => {
     }
 };
 
+/**
+ * GET /api/admin/message-logs
+ */
+export const getMessageLogsHandler = async (req, res, next) => {
+    try {
+        const { getMessageLogs } = await import('../services/message-log.service.js');
+        const logs = await getMessageLogs();
+        res.json({ logs });
+    } catch (err) {
+        next(err);
+    }
+};

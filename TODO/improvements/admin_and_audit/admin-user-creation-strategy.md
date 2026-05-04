@@ -27,225 +27,135 @@ management, and audit trailing.
 Patients should not be forced to provide an email or create an account, specifically to accommodate
 walk-in scenarios.
 
-### The "Stub" Profile Workflow:
+**Terminology Guide:**
 
-1.  **Creation:** Staff creates a "Stub" profile (clinical record only) for walk-ins.
+- **Offline Patient**: No email on file. No portal access.
+- **Inactive Account**: Email on file, but portal is not yet set up.
+- **Active Account**: Fully registered online portal user.
+
+### The Walk-In Profile Workflow:
+
+1.  **Creation:** Staff creates a record for a walk-in patient. They can choose to leave the email
+    blank (Offline Patient) or provide one (Inactive Account).
 2.  **Similarity Intercept (The Guard Dog):**
-    *   **Triangulation Check:** As fields are filled, the system checks for exact matches on Phone/Email AND fuzzy matches on Name/DOB to catch typos (e.g., "Jon" vs "Jonathan").
-    *   **The Intercept:** If a match is found, a "Potential Existing Record" modal displays the masked phone and DOB for staff verification.
-3.  **Email Policy (Family-First Rule & Three-Way Resolution):**
-    *   **Standalone Profiles:** Must have a unique email.
-    *   **Duplicate Detection:** If an entered email exists, the system blocks simple creation and presents a **Three-Way Resolution Modal**:
-        - **Option A: "Link as Dependent"**: Nest the new patient under the existing account owner.
-        - **Option B: "Continue without Email"**: Create a "Pure Stub" by stripping the email, allowing the patient record to exist without portal access for now.
-        - **Option C: "Go Back/Edit"**: Return to the form to correct typos or provide a different email.
-    *   **Strict Blocking:** "Create Anyway" with a duplicate email is strictly disabled to prevent auth-system conflicts.
-4.  **Late-Binding & The "DOB Gate":**
-    *   When a patient clicks an account setup link, they must pass a **"DOB Gate"** (entering their birthday to verify identity) before they can set a password. This prevents data leaks if the email was sent to the wrong person.
-    - **Note in UI:** In the admin panel, refer to these as "Unregistered Patient" or "Portal
-      Access: Not Set Up" instead of "Stub" to ensure clean, professional language for non-technical
-      staff.
-2. **Booking:** This profile acts as a "Stub" profile. The Admin/Secretary can now book appointments
-   on behalf of this patient.
-    - **Audit Trail:** Appointments booked on behalf of a stub patient must be flagged with
-      `booked_by: staff` (or identifying the specific staff member). When the patient later
-      activates their account, these appointments will appear in their history tagged as _"Booked by
-      clinic"_.
-3. **Admin "Late Email Addition" Workflow (Security Tab):**
-    - If the patient has **No Email** on file, their "Security" tab will display a prompt:
-        > _"No email on file — Please add an email address to enable account creation for this
-        > patient."_ The "Send Account Setup Link" button will be disabled or hidden until an email
-        > is provided.
-    - **The Pre-Save "Email In-Use" Check:** When an Admin adds an email to a Stub profile and hits
-      "Save", the backend instantly checks if that email already exists in the auth system.
-        - _If completely new:_ Save it to the Stub profile. It remains a Stub
-          (`isRegistered: false`).
-        - _If the email belongs to an active patient:_ Block the save. Show an Admin error: _"This
-          email is already registered to an active patient portal. To combine these records, please
-          use the Merge Records utility."_ This prevents accidental detached login states.
-    - **The "Send Invite" Trigger:** Saving the email does not create an active account. It simply
-      unlocks the "Send Account Setup Link" button in the Admin UI.
-    - **The Secure Setup Token:** When the Admin clicks the button, the backend generates a secure
-      setup token hardcoded to that specific Stub's `profile_id`. The patient receives an invitation
-      email ("Your clinic has invited you to access your patient portal").
-    - **The "DOB Gate" (Typo Protection):** To prevent medical data leaks if the Admin typos the
-      email address (sending the link to a complete stranger), the setup link must include a
-      security gate.
-        - When the email recipient clicks the link, they are **not** immediately shown the "Create
-          Password" fields.
-        - The portal page first asks: _"To access your health records, please verify your identity
-          by entering your Date of Birth."_
-        - _Result (Stranger):_ A stranger won't know the patient's DOB, fails the check, and is
-          blocked. The medical data is secure.
-        - _Result (Real Patient):_ The patient enters their correct DOB. The portal then reveals the
-          "Create Password" fields to finalize the setup (`isRegistered: true`), securely linking
-          them to their existing medical history.
-4. **The "Claim Profile" Workflow (Self-Registration Auto-Linking):** If a user provides an email
-   during a walk-in but declines the setup invite, they remain a stub. When they later attempt to
-   self-register via the portal using that exact same email, the following flow occurs:
-    - **1. Initial Authentication:** The user signs up and completes email verification (e.g., OTP).
-      They now have a verified `auth.uid`, but no attached patient data yet.
-    - **2. Database Interception Check:** Immediately after OTP verification, the backend queries
-      the profiles table: Is there a profile where email matches AND is 'Stub'?
-        - _If No:_ Proceed as normal. Create a brand new, blank patient profile.
-        - _If Yes:_ Trigger the Interception phase.
-    - **3. The Verification UI Prompt:** Route the user to a "Verify Identity" screen before letting
-      them into the main portal.
-        - _UI Copy:_ "We found an existing clinic record associated with this email. To protect your
-          medical history, please verify your identity by entering your Date of Birth or the Phone
-          Number you provided the clinic."
-    - **4. The Match & Merge (Transaction):** The user submits their DOB/Phone. If it's a perfect
-      match, execute a strict database transaction:
-        - Attach the new `auth.uid` to the existing stub record.
-        - Change status to Active (`isRegistered: true`).
-        - Log the user's explicit consent to the portal's Terms of Service and Data Privacy
-          agreements (storing timestamp and consent version).
-        - Commit the transaction and route them to their dashboard. If it fails mid-process,
-          immediately roll back.
-    - **5. Conflict Handling (Failed Match):** If the secondary identity check fails (e.g., wrong
-      DOB after 3 attempts):
-        - Do not block them. Create a brand new, empty profile attached to their `auth.uid`.
-        - Silently flag the original stub in the Admin dashboard with a "Data Conflict" / "Flagged
-          for Review" tag so staff can resolve the typo during their next visit.
-    - **Active Account Conflict:** If the email matches an already _active_ account, reject
-      registration and display: _"An account with this email already exists — please log in or reset
-      your password."_
-    - **Transaction Safety (Rollback):** The match & merge process must be wrapped in a database
-      transaction. If the process fails mid-way (e.g., server error), it must immediately roll back.
-      A patient must either be completely linked or remain purely a stub with no partial state.
+    - **Triangulation Check:** As fields are filled, the system checks for exact matches on
+      Phone/Email AND fuzzy matches on Name/DOB to catch typos.
+    - **The Intercept:** If a match is found, a "Potential Existing Record" modal displays the
+      masked phone and DOB for staff verification.
+3.  **Strict Email Policy (Duplicate Prevention):**
+    - If an entered email exists (whether attached to an Inactive or Active Account), the system
+      blocks simple creation.
+    - The Admin UI will strictly restrict options. "Create Anyway" is disabled. The only options
+      are:
+        - **[Go Back / Edit Email]**: Fix a typo or use a different email.
+        - **[Save as Offline Patient]**: Create the record but strip the email, keeping them
+          offline.
+        - _(Note: Linking dependents is completely decoupled from this creation flow to prevent
+          front-desk bottlenecks)._
+4.  **Booking:** This profile acts as the clinical record. The Admin/Secretary can now book
+    appointments on behalf of this patient.
+    - **Audit Trail:** Appointments booked on behalf of a patient by admin must be flagged with
+      `booked_by: staff`. When the patient later logs in, these appointments appear tagged as
+      _"Booked by clinic"_.
 
 ---
 
-## 2.5 Link Expiry & Resend Rules (For All User Types)
+## 3. The "Late Email Addition" & Admin Invite Workflow
 
-Setup links sent via email (for Doctors, Staff, or Patients) must adhere to a strict expiration
-policy for security and anti-spam measures:
+If a patient is an **Offline Patient** (No Email), their "Security" tab will display:
 
-- **Duration:** Setup links expire exactly **48 hours** after being generated.
-- **Single-Use:** Setup tokens are invalidated immediately after first use (e.g., successful
-  password creation) to prevent replay attacks.
-- **Expiry UX:** If a user clicks an expired link, they must be routed to a clear error page
-  stating: _"Your account setup link has expired for security reasons. Please contact the clinic or
-  request a new link."_
-- **Resend Cooldown:** To prevent email spam and abuse, resend requests (triggered by Admins via the
-  "Security" tab) are rate-limited to **once every 15 minutes** per recipient.
+> _"No email on file — Please add an email address to enable account creation for this patient."_
+
+1. **Pre-Save Check:** When an Admin adds an email, the backend instantly checks if that email
+   already exists. If it belongs to another patient, the save is blocked.
+2. **The "Send Invite" Trigger:** Saving the email turns them into an **Inactive Account** and
+   unlocks the "Send Account Setup Link" button in the Admin UI.
+3. **The Secure Setup Token:** When the Admin clicks the button, the backend generates a secure
+   token and emails the patient.
+4. **The "DOB Gate" (Typo Protection):** To prevent medical data leaks if the Admin typos the email
+   address (sending the link to a stranger), Admin-generated setup links include a security gate.
+    - The portal asks: _"To access your health records, please verify your identity by entering your
+      Date of Birth."_
+    - **Lockout Mechanism:** The user has a maximum of 3 attempts to enter the correct DOB. Upon 3
+      failures, the token is permanently locked/invalidated. The Admin must generate a new invite.
+    - If successful, they create a password and become an **Active Account**.
 
 ---
 
-## 3. Duplicate Patient Record Prevention
+## 4. Self-Registration (Auto-Linking & Merging)
 
-A major risk with optional emails and walk-in patients is staff accidentally creating multiple
-records for the same person over time.
+If a patient decides to set up their account online directly via the portal:
 
-### The Problem:
+### Path A: The Inactive Account Upgrades
 
-A walk-in patient gets registered today. They return next month, and a different staff member
-forgets to search for them, opting to just create a new record.
+1. A patient with an **Inactive Account** (email already on file) signs up online.
+2. **OTP is King:** The user verifies their email via OTP. Because they successfully verified the
+   OTP, the system trusts their identity.
+3. **Bypass DOB Gate:** The system skips the DOB gate (unlike the Admin invite flow) and instantly
+   converts the Inactive Account to an Active Account, granting access to their medical history.
 
-### The Solution: Duplicate Detection
+### Path B: The Offline Patient Self-Registers
+
+1. An **Offline Patient** (no email on file) registers online.
+2. The database checks the email and finds zero matches.
+3. **Brand New Account:** The system creates a brand new Active Account.
+4. **Manual Merge Required:** The patient now has two disconnected records. During their next clinic
+   visit, the Admin must use the "Merge Records" utility to combine their old Offline Patient record
+   into their new Active Account.
+
+---
+
+## 5. Duplicate Patient Record Prevention
 
 Implement a pre-creation validation check in the "Add Patient" form.
 
-**Check Criteria:** Before submitting the final creation request, the system checks the database for
-existing patients matching a combination of:
+**Check Criteria:**
 
 - `First Name + Last Name` AND `Birthdate`
 - OR matching `Phone Number`
-- OR matching `Email Address`
 
-**UX Flow (Duplicate Warning Modal):** If a match is found:
+**UX Flow (Duplicate Warning Modal for Names/Phones):** If a match is found:
 
-1. Pause the creation process.
-2. Show a warning prompt:
-    > _"Possible duplicate found: A patient matching this Name and Birthdate (or Phone Number/Email)
-    > already exists."_
-3. Provide actions:
-    - **[View Existing Record]**: Takes the staff member to the existing patient's profile to book
-      the appointment there.
-    - **[Create Anyway]**: Allows the staff to override the warning if it's genuinely two different
-      people (e.g., father and son with similar names/shared numbers).
+1. Pause creation. Show warning: _"Potential Existing Record Found."_
+2. Provide actions:
+    - **[View Existing Record]**: Navigate to the existing profile.
+    - **[Continue as New Patient]**: Allows staff to override the warning if it's genuinely two
+      different people (e.g., father and son with same name but no email conflict).
 
 ### The Fallback: "Merge Records" Utility
 
-Despite warnings, staff may occasionally bypass alerts and create duplicate profiles. To resolve
-this, an Admin "Merge Records" utility must be built:
-
-- **Function:** Allows an Admin to select two profiles: a "Source" (to remove) and a "Target" (to
-  keep).
-- **Data Transfer:** Safely migrates all appointment history, medical logs, and attached
-  `patient_profiles` (dependents) from the Source to the Target.
-- **Cleanup:** Archiving or soft-deleting the Source profile to maintain database consistency and
-  audit history while cleaning up the UI.
+- **Function:** Allows Admin to select a "Source" (to remove) and a "Target" (to keep).
+- **Data Transfer:** Safely migrates all appointment history, medical logs, and dependents from
+  Source to Target.
+- **Cleanup:** Archiving the Source profile.
 
 ---
 
-## 4. Family & Dependent Workflow Integration
+## 7. Dependency Management (The De-coupled Flow)
 
-The system already has a planned feature for users to manage multiple "Patient Profiles"
-(dependents) under a single account (tracked in `user_booking_patient_profiles.md`). We must align
-the Admin UI and the Walk-in/Self-Registration logic with this database architecture
-(`patient_profiles` linked to a main `profiles` table).
+To keep the front-desk operations fast, linking a patient to a family member's email happens _after_
+the patient is created, or initiated by the patient themselves.
 
-### Admin Creation (Walk-in Families):
+### The Profile Hierarchy Flow:
 
-If a mother walks in with two children:
-
-1. **Primary Setup:** The Admin creates the Mother as a standard Patient (either as a Stub or Active
-   user with an email).
-2. **Adding Dependents:** In the Admin UI (from the Mother's profile view), the Admin clicks **"Add
-   Dependent/Family Member"**.
-    - This creates records in the `patient_profiles` table linked to the mother's ID.
-    - **Crucially:** Dependents do _not_ require emails. They exist purely under the Primary's
-      umbrella.
-
-### Self-Registration (Auto-Linking Families):
-
-If the mother was registered as a Stub and later self-registers via the digital portal:
-
-1. **Auto-Link Trigger:** The system matches her email, converts her Stub to an Active account.
-2. **Dependent Carry-Over:** Because her children's `patient_profiles` are tied to her database ID,
-   they instantly appear in her Patient Portal under her "Family & Dependents" section. No extra
-   linking step is needed for the children.
-
-### The "Duplicate Warning" Edge Case for Families:
-
-- If staff input the Mother's phone number exactly for her 10-year-old child:
-- The Duplicate Checker will flag it (matching phone number).
-- Instead of just warning, the modal should offer a third option: **[Link as Dependent to Existing
-  Patient]**. This allows staff to quickly nest the child under the mother's account right from the
-  warning screen.
+1. **The Fallback Creation:** The dependent is first quickly created as an **Offline Patient**
+   during their visit.
+2. **The Appointment/Profile Tab:** On a fully registered patient's profile (the "Primary" account),
+   there is a dropdown selector (defaulting to "Self").
+3. **Linking Process:**
+    - The user (or Admin on their behalf) clicks the dropdown and selects **"Add Dependency"**.
+    - This triggers the OTP consent flow sent to the Primary Account's email to verify they agree to
+      link the target Offline Patient.
+    - Once the OTP is verified, the Offline Patient is linked.
+4. **Result:** Whenever the Primary user logs into the portal, they can toggle the dropdown between
+   "Self" and their dependencies to manage appointments and view records for the whole family under
+   one login.
 
 ---
 
-## Technical Action Items:
+## 8. Link Expiry & Resend Rules
 
-- [ ] Update `isRegistered` or `accountStatus` enums in the User/Patient schema to differentiate
-      between 'Stub' and 'Active' accounts.
-- [ ] Implement the `checkDuplicatePatient` API endpoint (checking Name+DOB, Phone, and Email).
-- [ ] Implement the `Auto-Link Profile` logic during the self-registration flow if the email matches
-      an existing `isRegistered: false` account, ensuring it is wrapped in a **database
-      transaction**.
-- [ ] Include **TOS & Privacy policy consent logging** inside the Auto-Link transaction.
-- [ ] Define the `48-hour expiration` logic for all account setup tokens (JWT or Database token).
-- [ ] Implement logic to **invalidate tokens immediately after their first successful use**.
-- [ ] Create the `Expired Link` error page for the frontend.
-- [ ] Implement a `15-minute cooldown` rate limit on the "Resend Setup Link" API endpoint.
-- [ ] Update the Booking schema to include a `booked_by` field (referencing the Admin/Staff ID) and
-      implement the frontend logic to display _"Booked by clinic"_ in the patient's history.
-- [ ] Update the Admin "Add Patient" form UI with the Duplicate Detection Modal.
-- [ ] Enhance Duplicate Detection Modal to include the **[Link as Dependent]** action.
-- [ ] Develop the Admin **"Merge Records" utility** (Backend logic for transferring associations and
-      Frontend UI).
-- [ ] Update Admin Patient dashboard to support adding/viewing child `patient_profiles`.
-- [ ] Log "Create Anyway" overrides with Staff ID and timestamp for audit trailing when bypassing
-      the Duplicate Detection Modal.
-- [ ] Update the "Security" tab UI in the Admin Patient View to handle the "No Email" validation
-      state.
-- [ ] Implement secondary identity verification (DOB/Phone prompt) during the self-registration
-      auto-link flow.
-- [ ] Implement a "Flagged for Review" state/UI in the Admin dashboard for when an email matches a
-      stub, but the secondary identity check fails.
-- [ ] Implement Pre-Save "Email In-Use" check on the Admin patient edit route to block saving emails
-      already tied to active accounts.
-- [ ] Implement the "DOB Gate" security step on the frontend portal for incoming Account Setup links
-      to prevent typo-based data leaks.
+- **Duration:** Setup links expire exactly **48 hours** after being generated.
+- **Single-Use:** Tokens are invalidated immediately after first use.
+- **Expiry UX:** _"Your account setup link has expired..."_
+- **Resend Cooldown:** Rate-limited to **once every 15 minutes** per recipient.

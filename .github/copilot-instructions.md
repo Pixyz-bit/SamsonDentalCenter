@@ -7,9 +7,13 @@
   practices. If there are multiple valid "best practice" approaches for a system or architectural
   design, you must present at least two structured options. Highlight the trade-offs (pros/cons) of
   each and wait for explicit selection before writing any code.
+  And after creating the plan ask me if ill proceed and wait for my response before writing any code.
 - **Zero Assumptions:** If a request is ambiguous, lacks scope, or you do not have sufficient
   context from the open files, stop. Do not hallucinate or guess. Ask specific, clarifying questions
   to get the required information.
+
+- **Use artifacts:** use the built in artifacts if you need to understand the codebase. in the antigravity tool use "Read the Project Files" tool. use the planing tools to plan the architecture and best practices.and walk-through the codebase and understand it before making any changes. and no need to open browser. only if i ask. 
+
 - **Strict Dependency Management:** Do not introduce new npm packages, libraries, or technologies
   unless absolutely necessary and highly useful. If a new dependency is the best solution, you must
   ask for permission first. Suggest the package, explain exactly why it is the best choice over a
@@ -61,6 +65,9 @@
   gradients). Stick to standard, functional components that feel human-designed and honest (e.g.,
   Linear, GitHub). Do not invent new layouts; replicate clean components without unnecessary
   decoration.
+- **UI-UX Pro Max Skills:** For advanced design intelligence, color palettes, typography pairings,
+  and UX best practices, refer to the local toolkit in `ui-ux-pro-max-skill/`. 
+  that directory to find specific guidance for the current stack (React/Tailwind).
 
 ## Documentation & Markdown Standards
 

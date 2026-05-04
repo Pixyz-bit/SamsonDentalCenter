@@ -11,6 +11,7 @@ import {
     getPending,
     approve,
     reject,
+    bookForPatient,
     // Content Management
     getSettings,
     updateSettings,
@@ -24,8 +25,10 @@ import {
     updateDentistProfileHandler,
     updateDentistServicesHandler,
     viewDentistSchedule,
+    getDentistDayScheduleHandler,
     updateDentistSchedule,
     blockDentistAvailability,
+    bulkBlockDentistAvailability, // NEW
     viewDentistBlocks,
     removeDentistBlock,
     openEmergencySlot,
@@ -37,6 +40,8 @@ import {
     checkDuplicatesHandler, // NEW
     mergePatientsHandler, // NEW
     sendSetupLinkHandler, // NEW
+    requestDependencyConsentHandler, // NEW
+    verifyDependencyConsentHandler, // NEW
     // User Management (Admin Only)
     getUsersHandler,
     createUserHandler,
@@ -66,7 +71,9 @@ import {
     onboardDoctor,
     getPatientHandler, // NEW
     updatePatientHandler, // NEW
+    adminReschedule,
     bulkUpdateSchedule,
+    getMessageLogsHandler,
 } from '../controllers/admin.controller.js';
 
 import { 
@@ -75,6 +82,8 @@ import {
 } from '../controllers/audit.controller.js';
 import { requireAuth } from '../middleware/auth.middleware.js';
 import { requireAdmin, requireAdminOrSecretary } from '../middleware/admin.middleware.js'; // UPDATED
+import { validate } from '../utils/validate.js';
+import { adminBookAppointmentSchema } from '../schemas/admin.schema.js';
 
 const router = Router();
 
@@ -91,6 +100,7 @@ router.patch('/appointments/:id/noshow', markAsNoShow);
 router.patch('/appointments/:id/complete', markAsComplete);
 router.patch('/appointments/:id/cancel', adminCancel);
 router.patch('/appointments/:id/reassign', reassignAppointment); // NEW
+router.patch('/appointments/:id/reschedule', adminReschedule); // NEW: Admin reschedule
 router.patch('/appointments/:id/displaced-handle', async (req, res, next) => {
     try {
         const { id } = req.params;
@@ -114,10 +124,13 @@ router.post('/walk-in/quick', quickRegisterPatientHandler);
 router.get('/patients/check-duplicates', checkDuplicatesHandler); // NEW
 router.post('/patients/merge', mergePatientsHandler); // NEW
 router.post('/patients/:id/send-setup-link', sendSetupLinkHandler); // NEW
+router.post('/patients/:id/request-dependency-consent', requestDependencyConsentHandler); // NEW
+router.post('/patients/:id/verify-dependency-consent', verifyDependencyConsentHandler); // NEW
 router.get('/patients/:id', getPatientHandler); // NEW
 router.patch('/patients/:id', updatePatientHandler); // NEW
 router.get('/patients', getPatients);
 router.get('/patients/:id/history', viewPatientHistory);
+router.post('/patients/:id/book', validate(adminBookAppointmentSchema), bookForPatient);
 router.patch('/patients/:id/restriction', toggleRestriction);
 
 // ── Content Management ──
@@ -147,9 +160,11 @@ router.get('/dentists/:id', getDentistByIdHandler); // NEW
 router.patch('/dentists/:id/profile', updateDentistProfileHandler); // NEW
 router.patch('/dentists/:id/services', updateDentistServicesHandler); // NEW
 router.get('/dentists/:id/schedule', viewDentistSchedule);
+router.get('/dentists/:id/day-schedule', getDentistDayScheduleHandler);
 router.put('/dentists/:id/schedule', updateDentistSchedule);
 router.post('/dentists/:id/schedule/bulk', bulkUpdateSchedule); // NEW: Bulk update
 router.post('/dentists/:id/block', blockDentistAvailability);
+router.post('/dentists/:id/block/bulk', bulkBlockDentistAvailability); // NEW
 router.get('/dentists/:id/blocks', viewDentistBlocks);
 router.delete('/dentists/:id/block/:blockId', removeDentistBlock);
 router.post('/emergency-slot', openEmergencySlot);
@@ -174,5 +189,8 @@ router.get('/system/health', requireAdmin, getSystemHealthHandler);
 // ── Audit Logs ── (NEW)
 router.get('/audit-logs', requireAdmin, getAuditLogs);
 router.get('/audit-logs/:id', requireAdmin, getAuditLogDetails);
+
+// ── Message Activity ── (NEW)
+router.get('/message-logs', requireAdmin, getMessageLogsHandler);
 
 export default router;

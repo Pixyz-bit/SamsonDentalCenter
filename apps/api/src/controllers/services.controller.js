@@ -350,15 +350,50 @@ export const getServiceSpecialists = async (req, res, next) => {
         if (dError) return res.status(500).json({ error: dError.message });
 
         // 3. Get dentists explicitly enrolled in this service via dentist_services
-
         const { data: serviceSkills } = await supabaseAdmin
             .from('dentist_services')
             .select('dentist_id')
             .eq('service_id', id);
-        const matchIds = new Set((serviceSkills || []).map(ds => ds.dentist_id));
+        const matchIds = (serviceSkills || []).map(ds => ds.dentist_id);
 
-        // 4. Filter dentists strictly based on explicit enrollment in dentist_services
-        const qualifiedDentists = allDentists.filter(d => matchIds.has(d.id));
+        if (matchIds.length === 0) {
+            return res.json({ specialists: [] });
+        }
+
+        // 4. Fetch schedules to verify if they have ANY working days (Availability Check)
+        const [{ data: allSchedules }, { data: clinicSchedules }] = await Promise.all([
+            supabaseAdmin
+                .from('dentist_schedule')
+                .select('dentist_id, is_working, is_using_global')
+                .in('dentist_id', matchIds),
+            supabaseAdmin
+                .from('clinic_schedule')
+                .select('day_of_week, is_open')
+                .eq('is_open', true)
+        ]);
+
+        const openClinicDays = new Set((clinicSchedules || []).map(c => c.day_of_week));
+
+        // 5. Filter specialists based on skillset AND active status
+        const qualifiedDentists = allDentists.filter(d => {
+            // A. Strict skillset check: Must be mapped to this service
+            if (!matchIds.includes(d.id)) return false;
+
+            // B. Explicit Inactivity Check
+            if (d.is_active === false) return false;
+
+            // C. "Total Off-Duty" Check: 
+            // We only hide them if they have 7 rows and ALL 7 are set to Custom + Not Working.
+            const dSchedules = (allSchedules || []).filter(s => s.dentist_id === d.id);
+            
+            if (dSchedules.length === 7) {
+                const isEntirelyOff = dSchedules.every(s => s.is_working === false && s.is_using_global === false);
+                if (isEntirelyOff) return false;
+            }
+
+            // Otherwise, they are either in Global Mode or have at least one working day/slot.
+            return true;
+        });
 
         res.json({ specialists: qualifiedDentists });
     } catch (err) {

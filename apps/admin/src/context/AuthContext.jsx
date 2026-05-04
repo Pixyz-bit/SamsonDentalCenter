@@ -22,6 +22,7 @@ export const AuthProvider = ({ children }) => {
             } catch (error) {
                 // Token expired or invalid
                 console.error('Auth check failed:', error.message);
+                sessionStorage.setItem('session_timeout', 'true');
                 localStorage.removeItem('token');
                 setToken(null);
                 setUser(null);

@@ -132,7 +132,7 @@ const Gallery = ({ variant = "light" }) => {
         className={`absolute bottom-0 left-0 w-150 h-150 rounded-full blur-[100px] -ml-24 -mb-24 transition-opacity pointer-events-none ${isDark ? "bg-white/5" : "bg-red-600/5"}`}
       ></div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <div className="max-w-6xl mx-auto px-6 sm:px-8 lg:px-12 relative z-10">
         <div ref={headingRef} className="max-w-3xl mb-12 md:mb-20">
           <div className="gallery-heading-item flex items-center gap-3 mb-6">
             <span

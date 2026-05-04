@@ -1,22 +1,28 @@
 import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import PageBreadcrumb from '../../components/common/PageBreadcrumb';
-import ClinicGeneralSettings from '../../components/admin/settings/ClinicGeneralSettings';
 import ClinicRulesSettings from '../../components/admin/settings/ClinicRulesSettings';
+import ClinicWebsiteSettings from '../../components/admin/settings/ClinicWebsiteSettings';
+import ClinicNotificationsSettings from '../../components/admin/settings/ClinicNotificationsSettings';
+import ClinicLegalSettings from '../../components/admin/settings/ClinicLegalSettings';
 import ClinicHolidaysSettings from '../../components/admin/settings/ClinicHolidaysSettings';
 import SystemHealthSettings from '../../components/admin/settings/SystemHealthSettings';
+import { useAuth } from '../../context/AuthContext';
 
 const Settings = () => {
     const { tab } = useParams();
     const navigate = useNavigate();
-    const activeTab = tab || 'general';
+    const { user } = useAuth();
+    const activeTab = tab || 'website';
 
     const tabs = [
-        { id: 'general', label: 'General Details' },
-        { id: 'rules', label: 'Global Rules' },
-        { id: 'holidays', label: 'Clinic Holidays' },
-        { id: 'health', label: 'System Health' }
-    ];
+        { id: 'website', label: 'Website Configuration', allowedRoles: ['admin', 'secretary'] },
+        { id: 'rules', label: 'Global Rules', allowedRoles: ['admin'] },
+        { id: 'notifications', label: 'Automated Notifications', allowedRoles: ['admin'] },
+        { id: 'legal', label: 'Legal & Policy', allowedRoles: ['admin'] },
+        { id: 'holidays', label: 'Clinic Holidays', allowedRoles: ['admin', 'secretary'] },
+        { id: 'health', label: 'System Health', allowedRoles: ['admin'] }
+    ].filter(t => t.allowedRoles.includes(user?.role));
 
     return (
         <div className='flex flex-col h-full'>
@@ -48,8 +54,10 @@ const Settings = () => {
             
             <div className='flex-grow no-scrollbar'>
                 <div className='max-w-4xl'>
-                    {activeTab === 'general' && <ClinicGeneralSettings />}
+                    {activeTab === 'website' && <ClinicWebsiteSettings />}
                     {activeTab === 'rules' && <ClinicRulesSettings />}
+                    {activeTab === 'notifications' && <ClinicNotificationsSettings />}
+                    {activeTab === 'legal' && <ClinicLegalSettings />}
                     {activeTab === 'holidays' && <ClinicHolidaysSettings />}
                     {activeTab === 'health' && <SystemHealthSettings />}
                 </div>

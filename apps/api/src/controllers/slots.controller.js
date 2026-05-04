@@ -92,17 +92,18 @@ export const checkServiceStatus = async (req, res, next) => {
     try {
         const { serviceId } = req.params;
         const { dentistId } = req.query;
-        const result = await getServiceAvailabilityStatus(serviceId, dentistId);
-        
-        // TEMPORARY DEBUG: Also test what happens natively
-        const debugDate = new Date().toISOString().split('T')[0];
-        const debugNext = await getServiceAvailabilityStatus(serviceId, dentistId);
-        
-        console.log("=== CHECK SERVICE STATUS ===");
-        console.log(`Service: ${serviceId}, Dentist: ${dentistId}`);
-        console.log(`Result:`, debugNext);
-        console.log("============================");
 
+        // Optional: Validate dentistId if provided to prevent UUID format errors
+        if (dentistId && dentistId !== 'null' && dentistId !== 'undefined') {
+            const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+            if (!uuidRegex.test(dentistId)) {
+                return res.status(400).json({ error: 'Invalid dentist ID format.' });
+            }
+        }
+
+        const cleanDentistId = (dentistId === 'null' || dentistId === 'undefined' || !dentistId) ? null : dentistId;
+        const result = await getServiceAvailabilityStatus(serviceId, cleanDentistId);
+        
         res.json(result);
     } catch (err) {
         next(err);

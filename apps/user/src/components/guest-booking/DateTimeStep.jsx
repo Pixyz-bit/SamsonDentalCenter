@@ -1,6 +1,7 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useCallback } from 'react';
 import { ChevronLeft, ChevronRight, ChevronDown, RefreshCw, Lock, Calendar as CalendarIcon, Clock as ClockIcon, Info, ArrowRight, MousePointer2, Loader2, Hourglass, Plus, Check, Users, CalendarX, AlertCircle, X } from 'lucide-react';
 import useSlots from '../../hooks/useSlots';
+import { useClinicSettings } from '../../hooks/useClinicSettings';
 import { api } from '../../utils/api';
 import ErrorState from '../common/ErrorState';
 
@@ -29,6 +30,9 @@ const DateTimeStep = ({
     const dentistId = formData?.dentist_id || null;
     const [isDoctorDropdownOpen, setIsDoctorDropdownOpen] = useState(false);
     
+    // ✅ Fetch clinic-wide settings (holidays, schedule)
+    const { settings, holidays, schedule, loading: settingsLoading, refetch: refetchSettings } = useClinicSettings();
+    
     // VISIBILITY LIMIT: 3 columns * 6 rows = 18 slots
     const INITIAL_VISIBLE_COUNT = 18;
     const [visibleCount, setVisibleCount] = useState(INITIAL_VISIBLE_COUNT);
@@ -39,11 +43,21 @@ const DateTimeStep = ({
         return d;
     }, []);
 
-    const MAX_BOOKING_DAYS_AHEAD = 90;
-    const maxDate = useMemo(
-        () => new Date(today.getTime() + MAX_BOOKING_DAYS_AHEAD * 24 * 60 * 60 * 1000),
-        [today],
-    );
+    const minDate = useMemo(() => {
+        const d = new Date();
+        const leadTimeDays = settings?.booking_lead_time_days || 1;
+        d.setDate(d.getDate() + leadTimeDays);
+        d.setHours(0, 0, 0, 0);
+        return d;
+    }, [settings]);
+
+    const maxDate = useMemo(() => {
+        const horizon = settings?.booking_max_horizon_days || 90;
+        const d = new Date(today);
+        d.setDate(d.getDate() + horizon);
+        d.setHours(23, 59, 59, 999); // End of the horizon day
+        return d;
+    }, [today, settings]);
 
     const [viewDate, setViewDate] = useState(() => {
         if (selectedDate) return new Date(selectedDate);
@@ -67,12 +81,34 @@ const DateTimeStep = ({
         return `${year}-${month}-${day}`;
     };
 
+    // ✅ Fetch overall availability status (slots for next 90 days)
+    const fetchAvailabilityStatus = useCallback(async () => {
+        if (!serviceId) return;
+        setStatusLoading(true);
+        try {
+            let url = `/slots/service-status/${serviceId}`;
+            if (dentistId) {
+                url += `?dentistId=${dentistId}`;
+            }
+            const data = await api.get(url);
+            setAvailabilityStatus(data);
+        } catch (err) {
+            console.error('Failed to check service status:', err);
+        } finally {
+            setStatusLoading(false);
+        }
+    }, [serviceId, dentistId]);
+
+
+
     // ✅ Fetch qualified specialists for this service
     useEffect(() => {
         if (serviceId) {
             const fetchSpecialists = async () => {
                 setSpecialists([]); // 🎯 Clear old data to trigger skeleton
+                setAvailabilityStatus(null); 
                 setSpecialistsLoading(true);
+                setStatusLoading(true);
                 setSpecialistsError(null);
                 try {
                     const data = await api.get(`/services/${serviceId}/specialists`);
@@ -85,26 +121,9 @@ const DateTimeStep = ({
                 }
             };
             fetchSpecialists();
-
-            // ✅ Check overall availability status (slots for next 90 days)
-            const checkStatus = async () => {
-                setStatusLoading(true);
-                try {
-                    let url = `/slots/service-status/${serviceId}`;
-                    if (dentistId) {
-                        url += `?dentistId=${dentistId}`;
-                    }
-                    const data = await api.get(url);
-                    setAvailabilityStatus(data);
-                } catch (err) {
-                    console.error('Failed to check service status:', err);
-                } finally {
-                    setStatusLoading(false);
-                }
-            };
-            checkStatus();
+            fetchAvailabilityStatus();
         }
-    }, [serviceId, dentistId]);
+    }, [serviceId, fetchAvailabilityStatus]);
 
     const {
         slots,
@@ -121,8 +140,22 @@ const DateTimeStep = ({
         excludeAppointmentId
     );
 
+    // ✅ Consolidated Global Refresh (Calendar + Slots + Hold)
+    const handleGlobalRefresh = useCallback(async () => {
+        // 1. Sync Clinic Rules & Holidays
+        refetchSettings();
+        // 2. Sync Doctor Availability Logic
+        fetchAvailabilityStatus();
+        // 3. Sync Timeslots (if a date is selected)
+        if (selectedDate) {
+            refetchSlots();
+        }
+        // 4. Sync Hold Status
+        slotHold.checkActiveHold?.();
+    }, [refetchSettings, fetchAvailabilityStatus, refetchSlots, selectedDate, slotHold]);
+
     const isLoading = slotsLoading || isPending;
-    const isProcessing = isLoading || !!pendingSlot || !!pendingDate || holdLoading;
+    const isProcessing = isLoading || !!pendingSlot || !!pendingDate || holdLoading || statusLoading;
 
     // ✅ Clear pendingDate when slots finish loading
     useEffect(() => {
@@ -134,10 +167,18 @@ const DateTimeStep = ({
     const handleSpecialistChange = async (id) => {
         if (isLoading) return; // ✅ Block while loading
         const val = id || null;
-        onUpdate({ dentist_id: val });
-        if (selectedTime) {
+        
+        // 🎯 Reset everything when doctor changes
+        if (selectedDate || selectedTime) {
             await releaseHold();
-            onUpdate({ dentist_id: val, time: '' });
+            onUpdate({ 
+                dentist_id: val, 
+                date: '', 
+                time: '' 
+            });
+            setPendingDate(null);
+        } else {
+            onUpdate({ dentist_id: val });
         }
     };
 
@@ -223,8 +264,16 @@ const DateTimeStep = ({
         return days;
     }, [viewDate]);
 
-    const canGoPrev = viewDate.getMonth() > today.getMonth() || viewDate.getFullYear() > today.getFullYear();
-    const canGoNext = viewDate < maxDate;
+    // ✅ Navigation Restrictions
+    const canGoPrev = useMemo(() => {
+        const firstDayOfCurrentMonth = new Date(viewDate.getFullYear(), viewDate.getMonth(), 1);
+        return firstDayOfCurrentMonth > minDate;
+    }, [viewDate, minDate]);
+
+    const canGoNext = useMemo(() => {
+        const nextMonth = new Date(viewDate.getFullYear(), viewDate.getMonth() + 1, 1);
+        return nextMonth <= maxDate;
+    }, [viewDate, maxDate]);
 
     // Filtered Slots for "Load More"
     const visibleSlots = useMemo(() => {
@@ -491,9 +540,19 @@ const DateTimeStep = ({
                                     <div className='bg-white dark:bg-white/[0.02] border border-gray-100 dark:border-gray-800 rounded-3xl p-5 shadow-theme-sm h-full'>
                                         <div className='flex items-center justify-between mb-5'>
                                             <h3 className='text-[15px] sm:text-base font-bold text-gray-900 dark:text-white flex items-center gap-2 tracking-tight uppercase'><CalendarIcon size={16} className='text-brand-500' />{viewDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</h3>
-                                            <div className='flex gap-1.5'>
-                                                <button onClick={() => navigateMonth('prev')} disabled={!canGoPrev} className='p-2 bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-xl hover:bg-white dark:hover:bg-gray-700 transition-all disabled:opacity-30 hover:shadow-theme-xs'><ChevronLeft size={18} className='text-gray-600 dark:text-gray-400' /></button>
-                                                <button onClick={() => navigateMonth('next')} disabled={!canGoNext} className='p-2 bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-xl hover:bg-white dark:hover:bg-gray-700 transition-all disabled:opacity-30 hover:shadow-theme-xs'><ChevronRight size={18} className='text-gray-600 dark:text-gray-400' /></button>
+                                            <div className='flex items-center gap-2 sm:gap-3'>
+                                                <button 
+                                                    onClick={handleGlobalRefresh} 
+                                                    disabled={settingsLoading || statusLoading || isProcessing} 
+                                                    className='flex items-center gap-1 sm:gap-2 px-2 py-1.5 sm:px-3 text-[10px] sm:text-[11px] font-bold bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-400 rounded-lg border border-gray-100 dark:border-gray-700 shadow-theme-xs transition-all disabled:opacity-50'
+                                                >
+                                                    <RefreshCw size={14} className={settingsLoading || statusLoading || isProcessing ? 'animate-spin' : ''} />
+                                                    <span className="hidden sm:inline">Refresh</span>
+                                                </button>
+                                                <div className='flex gap-1.5'>
+                                                    <button onClick={() => navigateMonth('prev')} disabled={!canGoPrev} className='p-2 bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-xl hover:bg-white dark:hover:bg-gray-700 transition-all disabled:opacity-30 hover:shadow-theme-xs'><ChevronLeft size={18} className='text-gray-600 dark:text-gray-400' /></button>
+                                                    <button onClick={() => navigateMonth('next')} disabled={!canGoNext} className='p-2 bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-xl hover:bg-white dark:hover:bg-gray-700 transition-all disabled:opacity-30 hover:shadow-theme-xs'><ChevronRight size={18} className='text-gray-600 dark:text-gray-400' /></button>
+                                                </div>
                                             </div>
                                         </div>
                                         <div className='grid grid-cols-7 gap-1 mb-2'>
@@ -507,17 +566,31 @@ const DateTimeStep = ({
                                                 const isToday = date.getTime() === today.getTime();
                                                 const isSelected = key === selectedDate;
                                                 
-                                                // ✅ Disable dates outside of the 90 day limit or in the past
-                                                let isDisabled = isPast || isToday || date > maxDate;
+                                                // ✅ Check if date is a holiday (Robust check)
+                                                const isHoliday = holidays?.some(h => {
+                                                    const hDate = typeof h.date === 'string' ? h.date.split('T')[0] : h.date;
+                                                    return hDate === key && h.is_closed;
+                                                });
+
+                                                // ✅ Check if day of week is open in clinic schedule
+                                                const daySchedule = schedule?.find(s => s.day_of_week === date.getDay());
+                                                const isClosedDay = daySchedule ? !daySchedule.is_open : (date.getDay() === 0);
+
+                                                // ✅ Combine disabling rules
+                                                let isDisabled = 
+                                                    date < minDate || 
+                                                    date > maxDate || 
+                                                    isHoliday || 
+                                                    isClosedDay || 
+                                                    (availabilityStatus && !availabilityStatus.is_bookable) ||
+                                                    availabilityStatus?.blocked_dates?.includes(key) || 
+                                                    isProcessing;
                                                 
-                                                // ✅ Disable dates that are not in the working days array
-                                                if (availabilityStatus?.working_days?.length > 0) {
+                                                // ✅ Doctor-specific working day check (if applicable)
+                                                if (!isDisabled && availabilityStatus?.working_days?.length > 0) {
                                                     if (!availabilityStatus.working_days.includes(date.getDay())) {
                                                         isDisabled = true;
                                                     }
-                                                } else {
-                                                    // Fallback check if working_days isn't loaded: disable Sunday
-                                                    if (date.getDay() === 0) isDisabled = true;
                                                 }
 
                                                 if (!isCurrentMonth) return <div key={idx} className="aspect-square" />;
@@ -556,7 +629,7 @@ const DateTimeStep = ({
                                                 
                                                 <div className='flex items-center justify-between mb-5'>
                                                     <h3 className='text-[15px] font-bold text-gray-900 dark:text-white flex items-center gap-2 tracking-tight uppercase'><ClockIcon size={18} className='text-brand-500' />Available Times</h3>
-                                                    <button onClick={refetchSlots} disabled={isProcessing} className='flex items-center gap-2 px-3 py-1.5 text-[11px] font-bold bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-400 rounded-lg border border-gray-100 dark:border-gray-700 shadow-theme-xs transition-all disabled:opacity-50'><RefreshCw size={14} className={isProcessing ? 'animate-spin' : ''} />Refresh</button>
+                                                    <button onClick={handleGlobalRefresh} disabled={isProcessing} className='flex items-center gap-2 px-3 py-1.5 text-[11px] font-bold bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-400 rounded-lg border border-gray-100 dark:border-gray-700 shadow-theme-xs transition-all disabled:opacity-50'><RefreshCw size={14} className={isProcessing ? 'animate-spin' : ''} />Refresh</button>
                                                 </div>
 
                                                 {isLoading ? (
