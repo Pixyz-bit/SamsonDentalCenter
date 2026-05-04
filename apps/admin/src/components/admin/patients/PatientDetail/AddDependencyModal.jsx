@@ -85,14 +85,14 @@ const AddDependencyModal = ({ isOpen, onClose, primaryPatient, token, onSuccess 
         if (step === 'relationship') {
             return (
                 <>
-                    <Button variant='outline' onClick={handleClose}>Cancel</Button>
+                    <Button variant='outline' onClick={handleClose} className="h-9 sm:h-10 px-5 text-[10px] sm:text-xs font-black uppercase tracking-widest rounded-xl">Cancel</Button>
                     <Button 
                         disabled={!relationship} 
                         onClick={() => setStep('search')}
-                        className="px-8 shadow-lg shadow-brand-500/20"
+                        className="h-9 sm:h-10 px-5 text-[10px] sm:text-xs font-black uppercase tracking-widest rounded-xl shadow-lg shadow-brand-500/20"
                     >
                         Continue
-                        <ChevronRight size={16} className="ml-2" />
+                        <ChevronRight size={14} className="ml-2" />
                     </Button>
                 </>
             );
@@ -100,23 +100,23 @@ const AddDependencyModal = ({ isOpen, onClose, primaryPatient, token, onSuccess 
         if (step === 'search') {
             return (
                 <>
-                    <Button variant='outline' onClick={() => setStep('relationship')}>Back</Button>
+                    <Button variant='outline' onClick={() => setStep('relationship')} className="h-9 sm:h-10 px-5 text-[10px] sm:text-xs font-black uppercase tracking-widest rounded-xl">Back</Button>
                     {selectedPatient ? (
                         <Button 
                             onClick={handleSendOtp} 
                             loading={loading}
-                            className="px-8 bg-brand-500 shadow-lg shadow-brand-500/20"
+                            className="h-9 sm:h-10 px-5 text-[10px] sm:text-xs font-black uppercase tracking-widest rounded-xl bg-brand-500 shadow-lg shadow-brand-500/20"
                         >
-                            Send Authorization OTP
+                            Send OTP
                         </Button>
                     ) : (
                         <Button 
                             onClick={handleSearch} 
                             loading={loading} 
                             disabled={!searchQuery}
-                            className="px-8"
+                            className="h-9 sm:h-10 px-5 text-[10px] sm:text-xs font-black uppercase tracking-widest rounded-xl"
                         >
-                            <Search size={16} className="mr-2" />
+                            <Search size={14} className="mr-2" />
                             Search
                         </Button>
                     )}
@@ -126,12 +126,12 @@ const AddDependencyModal = ({ isOpen, onClose, primaryPatient, token, onSuccess 
         if (step === 'otp') {
             return (
                 <>
-                    <Button variant='outline' onClick={() => setStep('search')} disabled={loading}>Back</Button>
+                    <Button variant='outline' onClick={() => setStep('search')} disabled={loading} className="h-9 sm:h-10 px-5 text-[10px] sm:text-xs font-black uppercase tracking-widest rounded-xl">Back</Button>
                     <Button 
                         onClick={handleVerifyAndLink} 
                         loading={loading} 
                         disabled={otp.length !== 6}
-                        className="px-8 bg-success-600 hover:bg-success-700 shadow-lg shadow-success-500/20"
+                        className="h-9 sm:h-10 px-5 text-[10px] sm:text-xs font-black uppercase tracking-widest rounded-xl bg-success-600 hover:bg-success-700 shadow-lg shadow-success-500/20"
                     >
                         Verify & Link
                     </Button>
@@ -144,10 +144,10 @@ const AddDependencyModal = ({ isOpen, onClose, primaryPatient, token, onSuccess 
         <Modal
             isOpen={isOpen}
             onClose={handleClose}
-            title="Add Family Dependent"
-            subtitle={primaryPatient ? `Linking a new member to ${primaryPatient.full_name}'s account.` : "Connect family members together."}
+            title="Family Dependency"
+            subtitle="Link a new member to this account."
             footer={renderFooter()}
-            className="max-w-xl"
+            className="max-w-lg"
         >
             <div className='space-y-6'>
                 {error && (
@@ -159,30 +159,30 @@ const AddDependencyModal = ({ isOpen, onClose, primaryPatient, token, onSuccess 
 
                 {step === 'relationship' && (
                     <div className='space-y-4'>
-                        <div className='p-5 rounded-2xl bg-brand-500/[0.03] border border-brand-500/10 flex items-start gap-4'>
-                            <div className='w-10 h-10 rounded-xl bg-brand-500 text-white flex items-center justify-center shrink-0 shadow-lg shadow-brand-500/20'>
-                                <Link2 size={20} />
+                        <div className='p-4 rounded-xl bg-brand-500/[0.03] border border-brand-500/10 flex items-start gap-3'>
+                            <div className='w-8 h-8 rounded-lg bg-brand-500 text-white flex items-center justify-center shrink-0 shadow-lg shadow-brand-500/20'>
+                                <Link2 size={16} />
                             </div>
                             <div>
-                                <h6 className='text-xs font-black text-gray-900 dark:text-white uppercase tracking-tight mb-1'>Step 1: Define Relationship</h6>
-                                <p className='text-[11px] text-gray-500 font-medium leading-relaxed'>
-                                    Select how this dependent is related to the primary account holder.
+                                <h6 className='text-[10px] font-black text-gray-900 dark:text-white uppercase tracking-tight mb-0.5'>1. Define Relationship</h6>
+                                <p className='text-[9px] text-gray-500 font-medium leading-relaxed uppercase tracking-wider'>
+                                    Select how this dependent is related.
                                 </p>
                             </div>
                         </div>
 
-                        <div className='grid grid-cols-2 gap-3'>
+                        <div className='grid grid-cols-2 gap-2'>
                             {relationships.map(rel => (
                                 <button
                                     key={rel}
                                     onClick={() => setRelationship(rel)}
-                                    className={`p-4 rounded-xl border-2 transition-all text-left group ${
+                                    className={`p-3 rounded-xl border-2 transition-all text-left group ${
                                         relationship === rel 
                                             ? 'border-brand-500 bg-brand-500/5' 
                                             : 'border-gray-100 dark:border-white/5 hover:border-brand-500/30'
                                     }`}
                                 >
-                                    <p className={`text-xs font-black uppercase tracking-widest ${relationship === rel ? 'text-brand-600' : 'text-gray-400 group-hover:text-gray-600'}`}>
+                                    <p className={`text-[9px] font-black uppercase tracking-widest ${relationship === rel ? 'text-brand-600' : 'text-gray-400 group-hover:text-gray-600'}`}>
                                         {rel}
                                     </p>
                                 </button>
@@ -192,72 +192,67 @@ const AddDependencyModal = ({ isOpen, onClose, primaryPatient, token, onSuccess 
                 )}
 
                 {step === 'search' && (
-                    <div className='space-y-6'>
-                        <div className='space-y-2'>
-                            <label className='text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1'>Search Patient Profile</label>
+                    <div className='space-y-4'>
+                        <div className='space-y-1.5'>
+                            <label className='text-[9px] font-black uppercase tracking-widest text-gray-400 ml-1'>Search Profile</label>
                             <div className='relative'>
-                                <Search size={18} className='absolute left-5 top-1/2 -translate-y-1/2 text-gray-400' />
+                                <Search size={14} className='absolute left-4 top-1/2 -translate-y-1/2 text-gray-400' />
                                 <input
                                     type='text'
-                                    placeholder='Search by name, phone or email...'
+                                    placeholder='Name, phone or email...'
                                     value={searchQuery}
                                     onChange={(e) => {
                                         setSearchQuery(e.target.value);
                                         setSelectedPatient(null);
                                     }}
                                     onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-                                    className='w-full h-14 pl-14 pr-5 rounded-2xl border-2 border-gray-100 dark:border-white/5 bg-gray-50/50 dark:bg-white/5 focus:border-brand-500 transition-all outline-none text-sm font-bold'
+                                    className='w-full h-10 pl-11 pr-4 rounded-xl border-2 border-gray-100 dark:border-white/5 bg-gray-50/50 dark:bg-white/5 focus:border-brand-500 transition-all outline-none text-[13px] font-bold'
                                 />
                             </div>
                         </div>
 
                         {searchResults.length > 0 && !selectedPatient && (
-                            <div className='space-y-2 max-h-[300px] overflow-y-auto no-scrollbar pr-1'>
+                            <div className='space-y-2 max-h-[200px] overflow-y-auto no-scrollbar pr-1'>
                                 {searchResults.map(p => (
                                     <button
                                         key={p.id}
                                         onClick={() => setSelectedPatient(p)}
-                                        className='w-full p-4 rounded-xl border border-gray-100 dark:border-white/5 hover:border-brand-500/50 transition-all text-left bg-white dark:bg-white/[0.02] flex items-center justify-between group'
+                                        className='w-full p-3 rounded-xl border border-gray-100 dark:border-white/5 hover:border-brand-500/50 transition-all text-left bg-white dark:bg-white/[0.02] flex items-center justify-between group'
                                     >
                                         <div className='flex items-center gap-3'>
-                                            <div className='w-10 h-10 rounded-lg bg-gray-100 dark:bg-white/5 flex items-center justify-center'>
-                                                <User size={18} className='text-gray-400 group-hover:text-brand-500' />
+                                            <div className='w-9 h-9 rounded-lg bg-gray-100 dark:bg-white/5 flex items-center justify-center'>
+                                                <User size={16} className='text-gray-400 group-hover:text-brand-500' />
                                             </div>
                                             <div>
-                                                <p className='text-xs font-black text-gray-900 dark:text-white uppercase tracking-tight'>{p.full_name}</p>
-                                                <div className='flex items-center gap-3 mt-1'>
-                                                    <p className='text-[10px] text-gray-400 font-bold uppercase tracking-widest flex items-center gap-1'>
-                                                        <Phone size={10} /> {p.phone || 'No phone'}
+                                                <p className='text-[11px] font-black text-gray-900 dark:text-white uppercase tracking-tight'>{p.full_name}</p>
+                                                <div className='flex items-center gap-3 mt-0.5'>
+                                                    <p className='text-[8px] text-gray-400 font-bold uppercase tracking-widest flex items-center gap-1'>
+                                                        <Phone size={8} /> {p.phone || 'No phone'}
                                                     </p>
-                                                    {p.email && (
-                                                        <p className='text-[10px] text-gray-400 font-bold uppercase tracking-widest flex items-center gap-1'>
-                                                            <Mail size={10} /> {p.email}
-                                                        </p>
-                                                    )}
                                                 </div>
                                             </div>
                                         </div>
-                                        <ChevronRight size={18} className='text-gray-300 group-hover:text-brand-500' />
+                                        <ChevronRight size={14} className='text-gray-300 group-hover:text-brand-500' />
                                     </button>
                                 ))}
                             </div>
                         )}
 
                         {!selectedPatient && searchQuery && !loading && (
-                            <div className='p-8 rounded-2xl border-2 border-dashed border-gray-100 dark:border-white/5 text-center space-y-4'>
-                                <div className='w-12 h-12 rounded-2xl bg-gray-50 dark:bg-white/5 text-gray-400 flex items-center justify-center mx-auto'>
-                                    <UserSearch size={24} />
+                            <div className='p-6 rounded-2xl border-2 border-dashed border-gray-100 dark:border-white/5 text-center space-y-3'>
+                                <div className='w-10 h-10 rounded-xl bg-gray-50 dark:bg-white/5 text-gray-400 flex items-center justify-center mx-auto'>
+                                    <UserSearch size={20} />
                                 </div>
                                 <div className='space-y-1'>
-                                    <p className='text-xs font-black text-gray-900 dark:text-white uppercase tracking-tight'>Profile Not Found?</p>
-                                    <p className='text-[11px] text-gray-500 font-medium px-4'>If the patient is new to the clinic, you can create a new record for them.</p>
+                                    <p className='text-[11px] font-black text-gray-900 dark:text-white uppercase tracking-tight'>Profile Not Found?</p>
+                                    <p className='text-[9px] text-gray-500 font-medium px-4 uppercase tracking-wider'>Create a new record for them.</p>
                                 </div>
                                 <Button 
                                     variant='outline' 
-                                    onClick={() => window.location.href = '/patients'} // Or trigger AddPatientModal
-                                    className='text-[10px] font-black uppercase tracking-widest h-9 px-6'
+                                    onClick={() => window.location.href = '/patients'}
+                                    className='text-[9px] font-black uppercase tracking-widest h-8 px-5 rounded-lg'
                                 >
-                                    Quick Register New Patient
+                                    Quick Register
                                 </Button>
                             </div>
                         )}
@@ -292,34 +287,34 @@ const AddDependencyModal = ({ isOpen, onClose, primaryPatient, token, onSuccess 
                 )}
 
                 {step === 'otp' && (
-                    <div className='space-y-8 py-4'>
-                        <div className='text-center space-y-4'>
-                            <div className='w-20 h-20 rounded-[2.5rem] bg-success-500 text-white flex items-center justify-center mx-auto shadow-2xl shadow-success-500/20'>
-                                <CheckCircle2 size={36} />
+                    <div className='space-y-6 py-2'>
+                        <div className='text-center space-y-3'>
+                            <div className='w-14 h-14 rounded-2xl bg-success-500 text-white flex items-center justify-center mx-auto shadow-xl shadow-success-500/20'>
+                                <CheckCircle2 size={24} />
                             </div>
-                            <div className='space-y-2'>
-                                <h3 className='text-xl font-black text-gray-900 dark:text-white uppercase tracking-tight'>Authorization Required</h3>
-                                <p className='text-xs text-gray-500 font-bold px-8 leading-relaxed'>
-                                    A verification code has been sent to the primary email <span className='text-brand-500'>{primaryPatient.email}</span> to authorize this linkage.
+                            <div className='space-y-1'>
+                                <h3 className='text-lg font-black text-gray-900 dark:text-white uppercase tracking-tight'>Authorization</h3>
+                                <p className='text-[10px] text-gray-500 font-bold px-8 leading-relaxed uppercase tracking-wider'>
+                                    Sent to <span className='text-brand-500'>{primaryPatient.email}</span>
                                 </p>
                             </div>
                         </div>
-                        <div className='space-y-2'>
-                            <label className='text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1'>Enter 6-Digit OTP</label>
+                        <div className='space-y-1.5'>
+                            <label className='text-[9px] font-black uppercase tracking-widest text-gray-400 ml-1'>Enter 6-Digit OTP</label>
                             <input 
                                 type='text'
                                 placeholder='000000'
                                 maxLength={6}
                                 value={otp}
                                 onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
-                                className='w-full h-20 text-center text-4xl font-black tracking-[1em] rounded-3xl border-2 border-gray-100 dark:border-white/5 bg-gray-50/50 dark:bg-white/5 focus:border-success-500 transition-all outline-none text-gray-900 dark:text-white'
+                                className='w-full h-12 text-center text-2xl font-black tracking-[0.5em] rounded-xl border-2 border-gray-100 dark:border-white/5 bg-gray-50/50 dark:bg-white/5 focus:border-success-500 transition-all outline-none text-gray-900 dark:text-white'
                             />
                         </div>
                         
-                        <div className='p-4 rounded-xl bg-brand-50 dark:bg-brand-500/5 border border-brand-100 dark:border-brand-500/10 flex items-start gap-3'>
-                            <AlertCircle size={18} className='text-brand-500 shrink-0 mt-0.5' />
-                            <p className='text-[11px] text-brand-800 dark:text-brand-400 font-bold leading-relaxed uppercase tracking-tight'>
-                                This ensures the primary account holder approves managing this patient's records and appointments.
+                        <div className='p-3 rounded-xl bg-brand-50 dark:bg-brand-500/5 border border-brand-100 dark:border-brand-500/10 flex items-start gap-3'>
+                            <AlertCircle size={14} className='text-brand-500 shrink-0 mt-0.5' />
+                            <p className='text-[9px] text-brand-800 dark:text-brand-400 font-bold leading-relaxed uppercase tracking-tight'>
+                                Authorization ensures account holder approval.
                             </p>
                         </div>
                     </div>
