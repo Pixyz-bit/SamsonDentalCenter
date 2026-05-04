@@ -45,34 +45,36 @@ export const holdSlot = async (serviceId, date, startTime, userSessionId, dentis
         .from('slot_holds')
         .select('id, start_time, appointment_date, expires_at')
         .eq('user_session_id', userSessionId)
-        .eq('status', 'active')
-        .gt('expires_at', now.toISOString());
+        .eq('status', 'active');
+        // Removed: .gt('expires_at', now.toISOString()) 
+        // We want to find expired 'active' holds too so we can clean them up.
 
     let previousHoldId = null;
 
     // ── 2. If they have a hold, handle it ──
     if (existingHolds && existingHolds.length > 0) {
         const oldHold = existingHolds[0];
+        const isExpired = new Date(oldHold.expires_at) <= now;
 
-        // If it's for the SAME EXACT SLOT, return existing
-        if (oldHold.appointment_date === date && oldHold.start_time === startTime) {
+        // If it's for the SAME EXACT SLOT and NOT EXPIRED, return existing
+        if (oldHold.appointment_date === date && oldHold.start_time === startTime && !isExpired) {
             return {
                 hold_id: oldHold.id,
                 previous_hold_id: null,
                 expires_at: oldHold.expires_at,
-                expires_in_minutes: HOLD_DURATION_MINUTES,
+                expires_in_minutes: Math.ceil((new Date(oldHold.expires_at) - now) / 60000),
                 already_held: true,
             };
         }
 
-        // Otherwise (different slot), release the old one to allow the new one
+        // Otherwise (different slot OR expired), release the old one to allow a fresh start
         previousHoldId = oldHold.id;
         await supabaseAdmin
             .from('slot_holds')
-            .update({ status: 'released', updated_at: new Date().toISOString() })
+            .update({ status: isExpired ? 'expired' : 'released', updated_at: new Date().toISOString() })
             .eq('id', oldHold.id);
 
-        console.log(`Auto-released previous hold ${oldHold.id} for session ${userSessionId}`);
+        console.log(`Cleaned up previous hold ${oldHold.id} (expired: ${isExpired}) for session ${userSessionId}`);
     }
 
     // ── 3. Create new hold (with retry on dentist collision) ──
@@ -98,6 +100,17 @@ export const holdSlot = async (serviceId, date, startTime, userSessionId, dentis
         if (!finalDentistId) {
             throw new AppError('No dentist available to hold this slot.', 409);
         }
+
+        // ✅ CRITICAL FIX: Mark any existing EXPIRED active hold for this slot/dentist as 'expired'
+        // This prevents unique constraint violations when the background cleanup hasn't run yet.
+        await supabaseAdmin
+            .from('slot_holds')
+            .update({ status: 'expired', updated_at: new Date().toISOString() })
+            .eq('appointment_date', date)
+            .eq('start_time', startTime)
+            .eq('dentist_id', finalDentistId)
+            .eq('status', 'active')
+            .lt('expires_at', now.toISOString());
 
         const { data: insertedHold, error: insertError } = await supabaseAdmin
             .from('slot_holds')
