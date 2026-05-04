@@ -81,9 +81,13 @@ const GalleryV2 = ({ variant = "dark", showExploreButton = false }) => {
       // 2. Horizontal Scroll
       // We want to move the track left by its scrollable width
       const getScrollAmount = () => {
-        let trackWidth = trackRef.current.scrollWidth;
-        let viewportWidth = window.innerWidth;
-        return -(trackWidth - viewportWidth);
+        const cards = trackRef.current.querySelectorAll(".gallery-v2-card");
+        if (cards.length === 0) return 0;
+        const lastCard = cards[cards.length - 1];
+        const viewportWidth = window.innerWidth;
+        // Calculate stop point based only on gallery cards + 20vw padding
+        const scrollStopRange = lastCard.offsetLeft + lastCard.offsetWidth + (viewportWidth * 0.2);
+        return -(scrollStopRange - viewportWidth);
       };
 
       // Timeline for horizontal scroll with buffer zones
@@ -178,7 +182,7 @@ const GalleryV2 = ({ variant = "dark", showExploreButton = false }) => {
           </h2>
           {showExploreButton && (
             <div className="pt-8 overflow-hidden pointer-events-auto">
-              <button 
+              <button
                 onClick={() => navigate('/services')}
                 className={`inline-flex items-center space-x-2 ${isDark ? "text-white" : "text-slate-900"} font-bold uppercase tracking-widest text-xs hover:text-sky-400 transition-colors title-reveal-line`}
               >
@@ -220,6 +224,15 @@ const GalleryV2 = ({ variant = "dark", showExploreButton = false }) => {
                 </div>
               </div>
             ))}
+
+            {/* Extra Decorative Image (Outside of scroll stop calculation) */}
+            <div className="flex-shrink-0 relative rounded-2xl overflow-hidden w-[260px] h-[380px] md:w-[320px] md:h-[480px] lg:w-[400px] lg:h-[600px] opacity-20 blur-[2px] grayscale">
+              <img
+                src="/images/services/gallery-chairs-row.jpg"
+                alt=""
+                className="w-full h-full object-cover"
+              />
+            </div>
           </div>
         </div>
       </div>

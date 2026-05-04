@@ -109,7 +109,7 @@ const AIChatbotPromo = ({ variant = "light" }) => {
 
             <div className="floating-badge">
               <p
-                className={`text-lg md:text-xl mb-12 leading-relaxed max-w-xl font-medium ${isDark ? "text-white" : "text-slate-500"}`}
+                className={`text-lg md:text-xl mb-12 leading-relaxed max-w-xl font-medium ${isDark ? "text-white" : "text-slate-600"}`}
               >
                 Experience 24/7 clinical support. Our advanced AI assistant
                 handles inquiries, schedules appointments, and provides instant
@@ -186,7 +186,7 @@ const AIChatbotPromo = ({ variant = "light" }) => {
                 <div className="p-8 space-y-6 h-[420px]">
                   <div className="flex justify-start text-left">
                     <div
-                      className={`rounded-2xl rounded-tl-none p-4 max-w-[85%] text-xs font-semibold leading-relaxed ${isDark ? "bg-white/5 text-white" : "bg-slate-50 text-white border border-slate-100"}`}
+                      className={`rounded-2xl rounded-tl-none p-4 max-w-[85%] text-xs font-semibold leading-relaxed ${isDark ? "bg-white/5 text-white" : "bg-slate-100 text-slate-700 border border-slate-200/50"}`}
                     >
                       Welcome to Samson Dental. How can I assist with your
                       clinical inquiry today?
@@ -199,7 +199,7 @@ const AIChatbotPromo = ({ variant = "light" }) => {
                   </div>
                   <div className="flex justify-start text-left">
                     <div
-                      className={`rounded-2xl rounded-tl-none p-4 max-w-[85%] text-xs font-semibold leading-relaxed ${isDark ? "bg-white/5 text-white" : "bg-slate-50 text-white border border-slate-100"}`}
+                      className={`rounded-2xl rounded-tl-none p-4 max-w-[85%] text-xs font-semibold leading-relaxed ${isDark ? "bg-white/5 text-white" : "bg-slate-100 text-slate-700 border border-slate-200/50"}`}
                     >
                       Our iTero Element 5D scanner provides precise diagnostics
                       and zero radiation exposure.
@@ -242,11 +242,11 @@ const AIChatbotPromo = ({ variant = "light" }) => {
                   </div>
                   <div className="pr-4 text-left">
                     <p
-                      className={`text-[10px] font-black uppercase tracking-tighter ${isDark ? "text-sky-400" : "text-sky-400"}`}
+                      className={`text-[10px] font-black uppercase tracking-tighter ${isDark ? "text-sky-400" : "text-sky-500"}`}
                     >
                       Secure
                     </p>
-                    <p className="text-[8px] font-bold text-white uppercase tracking-widest leading-none">
+                    <p className={`text-[8px] font-bold uppercase tracking-widest leading-none ${isDark ? "text-white" : "text-slate-500"}`}>
                       End-to-End Privacy
                     </p>
                   </div>
@@ -274,11 +274,11 @@ const AIChatbotPromo = ({ variant = "light" }) => {
                   </div>
                   <div className="pr-4 text-left">
                     <p
-                      className={`text-[10px] font-black uppercase tracking-tighter ${isDark ? "text-sky-400" : "text-slate-900"}`}
+                      className={`text-[10px] font-black uppercase tracking-tighter ${isDark ? "text-sky-400" : "text-sky-500"}`}
                     >
                       Neural
                     </p>
-                    <p className="text-[8px] font-bold text-white uppercase tracking-widest leading-none">
+                    <p className={`text-[8px] font-bold uppercase tracking-widest leading-none ${isDark ? "text-white" : "text-slate-500"}`}>
                       Deep Learning Model
                     </p>
                   </div>

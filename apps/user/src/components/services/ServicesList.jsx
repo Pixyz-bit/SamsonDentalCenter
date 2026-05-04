@@ -1,226 +1,231 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect, useRef } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 gsap.registerPlugin(ScrollTrigger);
 
 export const SERVICES = [
+  // GENERAL
   {
     title: 'Complex diagnostics',
     category: 'General',
     desc: 'Advanced imaging and diagnostic procedures for precise treatment planning.',
     image: '/images/services/gallery-consultation.jpg',
-    details: 'Our complex diagnostics involve state-of-the-art 3D CBCT scanning, digital impressions, and AI-assisted analysis to create a comprehensive map of your oral health. This ensures every treatment is planned with micron-level precision.'
   },
   {
     title: 'Professional hygiene',
     category: 'General',
     desc: 'Deep cleaning and preventative care to maintain long-term oral health.',
     image: '/images/services/service-chair-close.jpg',
-    details: 'Experience a new standard of clean with our guided biofilm therapy. We use warm water and airflow technology to gently remove plaque and stains, followed by a remineralizing treatment to strengthen enamel.'
-  },
-  {
-    title: 'Veneers',
-    category: 'Specialized',
-    desc: 'Ultra-thin porcelain shells for a flawless, natural-looking smile.',
-    image: '/images/services/service-chair-tree.jpg',
-    details: 'Custom-crafted by master ceramists, our veneers are designed to complement your facial features. The process involves a digital smile design preview, minimal preparation, and a final bonding session for a life-changing transformation.'
-  },
-  {
-    title: 'Dental implants',
-    category: 'Specialized',
-    desc: 'Permanent tooth replacement solutions that feel and look like natural teeth.',
-    image: '/images/services/service-chair-scenic.jpg',
-    details: 'We use premium titanium or zirconia implants to replace missing teeth. The procedure is minimally invasive, often performed under sedation, and results in a stable, lifelong foundation for your smile.'
-  },
-  {
-    title: 'ALL-ON-X',
-    category: 'Specialized',
-    desc: 'Full-arch restoration for immediate, transformative results.',
-    image: '/images/services/service-lab-work.jpg',
-    details: 'Regain full function in a single day. This revolutionary technique supports an entire arch of teeth on just 4 or 6 implants, providing immediate stability and aesthetics without the need for bone grafting in many cases.'
   },
   {
     title: 'Sedation and anaesthesia',
     category: 'General',
     desc: 'Comfortable treatments with advanced sedation options.',
     image: '/images/services/service-exam.jpg',
-    details: 'Anxiety-free dentistry is our promise. From nitrous oxide (laughing gas) to IV sedation administered by a board-certified anesthesiologist, we ensure your comfort and safety throughout any procedure.'
   },
   {
-    title: 'Simple Extraction',
+    title: 'Simple extraction',
     category: 'General',
     desc: 'Safe and painless removal of problematic teeth.',
     image: '/images/services/gallery-chairs-row.jpg',
-    details: 'When a tooth cannot be saved, our expert surgeons perform simple extractions with maximum care, ensuring a clean process and rapid recovery.'
   },
   {
-    title: 'Teeth Whitening',
+    title: 'Teeth whitening',
     category: 'General',
     desc: 'Professional brightening for a radiant smile.',
     image: '/images/services/gallery-chair-red.jpg',
-    details: 'Our advanced laser whitening treatments ensure significantly brighter teeth without sensitivity, utilizing premium whitening gels activated by specialized light.'
   },
   {
     title: 'Therapy',
     category: 'General',
     desc: 'General restorative treatments to bring back your smile.',
     image: '/images/services/gallery-equipment.jpg',
-    details: 'From composite bonding to fluoride treatments, our therapeutic services focus on arresting decay, repairing damage, and restoring the natural function of your teeth using biomimetic materials.'
-  },
-  {
-    title: 'Endodontics',
-    category: 'Specialized',
-    desc: 'Specialized root canal treatments to save natural teeth.',
-    image: '/images/services/gallery-consultation.jpg',
-    details: 'Using microscopic magnification, we remove infection from within the tooth with extreme precision. This painless procedure saves your natural tooth, preventing the need for extraction and implants.'
-  },
-  {
-    title: 'Surgery',
-    category: 'Specialized',
-    desc: 'Expert surgical care for complex oral conditions.',
-    image: '/images/services/service-chair-close.jpg',
-    details: 'Our oral surgery capabilities range from wisdom tooth removal to corrective jaw surgery. We prioritize minimally invasive techniques and accelerated healing protocols to get you back to your life faster.'
-  },
-  {
-    title: 'Smile Design',
-    category: 'Specialized',
-    desc: 'Digital smile planning for predictable aesthetic results.',
-    image: '/images/services/service-chair-tree.jpg',
-    details: 'Using advanced digital imaging and facial analysis, we design your perfect smile before any treatment begins. See your future smile and participate in the design process.'
   },
   {
     title: 'Orthodontics',
     category: 'General',
     desc: 'Clear aligners and traditional braces for a perfectly straight smile.',
     image: '/images/services/service-chair-scenic.jpg',
-    details: 'Achieve the straight smile you\'ve always wanted. We offer both comprehensive traditional braces and virtually invisible clear aligner therapy customised to your unique bite.'
   },
   {
-    title: 'Periodontal Care',
+    title: 'Periodontal care',
     category: 'General',
     desc: 'Specialized treatments for gum health and disease prevention.',
     image: '/images/services/service-lab-work.jpg',
-    details: 'Healthy gums are the foundation of healthy teeth. Our periodontal therapies manage gum disease through deep scaling, root planing, and advanced laser treatments.'
   },
   {
-    title: 'Pediatric Dentistry',
+    title: 'Pediatric dentistry',
     category: 'General',
     desc: 'Gentle and comprehensive dental care for children of all ages.',
     image: '/images/services/service-exam.jpg',
-    details: 'We provide a welcoming, fear-free environment for our youngest patients, focusing on preventative care, education, and interceptive treatments as they grow.'
   },
   {
-    title: 'Dental Crowns',
+    title: 'Dental crowns',
     category: 'General',
     desc: 'Custom-crafted restorations to protect and strengthen damaged teeth.',
     image: '/images/services/gallery-chairs-row.jpg',
-    details: 'Our single-visit ceramic crowns perfectly match your natural teeth, restoring both the function and aesthetic appearance of teeth weakened by decay or trauma.'
   },
   {
     title: 'TMJ Therapy',
     category: 'General',
     desc: 'Relief from jaw pain, clicking, and related headaches.',
     image: '/images/services/gallery-chair-red.jpg',
-    details: 'Using targeted diagnostics, custom night guards, and guided physiotherapy, we alleviate temporomandibular joint dysfunction to give you lasting comfort.'
+  },
+
+  // SPECIALIZED
+  {
+    title: 'Veneers',
+    category: 'Specialized',
+    desc: 'Ultra-thin porcelain shells for a flawless, natural-looking smile.',
+    image: '/images/services/service-chair-tree.jpg',
   },
   {
-    title: 'Bone Grafting',
+    title: 'Dental implants',
+    category: 'Specialized',
+    desc: 'Permanent tooth replacement solutions that feel and look like natural teeth.',
+    image: '/images/services/service-chair-scenic.jpg',
+  },
+  {
+    title: 'ALL-ON-X',
+    category: 'Specialized',
+    desc: 'Full-arch restoration for immediate, transformative results.',
+    image: '/images/services/service-lab-work.jpg',
+  },
+  {
+    title: 'Endodontics',
+    category: 'Specialized',
+    desc: 'Specialized root canal treatments to save natural teeth.',
+    image: '/images/services/gallery-consultation.jpg',
+  },
+  {
+    title: 'Surgery',
+    category: 'Specialized',
+    desc: 'Expert surgical care for complex oral conditions.',
+    image: '/images/services/service-chair-close.jpg',
+  },
+  {
+    title: 'Smile design',
+    category: 'Specialized',
+    desc: 'Digital smile planning for predictable aesthetic results.',
+    image: '/images/services/service-chair-tree.jpg',
+  },
+  {
+    title: 'Bone grafting',
     category: 'Specialized',
     desc: 'Advanced bone regeneration to build a solid foundation for implants.',
     image: '/images/services/gallery-equipment.jpg',
-    details: 'Using advanced biocompatible materials, we restore jawbone density lost to extractions or pathology, ensuring your dental implants have the robust support they need.'
   },
   {
-    title: 'Sinus Lifts',
+    title: 'Sinus lifts',
     category: 'Specialized',
     desc: 'Surgical elevation of the sinus cavity to allow for upper jaw implants.',
     image: '/images/services/gallery-consultation.jpg',
-    details: 'A highly specialized procedure that gently lifts the sinus membrane and adds bone graft material, safely opening the door for secure implants in the upper molar region.'
   },
   {
-    title: 'Full Mouth Reconstruction',
+    title: 'Full mouth reconstruction',
     category: 'Specialized',
     desc: 'Comprehensive rehabilitation of your entire oral structure and aesthetic.',
     image: '/images/services/service-chair-close.jpg',
-    details: 'For cases requiring extensive intervention, our specialists collaborate to rebuild your entire smile from the ground up, utilizing implants, crowns, and precise bite alignment.'
   },
   {
-    title: 'Laser Gum Surgery',
+    title: 'Laser gum surgery',
     category: 'Specialized',
     desc: 'Minimally invasive laser therapy for periodontal disease and contouring.',
     image: '/images/services/service-chair-tree.jpg',
-    details: 'Experience scalpel-free gum surgery. Our targeted lasers vaporize infected tissue, stimulate cellular regeneration, and precisely reshape gummy smiles with minimal downtime.'
   },
   {
-    title: 'Maxillofacial Prosthetics',
+    title: 'Maxillofacial prosthetics',
     category: 'Specialized',
     desc: 'Complex prosthetic rehabilitation for congenital or acquired defects.',
     image: '/images/services/service-chair-scenic.jpg',
-    details: 'Our specialized prosthodontists design custom intraoral and extraoral prostheses to restore crucial oral function, swallowing, speech, and facial aesthetics.'
   }
 ];
 
-const ServicesList = ({ variant = 'dark', onBookNow, onServiceSelect }) => {
+const ServicesList = ({ services: dynamicServices, loading, error, variant = 'dark', onBookNow, onServiceSelect }) => {
   const isDark = variant === 'dark';
-  const [activeCategory, setActiveCategory] = useState('General');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const activeCategory = searchParams.get('category') || 'General';
+
+  const setActiveCategory = (category) => {
+    setSearchParams({ category }, { replace: true });
+  };
   const sectionRef = useRef(null);
   const headingRef = useRef(null);
   const gridRef = useRef(null);
   const navigate = useNavigate();
 
+  // Master list is always the 22 SERVICES. Enrich them with dynamic data if available.
+  const activeServices = SERVICES.map(staticS => {
+    const dynamicMatch = dynamicServices?.find(ds => 
+      ds.name.toLowerCase() === staticS.title.toLowerCase()
+    );
+    return dynamicMatch ? { ...staticS, ...dynamicMatch } : staticS;
+  });
+
   useEffect(() => {
+    if (activeServices.length === 0) return;
+
     let ctx;
     const timer = setTimeout(() => {
         ctx = gsap.context(() => {
             // Animate Heading Elements staggered (Masked Reveal)
-            gsap.from('.services-reveal-text', {
-                x: '-100%',
-                opacity: 0,
-                duration: 1.5,
-                stagger: 0.2,
-                ease: 'expo.out',
-                scrollTrigger: {
-                    trigger: headingRef.current,
-                    start: 'top 85%',
-                    once: true,
-                },
-            });
+            const headings = gsap.utils.toArray('.services-reveal-text');
+            if (headings.length > 0) {
+              gsap.from(headings, {
+                  x: '-100%',
+                  opacity: 0,
+                  duration: 1.5,
+                  stagger: 0.2,
+                  ease: 'expo.out',
+                  scrollTrigger: {
+                      trigger: headingRef.current,
+                      start: 'top 85%',
+                      once: true,
+                  },
+              });
+            }
 
             // Animate grid cards in batches
-            gsap.set('.gsap-card', { y: 40, opacity: 0, scale: 0.95 });
-            ScrollTrigger.batch('.gsap-card', {
-                start: 'top 95%',
-                once: true,
-                onEnter: (batch) => {
-                    gsap.to(batch, {
-                        y: 0,
-                        opacity: 1,
-                        scale: 1,
-                        duration: 0.7,
-                        ease: 'power3.out',
-                        stagger: 0.1,
-                    });
-                },
-            });
+            const cards = gsap.utils.toArray('.gsap-card');
+            if (cards.length > 0) {
+              gsap.set(cards, { y: 40, opacity: 0, scale: 0.95 });
+              ScrollTrigger.batch(cards, {
+                  start: 'top 95%',
+                  once: true,
+                  onEnter: (batch) => {
+                      gsap.to(batch, {
+                          y: 0,
+                          opacity: 1,
+                          scale: 1,
+                          duration: 0.7,
+                          ease: 'power3.out',
+                          stagger: 0.1,
+                      });
+                  },
+              });
+            }
 
             // Animate list items staggered robustly
-            gsap.fromTo('.gsap-list-item', 
-                { x: -20, opacity: 0 },
-                {
-                    x: 0,
-                    opacity: 1,
-                    duration: 0.6,
-                    ease: 'power3.out',
-                    stagger: 0.1,
-                    scrollTrigger: {
-                        trigger: '.gsap-list-container',
-                        start: 'top 95%',
-                        once: true,
-                    },
-                }
-            );
+            const listItemsElements = gsap.utils.toArray('.gsap-list-item');
+            if (listItemsElements.length > 0) {
+              gsap.fromTo(listItemsElements, 
+                  { x: -20, opacity: 0 },
+                  {
+                      x: 0,
+                      opacity: 1,
+                      duration: 0.6,
+                      ease: 'power3.out',
+                      stagger: 0.1,
+                      scrollTrigger: {
+                          trigger: '.gsap-list-container',
+                          start: 'top 95%',
+                          once: true,
+                      },
+                  }
+              );
+            }
         }, sectionRef);
 
         // Force ScrollTrigger to recalculate all trigger positions now that layout is stable
@@ -231,14 +236,15 @@ const ServicesList = ({ variant = 'dark', onBookNow, onServiceSelect }) => {
         clearTimeout(timer);
         if (ctx) ctx.revert();
     };
-  }, [activeCategory]); // Re-run animation if activeCategory changes layout
+  }, [activeCategory, activeServices.length]); // Re-run animation if activeCategory or services length change
 
   const handleServiceSelect = (service) => {
     if (onServiceSelect) {
       onServiceSelect(service);
     } else {
-      // Find the ID to navigate to by checking if we have dynamic services
-      // Since it's a static array now, we could use the title to create a slug
+      // Use the database ID if available, otherwise use a URL-friendly name as a slug
+      const identifier = service.id || (service.title || service.name).toLowerCase().replace(/\s+/g, '-');
+      navigate(`/services/${identifier}`);
     }
   };
 
@@ -251,11 +257,32 @@ const ServicesList = ({ variant = 'dark', onBookNow, onServiceSelect }) => {
     }
   };
 
-  const filteredServices = SERVICES.filter(service => service.category === activeCategory);
+  // Helper to map dynamic service properties to what the component expects
+  const mapService = (s) => ({
+    id: s.id,
+    title: s.name || s.title,
+    category: s.tier ? (s.tier.charAt(0).toUpperCase() + s.tier.slice(1)) : (s.category || 'General'),
+    desc: s.description || s.desc,
+    // Use the index to pick an image if s.image is missing
+    image: s.image || (SERVICES.find(orig => orig.title.toLowerCase() === (s.name || '').toLowerCase())?.image) || '/images/services/service-chair-close.jpg',
+  });
+
+  const filteredServices = activeServices
+    .map(mapService)
+    .filter(service => service.category === activeCategory);
   
   // Design logic from HomeServices
   const gridItems = filteredServices.slice(0, 5);
   const listItems = filteredServices.slice(5);
+
+  if (loading && (!dynamicServices || dynamicServices.length === 0)) {
+      return (
+          <div className="bg-[#0B1120] py-32 text-center text-slate-500">
+              <div className="w-8 h-8 border-2 border-sky-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+              <p className="text-sm font-medium tracking-widest uppercase">Loading clinical solutions...</p>
+          </div>
+      );
+  }
 
   return (
     <div ref={sectionRef} className="bg-[#0B1120] py-16 sm:py-24 lg:py-32 relative overflow-hidden transition-colors duration-500">
@@ -301,8 +328,9 @@ const ServicesList = ({ variant = 'dark', onBookNow, onServiceSelect }) => {
         </div>
 
         {/* HomeServices Design Grid */}
-        <div ref={gridRef} className='grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-16'>
-            {gridItems.map((service, idx) => (
+        <div ref={gridRef} className='grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-16 min-h-[100px]'>
+            {gridItems.length > 0 ? (
+              gridItems.map((service, idx) => (
                 <div
                     key={service.title}
                     onClick={() => handleServiceSelect(service)}
@@ -341,7 +369,14 @@ const ServicesList = ({ variant = 'dark', onBookNow, onServiceSelect }) => {
                         </div>
                     </div>
                 </div>
-            ))}
+              ))
+            ) : (
+              <div className="col-span-full py-20 text-center">
+                <p className="text-slate-500 font-medium tracking-widest uppercase text-sm">
+                  No {activeCategory} services found in this tier.
+                </p>
+              </div>
+            )}
         </div>
 
         {/* List View */}

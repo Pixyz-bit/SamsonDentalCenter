@@ -3,9 +3,6 @@ import { Link } from 'react-router-dom';
 const Footer = () => {
     return (
         <footer className='bg-[#0B1120] text-slate-50 py-16 sm:py-24 lg:py-32 relative overflow-hidden'>
-            {/* Background Decor */}
-            <div className='absolute bottom-0 right-0 w-150 h-150 bg-sky-500 rounded-full blur-[200px] -mr-150 -mt-150 pointer-events-none"'></div>
-
             <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10'>
                 <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-16 mb-20 md:mb-24'>
                     <div className='col-span-1 md:col-span-2 lg:col-span-1'>
