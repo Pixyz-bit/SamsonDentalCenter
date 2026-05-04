@@ -5,7 +5,7 @@ import ApprovalHeader from '../../components/secretary/approvals/ApprovalHeader'
 import ApprovalInbox from '../../components/secretary/approvals/ApprovalInbox';
 import ApprovalDetailView from '../../components/secretary/approval_details';
 import useApprovals from '../../hooks/useApprovals';
-import { formatTime } from '../../hooks/useAppointments'; // Reusing existing formatter
+import { formatTime } from '../../hooks/useAppointments';
 
 const ApprovalsPage = () => {
     const [searchParams, setSearchParams] = useSearchParams();
@@ -17,24 +17,31 @@ const ApprovalsPage = () => {
         rejectRequest, 
         fetchDentistSchedule,
         fetchPatientStats,
+        fetchPatientHistory,
         refresh 
     } = useApprovals();
 
     const [busySlots, setBusySlots] = useState([]);
     const [completedCount, setCompletedCount] = useState(0);
+    const [patientHistory, setPatientHistory] = useState([]);
 
     const [activeFilter, setActiveFilter] = useState('all');
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedService, setSelectedService] = useState('All Services');
     const [selectedDoctor, setSelectedDoctor] = useState('All Doctors');
-    
-    // Default to 'All Dates' to show all pending requests by default
     const [selectedDate, setSelectedDate] = useState('');
-
     const [currentPage, setCurrentPage] = useState(1);
     const [selectedId, setSelectedId] = useState(null);
 
-    // Transform raw backend data to match UI component expectations
+    function calculatePosition(timeStr) {
+        if (!timeStr) return -1;
+        const [h, m] = timeStr.split(':').map(Number);
+        const totalMinutes = h * 60 + m;
+        const startMinutes = 8 * 60;
+        const endMinutes = 17 * 60;
+        return Math.max(0, Math.min(100, ((totalMinutes - startMinutes) / (endMinutes - startMinutes)) * 100));
+    }
+
     const requests = useMemo(() => {
         return rawRequests.map(req => ({
             id: req.id,
@@ -50,7 +57,7 @@ const ApprovalsPage = () => {
                 noShowCount: req.patient?.no_show_count || 0, 
                 cancellationCount: req.patient?.cancellation_count || 0,
                 isBookingRestricted: req.patient?.is_booking_restricted || false,
-                source: req.source // NEW: passed through to overview
+                source: req.source
             },
             service: req.service?.name || "Unknown Service",
             serviceTier: req.service_tier,
@@ -60,45 +67,26 @@ const ApprovalsPage = () => {
                 ? `${req.dentist.profile.last_name}, ${req.dentist.profile.first_name} ${req.dentist.profile.middle_name || ''} ${req.dentist.profile.suffix || ''}`.replace(/\s+/g, ' ').trim() 
                 : 'Unassigned',
             dentistId: req.dentist?.id || req.dentist_id,
+            dentistPhone: req.dentist?.profile?.phone || req.dentist?.phone || "N/A",
+            dentistEmail: req.dentist?.profile?.email || req.dentist?.email || "N/A",
             createdAt: req.created_at,
             source: req.source,
             slotPosition: calculatePosition(req.start_time)
         }));
     }, [rawRequests]);
 
-    function calculatePosition(timeStr) {
-        if (!timeStr) return -1;
-        // Handle HH:mm:ss context
-        const [h, m] = timeStr.split(':').map(Number);
-        
-        // Map 8AM - 5PM (8 to 17) to 0-100%
-        const totalMinutes = h * 60 + m;
-        const startMinutes = 8 * 60;
-        const endMinutes = 17 * 60;
-        return Math.max(0, Math.min(100, ((totalMinutes - startMinutes) / (endMinutes - startMinutes)) * 100));
-    }
-
-    // Sync selectedId with URL 'id' param
     useEffect(() => {
         const id = searchParams.get('id');
         if (id) {
-            setSelectedId(id); // Backend uses UUID strings
+            setSelectedId(id);
         } else {
             setSelectedId(null);
         }
     }, [searchParams]);
 
     const handleApprove = async (id) => {
-        const reqToApprove = requests.find(r => r.id === id);
-        if (!reqToApprove) return;
-        
         const res = await approveRequest(id);
         if (res.success) {
-            console.log('📬 [Notification Status] Approval process completed:', {
-                email: res.notifications?.email,
-                sms: res.notifications?.sms,
-                inApp: res.notifications?.inApp
-            });
             if (selectedId === id) setSearchParams({});
         } else {
             alert(`Approval failed: ${res.error}`);
@@ -106,9 +94,6 @@ const ApprovalsPage = () => {
     };
 
     const handleReject = async (id, reason = 'No reason provided') => {
-        const reqToReject = requests.find(r => r.id === id);
-        if (!reqToReject) return;
-        
         const res = await rejectRequest(id, reason);
         if (res.success) {
             if (selectedId === id) setSearchParams({});
@@ -117,13 +102,8 @@ const ApprovalsPage = () => {
         }
     };
 
-    const handleRowClick = (id) => {
-        setSearchParams({ id: id.toString() });
-    };
-
-    const handleBack = () => {
-        setSearchParams({});
-    };
+    const handleRowClick = (id) => setSearchParams({ id: id.toString() });
+    const handleBack = () => setSearchParams({});
 
     const filteredRequests = requests.filter(r => {
         const matchesSearch = r.patient.name.toLowerCase().includes(searchQuery.toLowerCase());
@@ -132,7 +112,6 @@ const ApprovalsPage = () => {
         const matchesDate = !selectedDate || r.requestedDate === selectedDate;
         
         if (!matchesSearch || !matchesService || !matchesDoctor || !matchesDate) return false;
-        
         if (activeFilter === 'all') return true;
         
         const hours = (new Date() - new Date(r.createdAt)) / (1000 * 60 * 60);
@@ -148,78 +127,56 @@ const ApprovalsPage = () => {
         if (activeFilter === 'urgent') return isUrgent;
         if (activeFilter === 'stale') return isNeedsAttention;
         if (activeFilter === 'recent') return isRecent;
-        
         return true;
     });
 
-    const urgentCount = requests.filter(r => {
+    const counts = useMemo(() => {
         const todayStr = new Date().toISOString().split('T')[0];
         const tomorrow = new Date();
         tomorrow.setDate(tomorrow.getDate() + 1);
         const tomorrowStr = tomorrow.toISOString().split('T')[0];
-        return r.requestedDate === tomorrowStr || r.requestedDate === todayStr;
-    }).length;
 
-    const staleCount = requests.filter(r => {
-        const hours = (new Date() - new Date(r.createdAt)) / (1000 * 60 * 60);
-        const todayStr = new Date().toISOString().split('T')[0];
-        const tomorrow = new Date();
-        tomorrow.setDate(tomorrow.getDate() + 1);
-        const tomorrowStr = tomorrow.toISOString().split('T')[0];
-        const isUrgent = r.requestedDate === tomorrowStr || r.requestedDate === todayStr;
-        return hours > 5 && !isUrgent;
-    }).length;
-
-    const newCount = requests.filter(r => {
-        const hours = (new Date() - new Date(r.createdAt)) / (1000 * 60 * 60);
-        const todayStr = new Date().toISOString().split('T')[0];
-        const tomorrow = new Date();
-        tomorrow.setDate(tomorrow.getDate() + 1);
-        const tomorrowStr = tomorrow.toISOString().split('T')[0];
-        const isUrgent = r.requestedDate === tomorrowStr || r.requestedDate === todayStr;
-        return hours <= 5 && !isUrgent;
-    }).length;
+        return requests.reduce((acc, r) => {
+            const isUrgent = r.requestedDate === tomorrowStr || r.requestedDate === todayStr;
+            const hours = (new Date() - new Date(r.createdAt)) / (1000 * 60 * 60);
+            
+            if (isUrgent) acc.urgent++;
+            else if (hours > 5) acc.stale++;
+            else acc.new++;
+            return acc;
+        }, { urgent: 0, stale: 0, new: 0 });
+    }, [requests]);
 
     const selectedRequest = requests.find(r => r.id === selectedId);
 
-    // Fetch dentist busy slots and patient stats when request is selected
     useEffect(() => {
         if (selectedRequest) {
             const loadData = async () => {
-                // Fetch Dentist Schedule
                 if (selectedRequest.dentistId && selectedRequest.requestedDate) {
-                    const appointments = await fetchDentistSchedule(
-                        selectedRequest.dentistId, 
-                        selectedRequest.requestedDate
-                    );
+                    const appointments = await fetchDentistSchedule(selectedRequest.dentistId, selectedRequest.requestedDate);
                     const positions = appointments
-                        .filter(a => 
-                            a.id !== selectedRequest.id && 
-                            a.status !== 'CANCELLED' && 
-                            a.status !== 'LATE_CANCEL' && 
-                            a.status !== 'RESCHEDULED' && 
-                            a.status !== 'NOSHOW'
-                        )
+                        .filter(a => a.id !== selectedRequest.id && !['CANCELLED', 'LATE_CANCEL', 'RESCHEDULED', 'NOSHOW'].includes(a.status))
                         .map(a => calculatePosition(a.start_time));
                     setBusySlots(positions);
                 }
-
-                // Fetch Patient Reputation Stats
                 if (selectedRequest.patient.id) {
                     const stats = await fetchPatientStats(selectedRequest.patient.id);
                     setCompletedCount(stats.completed);
+                    const history = await fetchPatientHistory(selectedRequest.patient.id);
+                    setPatientHistory(history);
                 } else {
-                    setCompletedCount(0); // Guest
+                    setCompletedCount(0);
+                    setPatientHistory([]);
                 }
             };
             loadData();
         } else {
             setBusySlots([]);
             setCompletedCount(0);
+            setPatientHistory([]);
         }
-    }, [selectedRequest, fetchDentistSchedule, fetchPatientStats]);
+    }, [selectedRequest, fetchDentistSchedule, fetchPatientStats, fetchPatientHistory]);
 
-    // Dynamic breadcrumbs based on selection
     const breadcrumbTitle = selectedId ? 'Request Details' : 'Approvals';
     const parentName = selectedId ? 'Approvals' : null;
     const parentPath = selectedId ? '/approvals' : null;
@@ -243,25 +200,23 @@ const ApprovalsPage = () => {
     }
 
     return (
-        <div className="flex flex-col h-full overflow-hidden">
-            <div className="mb-6">
-                <PageBreadcrumb 
-                    pageTitle={breadcrumbTitle} 
-                    parentName={parentName} 
-                    parentPath={parentPath}
-                />
-            </div>
+        <div className="flex flex-col h-full w-full max-w-full overflow-x-hidden pb-8">
+            <PageBreadcrumb 
+                pageTitle={breadcrumbTitle} 
+                subtitle={selectedId ? 'Review detailed request information and history.' : 'Review and manage appointment booking requests.'}
+                parentName={parentName} 
+                parentPath={parentPath} 
+            />
 
             {!selectedId && (
                 <ApprovalHeader 
                     totalPending={requests.length}
-                    urgentCount={urgentCount}
-                    newCount={newCount}
-                    staleCount={staleCount}
+                    urgentCount={counts.urgent}
+                    newCount={counts.new}
+                    staleCount={counts.stale}
                 />
             )}
 
-            {/* Dynamic View Panel */}
             <div className="flex-1 min-h-0 flex flex-col sm:mb-6">
                 {selectedId ? (
                     <ApprovalDetailView 
@@ -273,6 +228,7 @@ const ApprovalsPage = () => {
                         slotPosition={selectedRequest?.slotPosition}
                         timeStr={selectedRequest?.requestedTime}
                         completedCount={completedCount}
+                        history={patientHistory}
                     />
                 ) : (
                     <ApprovalInbox 
