@@ -19,27 +19,33 @@ const ApprovalRow = ({ request, onClick }) => {
 
     let statusText = 'New';
     let statusClass = 'bg-brand-50 text-brand-600 dark:bg-brand-500/10 dark:text-brand-400';
+    let rowBorderClass = 'border-l-4 border-l-transparent';
+    let rowBgClass = 'bg-white dark:bg-white/[0.02]';
 
     if (isTomorrow) {
         statusText = 'Urgent';
-        statusClass = 'bg-error-50 text-error-600 dark:bg-error-500/10 dark:text-error-400';
+        statusClass = 'bg-error-50 text-error-600 dark:bg-error-500/10 dark:text-error-400 animate-pulse ring-1 ring-error-500/50';
+        rowBorderClass = 'border-l-4 border-l-error-500';
+        rowBgClass = 'bg-error-50/30 dark:bg-error-500/5';
     } else if (hoursDiff > 5) {
         statusText = 'Needs Attention';
         statusClass = 'bg-warning-50 text-warning-600 dark:bg-warning-500/10 dark:text-warning-400';
+        rowBorderClass = 'border-l-4 border-l-warning-500';
+        rowBgClass = 'bg-warning-50/20 dark:bg-warning-500/[0.03]';
     }
 
     return (
         <div 
             onClick={() => onClick(id)}
-            className={`group relative flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 px-4 sm:px-6 py-4 sm:py-5 border-b border-gray-100 dark:border-gray-800 cursor-pointer transition-all hover:shadow-md hover:z-10 bg-white dark:bg-white/[0.02]`}
+            className={`group relative flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 px-4 sm:px-6 py-4 sm:py-5 border-y border-gray-100 dark:border-gray-800 cursor-pointer transition-all hover:shadow-theme-md hover:z-10 ${rowBorderClass} ${rowBgClass}`}
         >
             {/* Desktop View (sm and up) */}
             <div className='hidden sm:flex items-center w-full gap-4'>
                 <div className='w-48 lg:w-56 shrink-0 truncate flex items-center gap-3'>
-                    <div className='w-8 h-8 rounded-full bg-brand-500 flex items-center justify-center text-white text-xs font-bold shadow-sm'>
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold shadow-theme-sm ${isTomorrow ? 'bg-error-500' : hoursDiff > 5 ? 'bg-warning-500' : 'bg-brand-500'}`}>
                         {patient.name.charAt(0)}
                     </div>
-                    <span className='text-sm sm:text-base text-gray-900 dark:text-white font-bold truncate'>
+                    <span className={`text-sm sm:text-base font-bold truncate ${isTomorrow ? 'text-error-700 dark:text-error-400' : 'text-gray-900 dark:text-white'}`}>
                         {patient.name}
                     </span>
                 </div>
@@ -81,7 +87,7 @@ const ApprovalRow = ({ request, onClick }) => {
                 </div>
                 <div className='flex-grow min-w-0 flex flex-col gap-0.5'>
                     <div className='flex justify-between items-center'>
-                        <span className='text-sm tracking-tight truncate text-gray-900 dark:text-white font-bold'>
+                        <span className={`text-sm tracking-tight truncate font-bold ${isTomorrow ? 'text-error-700 dark:text-error-400' : 'text-gray-900 dark:text-white'}`}>
                             {patient.name}
                         </span>
                         <span className='text-[10px] text-gray-400 font-medium'>{hoursDiff < 1 ? 'Just now' : `${Math.floor(hoursDiff)}h ago`}</span>
