@@ -27,9 +27,9 @@ const StaffDetailView = ({ staffMember: initialStaff, onBack, activeTab }) => {
     ];
 
     return (
-        <div className='flex flex-col grow min-h-0 bg-white dark:bg-white/[0.03] sm:rounded-xl border-t sm:border border-gray-200 dark:border-gray-700 transition-all duration-300 overflow-hidden no-scrollbar'>
+        <div className='flex flex-col grow min-h-0 bg-white dark:bg-white/[0.03] sm:rounded-xl border-t sm:border border-gray-300 dark:border-gray-800 transition-all duration-300 overflow-hidden no-scrollbar'>
             {/* ── A. Identity Header (Doctor Style) ── */}
-            <div className='bg-white dark:bg-transparent border-b border-gray-200 dark:border-gray-700'>
+            <div className='bg-white dark:bg-transparent border-b border-gray-300 dark:border-gray-800'>
                 <div className='px-4 sm:px-6 py-4 sm:py-7 flex items-center justify-between'>
                     <div className='flex items-center gap-4'>
                         <div className='bg-gray-100 dark:bg-white/5 p-1.5 rounded-xl'>
@@ -53,7 +53,7 @@ const StaffDetailView = ({ staffMember: initialStaff, onBack, activeTab }) => {
             </div>
 
             {/* ── B. Navigation Tabs (Doctor Style) ── */}
-            <div className='sticky top-0 z-30 bg-white dark:bg-[#1f2021] border-b border-gray-200 dark:border-gray-700 shadow-sm sm:shadow-none'>
+            <div className='sticky top-0 z-30 bg-white dark:bg-[#1f2021] border-b border-gray-300 dark:border-gray-800 shadow-sm sm:shadow-none'>
                 <div className='bg-white dark:bg-transparent px-4 sm:px-6 flex items-center gap-[clamp(20px,3vw,32px)] overflow-x-auto no-scrollbar'>
                     {tabs.map((t) => (
                         <button
@@ -75,9 +75,9 @@ const StaffDetailView = ({ staffMember: initialStaff, onBack, activeTab }) => {
             </div>
 
             <div className='grow overflow-y-auto no-scrollbar'>
-                <div className='p-4 sm:p-6 lg:p-8 space-y-6'>
+                <div className='p-4 sm:p-6 lg:p-8 space-y-8'>
                     {/* Header Card */}
-                    <div className='p-6 border border-gray-200 rounded-xl dark:border-gray-800 lg:p-7 bg-white dark:bg-white/[0.03]'>
+                    <div className='p-6 sm:p-10 border border-gray-300 rounded-3xl dark:border-gray-800 bg-white dark:bg-white/[0.03] shadow-sm'>
                         <div className='flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between'>
                             <div className='flex flex-col items-center w-full gap-6 xl:flex-row xl:items-center'>
                                 <div className='shrink-0'>
@@ -120,21 +120,33 @@ const StaffDetailView = ({ staffMember: initialStaff, onBack, activeTab }) => {
                         </div>
 
                         {/* Contact Meta */}
-                        <div className='mt-6 pt-6 border-t border-gray-200 dark:border-gray-700/60 flex flex-col sm:flex-row sm:items-center justify-between gap-4'>
-                            <div className='flex flex-wrap gap-6'>
-                                <div className='flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300 font-medium'>
-                                    <Mail size={16} className='text-gray-400' /> {person.email}
+                        <div className='mt-8 pt-8 border-t border-gray-200 dark:border-gray-800 flex flex-col lg:flex-row lg:items-center justify-between gap-6'>
+                            <div className='flex flex-wrap gap-8'>
+                                <div className='flex items-center gap-3'>
+                                    <div className='w-8 h-8 rounded-lg bg-gray-50 dark:bg-white/5 flex items-center justify-center text-gray-400'>
+                                        <Mail size={16} />
+                                    </div>
+                                    <div>
+                                        <p className='text-[8px] font-black text-gray-400 uppercase tracking-widest leading-none mb-1'>Business Email</p>
+                                        <p className='text-xs font-black text-gray-900 dark:text-white uppercase tracking-tight'>{person.email}</p>
+                                    </div>
                                 </div>
-                                <div className='flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300 font-medium'>
-                                    <Phone size={16} className='text-gray-400' /> {person.phone}
+                                <div className='flex items-center gap-3'>
+                                    <div className='w-8 h-8 rounded-lg bg-gray-50 dark:bg-white/5 flex items-center justify-center text-gray-400'>
+                                        <Phone size={16} />
+                                    </div>
+                                    <div>
+                                        <p className='text-[8px] font-black text-gray-400 uppercase tracking-widest leading-none mb-1'>Direct Line</p>
+                                        <p className='text-xs font-black text-gray-900 dark:text-white uppercase tracking-tight'>{person.phone}</p>
+                                    </div>
                                 </div>
                             </div>
                             <Button
                                 variant='outline'
                                 onClick={() => setIsEditContactModalOpen(true)}
-                                className='h-11 px-6 text-sm font-bold shadow-sm'
+                                className='h-11 sm:h-12 px-6 text-[10px] font-black uppercase tracking-widest shadow-sm border-gray-200 dark:border-white/5 rounded-xl'
                             >
-                                <Mail size={16} className='mr-2' /> Edit Contact
+                                <Mail size={16} className='mr-2' /> Update Channels
                             </Button>
                         </div>
                     </div>

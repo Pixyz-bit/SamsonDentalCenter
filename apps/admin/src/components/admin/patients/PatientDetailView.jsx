@@ -184,8 +184,8 @@ const PatientDetailView = ({ patientId, onBack, activeTab }) => {
 
     if (loading) {
         return (
-            <div className='flex items-center justify-center grow bg-white dark:bg-white/[0.03] sm:rounded-xl border-t sm:border border-gray-100 dark:border-gray-800'>
-                <Loader2 className='animate-spin text-brand-500' size={40} />
+            <div className='flex items-center justify-center grow bg-white dark:bg-white/[0.03] sm:rounded-xl border-t sm:border border-gray-300 dark:border-gray-800 shadow-sm'>
+                <Loader2 className='animate-spin text-brand-500' size={48} />
             </div>
         );
     }
@@ -193,9 +193,9 @@ const PatientDetailView = ({ patientId, onBack, activeTab }) => {
     if (!patient) return null;
 
     return (
-        <div className='flex flex-col grow min-h-0 bg-white dark:bg-white/[0.03] sm:rounded-xl border-t sm:border border-gray-200 dark:border-gray-700 transition-all duration-300 overflow-hidden no-scrollbar'>
+        <div className='flex flex-col grow min-h-0 bg-white dark:bg-white/[0.03] sm:rounded-xl border-t sm:border border-gray-300 dark:border-gray-800 transition-all duration-300 overflow-hidden no-scrollbar'>
             {/* ── A. Identity Header (Doctor Style) ── */}
-            <div className='bg-white dark:bg-transparent border-b border-gray-200 dark:border-gray-700'>
+            <div className='bg-white dark:bg-transparent border-b border-gray-300 dark:border-gray-800'>
                 <div className='px-4 sm:px-6 py-4 sm:py-7 flex items-center justify-between'>
                     <div className='flex items-center gap-4'>
                         <div className='bg-gray-100 dark:bg-white/5 p-1.5 rounded-xl'>
@@ -219,7 +219,7 @@ const PatientDetailView = ({ patientId, onBack, activeTab }) => {
             </div>
 
             {/* ── B. Navigation Tabs (Doctor Style) ── */}
-            <div className='sticky top-0 z-30 bg-white dark:bg-[#1f2021] border-b border-gray-200 dark:border-gray-700 shadow-sm sm:shadow-none'>
+            <div className='sticky top-0 z-30 bg-white dark:bg-[#1f2021] border-b border-gray-300 dark:border-gray-800 shadow-sm sm:shadow-none'>
                 <div className='bg-white dark:bg-transparent px-4 sm:px-6 flex items-center gap-[clamp(20px,3vw,32px)] overflow-x-auto no-scrollbar'>
                     {tabs.map((t) => (
                         <button
@@ -241,7 +241,7 @@ const PatientDetailView = ({ patientId, onBack, activeTab }) => {
             </div>
 
             <div className='grow overflow-y-auto no-scrollbar'>
-                <div className='p-4 sm:p-6 lg:p-8 space-y-6'>
+                <div className='p-4 sm:p-6 lg:p-10 space-y-8'>
                     {/* Tab Content Router */}
                     <div className='min-h-120 md:min-h-140'>
                         {(!activeTab || activeTab === 'profile') && (

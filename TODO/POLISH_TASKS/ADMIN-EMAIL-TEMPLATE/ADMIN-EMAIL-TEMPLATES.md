@@ -1,18 +1,27 @@
 # Admin Email Template Management: Implementation Plan
 
-This document outlines the detailed implementation of an in-app "Email Template Editor" inside the Admin Portal. This will allow the admin to select an existing email type (e.g., OTP string, Booking Confirmed), view the raw HTML/Markdown, inject dynamic variables (like `{{name}}`), and preview/save the template directly to the database instead of relying on hardcoded `.html` files in the server directory.
+This document outlines the detailed implementation of an in-app "Email Template Editor" inside the
+Admin Portal. This will allow the admin to select an existing email type (e.g., OTP string, Booking
+Confirmed), view the raw HTML/Markdown, inject dynamic variables (like `{{name}}`), and preview/save
+the template directly to the database instead of relying on hardcoded `.html` files in the server
+directory.
 
 ---
 
 ## 📋 1. The Goal & Scope
-To transition away from static `fs.readFileSync` templates (like `guest-otp.html`, `booking-confirmed.html`) into dynamically loaded database-driven templates.
-Admins will use a UI with a dropdown to select the template type, an IDE-like editor for HTML, a live preview pane, and an explicit list of available dynamic variables `{{...}}` for each type of email.
+
+To transition away from static `fs.readFileSync` templates (like `guest-otp.html`,
+`booking-confirmed.html`) into dynamically loaded database-driven templates. Admins will use a UI
+with a dropdown to select the template type, an IDE-like editor for HTML, a live preview pane, and
+an explicit list of available dynamic variables `{{...}}` for each type of email.
 
 ## 🗄️ 2. Database Schema Changes (Non-Destructive)
 
-We need a dedicated table to store these templates, supporting versioning or at least overriding the defaults.
+We need a dedicated table to store these templates, supporting versioning or at least overriding the
+defaults.
 
 ### 2.1 SQL Migration (`20260505_create_email_templates.sql`)
+
 ```sql
 CREATE TABLE IF NOT EXISTS email_templates (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -41,32 +50,63 @@ ON CONFLICT (template_key) DO NOTHING;
 
 ## ⚙️ 3. Backend Refactoring (`api/src/services/email-confirmation.service.js`)
 
-The backend currently reads from the filesystem (`fs.readFileSync`). It needs to query the database, fallback to the file system if DB fails, and process the variables.
+The backend currently reads from the filesystem (`fs.readFileSync`). It needs to query the database,
+fallback to the file system if DB fails, and process the variables.
 
-- [ ] **Create Template API**: `GET /api/v1/email-templates` and `PUT /api/v1/email-templates/:key` to fetch and update the layout and subject lines.
-- [ ] **Refactor `getTemplate` Function**: 
-  - Change `getTemplate` to be strictly asynchronous.
-  - Query `SELECT html_content, subject_line FROM email_templates WHERE template_key = ?`.
-  - Compile the `{{variable}}` tags exactly as it currently does.
-- [ ] **Fallback Mechanism**: Maintain the strict fallback where if the DB is empty (or the query fails), it pulls from `fs.readFileSync(path.join(process.cwd(), '..', '..', 'EmailTemplates', templateName))`.
+- [ ] **Create Template API**: `GET /api/v1/email-templates` and `PUT /api/v1/email-templates/:key`
+      to fetch and update the layout and subject lines.
+- [ ] **Refactor `getTemplate` Function**:
+    - Change `getTemplate` to be strictly asynchronous.
+    - Query `SELECT html_content, subject_line FROM email_templates WHERE template_key = ?`.
+    - Compile the `{{variable}}` tags exactly as it currently does.
+- [ ] **Fallback Mechanism**: Maintain the strict fallback where if the DB is empty (or the query
+      fails), it pulls from
+      `fs.readFileSync(path.join(process.cwd(), '..', '..', 'EmailTemplates', templateName))`.
 
 ---
 
-## 🖥️ 4. Admin Frontend Implementation (`ClinicRulesSettings.jsx` or New Tab)
+## 🖥️ 4. Admin UI: The Template Editor
 
-We will build a dedicated "Email Templates" tab in the Settings UI or a standalone page under Communications.
+We will build a dedicated "Email Templates" tab in the Settings UI or a standalone page under
+Communications.
 
-### 4.1 Layout & State
-- **Dropdown Selector**: A `<select>` or Listbox of all `template_key` options.
-- **Context Panel (Dynamic Variables)**: A side panel showing the `available_variables` JSON array for the selected template. E.g., *"You can use `{{name}}`, `{{time}}`, `{{date}}` in this template."*
-- **Split Screen Editor**:
-  - **Left Side**: A `<textarea>` or basic code editor (like Monaco/textarea) holding the raw HTML content.
-  - **Right Side (Preview)**: An `<iframe>` or `dangerouslySetInnerHTML` rendering the HTML in real-time. It will replace `{{name}}` with "John Doe" so the Admin sees exactly what it looks like.
+### 4.1 Layout & Interface
 
-### 4.2 Actions
-- **Preview Replace Function**: When evaluating the preview, run a live Regex replace inserting dummy data onto the HTML so the admin isn't just looking at broken template tags.
-- **Save**: Push the updated HTML and Subject Line to `PUT /api/v1/email-templates/:key`.
-- **Reset to Default**: A button that clears the row or fetches the hardcoded `fs` file to restore the original layout if the Admin breaks the HTML.
+- **Categorized List View**: A sidebar or dropdown to select from categories (e.g., Auth, Bookings,
+  Waitlist).
+- **The Editor (Left Pane)**: A raw text/code area for HTML editing.
+- **The Variable Reference (Side Panel)**: A dynamic list of "clickable" tags (e.g., `{{name}}`)
+  that the admin can see for each specific template to prevent typos. Clicking a tag injects it into
+  the editor.
+- **The Live Preview (Right Pane)**:
+    - **Sandboxed Iframe:** Used to isolate email styles from the Admin Portal UI and prevent style
+      bleeding.
+    - **Live-Mapping Function:** Replaces template tags with realistic dummy data (e.g., "John Doe",
+      "May 15th", "10:00 AM") in real-time as the admin types.
+- **Subject Line Interface**: A dedicated text field above the editor to change the subject line,
+  which also supports live variable replacement.
 
-### 4.3 Validation Guard
-- Scan the HTML before saving to ensure the Admin hasn't deleted critical system variables maliciously or created broken structural `<html>` tags.
+---
+
+## 🛡️ 5. Safety & Recovery Protocols
+
+To prevent admins from breaking critical booking and verification systems, these guards must be
+implemented:
+
+- **Syntax Validation**: A pre-save check to ensure all `{{` and `}}` tags are properly closed and
+  that vital structural HTML tags (like `<table>`, `<body>`, or `<html>`) aren't missing or severely
+  malformed.
+- **The "Factory Reset"**: A "Restore to Default" button that pulls the original hardcoded file
+  content from the local server directories and overwrites the active database record.
+- **Variable Protection**: A warning system that alerts the admin if they try to save a template
+  while accidentally removing a "Critical Variable" (e.g., omitting the `{{otpCode}}` tag in a guest
+  verification email).
+
+---
+
+## 🚀 6. Deployment Phase
+
+- **Dual-Read Period**: Initially, have the system check the DB; if a template is missing or the DB
+  query fails, it silently falls back to the local `fs.readFileSync` files to ensure zero downtime.
+- **Audit Logging**: Record which admin edited which template and when in the `audit_log` table,
+  ensuring strict traceability in case a change breaks a template and needs to be reverted.
