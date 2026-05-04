@@ -193,48 +193,50 @@ const PatientDetailView = ({ patientId, onBack, activeTab }) => {
     if (!patient) return null;
 
     return (
-        <div className='flex flex-col grow min-h-0 bg-white dark:bg-white/[0.03] sm:rounded-xl border-t sm:border border-gray-100 dark:border-gray-800 overflow-hidden no-scrollbar'>
-            {/* Top Navigation */}
-            <div className='sticky top-0 z-30 bg-white/95 dark:bg-gray-900/95 backdrop-blur-md border-b border-gray-100 dark:border-gray-800'>
-                <div className='px-4 sm:px-6 py-4 flex items-center justify-between'>
-                    <div className='flex items-center gap-3'>
-                        <button
-                            onClick={onBack}
-                            className='p-2 -ml-2 rounded-lg hover:bg-gray-100 dark:hover:bg-white/5 text-gray-500 transition-colors'
-                        >
-                            <ArrowLeft size={20} />
-                        </button>
+        <div className='flex flex-col grow min-h-0 bg-white dark:bg-white/[0.03] sm:rounded-xl border-t sm:border border-gray-200 dark:border-gray-700 transition-all duration-300 overflow-hidden no-scrollbar'>
+            {/* ── A. Identity Header (Doctor Style) ── */}
+            <div className='bg-white dark:bg-transparent border-b border-gray-200 dark:border-gray-700'>
+                <div className='px-4 sm:px-6 py-4 sm:py-7 flex items-center justify-between'>
+                    <div className='flex items-center gap-4'>
+                        <div className='bg-gray-100 dark:bg-white/5 p-1.5 rounded-xl'>
+                            <button
+                                onClick={onBack}
+                                className='p-2 rounded-lg hover:bg-white dark:hover:bg-white/10 text-gray-500 dark:text-gray-400 transition-all active:scale-95 shadow-sm sm:shadow-none'
+                            >
+                                <ArrowLeft size={20} />
+                            </button>
+                        </div>
                         <div>
-                            <p className='text-[9px] font-black text-gray-400 uppercase tracking-[0.2em] leading-none mb-1.5'>
-                                Patient Directory <span className='mx-1 text-gray-300'>/</span> {activeTabLabel} {subLabel && <><span className='mx-1 text-gray-300'>/</span> {subLabel}</>}
-                            </p>
-                            <h3 className='text-sm font-black text-gray-900 dark:text-white uppercase tracking-tight font-outfit'>
+                            <h3 className='text-[clamp(14px,1.5vw,18px)] font-black text-gray-900 dark:text-white uppercase tracking-tight font-outfit leading-tight'>
                                 {patient.full_name}
                             </h3>
+                            <p className='text-[clamp(9px,1vw,10px)] font-black text-brand-500 dark:text-brand-400 uppercase tracking-[0.15em] mt-1'>
+                                Patient Directory <span className='mx-1 text-gray-300'>/</span> {activeTabLabel} Registry
+                            </p>
                         </div>
                     </div>
                 </div>
+            </div>
 
-                {/* Tab Container with Top and Bottom separation */}
-                <div className='border-t border-gray-100 dark:border-gray-800 bg-white/50 dark:bg-white/[0.01]'>
-                    <div className='px-4 sm:px-6 flex items-center gap-4 sm:gap-8 overflow-x-auto no-scrollbar flex-nowrap'>
-                        {tabs.map((t) => (
-                            <button
-                                key={t.id}
-                                onClick={() => navigate(`/patients/${t.id}/${patient.id}`)}
-                                className={`py-3 text-[10px] sm:text-xs font-black uppercase tracking-widest transition-all relative whitespace-nowrap shrink-0 ${
-                                    activeTab === t.id 
-                                        ? 'text-brand-500' 
-                                        : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-200'
-                                }`}
-                            >
-                                {t.label}
-                                {activeTab === t.id && (
-                                    <div className='absolute bottom-0 left-0 right-0 h-0.5 bg-brand-500 rounded-full' />
-                                )}
-                            </button>
-                        ))}
-                    </div>
+            {/* ── B. Navigation Tabs (Doctor Style) ── */}
+            <div className='sticky top-0 z-30 bg-white dark:bg-[#1f2021] border-b border-gray-200 dark:border-gray-700 shadow-sm sm:shadow-none'>
+                <div className='bg-white dark:bg-transparent px-4 sm:px-6 flex items-center gap-[clamp(20px,3vw,32px)] overflow-x-auto no-scrollbar'>
+                    {tabs.map((t) => (
+                        <button
+                            key={t.id}
+                            onClick={() => navigate(`/patients/${t.id}/${patient.id}`)}
+                            className={`pt-4 pb-3 text-[clamp(9px,1.1vw,11px)] font-black uppercase tracking-[0.1em] transition-all relative whitespace-nowrap ${
+                                activeTab === t.id
+                                    ? 'text-brand-500'
+                                    : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-200'
+                            }`}
+                        >
+                            {t.label}
+                            {activeTab === t.id && (
+                                <div className='absolute bottom-0 left-0 right-0 h-1 bg-brand-500 rounded-full' />
+                            )}
+                        </button>
+                    ))}
                 </div>
             </div>
 
