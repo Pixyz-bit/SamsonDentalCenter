@@ -42,7 +42,18 @@ import { APPOINTMENT_SOURCE } from '../utils/constants.js';
  */
 export const bookGuest = async (req, res, next) => {
     try {
-        const { service_id, date, time, email, phone, guestNameParts, user_session_id, verification_token } = req.body;
+        const { 
+            service_id, 
+            date, 
+            time, 
+            email, 
+            phone, 
+            guestNameParts, 
+            user_session_id, 
+            verification_token,
+            notes,
+            birthday // ✅ Extract birthday
+        } = req.body;
 
         if (!verification_token) {
             return res.status(403).json({ error: 'Email verification required to book as a guest.' });
@@ -62,6 +73,9 @@ export const bookGuest = async (req, res, next) => {
             phone,
             guestNameParts,
             user_session_id,
+            0, // rescheduleCount
+            notes,
+            birthday // ✅ Pass birthday
         );
         return res.status(result.booked ? 201 : 409).json(result);
     } catch (err) {

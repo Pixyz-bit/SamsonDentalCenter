@@ -45,6 +45,8 @@ export const bookAppointmentGuest = async (
     guestNameParts, // { first, last, middle, suffix }
     userSessionId = null,
     rescheduleCount = 0,
+    notes = null,
+    birthday = null // ✅ Added birthday parameter
 ) => {
     const { first, last, middle, suffix } = guestNameParts;
     const guestName = `${last}, ${first} ${middle || ''} ${suffix || ''}`.replace(/\s+/g, ' ').trim();
@@ -134,6 +136,7 @@ export const bookAppointmentGuest = async (
             guest_last_name: last,
             guest_middle_name: middle,
             guest_suffix: suffix,
+            guest_birthday: birthday, // ✅ Save guest birthday
             dentist_id: finalDentistId,
             service_id: serviceId,
             appointment_date: date,
@@ -145,6 +148,7 @@ export const bookAppointmentGuest = async (
             confirmed_at: new Date().toISOString(),
             source: APPOINTMENT_SOURCE.GUEST_BOOKING,
             reschedule_count: rescheduleCount,
+            notes: notes // ✅ Save patient note
         })
         .select(`
             *,
@@ -216,6 +220,7 @@ export const bookAppointment = async (
     patientProfileId = null, // ✅ NEW: Link to a saved patient profile
     bookedForBirthday = null,
     bookedForRelationship = null,
+    notes = null, // ✅ Added notes parameter
 ) => {
     const finalIsPreferred = isPreferred !== null ? isPreferred : !!preferredDentistId;
     let bookedForName = null;
@@ -392,6 +397,7 @@ export const bookAppointment = async (
                 // ✅ User is booking from their own account, auto-confirm their intent
                 patient_confirmed: true,
                 confirmed_at: new Date().toISOString(),
+                notes: notes, // ✅ Save patient note
             })
             .select(
                 `
@@ -523,6 +529,7 @@ export const bookAppointment = async (
             // ✅ User is booking from their own account, auto-confirm their intent
             patient_confirmed: true,
             confirmed_at: new Date().toISOString(),
+            notes: notes, // ✅ Save patient note
         })
         .select(
             `

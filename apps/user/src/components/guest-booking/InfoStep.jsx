@@ -17,6 +17,7 @@ const InfoStep = ({ formData, onUpdate, onNext, onBack }) => {
 
         if (!nameParts.first.trim()) newErrors.first = 'First name is required.';
         if (!nameParts.last.trim()) newErrors.last = 'Last name is required.';
+        if (!formData.birthday) newErrors.birthday = 'Date of birth is required.';
         
         if (!formData.email?.trim()) {
             newErrors.email = 'Email address is required.';
@@ -111,7 +112,7 @@ const InfoStep = ({ formData, onUpdate, onNext, onBack }) => {
                                 {errors.last && <p className='text-error-500 text-[10px] font-bold mt-1.5 ml-1'>{errors.last}</p>}
                             </div>
 
-                            {/* First Name */}
+                             {/* First Name */}
                             <div>
                                 <label className={labelClasses}>First Name <span className='text-brand-500'>*</span></label>
                                 <input
@@ -122,6 +123,35 @@ const InfoStep = ({ formData, onUpdate, onNext, onBack }) => {
                                     className={getInputClasses(errors.first)}
                                 />
                                 {errors.first && <p className='text-error-500 text-[10px] font-bold mt-1.5 ml-1'>{errors.first}</p>}
+                            </div>
+
+                            {/* Date of Birth */}
+                            <div>
+                                <label className={labelClasses}>Date of Birth <span className='text-brand-500'>*</span></label>
+                                <div className="relative">
+                                    <input
+                                        type='date'
+                                        value={formData.birthday || ''}
+                                        onChange={(e) => handleFieldChange('birthday', e.target.value)}
+                                        className={getInputClasses(errors.birthday)}
+                                        max={new Date().toISOString().split('T')[0]}
+                                    />
+                                    {formData.birthday && (
+                                        <div className="absolute right-3 top-1/2 -translate-y-1/2 bg-brand-50 dark:bg-brand-500/10 text-brand-600 dark:text-brand-400 px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider border border-brand-100 dark:border-brand-500/20">
+                                            {(() => {
+                                                const birthDate = new Date(formData.birthday);
+                                                const today = new Date();
+                                                let age = today.getFullYear() - birthDate.getFullYear();
+                                                const m = today.getMonth() - birthDate.getMonth();
+                                                if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+                                                    age--;
+                                                }
+                                                return `${age} years old`;
+                                            })()}
+                                        </div>
+                                    )}
+                                </div>
+                                {errors.birthday && <p className='text-error-500 text-[10px] font-bold mt-1.5 ml-1'>{errors.birthday}</p>}
                             </div>
 
                             {/* Middle Name */}

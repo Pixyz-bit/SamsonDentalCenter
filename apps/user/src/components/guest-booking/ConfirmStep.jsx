@@ -155,6 +155,30 @@ const ConfirmStep = ({ formData, onSubmit, onBack, onEdit, onReset, submitting, 
                                 {formData.phone}
                             </p>
                         </div>
+                        <div className="min-w-0">
+                            <p className="mb-1 text-[11px] sm:text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 font-bold">
+                                Birthday / Age
+                            </p>
+                            <p className="text-[15px] sm:text-base font-bold text-gray-900 dark:text-white">
+                                {formData.birthday ? (
+                                    <>
+                                        {formatDate(formData.birthday)} 
+                                        <span className="ml-2 text-[12px] px-2 py-0.5 bg-gray-100 dark:bg-gray-800 rounded-full text-gray-500 dark:text-gray-400">
+                                            {(() => {
+                                                const birthDate = new Date(formData.birthday);
+                                                const today = new Date();
+                                                let age = today.getFullYear() - birthDate.getFullYear();
+                                                const m = today.getMonth() - birthDate.getMonth();
+                                                if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+                                                    age--;
+                                                }
+                                                return `${age} yrs old`;
+                                            })()}
+                                        </span>
+                                    </>
+                                ) : '—'}
+                            </p>
+                        </div>
                     </div>
                 </ReviewSection>
 

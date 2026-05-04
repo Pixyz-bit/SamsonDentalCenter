@@ -54,6 +54,7 @@ const DEFAULT_FORM_DATA = {
     dentist_id: '',
     service_tier: '',
     patient_note: '',
+    birthday: '', // ✅ NEW: Guest birthday
 };
 
 /**
@@ -279,6 +280,7 @@ const useGuestBooking = (initialServiceId = null, initialServiceName = null) => 
                 user_session_id: sessionId,
                 verification_token: tokenToUse,
                 notes: formData.patient_note,
+                birthday: formData.birthday, // ✅ Pass birthday
             };
 
             const data = await api.post('/appointments/book-guest', body);
@@ -362,6 +364,7 @@ const useGuestBooking = (initialServiceId = null, initialServiceName = null) => 
             phone: '',
             service_tier: '', // Total reset
             patient_note: '',
+            birthday: '',
         });
         setError(null);
         setSubmitting(false);
