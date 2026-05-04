@@ -102,13 +102,13 @@ const DoctorServicesDetail = ({ doctor, updateDoctorServices }) => {
     };
 
     return (
-        <div className='p-[clamp(16px,3vw,24px)] border border-gray-200 rounded-[clamp(12px,2vw,16px)] dark:border-gray-800 bg-white dark:bg-white/[0.03] shadow-sm transition-all duration-300'>
-            <div className='flex flex-col gap-[clamp(16px,2vw,24px)] lg:flex-row lg:items-start lg:justify-between mb-[clamp(16px,3vw,24px)]'>
+        <div className='w-full p-4 sm:p-6 lg:p-10 border border-gray-300 rounded-2xl dark:border-gray-800 bg-white dark:bg-white/[0.03] shadow-sm'>
+            <div className='flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-8 sm:mb-10'>
                 <div>
-                    <h4 className='text-[clamp(14px,1.5vw,16px)] font-bold text-gray-900 dark:text-white uppercase tracking-tight'>
+                    <h4 className='text-lg sm:text-2xl font-black text-gray-900 dark:text-white tracking-tight uppercase font-outfit'>
                         Authorized Services & Skills
                     </h4>
-                    <p className='text-[clamp(10px,1vw,11px)] font-medium text-gray-500 dark:text-gray-400 mt-1 uppercase tracking-widest'>
+                    <p className='text-[8px] sm:text-xs text-gray-500 dark:text-gray-400 uppercase tracking-[0.15em] mt-0.5 font-bold'>
                         {selectedServices.length} Clinical Tasks currently authorized
                     </p>
                 </div>
@@ -117,62 +117,70 @@ const DoctorServicesDetail = ({ doctor, updateDoctorServices }) => {
                     <Button 
                         variant='outline'
                         onClick={() => setIsEditing(true)}
-                        className='flex items-center justify-center gap-2 rounded-lg px-4 h-11 text-sm font-bold sm:w-[160px] hover:border-brand-500 hover:text-brand-500 transition-all active:scale-95 shadow-sm font-outfit uppercase tracking-widest text-[9px]'
+                        className='h-11 sm:h-12 px-6 text-[10px] font-black uppercase tracking-widest shadow-sm border-gray-200 dark:border-white/5 rounded-xl'
                     >
-                        Edit Services
+                        Edit Registry
                     </Button>
                 ) : (
-                    <div className='flex items-center gap-2 text-brand-500 bg-brand-50/50 p-2 rounded-lg'>
-                        <Info size={16} />
-                        <span className='text-[9px] font-black uppercase tracking-widest'>Edit Mode Active</span>
+                    <div className='flex items-center gap-2 text-brand-500 bg-brand-500/10 px-3 py-1.5 rounded-lg'>
+                        <Info size={14} strokeWidth={3} />
+                        <span className='text-[10px] font-black uppercase tracking-widest'>Edit Mode Active</span>
                     </div>
                 )}
             </div>
 
             {isEditing ? (
-                <div className='space-y-8 animate-in fade-in duration-300'>
+                <div className='space-y-10 animate-in fade-in duration-300'>
                     {categorizedServices.authorized.length > 0 && (
-                        <div className='space-y-[clamp(8px,1vw,12px)]'>
-                            <h5 className='text-[clamp(9px,1vw,10px)] font-black uppercase tracking-widest text-brand-500 flex items-center gap-[clamp(4px,0.5vw,6px)]'>
+                        <div className='space-y-4'>
+                            <h5 className='text-[10px] font-black uppercase tracking-widest text-brand-500 flex items-center gap-2'>
                                 <CheckCircle2 size={12} strokeWidth={3} />
                                 Currently Authorized
                             </h5>
-                            <div className='grid grid-cols-2 lg:grid-cols-3 gap-[clamp(8px,1vw,12px)]'>
+                            <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4'>
                                 {categorizedServices.authorized.map(renderServiceCheckbox)}
                             </div>
                         </div>
                     )}
-                    {/* General/Specialized... omitted for brevity in this scratch but should match logic */}
-                    <div className='grid grid-cols-2 lg:grid-cols-3 gap-[clamp(8px,1vw,12px)]'>
+                    
+                    <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4'>
                         {categorizedServices.general.map(renderServiceCheckbox)}
                         {categorizedServices.specialized.map(renderServiceCheckbox)}
                     </div>
                     
-                    <div className='flex items-center justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-800'>
-                        <button onClick={handleCancel} className='px-4 py-2 text-[9px] font-bold uppercase tracking-widest text-gray-500 border border-gray-200 rounded-lg hover:bg-gray-50 transition-all'>Cancel</button>
-                        <button onClick={handleSave} disabled={isSaving} className='px-6 py-2 text-[9px] font-bold uppercase tracking-widest bg-brand-500 text-white rounded-lg shadow-lg shadow-brand-500/20 active:scale-95 transition-all'>
-                            {isSaving ? 'Saving...' : 'Save Changes'}
-                        </button>
+                    <div className='flex items-center justify-end gap-3 pt-8 border-t border-gray-200 dark:border-gray-800'>
+                        <Button 
+                            variant='outline' 
+                            onClick={handleCancel}
+                            className='h-11 px-6 text-[10px] font-black uppercase tracking-widest rounded-xl'
+                        >
+                            Cancel
+                        </Button>
+                        <Button 
+                            onClick={handleSave} 
+                            disabled={isSaving}
+                            className='h-11 px-8 text-[10px] font-black uppercase tracking-widest bg-brand-500 text-white rounded-xl shadow-lg shadow-brand-500/20'
+                        >
+                            {isSaving ? 'Saving...' : 'Save Registry'}
+                        </Button>
                     </div>
                 </div>
             ) : (
-                <div className='grid grid-cols-2 lg:grid-cols-3 gap-[clamp(8px,1vw,12px)] auto-rows-fr'>
+                <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4'>
                     {selectedServices.length > 0 ? selectedServices.map((service, i) => (
-                        <div key={i} className='h-full flex items-center justify-between p-[clamp(10px,1.5vw,14px)] rounded-[clamp(8px,1vw,12px)] border border-gray-200 dark:border-gray-800/80 bg-gray-50/30 dark:bg-white/[0.01] transition-all duration-300'>
-                            <div className='flex items-center gap-[clamp(6px,1vw,10px)] min-w-0'>
-                                <div className='w-4 h-4 rounded bg-brand-500 flex items-center justify-center text-white shrink-0'>
-                                    <CheckCircle2 size={10} strokeWidth={3} />
-                                </div>
-                                <div className="min-w-0">
-                                    <p className='text-[clamp(11px,1.2vw,13px)] font-bold text-gray-800 dark:text-white/90 truncate transition-all duration-300'>{service}</p>
-                                    <span className='text-[clamp(8px,1vw,9px)] font-bold uppercase tracking-widest text-brand-500/70 transition-all duration-300'>Authorized</span>
-                                </div>
+                        <div key={i} className='p-4 rounded-xl border border-gray-200 dark:border-white/5 bg-gray-50/20 dark:bg-white/[0.01] flex items-center gap-4'>
+                            <div className='w-8 h-8 rounded-lg bg-brand-500 flex items-center justify-center text-white shrink-0'>
+                                <CheckCircle2 size={14} strokeWidth={3} />
+                            </div>
+                            <div className="min-w-0">
+                                <p className='text-xs font-black text-gray-900 dark:text-white uppercase tracking-tight truncate'>{service}</p>
+                                <span className='text-[8px] font-black uppercase tracking-widest text-brand-500/70'>Authorized Task</span>
                             </div>
                         </div>
                     )) : (
-                        <div className='col-span-full py-10 flex flex-col items-center justify-center text-center border-2 border-dashed border-gray-200 dark:border-gray-800 rounded-xl'>
-                            <AlertCircle size={24} className='text-gray-300 mb-2' />
-                            <p className='text-[11px] text-gray-400 font-bold uppercase tracking-widest'>No services configured</p>
+                        <div className='col-span-full py-16 flex flex-col items-center justify-center text-center border-2 border-dashed border-gray-200 dark:border-gray-800 rounded-2xl'>
+                            <AlertCircle size={32} className='text-gray-300 mb-4' />
+                            <p className='text-xs font-black text-gray-400 uppercase tracking-widest'>No services configured</p>
                         </div>
                     )}
                 </div>

@@ -58,26 +58,26 @@ const DoctorHistoryDetail = ({ doctor }) => {
     };
 
     return (
-        <div className='space-y-6'>
-            <div className='p-6 border border-gray-200 rounded-xl dark:border-gray-800 lg:p-7 bg-white dark:bg-white/[0.03] flex flex-col'>
-                <div className='flex items-center justify-between mb-6'>
+        <div className='animate-in fade-in duration-300'>
+            <div className='p-4 sm:p-6 lg:p-10 border border-gray-300 rounded-2xl dark:border-gray-800 bg-white dark:bg-white/[0.03] shadow-sm flex flex-col'>
+                <div className='flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-8 sm:mb-10'>
                     <div>
-                        <h4 className='text-[clamp(16px,2vw,18px)] font-bold text-gray-900 dark:text-white'>
+                        <h4 className='text-lg sm:text-2xl font-black text-gray-900 dark:text-white uppercase tracking-tight font-outfit'>
                             Clinical Registry
                         </h4>
-                        <p className='text-[10px] text-gray-500 dark:text-gray-400 uppercase tracking-widest mt-1 font-bold'>
-                            Total: {pagination.total} Records Found
+                        <p className='text-[8px] sm:text-xs text-gray-500 dark:text-gray-400 uppercase tracking-[0.15em] mt-1 font-bold'>
+                            {pagination.total} Historical Appointments Found
                         </p>
                     </div>
-                    <div className='flex items-center gap-1 overflow-x-auto no-scrollbar max-w-[50%] sm:max-w-none'>
+                    <div className='flex items-center gap-2 overflow-x-auto no-scrollbar'>
                         {FILTERS.map(f => (
                             <button
                                 key={f.id}
                                 onClick={() => handleFilterChange(f.id)}
-                                className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-tight transition-all shrink-0 ${
+                                className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shrink-0 ${
                                     activeFilter === f.id 
-                                        ? 'bg-brand-500 text-white shadow-sm' 
-                                        : 'bg-gray-100 dark:bg-white/5 text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-white/10'
+                                        ? 'bg-brand-500 text-white shadow-lg shadow-brand-500/20' 
+                                        : 'bg-gray-100 dark:bg-white/5 text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-white/10 border border-transparent dark:border-white/5'
                                 }`}
                             >
                                 {f.label}
@@ -89,37 +89,35 @@ const DoctorHistoryDetail = ({ doctor }) => {
                 <div className='grow min-h-[400px] flex flex-col justify-between'>
                     {isLoading ? (
                         <div className='py-20 flex flex-col items-center justify-center'>
-                            <div className='w-5 h-5 border-2 border-slate-200 dark:border-white/10 border-t-slate-500 dark:border-t-white/40 rounded-full animate-spin mb-4' />
-                            <span className='text-[10px] font-bold text-slate-500 uppercase tracking-widest'>Syncing Registry...</span>
+                            <div className='w-10 h-10 border-4 border-brand-500/10 border-t-brand-500 rounded-full animate-spin mb-4' />
+                            <span className='text-[10px] font-black text-gray-500 uppercase tracking-widest'>Syncing Registry...</span>
                         </div>
                     ) : error ? (
                         <div className='py-20 text-center'>
-                            <p className='text-sm font-medium text-red-600 dark:text-red-400 mb-2'>{error}</p>
-                            <button onClick={() => setCurrentPage(prev => prev)} className='text-xs font-bold text-red-700 dark:text-red-300 underline'>Retry</button>
+                            <p className='text-sm font-bold text-red-600 dark:text-red-400 mb-2 uppercase tracking-tight'>{error}</p>
+                            <button onClick={() => setCurrentPage(prev => prev)} className='text-[10px] font-black text-brand-500 uppercase tracking-widest hover:underline'>Retry Connection</button>
                         </div>
                     ) : history.length > 0 ? (
-                        <div className='overflow-hidden rounded-lg border border-gray-200 dark:border-gray-800'>
+                        <div className='overflow-hidden rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm'>
                             <div className='divide-y divide-gray-100 dark:divide-gray-800 bg-white dark:bg-transparent'>
                                 {history.map((appt) => (
-                                    <div key={appt.id} className='px-4 py-3 sm:px-6 sm:py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2 hover:bg-gray-50 dark:hover:bg-white/[0.02] transition-colors'>
-                                        <div className='flex items-center gap-3'>
-                                            <div className='hidden sm:flex w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-800 items-center justify-center font-bold text-xs text-brand-500'>
+                                    <div key={appt.id} className='px-6 py-5 flex flex-col sm:flex-row sm:items-center justify-between gap-6 hover:bg-gray-50 dark:hover:bg-white/[0.01] transition-colors group'>
+                                        <div className='flex items-center gap-4'>
+                                            <div className='hidden sm:flex w-10 h-10 rounded-xl bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/5 items-center justify-center font-black text-[10px] text-brand-500 uppercase group-hover:scale-105 transition-transform'>
                                                 {(appt.patient?.name || 'P').split(' ').map(n => n[0]).join('')}
                                             </div>
                                             <div>
-                                                <p className='text-sm font-semibold text-gray-900 dark:text-white/90'>{appt.patient?.name || 'Anonymous Patient'}</p>
-                                                <p className='text-[11px] font-medium text-gray-500'>{appt.service || 'General Service'}</p>
+                                                <p className='text-xs sm:text-sm font-black text-gray-900 dark:text-white uppercase tracking-tight'>{appt.patient?.name || 'Anonymous Patient'}</p>
+                                                <p className='text-[8px] sm:text-[10px] font-black text-gray-400 uppercase tracking-widest mt-0.5'>{appt.service || 'General Service'}</p>
                                             </div>
                                         </div>
-                                        <div className='flex items-center justify-between sm:flex-col sm:items-end gap-1'>
-                                            <p className='text-xs font-semibold text-gray-700 dark:text-gray-300'>
+                                        <div className='flex flex-row items-center justify-between sm:flex-col sm:items-end gap-2'>
+                                            <p className='text-[10px] font-black text-gray-900 dark:text-white uppercase tracking-tight'>
                                                 {appt.date ? format(parseISO(appt.date), 'MMM dd, yyyy') : 'No Date'}
                                             </p>
-                                            <div className='flex items-center gap-2'>
-                                                <span className={`text-[9px] font-bold px-2 py-0.5 rounded border uppercase tracking-widest ${getStatusStyle(appt.status)}`}>
-                                                    {appt.status}
-                                                </span>
-                                            </div>
+                                            <span className={`text-[8px] font-black px-3 py-1 rounded-lg border uppercase tracking-[0.15em] ${getStatusStyle(appt.status)}`}>
+                                                {appt.status}
+                                            </span>
                                         </div>
                                     </div>
                                 ))}

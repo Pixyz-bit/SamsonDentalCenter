@@ -434,13 +434,13 @@ const WeeklyRoutine = ({ doctor, externalBlockModalOpen, setExternalBlockModalOp
     const blockMonthName = blockCalDate.toLocaleString('default', { month: 'long' });
 
     return (
-        <div className="flex flex-col border border-gray-300 dark:border-gray-700 rounded-xl bg-white dark:bg-white/[0.03] overflow-hidden">
-            <div className="p-5 border-b border-gray-200 dark:border-gray-700 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex flex-col border border-gray-300 dark:border-gray-800 rounded-2xl bg-white dark:bg-white/[0.03] overflow-hidden shadow-sm">
+            <div className="p-6 sm:p-8 border-b border-gray-200 dark:border-gray-800 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
                 <div>
-                    <h4 className='text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2'>
+                    <h4 className='text-lg sm:text-2xl font-black text-gray-900 dark:text-white uppercase tracking-tight font-outfit'>
                         Weekly Routine & Blocks
                     </h4>
-                    <p className='text-sm font-medium text-gray-500 dark:text-gray-400 mt-1'>
+                    <p className='text-[8px] sm:text-xs text-gray-500 dark:text-gray-400 uppercase tracking-[0.15em] mt-1 font-bold'>
                         Manage recurring availability and specific date exceptions.
                     </p>
                     <div className='mt-2'>
@@ -455,22 +455,22 @@ const WeeklyRoutine = ({ doctor, externalBlockModalOpen, setExternalBlockModalOp
                         )}
                     </div>
                 </div>
-                <div className='hidden sm:flex items-center gap-3'>
+                <div className='hidden sm:flex items-center gap-4'>
                     <Button
                         variant="soft"
                         onClick={openBlockModal}
-                        className="text-sm font-bold h-10 px-4 flex items-center gap-2 bg-red-50 text-red-700 hover:bg-red-100 dark:bg-red-500/10 dark:text-red-400 dark:hover:bg-red-500/20"
+                        className="h-11 px-6 text-[10px] font-black uppercase tracking-widest bg-red-500/10 text-red-600 dark:text-red-400 rounded-xl"
                     >
-                        <CalendarOff size={16} />
+                        <CalendarOff size={16} className="mr-2" />
                         Block Date
                     </Button>
                     <Button
                         variant="outline"
                         onClick={openEditModal}
-                        className="text-sm font-bold h-10 px-4 flex items-center gap-2"
+                        className="h-11 px-6 text-[10px] font-black uppercase tracking-widest border-gray-200 dark:border-white/5 rounded-xl"
                     >
-                        <CalendarIcon size={16} />
-                        Edit Weekly Sched
+                        <CalendarIcon size={16} className="mr-2" />
+                        Edit Routine
                     </Button>
                 </div>
             </div>
@@ -485,31 +485,31 @@ const WeeklyRoutine = ({ doctor, externalBlockModalOpen, setExternalBlockModalOp
                         </div>
                     </div>
                 )}
-                <div className='flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-white/[0.01] gap-2'>
+                <div className='flex items-center justify-between px-6 sm:px-8 py-4 sm:py-6 border-b border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-white/[0.01] gap-4'>
                     <div>
-                        <h3 className='text-sm sm:text-lg font-bold text-gray-900 dark:text-white truncate max-w-[120px] sm:max-w-none'>{monthName} {year}</h3>
+                        <h3 className='text-sm sm:text-xl font-black text-gray-900 dark:text-white uppercase tracking-tight font-outfit'>{monthName} {year}</h3>
                     </div>
-                    <div className='flex items-center gap-1.5 sm:gap-2'>
-                        <Button variant="outline" size="sm" onClick={goThisMonth} className="text-[10px] sm:text-xs font-bold px-2 sm:px-3 h-7 sm:h-8 border-gray-200 dark:border-gray-700">Today</Button>
-                        <div className='flex items-center gap-1 ml-1 sm:ml-2'>
-                            <button onClick={() => navMonth(setCurrentDate, currentDate, -1)} className='p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-white/5 border border-gray-200 dark:border-gray-700 text-gray-500 transition-all'>
-                                <ChevronLeft size={14} className="sm:w-4 sm:h-4" />
+                    <div className='flex items-center gap-3'>
+                        <Button variant="outline" size="sm" onClick={goThisMonth} className="text-[10px] font-black uppercase tracking-widest px-4 h-8 border-gray-200 dark:border-white/5 rounded-lg">Today</Button>
+                        <div className='flex items-center gap-2'>
+                            <button onClick={() => navMonth(setCurrentDate, currentDate, -1)} className='w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-white/5 border border-gray-200 dark:border-gray-800 text-gray-500 transition-all'>
+                                <ChevronLeft size={16} />
                             </button>
-                            <button onClick={() => navMonth(setCurrentDate, currentDate, 1)} className='p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-white/5 border border-gray-200 dark:border-gray-700 text-gray-500 transition-all'>
-                                <ChevronRight size={14} className="sm:w-4 sm:h-4" />
+                            <button onClick={() => navMonth(setCurrentDate, currentDate, 1)} className='w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-white/5 border border-gray-200 dark:border-gray-800 text-gray-500 transition-all'>
+                                <ChevronRight size={16} />
                             </button>
                         </div>
                     </div>
                 </div>
 
-                <div className='grid grid-cols-7 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-transparent'>
+                <div className='grid grid-cols-7 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-transparent'>
                     {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
-                        <div key={day} className='py-3 text-center text-[10px] font-bold uppercase tracking-widest text-gray-400'>{day}</div>
+                        <div key={day} className='py-4 text-center text-[10px] font-black uppercase tracking-widest text-gray-400'>{day}</div>
                     ))}
                 </div>
 
                 {/* Day grid */}
-                <div className='grid grid-cols-7 w-full border-t border-l border-gray-200 dark:border-gray-700'>
+                <div className='grid grid-cols-7 w-full border-t border-l border-gray-200 dark:border-gray-800'>
                     {Array.from({ length: startingDay }).map((_, i) => <div key={`empty-${i}`} className='bg-gray-50/50 dark:bg-gray-800/10 border-r border-b border-gray-200 dark:border-gray-800 aspect-square' />)}
                     {Array.from({ length: daysInMonth }).map((_, i) => {
                         const dateNum = i + 1;
@@ -531,13 +531,13 @@ const WeeklyRoutine = ({ doctor, externalBlockModalOpen, setExternalBlockModalOp
                                 key={dateNum}
                                 onClick={() => setCurrentDate(dateObj)}
                                 className={`
-                                    relative aspect-square p-1.5 sm:p-3 flex flex-col transition-all cursor-pointer group
-                                    border-r border-b border-gray-200 dark:border-gray-700
+                                    relative aspect-square p-2 sm:p-4 flex flex-col transition-all cursor-pointer group
+                                    border-r border-b border-gray-200 dark:border-gray-800
                                     ${!isEffectivelyWorking ? 'bg-gray-50/30 dark:bg-white/[0.01]' : 'bg-white dark:bg-transparent hover:bg-gray-50 dark:hover:bg-white/[0.02]'}
                                 `}
                             >
                                 <div className="flex items-center justify-between mb-auto">
-                                    <span className={`text-xs sm:text-lg font-black ${!isEffectivelyWorking ? 'text-gray-400' : isToday ? 'text-brand-500' : 'text-gray-900 dark:text-white'}`}>
+                                    <span className={`text-xs sm:text-xl font-black ${!isEffectivelyWorking ? 'text-gray-400' : isToday ? 'text-brand-500' : 'text-gray-900 dark:text-white'}`}>
                                         {dateNum}
                                     </span>
                                     {isToday && <div className="w-1.5 h-1.5 rounded-full bg-brand-500" />}
@@ -565,10 +565,10 @@ const WeeklyRoutine = ({ doctor, externalBlockModalOpen, setExternalBlockModalOp
                                             })()}
                                         </div>
                                     ) : (
-                                        <div className='w-full flex items-center gap-1 opacity-60'>
+                                        <div className='w-full flex items-center gap-1.5 opacity-80'>
                                             {isBlocked && <CalendarOff size={10} className="text-red-500" />}
                                             {isHolidayToday && <CalendarIcon size={10} className="text-indigo-500" />}
-                                            <span className={`text-[7px] sm:text-[10px] font-bold uppercase tracking-widest truncate ${isHolidayToday ? 'text-indigo-500' : isBlocked ? 'text-red-500' : 'text-gray-400'}`}>
+                                            <span className={`text-[7px] sm:text-[10px] font-black uppercase tracking-[0.1em] truncate ${isHolidayToday ? 'text-indigo-500' : isBlocked ? 'text-red-500' : 'text-gray-400'}`}>
                                                 {isHolidayToday ? 'Holiday' : isBlocked ? 'Blocked' : 'Closed'}
                                             </span>
                                         </div>

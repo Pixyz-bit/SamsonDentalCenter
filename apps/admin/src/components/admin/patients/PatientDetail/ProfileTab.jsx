@@ -126,7 +126,7 @@ const ProfileTab = ({ patient, onEditAvatar, onEditProfile, onEditContact }) => 
                     ))}
                 </div>
             </div>
-</            {/* Card 3: Contact Channels */}
+            {/* Card 3: Contact Channels */}
             <div className='w-full p-4 sm:p-6 lg:p-10 border border-gray-300 rounded-2xl dark:border-gray-800 bg-white dark:bg-white/[0.03] shadow-sm'>
                 <div className='flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 sm:mb-10'>
                     <div>
@@ -168,7 +168,6 @@ const ProfileTab = ({ patient, onEditAvatar, onEditProfile, onEditContact }) => 
                     </div>
                 </div>
             </div>
-</div>
         </div>
     );
 };

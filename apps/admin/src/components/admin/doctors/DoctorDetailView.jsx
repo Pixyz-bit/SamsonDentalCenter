@@ -150,9 +150,9 @@ const DoctorDetailView = ({
     const isSidebarOpen = isExpanded || isHovered;
 
     return (
-        <div className='bg-white dark:bg-white/[0.03] sm:rounded-xl border-t sm:border border-gray-200 dark:border-gray-700 transition-all duration-300 overflow-hidden'>
+        <div className='bg-white dark:bg-white/[0.03] sm:rounded-xl border-t sm:border border-gray-300 dark:border-gray-800 transition-all duration-300 overflow-hidden'>
             {/* A. Identity Section — Now part of normal flow */}
-            <div className='bg-white dark:bg-transparent border-b border-gray-200 dark:border-gray-700'>
+            <div className='bg-white dark:bg-transparent border-b border-gray-300 dark:border-gray-800'>
                 <div className='px-4 sm:px-6 py-4 sm:py-7 flex items-center justify-between'>
                     <div className='flex items-center gap-4'>
                         <div className='bg-gray-100 dark:bg-white/5 p-1.5 rounded-xl'>
@@ -176,7 +176,7 @@ const DoctorDetailView = ({
             </div>
 
             {/* B. Navigation Tabs Section — Sticky with header offset to browser viewport */}
-            <div className='sticky top-[68px] lg:top-[76px] z-30 bg-white dark:bg-[#1f2021] border-b border-gray-200 dark:border-gray-700 shadow-sm sm:shadow-none'>
+            <div className='sticky top-[68px] lg:top-[76px] z-30 bg-white dark:bg-[#1f2021] border-b border-gray-300 dark:border-gray-800 shadow-sm sm:shadow-none'>
                 <div className='bg-white dark:bg-transparent px-4 sm:px-6 flex items-center gap-[clamp(20px,3vw,32px)] overflow-x-auto no-scrollbar'>
                     {tabs.map((t) => (
                         <button
@@ -197,15 +197,15 @@ const DoctorDetailView = ({
             </div>
 
             {/* C. Content Body */}
-            <div className='p-4 sm:p-6 lg:p-8 space-y-6'>
+            <div className='p-4 sm:p-6 lg:p-10 space-y-8'>
 
                 {/* A. Profile Header Card — only on Profile tab */}
                 {(!activeTab || activeTab === 'profile') && (
-                    <div className='p-[clamp(16px,2.5vw,28px)] border border-gray-200 rounded-xl dark:border-gray-800 bg-white dark:bg-white/[0.03] shadow-sm'>
+                    <div className='p-6 sm:p-10 border border-gray-300 rounded-3xl dark:border-gray-800 bg-white dark:bg-white/[0.03] shadow-sm'>
                         <div className='flex flex-col gap-[clamp(16px,2vw,24px)] xl:flex-row xl:items-start xl:justify-between'>
                             <div className='flex flex-col items-center w-full gap-[clamp(16px,2vw,24px)] xl:flex-row xl:items-center'>
                                 <div className='relative shrink-0'>
-                                    <div className='w-[clamp(64px,6vw,80px)] h-[clamp(64px,6vw,80px)] overflow-hidden border border-gray-200 rounded-full dark:border-gray-800 flex items-center justify-center bg-gradient-to-br from-brand-400 to-brand-600 text-white font-bold text-[clamp(20px,2vw,24px)] shadow-inner'>
+                                    <div className='w-20 h-20 sm:w-28 sm:h-28 overflow-hidden border border-gray-200 rounded-full dark:border-gray-800 flex items-center justify-center bg-gradient-to-br from-brand-400 to-brand-600 text-white font-bold text-2xl sm:text-3xl shadow-inner'>
                                         {doctor.photo_url ? (
                                             <img
                                                 src={doctor.photo_url}
@@ -218,15 +218,15 @@ const DoctorDetailView = ({
                                     </div>
                                 </div>
                                 <div className='order-3 xl:order-2 text-center xl:text-left'>
-                                    <h4 className='mb-1 text-[clamp(16px,2vw,24px)] font-bold text-gray-900 dark:text-white font-outfit uppercase tracking-tight transition-all duration-300 ease-in-out'>
+                                    <h4 className='mb-1 text-xl sm:text-3xl font-black text-gray-900 dark:text-white font-outfit uppercase tracking-tight'>
                                         {doctor.full_name}
                                     </h4>
-                                    <div className='flex flex-col items-center gap-[clamp(6px,1vw,8px)] text-center xl:flex-row xl:gap-[clamp(8px,1vw,12px)] xl:text-left'>
-                                        <p className='text-[clamp(10px,1.2vw,11px)] text-brand-600 dark:text-brand-400 font-bold uppercase tracking-widest transition-all duration-300 ease-in-out'>
+                                    <div className='flex flex-wrap items-center justify-center xl:justify-start gap-3'>
+                                        <p className='text-[10px] sm:text-xs text-brand-600 dark:text-brand-400 font-black uppercase tracking-widest'>
                                             {doctor.tier === 'general' ? 'General Dentist' : 'Specialized Dentist'}
                                         </p>
-                                        <div className='hidden h-3.5 w-px bg-gray-300 dark:bg-gray-700 xl:block'></div>
-                                        <div className='text-[clamp(10px,1.1vw,11px)] text-gray-500 dark:text-gray-400 font-medium flex items-center gap-2 transition-all duration-300 ease-in-out'>
+                                        <div className='hidden h-3.5 w-px bg-gray-300 dark:bg-gray-700 sm:block'></div>
+                                        <div className='text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 font-bold flex items-center gap-2'>
                                             <span>
                                                 License:{' '}
                                                 <span className='text-gray-900 dark:text-white font-black'>
@@ -239,7 +239,7 @@ const DoctorDetailView = ({
                                             </span>
                                         </div>
                                     </div>
-                                    <p className='text-[clamp(12px,1.2vw,14px)] text-gray-500 dark:text-gray-400 mt-[clamp(12px,1.5vw,16px)] max-w-2xl font-medium leading-relaxed transition-all duration-300 ease-in-out'>
+                                    <p className='text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-4 max-w-2xl font-medium leading-relaxed'>
                                         {doctor.bio}
                                     </p>
                                 </div>
@@ -259,27 +259,34 @@ const DoctorDetailView = ({
                         </div>
 
                         {/* Contact footer */}
-                        <div className='mt-6 pt-6 border-t border-gray-200 dark:border-gray-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4'>
-                            <div className='flex flex-wrap gap-6'>
-                                <div className='flex items-center gap-2 text-[13px] sm:text-sm text-gray-600 dark:text-gray-300 font-medium'>
-                                    <Mail size={14} className='text-gray-400' />
-                                    {doctor.email}
+                        <div className='mt-8 pt-8 border-t border-gray-200 dark:border-gray-800 flex flex-col lg:flex-row lg:items-center justify-between gap-6'>
+                            <div className='flex flex-wrap gap-8'>
+                                <div className='flex items-center gap-3'>
+                                    <div className='w-8 h-8 rounded-lg bg-gray-50 dark:bg-white/5 flex items-center justify-center text-gray-400'>
+                                        <Mail size={16} />
+                                    </div>
+                                    <div>
+                                        <p className='text-[8px] font-black text-gray-400 uppercase tracking-widest leading-none mb-1'>Professional Email</p>
+                                        <p className='text-xs font-black text-gray-900 dark:text-white uppercase tracking-tight'>{doctor.email}</p>
+                                    </div>
                                 </div>
-                                <div className='flex items-center gap-2 text-[13px] sm:text-sm text-gray-600 dark:text-gray-300 font-medium'>
-                                    <Phone size={14} className='text-gray-400' />
-                                    {doctor.phone}
+                                <div className='flex items-center gap-3'>
+                                    <div className='w-8 h-8 rounded-lg bg-gray-50 dark:bg-white/5 flex items-center justify-center text-gray-400'>
+                                        <Phone size={16} />
+                                    </div>
+                                    <div>
+                                        <p className='text-[8px] font-black text-gray-400 uppercase tracking-widest leading-none mb-1'>Clinical Line</p>
+                                        <p className='text-xs font-black text-gray-900 dark:text-white uppercase tracking-tight'>{doctor.phone}</p>
+                                    </div>
                                 </div>
                             </div>
-                            <div className='flex items-center gap-2 w-full sm:w-auto mt-4 sm:mt-0'>
-                                <Button
-                                    variant='outline'
-                                    onClick={() => setIsEditContactModalOpen(true)}
-                                    className='flex items-center justify-center gap-2 rounded-lg px-4 h-11 text-sm font-bold hover:border-brand-500 hover:text-brand-500 transition-all shadow-sm w-full sm:w-[160px] font-outfit'
-                                >
-                                    <Mail size={16} />
-                                    Edit Contact
-                                </Button>
-                            </div>
+                            <Button
+                                variant='outline'
+                                onClick={() => setIsEditContactModalOpen(true)}
+                                className='h-11 sm:h-12 px-6 text-[10px] font-black uppercase tracking-widest shadow-sm border-gray-200 dark:border-white/5 rounded-xl'
+                            >
+                                <Mail size={16} className='mr-2' /> Update Credentials
+                            </Button>
                         </div>
                     </div>
                 )}
