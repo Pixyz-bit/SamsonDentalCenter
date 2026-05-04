@@ -2,10 +2,13 @@ import { useState, useEffect } from 'react';
 import { Calendar, Clock, User, Mail, Phone, Stethoscope, ShieldCheck, MailWarning, Edit2, ArrowRight, Info } from 'lucide-react';
 
 const ConfirmStep = ({ formData, onSubmit, onBack, onEdit, onReset, submitting, error }) => {
-    // Auto-scroll to top on error
+    // ✅ Phase 1: Robust Auto-scroll to top on error
     useEffect(() => {
         if (error) {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            window.scrollTo({ top: 0, behavior: 'auto' });
+            setTimeout(() => {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }, 50);
         }
     }, [error]);
 
@@ -152,6 +155,18 @@ const ConfirmStep = ({ formData, onSubmit, onBack, onEdit, onReset, submitting, 
                                 {formData.phone}
                             </p>
                         </div>
+                    </div>
+                </ReviewSection>
+
+                {/* 4. Additional Notes */}
+                <ReviewSection title="Additional Notes" onEditClick={() => onEdit(2)}>
+                    <div className="min-w-0">
+                        <p className="mb-1 text-[11px] sm:text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400 font-bold">
+                            Note for the Clinic
+                        </p>
+                        <p className={`text-[15px] sm:text-base font-bold leading-relaxed ${formData.patient_note ? 'text-gray-900 dark:text-white' : 'text-gray-400 dark:text-gray-600 italic font-medium'}`}>
+                            {formData.patient_note || 'No additional notes provided'}
+                        </p>
                     </div>
                 </ReviewSection>
 

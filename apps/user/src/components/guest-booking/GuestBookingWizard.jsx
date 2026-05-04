@@ -92,9 +92,14 @@ const GuestBookingWizard = ({ booking }) => {
         };
     }, [sessionId, result]);
 
-    // ✅ Auto-scroll to top when step changes
+    // ✅ Phase 1: Robust Auto-scroll to top when step changes
     useEffect(() => {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        window.scrollTo({ top: 0, behavior: 'auto' });
+        // Double-check with a slight delay to ensure dynamic content is loaded
+        const timeoutId = setTimeout(() => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }, 100);
+        return () => clearTimeout(timeoutId);
     }, [step]);
 
     // ✅ Phase 2: Recovery Interceptor
