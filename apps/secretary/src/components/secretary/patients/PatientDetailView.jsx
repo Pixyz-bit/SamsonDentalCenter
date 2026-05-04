@@ -197,7 +197,7 @@ const PatientDetailView = ({ patientId, onBack, activeTab }) => {
                                 <Button
                                     variant='outline'
                                     onClick={() => setIsEditModalOpen(true)}
-                                    className='h-11 px-6 text-sm font-bold shadow-sm'
+                                    className='h-11 px-6 text-sm font-bold shadow-theme-sm'
                                 >
                                     Edit Basic Information
                                 </Button>
@@ -217,7 +217,7 @@ const PatientDetailView = ({ patientId, onBack, activeTab }) => {
                             <Button
                                 variant='outline'
                                 onClick={() => setIsEditContactModalOpen(true)}
-                                className='h-11 px-6 text-sm font-bold shadow-sm'
+                                className='h-11 px-6 text-sm font-bold shadow-theme-sm'
                             >
                                 <Mail size={16} className='mr-2' /> Update Records
                             </Button>
@@ -303,7 +303,7 @@ const PatientDetailView = ({ patientId, onBack, activeTab }) => {
                                              <Button 
                                                  onClick={handleSendSetupLink}
                                                  disabled={loadingLink || !patient.email}
-                                                 className='bg-brand-500 text-white font-bold h-11 px-6 text-xs uppercase shadow-lg shadow-brand-500/20'
+                                                 className='bg-brand-500 text-white font-bold h-11 px-6 text-xs uppercase shadow-theme-md'
                                              >
                                                  {loadingLink ? <Loader2 className="animate-spin" size={16} /> : <Mail size={16} className='mr-2' />}
                                                  Send Setup Link
@@ -359,7 +359,7 @@ const PatientDetailView = ({ patientId, onBack, activeTab }) => {
                         </div>
                         <div className='flex justify-end gap-3 pt-6'>
                             <Button variant='outline' onClick={() => setIsEditModalOpen(false)}>Cancel</Button>
-                            <Button onClick={handleSaveProfile} className='bg-brand-500 text-white px-6 font-bold'>Save Changes</Button>
+                            <Button onClick={handleSaveProfile} className='bg-brand-500 text-white px-6 font-bold shadow-theme-sm'>Save Changes</Button>
                         </div>
                     </div>
                 </div>
@@ -387,7 +387,7 @@ const PatientDetailView = ({ patientId, onBack, activeTab }) => {
                         </div>
                         <div className='flex justify-end gap-3 pt-6'>
                             <Button variant='outline' onClick={() => setIsEditContactModalOpen(false)}>Cancel</Button>
-                            <Button onClick={handleSaveContact} className='bg-brand-500 text-white px-6 font-bold'>Update Contact</Button>
+                            <Button onClick={handleSaveContact} className='bg-brand-500 text-white px-6 font-bold shadow-theme-sm'>Update Contact</Button>
                         </div>
                     </div>
                 </div>
