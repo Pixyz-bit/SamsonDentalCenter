@@ -60,8 +60,8 @@ const GlobalRegistryView = ({ mode = 'upcoming' }) => {
                 return {
                     filters: [
                         { id: 'all', label: 'All Upcoming' },
-                        { id: 'CONFIRMED', label: 'Confirmed' },
-                        { id: 'RESCHEDULED', label: 'Rescheduled' },
+                        { id: 'general', label: 'General' },
+                        { id: 'specialized', label: 'Specialized' },
                     ],
                     defaultStatus: 'CONFIRMED,RESCHEDULED',
                 };
@@ -75,12 +75,22 @@ const GlobalRegistryView = ({ mode = 'upcoming' }) => {
             try {
                 setIsLoading(true);
                 setError(null);
-                let statusQuery = activeFilter === 'all' ? config.defaultStatus : activeFilter;
+                
+                let statusQuery = config.defaultStatus;
+                let tierQuery = null;
+
+                if (activeFilter === 'general' || activeFilter === 'specialized') {
+                    tierQuery = activeFilter;
+                } else if (activeFilter !== 'all') {
+                    statusQuery = activeFilter;
+                }
+
                 const params = {
                     page: currentPage,
                     limit: 15,
                     status: statusQuery,
                     search: searchQuery,
+                    tier: tierQuery,
                 };
                 if (mode === 'today') {
                     params.date = format(new Date(), 'yyyy-MM-dd');
@@ -265,7 +275,7 @@ const GlobalRegistryView = ({ mode = 'upcoming' }) => {
                                         <div className="px-5 py-3.5 flex flex-col items-start gap-2">
                                             <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest leading-none">Status</p>
                                             <span className={`px-2.5 py-1 text-[9px] font-black uppercase tracking-widest rounded-lg border shadow-sm w-full text-center ${getStatusStyle(appt.status)}`}>
-                                                {appt.status}
+                                                {appt.status === 'CONFIRMED' ? 'APPROVED' : appt.status}
                                             </span>
                                         </div>
                                     </div>

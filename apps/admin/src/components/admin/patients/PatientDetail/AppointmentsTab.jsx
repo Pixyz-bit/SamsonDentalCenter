@@ -168,7 +168,7 @@ const AppointmentsTab = ({ patient, dependents = [], token, filterMode = 'reques
     ];
 
     const activeFilters = [
-        { id: 'ALL', label: 'All Visits' },
+        { id: 'ALL', label: filterMode === 'upcoming' ? 'All Upcoming' : 'All Visits' },
         { id: 'GENERAL', label: 'General' },
         { id: 'SPECIALIZED', label: 'Specialized' },
     ];
@@ -351,7 +351,7 @@ const AppointmentsTab = ({ patient, dependents = [], token, filterMode = 'reques
                                                 app.status === 'CANCELLED' ? 'bg-red-50 text-red-600 border-red-100 dark:bg-red-500/10 dark:text-red-400 dark:border-red-500/20' :
                                                 'bg-amber-50 text-amber-600 border-amber-100 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20'
                                             } truncate w-full text-left`}>
-                                                {app.status}
+                                                {app.status === 'CONFIRMED' ? 'APPROVED' : app.status}
                                             </span>
                                         </div>
                                     </div>

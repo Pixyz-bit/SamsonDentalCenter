@@ -172,7 +172,7 @@ export const useDoctors = (fetchOnMount = true) => {
 
     const fetchDoctorHistory = useCallback(async (dentistId, params = {}) => {
         try {
-            const { page = 1, limit = 10, status = null, search = null } = params;
+            const { page = 1, limit = 10, status = null, search = null, tier = null } = params;
             let url = `/admin/appointments?page=${page}&limit=${limit}`;
             
             if (dentistId) url += `&dentist_id=${dentistId}`;
@@ -181,6 +181,9 @@ export const useDoctors = (fetchOnMount = true) => {
             }
             if (search) {
                 url += `&search=${encodeURIComponent(search)}`;
+            }
+            if (tier) {
+                url += `&tier=${tier}`;
             }
             if (params.date) url += `&date=${params.date}`;
             if (params.date_from) url += `&date_from=${params.date_from}`;

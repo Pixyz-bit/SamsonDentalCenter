@@ -28,7 +28,7 @@ const DoctorHistoryDetail = ({ doctor, filterMode = 'history' }) => {
         { id: 'GENERAL', label: 'General' },
         { id: 'SPECIALIZED', label: 'Specialized' },
     ] : isUpcoming ? [
-        { id: 'all', label: 'All Visits' },
+        { id: 'all', label: 'All Upcoming' },
         { id: 'GENERAL', label: 'General' },
         { id: 'SPECIALIZED', label: 'Specialized' },
     ] : [
@@ -47,23 +47,30 @@ const DoctorHistoryDetail = ({ doctor, filterMode = 'history' }) => {
                 
                 // Map activeFilter to a backend-compatible status or null
                 let statusQuery = activeFilter;
+                let tierQuery = null;
                 
                 if (isPending) {
                     // For pending tab, if filter is GENERAL/SPECIALIZED, we still fetch PENDING status
-                    statusQuery = (activeFilter === 'all' || activeFilter === 'GENERAL' || activeFilter === 'SPECIALIZED') ? 'PENDING' : activeFilter;
+                    statusQuery = 'PENDING';
+                    if (activeFilter === 'GENERAL' || activeFilter === 'SPECIALIZED') {
+                        tierQuery = activeFilter.toLowerCase();
+                    }
                 } else if (isUpcoming) {
                     // For upcoming tab, if filter is GENERAL/SPECIALIZED, we still fetch APPROVED status
-                    statusQuery = (activeFilter === 'all' || activeFilter === 'GENERAL' || activeFilter === 'SPECIALIZED') ? 'APPROVED' : activeFilter;
+                    statusQuery = 'CONFIRMED,RESCHEDULED';
+                    if (activeFilter === 'GENERAL' || activeFilter === 'SPECIALIZED') {
+                        tierQuery = activeFilter.toLowerCase();
+                    }
                 } else {
                     // For history tab, if filter is 'all', we fetch all finalized statuses
-                    // The backend /admin/appointments expects comma-separated statuses or specific ones
                     if (activeFilter === 'all') statusQuery = 'COMPLETED,CANCELLED,LATE_CANCEL,NO_SHOW';
                 }
 
                 const result = await fetchDoctorHistory(doctor.id, { 
                     page: currentPage, 
                     limit: 10, 
-                    status: statusQuery
+                    status: statusQuery,
+                    tier: tierQuery
                 });
                 setHistory(result.appointments || []);
                 setPagination(result.pagination || { total: 0, pages: 1, current_page: 1 });
@@ -76,7 +83,7 @@ const DoctorHistoryDetail = ({ doctor, filterMode = 'history' }) => {
         };
 
         loadHistory();
-    }, [doctor?.id, fetchDoctorHistory, activeFilter, currentPage, isUpcoming]);
+    }, [doctor?.id, fetchDoctorHistory, activeFilter, currentPage, isUpcoming, isPending]);
 
     const handleFilterChange = (filterId) => {
         setActiveFilter(filterId);
@@ -292,7 +299,7 @@ const DoctorHistoryDetail = ({ doctor, filterMode = 'history' }) => {
                                             <div className="px-5 py-3.5 flex flex-col items-start gap-2">
                                                 <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest leading-none">Status</p>
                                                 <span className={`px-2.5 py-1 text-[9px] font-black uppercase tracking-widest rounded-lg border shadow-sm w-full text-center ${getStatusStyle(appt.status)}`}>
-                                                    {appt.status}
+                                                    {appt.status === 'CONFIRMED' ? 'APPROVED' : appt.status}
                                                 </span>
                                             </div>
                                         </div>
