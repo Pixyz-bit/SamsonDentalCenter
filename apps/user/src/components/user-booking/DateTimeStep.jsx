@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import { ChevronLeft, ChevronDown, ChevronRight, Lock, X, AlertCircle, RefreshCw, Clock, Plus, ArrowRight, Hourglass, Calendar, MousePointer2, Loader2, CheckCircle2, CalendarDays, Check, Users, CalendarX } from 'lucide-react';
 import { api } from '../../utils/api';
 import useSlots from '../../hooks/useSlots';

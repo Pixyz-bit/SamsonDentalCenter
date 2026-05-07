@@ -87,8 +87,8 @@ const AIChatbotPromo = ({ variant = "light" }) => {
           <div ref={headingRef}>
             <div className="overflow-hidden mb-6">
               <div className="chatbot-reveal-text flex items-center gap-3">
-                <span className="h-px w-10 bg-red-400"></span>
-                <span className="text-red-400 font-bold uppercase tracking-[0.3em] text-[10px]">
+                <span className="h-px w-10 bg-red-600"></span>
+                <span className="text-red-600 font-bold uppercase tracking-[0.3em] text-[10px]">
                   Future of Dentistry
                 </span>
               </div>
@@ -101,7 +101,7 @@ const AIChatbotPromo = ({ variant = "light" }) => {
                 <span className="block chatbot-reveal-text">Intelligent</span>
               </div>
               <div className="overflow-hidden">
-                <span className="block text-transparent bg-clip-text bg-red-400 chatbot-reveal-text">
+                <span className="block text-transparent bg-clip-text bg-red-600 chatbot-reveal-text">
                   Clinical Care.
                 </span>
               </div>
