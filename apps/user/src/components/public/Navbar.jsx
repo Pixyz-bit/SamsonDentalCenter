@@ -106,7 +106,8 @@ const Navbar = () => {
         if (isProfileMenuOpen) setIsProfileMenuOpen(false);
     });
 
-    const isScrolled = scrollY > 20;
+    const isServiceDetail = location.pathname.startsWith('/services/') && location.pathname !== '/services';
+    const isScrolled = scrollY > 20 || isServiceDetail;
 
     return (
         <>

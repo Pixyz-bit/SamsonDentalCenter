@@ -114,8 +114,7 @@ const PageHeader = ({ overline, title, subtitle }) => {
   return (
     <div
       ref={containerRef}
-      className="relative w-full min-h-[300px] md:min-h-[380px] lg:min-h-[420px] flex items-center justify-center overflow-hidden bg-[#171b1e]
-"
+      className="relative w-full min-h-[300px] md:min-h-[380px] lg:min-h-[420px] flex items-center justify-center overflow-hidden bg-stone-900"
     >
       {/* Background effects */}
       <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
@@ -138,7 +137,7 @@ const PageHeader = ({ overline, title, subtitle }) => {
       <div className="absolute top-0 inset-x-0 h-40 bg-gradient-to-b from-black/60 via-black/20 to-transparent z-10 pointer-events-none"></div>
 
       {/* Content Container */}
-      <div className="max-w-6xl mx-auto px-6 sm:px-8 lg:px-12 relative z-10 w-full font-sans">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full font-sans">
         {/* Mobile: Centered layout */}
         <div className="md:hidden flex flex-col items-center justify-center text-center min-h-[300px]">
           <h1
@@ -156,10 +155,7 @@ const PageHeader = ({ overline, title, subtitle }) => {
         </div>
 
         {/* Desktop: Text only on the left half */}
-        <div
-          className="hidden md:flex items-center min-h-[380px] lg:min-h-[420px]
- w-1/2"
-        >
+        <div className="hidden md:flex items-center min-h-[380px] lg:min-h-[420px] w-1/2">
           <div className="flex flex-col items-start justify-center text-left">
             <h1
               ref={(el) => (textElementsRef.current[0] = el)}
