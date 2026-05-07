@@ -82,13 +82,13 @@ const BookingSteps = () => {
             {/* Header */}
             <div className="flex flex-col md:flex-row items-start md:items-center gap-4 mb-10 step-header">
               {/* Tooth Icon (SVG) */}
-              <div className="flex-shrink-0 text-[#ef4444] w-12 h-12 md:w-16 md:h-16">
+              <div className="flex-shrink-0 text-red-600 w-12 h-12 md:w-16 md:h-16">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-full h-full">
                   <path d="M7 3C4 3 3 6 3 9C3 13 4 15 6 15C6 15 5 21 8 21C11 21 11 15 12 15C13 15 13 21 16 21C19 21 18 15 18 15C20 15 21 13 21 9C21 6 20 3 17 3C15 3 13 5 12 5C11 5 9 3 7 3Z" fill="#fee2e2" />
                 </svg>
               </div>
               <div>
-                <h2 className="text-3xl md:text-4xl font-black text-[#ef4444] mb-1 font-brand tracking-tight leading-tight">Your Dental Visit, Made Simple</h2>
+                <h2 className="text-3xl md:text-4xl font-black text-red-600 mb-1 font-brand tracking-tight leading-tight whitespace-nowrap">Your Dental Visit, Made Simple</h2>
                 <p className="text-stone-800 text-lg md:text-xl font-medium opacity-90 leading-tight">Quick and easy steps to quality care.</p>
               </div>
             </div>
@@ -100,18 +100,18 @@ const BookingSteps = () => {
                   
                   {/* Line connecting circles (except last one) */}
                   {index !== STEPS.length - 1 && (
-                    <div className="absolute left-[23px] md:left-[29px] top-12 md:top-[60px] bottom-[-32px] w-[2px] bg-[#ef4444] origin-top step-line" />
+                    <div className="absolute left-[23px] md:left-[29px] top-12 md:top-[60px] bottom-[-32px] w-[2px] bg-red-600 origin-top step-line" />
                   )}
 
                   <div className="flex items-start gap-5 md:gap-8 step-item relative z-10">
                     {/* Circle with Number */}
-                    <div className="flex-shrink-0 w-12 h-12 md:w-[60px] md:h-[60px] rounded-full bg-[#ef4444] flex items-center justify-center text-white text-xl md:text-2xl font-bold ring-4 ring-white shadow-sm z-10">
+                    <div className="flex-shrink-0 w-12 h-12 md:w-[60px] md:h-[60px] rounded-full bg-red-600 flex items-center justify-center text-white text-xl md:text-2xl font-bold ring-4 ring-white shadow-sm z-10">
                       {step.id}
                     </div>
                     
                     {/* Text Content */}
-                    <div className="pt-1 md:pt-3">
-                      <h3 className="text-xl md:text-2xl font-bold text-[#ef4444] mb-1 leading-tight">{step.title}</h3>
+                    <div>
+                      <h3 className="text-xl md:text-2xl font-bold text-red-600 mb-1 leading-tight">{step.title}</h3>
                       <p className="text-stone-800 text-base md:text-lg leading-snug">{step.description}</p>
                     </div>
                   </div>

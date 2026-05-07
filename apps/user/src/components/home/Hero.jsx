@@ -141,7 +141,7 @@ const Hero = () => {
                     </h1>
 
                     {/* Subheading - fluid typography */}
-                    <p className='hero-anim text-[clamp(0.875rem,1.5vw+0.25rem,1.125rem)] text-stone-300 leading-relaxed max-w-2xl font-medium'>
+                    <p className='hero-anim text-[clamp(0.875rem,1.5vw+0.25rem,1.125rem)] text-white leading-relaxed max-w-2xl font-medium'>
                         Exceptional Dental Care Powered by Expertise, Innovation and Advanced Technology. Trusted by companies and individuals for over 60 years.
                     </p>
 
@@ -202,7 +202,7 @@ const Hero = () => {
                                     </svg>
                                 ))}
                             </div>
-                            <p className='text-[clamp(0.75rem,1vw+0.25rem,0.875rem)] text-stone-400 font-medium'>
+                            <p className='text-[clamp(0.75rem,1vw+0.25rem,0.875rem)] text-white font-medium'>
                                 Trusted by <span className='font-bold text-white'>2,000+</span>{' '}
                                 Happy Patients
                             </p>

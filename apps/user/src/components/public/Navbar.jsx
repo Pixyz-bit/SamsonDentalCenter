@@ -156,24 +156,22 @@ const Navbar = () => {
                             </button>
 
                             {/* Logo Container (Hidden on mobile, flex on desktop) */}
-                            <div className='hidden lg:flex items-center flex-shrink-0 bg-white/10 backdrop-blur-md ring-1 ring-white/20 rounded-full p-1.5 h-[48px] transition-all duration-300 hover:ring-white/30'>
-                                <Link
-                                    to='/'
-                                    className='flex items-center gap-3 px-4 py-1.5 rounded-full hover:bg-white/5 transition-all duration-300 group'
-                                >
-                                    <div className='w-8 flex-shrink-0 flex items-center justify-center transition-all duration-500 group-hover:scale-110'>
-                                        <img src="/images/logo/samson-logo.png" alt="Samson Dental Logo" className="w-full h-auto" />
-                                    </div>
-                                    <div className='flex flex-col items-start justify-center flex-shrink-0'>
-                                        <span className='font-black text-[18px] tracking-[-0.04em] leading-none text-white whitespace-nowrap'>
-                                            SAMSON
-                                        </span>
-                                        <span className='text-[8px] uppercase tracking-[0.28em] font-bold mt-[1px] text-red-400 whitespace-nowrap'>
-                                            Dental Center
-                                        </span>
-                                    </div>
-                                </Link>
-                            </div>
+                            <Link
+                                to='/'
+                                className='hidden lg:flex items-center gap-3 transition-all duration-300 group flex-shrink-0'
+                            >
+                                <div className='w-8 flex-shrink-0 flex items-center justify-center transition-all duration-500 group-hover:scale-110'>
+                                    <img src="/images/logo/samson-logo.png" alt="Samson Dental Logo" className="w-full h-auto" />
+                                </div>
+                                <div className='flex flex-col items-start justify-center flex-shrink-0'>
+                                    <span className='font-black text-[22px] tracking-[-0.04em] leading-none text-white whitespace-nowrap'>
+                                        SAMSON
+                                    </span>
+                                    <span className='text-[10px] uppercase tracking-[0.28em] font-bold mt-[1px] text-red-400 whitespace-nowrap'>
+                                        Dental Center
+                                    </span>
+                                </div>
+                            </Link>
                         </div>
 
                         {/* Section 2: Links (Desktop Only) */}
