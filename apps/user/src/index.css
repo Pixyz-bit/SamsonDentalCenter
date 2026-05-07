@@ -83,6 +83,7 @@
     --color-stone-100: #e1e8ed; /* Secondary light gray */
     --color-stone-800: #121518; /* Dark gray for text */
     --color-stone-900: #0a0c0e; /* Almost black */
+    --color-stone-950: #171b1e; /* Navbar and Footer background */
 
     /* Fonts */
     --font-sans: var(--font-main);

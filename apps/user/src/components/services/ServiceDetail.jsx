@@ -114,7 +114,13 @@ const SERVICE_DATA = {
         ],
         duration: 60,
         guarantee: 'Pain Relief',
-        desc: 'Comprehensive solutions for jaw joint dysfunction, headaches, and teeth grinding.'
+        desc: 'Comprehensive solutions for jaw joint dysfunction, headaches, and teeth grinding.',
+        fullDesc: 'Temporomandibular Joint (TMJ) disorders can cause significant pain in your jaw joint and in the muscles that control jaw movement. Our therapy approach combines advanced diagnostics with non-invasive treatments to restore your quality of life. We focus on identifying the root cause—whether it is stress-related grinding, joint misalignment, or muscle tension—and creating a custom roadmap to recovery.',
+        faqs: [
+            { q: 'What are common signs of TMJ?', a: 'Common symptoms include jaw clicking, headaches, earaches, and difficulty chewing or opening your mouth wide.' },
+            { q: 'Is the treatment painful?', a: 'No, our TMJ therapies are designed to relieve pain. Most treatments involve custom-made appliances or gentle physiotherapy.' },
+            { q: 'How long until I feel relief?', a: 'Many patients feel significant relief within the first 2-4 weeks of consistent splint use and therapy.' }
+        ]
     },
 
     // SPECIALIZED
@@ -299,28 +305,34 @@ const ServiceDetail = ({ service: dbService, loading, error: dbError }) => {
         ],
         duration: service?.duration_minutes || 60,
         guarantee: 'Expert Care',
-        desc: service?.description || 'World-class dental care tailored to your unique clinical needs.'
+        desc: service?.description || 'World-class dental care tailored to your unique clinical needs.',
+        fullDesc: service?.description || 'We provide specialized dental solutions using the latest clinical advancements and a patient-first approach. Our team ensures every procedure is performed with precision, comfort, and long-term health in mind.',
+        faqs: [
+            { q: 'How do I prepare for this procedure?', a: 'Preparation varies, but generally, we recommend a light meal and avoiding caffeine 2 hours before your appointment.' },
+            { q: 'What is the recovery time?', a: 'Most patients return to normal activities immediately, though specific procedures may require 24-48 hours of rest.' },
+            { q: 'Is this covered by insurance?', a: 'We accept various health cards and insurance providers. Please bring your details for verification.' }
+        ]
     };
 
     return (
         <main className='bg-white min-h-screen pb-20'>
             {/* Header / Hero */}
-            <div className='relative h-[350px] md:h-[450px] bg-white overflow-hidden flex items-end'>
+            <div className='relative h-[300px] md:h-[400px] bg-stone-900 overflow-hidden flex items-end'>
                 <div className='absolute inset-0 opacity-40'>
-                    <img src="/images/services/service-chair-close.jpg" alt="" className="w-full h-full object-cover" />
-                    <div className='absolute inset-0 bg-gradient-to-t from-white via-white/80 to-transparent'></div>
+                    <img src="/images/services/service-chair-close.jpg" alt="" className="w-full h-full object-cover scale-110" />
+                    <div className='absolute inset-0 bg-gradient-to-t from-stone-900 via-stone-900/40 to-transparent'></div>
                 </div>
 
-                <div className='max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 pb-16 relative z-10'>
-                    <button onClick={() => navigate(-1)} className='flex items-center gap-2 text-red-400 font-bold uppercase tracking-widest text-[10px] mb-8 transition-colors hover:text-white'>
+                <div className='max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 pb-12 relative z-10'>
+                    <button onClick={() => navigate(-1)} className='flex items-center gap-2 text-white/60 font-bold uppercase tracking-widest text-[10px] mb-6 transition-colors hover:text-white'>
                         <ChevronLeft size={14} /> Back to Clinical Solutions
                     </button>
                     
                     <div className='max-w-3xl'>
-                        <div className='inline-flex items-center gap-2 px-3 py-1 bg-red-500/20 border border-red-500/30 rounded-full text-red-400 text-[10px] font-bold uppercase tracking-widest mb-6 detail-reveal'>
+                        <div className='inline-flex items-center gap-2 px-3 py-1 bg-red-500/20 border border-red-500/30 rounded-full text-red-400 text-[10px] font-bold uppercase tracking-widest mb-4 detail-reveal'>
                             <Sparkles size={12} /> {service.tier || 'Clinical Excellence'}
                         </div>
-                        <h1 className='text-4xl md:text-6xl font-black text-stone-900 tracking-tight detail-reveal leading-none'>
+                        <h1 className='text-4xl md:text-6xl font-black text-white tracking-tight detail-reveal leading-none'>
                             {service.name}
                         </h1>
                     </div>
@@ -330,49 +342,57 @@ const ServiceDetail = ({ service: dbService, loading, error: dbError }) => {
             <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-10 relative z-20'>
                 <div className='grid grid-cols-1 lg:grid-cols-3 gap-8'>
                     <div className='lg:col-span-2 space-y-8'>
-                        <div className='bg-white rounded-[2rem] p-8 md:p-12 shadow-xl shadow-stone-200/60 border border-stone-100 detail-reveal'>
+                        <div className='bg-white rounded-xl p-8 md:p-10 shadow-xl shadow-stone-200/60 border border-stone-100 detail-reveal'>
                             <h2 className='text-2xl font-bold text-stone-900 mb-6'>Clinical Overview</h2>
-                            <p className='text-stone-600 text-lg leading-relaxed mb-12'>{activeData.desc}</p>
-                            <div className='grid grid-cols-1 md:grid-cols-3 gap-8 pt-10 border-t border-stone-100'>
+                            <p className='text-stone-600 text-lg leading-relaxed mb-10'>{activeData.desc}</p>
+                            <div className='grid grid-cols-1 md:grid-cols-3 gap-6 pt-8 border-t border-stone-100'>
                                 <div className='flex items-start gap-4'>
-                                    <div className='w-12 h-12 bg-red-50 text-red-600 rounded-2xl flex items-center justify-center shrink-0 shadow-sm'><Clock size={22} /></div>
+                                    <div className='w-10 h-10 bg-red-50 text-red-600 rounded-xl flex items-center justify-center shrink-0 shadow-sm'><Clock size={18} /></div>
                                     <div>
-                                        <p className='text-[10px] font-bold text-stone-400 uppercase tracking-widest mb-1'>Duration</p>
-                                        <p className='text-lg font-black text-stone-900'>{activeData.duration} min</p>
+                                        <p className='text-[10px] font-bold text-stone-400 uppercase tracking-widest mb-0.5'>Duration</p>
+                                        <p className='text-base font-black text-stone-900'>{activeData.duration} min</p>
                                     </div>
                                 </div>
                                 <div className='flex items-start gap-4'>
-                                    <div className='w-12 h-12 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center shrink-0 shadow-sm'><Shield size={22} /></div>
+                                    <div className='w-10 h-10 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center shrink-0 shadow-sm'><Shield size={18} /></div>
                                     <div>
-                                        <p className='text-[10px] font-bold text-stone-400 uppercase tracking-widest mb-1'>Focus</p>
-                                        <p className='text-lg font-black text-stone-900'>{activeData.guarantee}</p>
+                                        <p className='text-[10px] font-bold text-stone-400 uppercase tracking-widest mb-0.5'>Focus</p>
+                                        <p className='text-base font-black text-stone-900'>{activeData.guarantee}</p>
                                     </div>
                                 </div>
                                 <div className='flex items-start gap-4'>
-                                    <div className='w-12 h-12 bg-purple-50 text-purple-600 rounded-2xl flex items-center justify-center shrink-0 shadow-sm'><Sparkles size={22} /></div>
+                                    <div className='w-10 h-10 bg-purple-50 text-purple-600 rounded-xl flex items-center justify-center shrink-0 shadow-sm'><Sparkles size={18} /></div>
                                     <div>
-                                        <p className='text-[10px] font-bold text-stone-400 uppercase tracking-widest mb-1'>Precision</p>
-                                        <p className='text-lg font-black text-stone-900'>AI-Driven</p>
+                                        <p className='text-[10px] font-bold text-stone-400 uppercase tracking-widest mb-0.5'>Precision</p>
+                                        <p className='text-base font-black text-stone-900'>AI-Driven</p>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <div className='bg-white rounded-[2rem] p-8 md:p-12 shadow-xl shadow-stone-200/60 border border-stone-100 detail-reveal'>
-                            <h2 className='text-2xl font-bold text-stone-900 mb-10'>How It Works</h2>
-                            <div className='space-y-12'>
-                                {activeData.workflow.map((item, index) => (
-                                    <div key={item.id} className='relative flex gap-8 group'>
-                                        {index !== activeData.workflow.length - 1 && (
-                                            <div className='absolute left-6 top-14 bottom-[-56px] w-0.5 bg-stone-100 group-hover:bg-red-100 transition-colors'></div>
-                                        )}
-                                        <div className='w-12 h-12 rounded-2xl bg-stone-50 border border-stone-100 flex items-center justify-center shrink-0 font-black text-stone-400 group-hover:bg-red-500 group-hover:text-white group-hover:border-red-500 transition-all shadow-sm'>
-                                            {item.id}
-                                        </div>
-                                        <div>
-                                            <h3 className='text-xl font-bold text-stone-900 mb-2 group-hover:text-red-600 transition-colors'>{item.title}</h3>
-                                            <p className='text-stone-500 leading-relaxed'>{item.desc}</p>
-                                        </div>
+
+
+                        {/* Description Section (Shopee style) */}
+                        <div className='bg-white rounded-xl p-8 md:p-10 shadow-xl shadow-stone-200/60 border border-stone-100 detail-reveal'>
+                            <h2 className='text-2xl font-bold text-stone-900 mb-6'>Service Description</h2>
+                            <div className='prose prose-stone max-w-none text-stone-600'>
+                                <p className='leading-relaxed text-sm whitespace-pre-line'>
+                                    {activeData?.fullDesc || activeData?.desc}
+                                </p>
+                            </div>
+                        </div>
+
+                        {/* FAQ Section */}
+                        <div className='bg-white rounded-xl p-8 md:p-10 shadow-xl shadow-stone-200/60 border border-stone-100 detail-reveal'>
+                            <h2 className='text-2xl font-bold text-stone-900 mb-6'>Frequently Asked Questions</h2>
+                            <div className='space-y-4'>
+                                {(activeData?.faqs || []).map((faq, idx) => (
+                                    <div key={idx} className='border border-stone-100 rounded-xl p-5 bg-stone-50/30'>
+                                        <p className='font-bold text-stone-900 mb-2 flex items-center gap-2'>
+                                            <span className='w-1.5 h-1.5 rounded-full bg-red-500'></span>
+                                            {faq.q}
+                                        </p>
+                                        <p className='text-sm text-stone-600 leading-relaxed pl-3.5'>{faq.a}</p>
                                     </div>
                                 ))}
                             </div>
@@ -380,18 +400,27 @@ const ServiceDetail = ({ service: dbService, loading, error: dbError }) => {
                     </div>
 
                     <div className='space-y-6 h-fit'>
-                        <div className='bg-white border border-stone-200 rounded-[2rem] p-8 text-stone-900 shadow-2xl shadow-stone-200/60 detail-reveal'>
+                        <div className='bg-white border border-stone-200 rounded-xl p-8 text-stone-900 shadow-2xl shadow-stone-200/60 detail-reveal'>
                             <p className='text-red-500 font-bold uppercase tracking-[0.2em] text-[10px] mb-4'>Clinical Rate</p>
-                            <div className='flex items-baseline gap-2 mb-8'>
-                                <span className='text-4xl font-black'>₱{Number(service.price || 0).toLocaleString()}</span>
-                                <span className='text-stone-500 text-xs font-medium'>Initial Estimate</span>
+                            <div className='flex flex-col mb-8'>
+                                {Number(service.price || 0) > 0 ? (
+                                    <>
+                                        <span className='text-4xl font-black'>₱{Number(service.price).toLocaleString()}</span>
+                                        <span className='text-stone-500 text-xs font-medium mt-1'>Initial Estimate</span>
+                                    </>
+                                ) : (
+                                    <>
+                                        <span className='text-2xl font-black text-stone-900'>Inquire for Price</span>
+                                        <span className='text-stone-500 text-xs font-medium mt-1'>Price upon consultation</span>
+                                    </>
+                                )}
                             </div>
-                            <ul className='space-y-5 mb-10'>
+                            <ul className='space-y-4 mb-10'>
                                 <li className='flex items-center gap-3 text-sm text-stone-600'><CheckCircle2 size={14} className='text-red-500' /> Instant Confirmation</li>
                                 <li className='flex items-center gap-3 text-sm text-stone-600'><CheckCircle2 size={14} className='text-red-500' /> Expert Specialists</li>
                                 <li className='flex items-center gap-3 text-sm text-stone-600'><CheckCircle2 size={14} className='text-red-500' /> Zero Reschedule Fees</li>
                             </ul>
-                            <button onClick={() => navigate(`/book?service=${service.id || id}`)} className='w-full bg-red-500 hover:bg-red-600 text-white font-bold py-5 rounded-2xl shadow-lg transition-all active:scale-95'>
+                            <button onClick={() => navigate(`/book?service=${service.id || id}`)} className='w-full bg-red-500 hover:bg-red-600 text-white font-bold py-5 rounded-xl shadow-lg transition-all active:scale-95'>
                                 Secure Appointment
                             </button>
                         </div>

@@ -233,7 +233,7 @@ const Portfolio = ({ variant = 'light' }) => {
             ref={sectionRef}
             className={`py-12 sm:py-16 relative overflow-hidden transition-colors duration-500 ${isDark ? 'bg-slate-900' : 'bg-white'}`}
         >
-            <div className='max-w-6xl mx-auto px-6 sm:px-8 lg:px-12 relative z-10'>
+            <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10'>
                 <div
                     ref={headingRef}
                     className='flex flex-col lg:flex-row items-center lg:items-end justify-between mb-12 md:mb-16 gap-10'

@@ -111,7 +111,7 @@ const TeamGrid = () => {
     return (
         <>
             <section ref={containerRef} className='bg-white py-10 md:py-20 relative'>
-                <div className='max-w-6xl mx-auto px-6 sm:px-8 lg:px-12 w-full'>
+                <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full'>
                     <div className='mb-12'>
                         <div className='text-center max-w-2xl mx-auto'>
                             <h2 className='text-3xl md:text-4xl font-brand font-black text-stone-900 mb-4'>Our Dedicated Team</h2>
@@ -129,7 +129,7 @@ const TeamGrid = () => {
                                 ref={(el) => (cardsRef.current[index] = el)}
                                 className='group cursor-pointer'
                             >
-                                <div className='aspect-[4/5] rounded-[2.5rem] overflow-hidden mb-8 relative border border-stone-100 shadow-sm group-hover:shadow-2xl group-hover:shadow-red-500/10 transition-all duration-500 ease-in-out'>
+                                <div className='aspect-[4/4.5] rounded-2xl overflow-hidden mb-4 relative border border-stone-100 shadow-sm group-hover:shadow-2xl group-hover:shadow-red-500/10 transition-all duration-500 ease-in-out'>
                                     <img
                                         src={doctor.image}
                                         className='w-full h-full object-cover transition-transform duration-700 group-hover:scale-110'
