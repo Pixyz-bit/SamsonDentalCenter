@@ -159,13 +159,13 @@ const GalleryV2 = ({ variant = "dark", showExploreButton = false }) => {
         {/* Text overlaid / stacked - Aligned with Navbar Logo */}
         <div className="relative lg:absolute lg:inset-0 z-20 pointer-events-none flex items-start lg:items-center">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
-            <div className="max-w-[90vw] lg:max-w-[40vw]">
+            <div className="max-w-[90vw] lg:max-w-[40vw] pointer-events-auto">
               <div className="flex items-center gap-3 mb-4">
                 <span
-                  className={`h-px w-8 ${isDark ? "bg-red-400" : "bg-red-400"}`}
+                  className={`h-px w-8 ${isDark ? "bg-red-600" : "bg-red-600"}`}
                 ></span>
                 <span
-                  className={`${isDark ? "text-red-400" : "text-red-400"} font-bold uppercase tracking-widest text-xs`}
+                  className={`${isDark ? "text-red-600" : "text-red-600"} font-bold uppercase tracking-widest text-xs`}
                 >
                   Dental Gallery
                 </span>
@@ -177,7 +177,7 @@ const GalleryV2 = ({ variant = "dark", showExploreButton = false }) => {
                   </span>
                 </div>
                 <div className="overflow-hidden py-2 -my-2 whitespace-nowrap">
-                  <span className="block text-red-400 title-reveal-line">
+                  <span className="block text-red-600 title-reveal-line">
                     Beautiful Smiles.
                   </span>
                 </div>
