@@ -144,12 +144,12 @@ const GalleryV2 = ({ variant = "dark", showExploreButton = false }) => {
       ref={containerRef}
       className={`relative overflow-hidden ${isDark ? "bg-red-950" : "bg-white"}`}
     >
-      <div className="h-[200px]" />{" "}
+      <div className="lg:h-[200px]" />{" "}
       {/* Spacer to allow scrolling to reach the pin naturally */}
       {/* The pinned section */}
       <div
         ref={scrollWrapperRef}
-        className="h-screen w-full flex flex-col justify-center relative"
+        className="h-screen w-full flex flex-col justify-center pb-16 lg:pb-0 relative"
       >
         {/* Absolute Background Blur Decoration */}
         <div
@@ -157,7 +157,7 @@ const GalleryV2 = ({ variant = "dark", showExploreButton = false }) => {
         ></div>
 
         {/* Text overlaid / stacked - Aligned with Navbar Logo */}
-        <div className="absolute inset-0 z-20 pointer-events-none flex items-center">
+        <div className="relative lg:absolute lg:inset-0 z-20 pointer-events-none flex items-start lg:items-center">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
             <div className="max-w-[90vw] lg:max-w-[40vw]">
               <div className="flex items-center gap-3 mb-4">
@@ -199,14 +199,14 @@ const GalleryV2 = ({ variant = "dark", showExploreButton = false }) => {
 
         {/* Track mask wrapper - Back to full bleed but with right-side solid cut-off */}
         <div
-          className="relative lg:absolute lg:inset-0 flex items-center overflow-hidden pointer-events-none w-full mt-6 lg:mt-0
-                     lg:[-webkit-mask-image:linear-gradient(to_right,transparent_0%,transparent_40%,black_55%)] 
-                     lg:[mask-image:linear-gradient(to_right,transparent_0%,transparent_40%,black_55%)]"
+          className="relative lg:absolute lg:inset-0 flex items-center overflow-hidden pointer-events-none w-full mt-2 lg:mt-0
+                     lg:[-webkit-mask-image:linear-gradient(to_right,transparent_0%,transparent_35%,black_50%,black_85%,transparent_100%)] 
+                     lg:[mask-image:linear-gradient(to_right,transparent_0%,transparent_35%,black_50%,black_85%,transparent_100%)]"
         >
           {/* The scrolling track of images */}
           <div
             ref={trackRef}
-            className="flex items-center gap-6 lg:gap-12 pl-6 lg:pl-[50vw] pr-[20vw] relative z-10 will-change-transform pointer-events-auto h-full mt-8 lg:mt-0"
+            className="flex items-center gap-6 lg:gap-12 pl-6 lg:pl-[50vw] pr-[20vw] relative z-10 will-change-transform pointer-events-auto h-full mt-4 lg:mt-0"
           >
             {galleryItems.map((item, index) => (
               <div
@@ -238,6 +238,9 @@ const GalleryV2 = ({ variant = "dark", showExploreButton = false }) => {
           </div>
         </div>
 
+        {/* Right Boundary Gradient Overlay - Creates the smooth fade-out into the background */}
+        <div className="absolute right-[calc((100vw-min(100vw,1280px))/2+16px)] top-0 bottom-0 w-[150px] bg-gradient-to-l from-white to-transparent z-40 pointer-events-none hidden lg:block"></div>
+        
         {/* Solid Right Boundary Overlay - Hides the gallery as it reaches the screen corner */}
         <div className="absolute right-0 top-0 bottom-0 w-[calc((100vw-min(100vw,1280px))/2+16px)] bg-white z-40 pointer-events-none hidden lg:block"></div>
       </div>

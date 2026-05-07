@@ -75,6 +75,29 @@ const Navbar = () => {
 
         window.addEventListener('scroll', handleScroll);
 
+        // Initialize navbar state immediately
+        const initialScrollY = window.scrollY;
+        setScrollY(initialScrollY);
+        const initialIsServiceDetail = location.pathname.startsWith('/services/') && location.pathname !== '/services';
+        const initialScrolled = initialScrollY > 20 || initialIsServiceDetail;
+        navRef.current.isScrolled = initialScrolled;
+
+        gsap.set(navRef.current, initialScrolled ? {
+            backgroundColor: 'rgba(23, 27, 30, 1)',
+            backdropFilter: 'blur(12px)',
+            paddingTop: '0.75rem',
+            paddingBottom: '0.75rem',
+            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+            borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
+        } : {
+            backgroundColor: 'rgba(23, 27, 30, 0)',
+            backdropFilter: 'blur(0px)',
+            paddingTop: '1.5rem',
+            paddingBottom: '1.5rem',
+            boxShadow: '0 0px 0px 0 rgba(0, 0, 0, 0)',
+            borderBottom: '1px solid transparent',
+        });
+
         let ctx = gsap.context(() => {
             gsap.from('.nav-anim', {
                 y: -30,
@@ -91,7 +114,7 @@ const Navbar = () => {
             window.removeEventListener('scroll', handleScroll);
             ctx.revert();
         };
-    }, []);
+    }, [location.pathname]);
 
     // Smart Visibility Logic
     useEffect(() => {
@@ -121,10 +144,7 @@ const Navbar = () => {
                         <div className='flex items-center gap-4'>
                             {/* Mobile Menu Toggle (Left on mobile) */}
                             <button
-                                className={`lg:hidden p-2 rounded-xl transition-all duration-300 ring-1 ${isScrolled || isMobileMenuOpen
-                                        ? 'text-white/90 ring-white/10 hover:bg-white/10'
-                                        : 'text-white/90 ring-white/10 hover:bg-white/10'
-                                    }`}
+                                className='lg:hidden flex items-center justify-center rounded-full transition-all duration-300 ring-1 h-[48px] w-[48px] bg-white/10 ring-white/20 hover:ring-white/30 backdrop-blur-md text-white'
                                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                                 aria-label='Toggle Mobile Menu'
                             >
@@ -136,26 +156,19 @@ const Navbar = () => {
                             </button>
 
                             {/* Logo Container (Hidden on mobile, flex on desktop) */}
-                            <div className='hidden lg:flex items-center flex-shrink-0'>
+                            <div className='hidden lg:flex items-center flex-shrink-0 bg-white/10 backdrop-blur-md ring-1 ring-white/20 rounded-full p-1.5 h-[48px] transition-all duration-300 hover:ring-white/30'>
                                 <Link
                                     to='/'
-                                    className='flex items-center space-x-3 group'
+                                    className='flex items-center gap-3 px-4 py-1.5 rounded-full hover:bg-white/5 transition-all duration-300 group'
                                 >
-                                    <div className='w-10 flex items-center justify-center transition-all duration-500 group-hover:scale-110'>
-                                        <img src="/images/logo/samson-logo.png" alt="Samson Dental Logo" className="w-full h-auto drop-shadow-sm" />
+                                    <div className='w-8 flex-shrink-0 flex items-center justify-center transition-all duration-500 group-hover:scale-110'>
+                                        <img src="/images/logo/samson-logo.png" alt="Samson Dental Logo" className="w-full h-auto" />
                                     </div>
-                                    <div className='flex flex-col items-start justify-center'>
-                                        <span
-                                            className={`font-black text-[22px] tracking-[-0.04em] leading-none text-white`}
-                                        >
+                                    <div className='flex flex-col items-start justify-center flex-shrink-0'>
+                                        <span className='font-black text-[18px] tracking-[-0.04em] leading-none text-white whitespace-nowrap'>
                                             SAMSON
                                         </span>
-                                        <span
-                                            className={`text-[10px] uppercase tracking-[0.28em] font-bold mt-[2px] ${isScrolled || isMobileMenuOpen
-                                                ? 'text-red-400'
-                                                : 'text-red-400'
-                                                }`}
-                                        >
+                                        <span className='text-[8px] uppercase tracking-[0.28em] font-bold mt-[1px] text-red-400 whitespace-nowrap'>
                                             Dental Center
                                         </span>
                                     </div>
@@ -166,12 +179,7 @@ const Navbar = () => {
                         {/* Section 2: Links (Desktop Only) */}
                         <div className='hidden lg:flex items-center justify-center'>
                             <ul
-                                className='flex items-center justify-center gap-1 px-3 py-1.5 rounded-full transition-colors duration-300 ring-1 h-[48px] bg-white/10 ring-white/20'
-                                style={{
-                                    backgroundColor: isScrolled ? 'rgba(255, 255, 255, 0.05)' : undefined,
-                                    backdropFilter: isScrolled ? 'blur(12px)' : undefined,
-                                    borderColor: isScrolled ? 'rgba(255, 255, 255, 0.1)' : undefined,
-                                }}
+                                className='flex items-center justify-center gap-1 px-3 py-1.5 rounded-full transition-all duration-300 ring-1 h-[48px] bg-white/10 ring-white/20 hover:ring-white/30 backdrop-blur-md'
                             >
                                 {navLinks.map((link, index) => (
                                     <li
@@ -227,10 +235,7 @@ const Navbar = () => {
                                     <>
                                         <button
                                             onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
-                                            className={`flex items-center gap-2 px-3 py-1.5 rounded-full transition-all duration-300 ${isScrolled
-                                                ? 'hover:bg-white/20 bg-white/10 ring-1 ring-white/10'
-                                                : 'hover:bg-white/20 bg-white/10 ring-1 ring-white/20'
-                                                }`}
+                                            className='flex items-center gap-2 px-3 py-1.5 rounded-full transition-all duration-300 h-[48px] bg-white/10 ring-1 ring-white/20 hover:ring-white/30 hover:bg-white/20 backdrop-blur-md'
                                             title={user ? (user.first_name ? `${user.last_name}, ${user.first_name}` : user.email) : 'Guest Menu'}
                                         >
                                             <span
@@ -389,16 +394,16 @@ const Navbar = () => {
                 </div>
             </nav>
 
-            {/* Mobile Sidebar Overlay */}
+            {/* Sidebar Overlay */}
             <div
-                className={`fixed inset-0 z-[9998] bg-black/20 backdrop-blur-sm transition-opacity duration-300 lg:hidden ${isMobileMenuOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
+                className={`fixed inset-0 bg-black/30 backdrop-blur-sm z-[1000] transition-opacity duration-300 lg:hidden ${isMobileMenuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
                     }`}
                 onClick={() => setIsMobileMenuOpen(false)}
             />
 
             {/* Mobile Sidebar */}
             <aside
-                className={`fixed top-0 left-0 bottom-0 z-[9999] w-[280px] bg-white shadow-2xl transform transition-transform duration-300 ease-in-out lg:hidden ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
+                className={`fixed top-0 left-0 w-80 h-[100dvh] bg-white shadow-2xl z-[1001] transform transition-transform duration-500 ease-out flex flex-col ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
                     }`}
             >
                 {/* Sidebar Header: Logo */}
@@ -409,7 +414,7 @@ const Navbar = () => {
                         onClick={() => setIsMobileMenuOpen(false)}
                     >
                         <div className='w-9 flex items-center justify-center transition-transform duration-500 group-hover:scale-110'>
-                            <img src="/images/logo/samson-logo.png" alt="Samson Dental Logo" className="w-full h-auto drop-shadow-sm" />
+                            <img src="/logo.png" alt="Samson Dental Logo" className="w-full h-auto brightness-0 invert" />
                         </div>
                         <div className='flex flex-col items-start justify-center'>
                             <span className='font-black text-[20px] tracking-[-0.04em] text-stone-800 uppercase leading-none'>
@@ -456,7 +461,7 @@ const Navbar = () => {
                     </div>
 
                     {/* Sidebar Footer: Profile/Guest Actions */}
-                    <div className='p-6 border-t border-gray-100 bg-stone-50/50'>
+                    <div className='p-6 pb-12 border-t border-gray-100 bg-stone-50/50'>
                         {loading ? (
                             <div className='flex items-center justify-center py-4'>
                                 <svg className="w-8 h-8 animate-spin text-red-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
