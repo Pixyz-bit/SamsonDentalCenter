@@ -48,6 +48,7 @@ export const api = {
     get: (path, token) => request('GET', path, { token }),
     post: (path, body, token, keepalive = false) => request('POST', path, { body, token, keepalive }),
     patch: (path, body, token) => request('PATCH', path, { body, token }),
+    put: (path, body, token) => request('PUT', path, { body, token }),
     delete: (path, token) => request('DELETE', path, { token }),
 };
 

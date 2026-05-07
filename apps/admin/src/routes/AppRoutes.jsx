@@ -23,6 +23,7 @@ import MessageActivityPage from '../pages/admin/message-activity/MessageActivity
 import PageError from '../components/common/PageError';
 import AdminProfile from '../pages/admin/AdminProfile';
 import GlobalRegistry from '../pages/admin/GlobalRegistry';
+import EmailTemplatesPage from '../pages/admin/EmailTemplatesPage';
 
 const AppRoutes = () => {
     return (
@@ -69,6 +70,7 @@ const AppRoutes = () => {
                     <Route path='message-activity' element={<MessageActivityPage />} />
                     <Route path='profile' element={<AdminProfile />} />
                     <Route path='registry/:mode' element={<GlobalRegistry />} />
+                    <Route path='email-templates' element={<EmailTemplatesPage />} />
                 </Route>
 
                 {/* Global Catch-all (Outside layout) */}

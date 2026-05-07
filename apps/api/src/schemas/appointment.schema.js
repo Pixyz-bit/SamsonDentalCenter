@@ -23,22 +23,6 @@ export const bookGuestSchema = z.object({
     params: z.any(),
 }).passthrough();
 
-export const confirmEmailSchema = z.object({
-    query: z.object({
-        token: stringRequired,
-    }).passthrough(),
-    body: z.any(),
-    params: z.any(),
-}).passthrough();
-
-export const resendConfirmationSchema = z.object({
-    body: z.object({
-        appointment_id: stringRequired,
-        email: z.string().email(),
-    }).passthrough(),
-    query: z.any(),
-    params: z.any(),
-}).passthrough();
 
 export const bookUserSchema = z.object({
     body: z.object({
@@ -134,24 +118,6 @@ export const rescheduleSchema = z.object({
     query: z.any(),
 }).passthrough();
 
-export const guestActionSchema = z.object({
-    query: z.object({
-        token: stringRequired,
-    }).passthrough(),
-    body: z.any(),
-    params: z.any(),
-}).passthrough();
-
-export const guestRescheduleConfirmSchema = z.object({
-    query: z.object({
-        token: stringRequired,
-    }).passthrough(),
-    body: z.object({
-        date: stringRequired,
-        time: stringRequired,
-    }).passthrough(),
-    params: z.any(),
-}).passthrough();
 
 export const holdSlotSchema = z.object({
     body: z.object({

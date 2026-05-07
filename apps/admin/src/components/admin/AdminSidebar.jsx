@@ -150,6 +150,7 @@ const navigationGroups = [
         title: 'System & Logs',
         items: [
             { icon: <MailIcon />, name: 'Message Logs', path: '/message-activity' },
+            { icon: <MailIcon />, name: 'Email Templates', path: '/email-templates' },
             { icon: <AuditIcon />, name: 'Audit Trail', path: '/audit-logs' },
             { icon: <SettingsIcon />, name: 'Clinic Configuration', path: '/settings' },
         ],

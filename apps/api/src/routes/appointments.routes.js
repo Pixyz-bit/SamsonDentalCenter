@@ -1,18 +1,12 @@
 import { Router } from 'express';
 import {
     bookGuest,
-    confirmEmail,
-    resendConfirmation,
     bookUser,
     submitWizard,
     getMyAppointments,
     getOne,
     cancel,
     reschedule,
-    guestCancelInfo,
-    guestCancelConfirm,
-    guestRescheduleInfo,
-    guestRescheduleConfirm,
     holdSlotHandler,
     releaseSlotHold,
     getActiveHoldHandler,
@@ -22,16 +16,12 @@ import { requireAuth, optionalAuth } from '../middleware/auth.middleware.js';
 import { validate } from '../utils/validate.js';
 import {
     bookGuestSchema,
-    confirmEmailSchema,
-    resendConfirmationSchema,
     bookUserSchema,
     submitWizardSchema,
     getMyAppointmentsSchema,
     getOneSchema,
     cancelSchema,
     rescheduleSchema,
-    guestActionSchema,
-    guestRescheduleConfirmSchema,
     holdSlotSchema,
     releaseHoldSchema,
     guestValidateSchema,
@@ -45,15 +35,7 @@ const router = Router();
 router.post('/guest-validate', validate(guestValidateSchema), guestValidate); // Pre-flight checks
 router.post('/book-guest', validate(bookGuestSchema), optionalAuth, bookGuest); // Guest books → PENDING
 
-router.get('/confirm-email', validate(confirmEmailSchema), confirmEmail); // Guest clicks email link → CONFIRMED
-router.get('/confirm', validate(confirmEmailSchema), confirmEmail); // Alias for frontend compatibility
-router.post('/resend-confirmation', validate(resendConfirmationSchema), resendConfirmation); // Guest requests new email
 
-// Add these public routes (no auth — token-based):
-router.get('/guest/cancel', validate(guestActionSchema), guestCancelInfo); // Show cancel confirmation page
-router.post('/guest/cancel', validate(guestActionSchema), guestCancelConfirm); // Guest confirms cancel
-router.get('/guest/reschedule', validate(guestActionSchema), guestRescheduleInfo); // Show slot picker page
-router.post('/guest/reschedule', validate(guestRescheduleConfirmSchema), guestRescheduleConfirm); // Guest confirms reschedule
 
 // --- 2. Protected Routes ---
 // These strictly require a login to see personal data

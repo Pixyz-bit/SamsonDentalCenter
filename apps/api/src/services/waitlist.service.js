@@ -8,7 +8,7 @@ import {
 } from '../utils/constants.js';
 import { AppError } from '../utils/errors.js';
 import { sendWaitlistOffer, sendApprovalNotice, sendNotification } from './notification.service.js';
-import { sendWaitlistOfferEmail } from './email-confirmation.service.js';
+// import { sendWaitlistOfferEmail } from './email-confirmation.service.js';
 
 /**
  * Add a patient to the waitlist.
@@ -515,6 +515,7 @@ export const notifyWaitlist = async (freedSlot) => {
         timeout_minutes: CLINIC_CONFIG.WAITLIST_TIMEOUT_MINUTES
     });
 
+/* 
     if (profile?.email) {
         const displayName = profile.first_name 
             ? `${profile.first_name} ${profile.last_name}`.trim()
@@ -528,6 +529,7 @@ export const notifyWaitlist = async (freedSlot) => {
             timeout_minutes: CLINIC_CONFIG.WAITLIST_TIMEOUT_MINUTES
         });
     }
+*/
 
     return {
         notified: true,

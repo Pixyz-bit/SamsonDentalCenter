@@ -2,8 +2,6 @@ import { supabaseAdmin } from '../config/supabase.js';
 import { assignDentist } from './dentist-assignment.service.js';
 import { getAvailableSlots, getSuggestedSlots } from './slot.service.js';
 import {
-    createConfirmationToken,
-    sendGuestConfirmationEmail,
     sendBookingSuccessEmail,
     sendBookingRequestReceivedEmail,
     sendCancellationEmail,

@@ -17,7 +17,13 @@ import {
     rescheduleAppointmentAdmin,
 } from '../services/appointment.service.js';
 import { APPOINTMENT_STATUS } from '../utils/constants.js';
-import { sendBookingSuccessEmail, sendCancellationEmail, sendAccountSetupInviteEmail } from '../services/email-confirmation.service.js';
+import { 
+    sendBookingSuccessEmail, 
+    sendCancellationEmail, 
+    sendAccountSetupInviteEmail,
+    sendBookingRejectedEmail,
+    sendAppointmentDisplacedEmail
+} from '../services/email-confirmation.service.js';
 import {
     getPendingRequests,
     approveRequest,
@@ -420,11 +426,10 @@ export const reject = async (req, res, next) => {
 
         // Notify patient/guest
         try {
-            await sendCancellationEmail(result.appointment.patient?.email || result.appointment.guest_email, result.appointment.patient?.full_name || result.appointment.guest_name, {
-                date: result.appointment.appointment_date,
-                start_time: result.appointment.start_time,
+            await sendBookingRejectedEmail(result.appointment.patient?.email || result.appointment.guest_email, result.appointment.patient?.full_name || result.appointment.guest_name, {
                 service: result.appointment.service?.name,
-                isLastMinute: false, // Rejection isn't a "cancellation" in the policy sense
+                reason,
+                suggestedDate
             });
         } catch (e) {
             console.error('Failed to send rejection email:', e);
@@ -753,6 +758,14 @@ export const updateDentistServicesHandler = async (req, res, next) => {
                         start_time: appt.start_time,
                         end_time: appt.end_time,
                         service: appt.service?.name || 'Dental appointment',
+                    });
+
+                    // Also send email
+                    await sendAppointmentDisplacedEmail(appt.patient?.email || appt.guest_email, appt.patient?.full_name || appt.guest_name, {
+                        service: appt.service?.name,
+                        date: appt.appointment_date,
+                        start_time: appt.start_time,
+                        reason: 'Schedule update'
                     });
                 } catch (err) {
                     console.warn(
