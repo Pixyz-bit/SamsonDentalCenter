@@ -87,7 +87,7 @@ const Mission = () => {
                 <div className='grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-6 items-stretch'>
                     {/* Left: Image card with overlay content */}
                     <div ref={imageRef} className='lg:col-span-7'>
-                        <div className='relative h-full overflow-hidden rounded-3xl bg-stone-900 shadow-xl'>
+                        <div className='relative h-full overflow-hidden rounded-[2.5rem] bg-stone-900 shadow-xl min-h-[500px]'>
                             <img
                                 src={image.src}
                                 alt={image.alt}
@@ -96,28 +96,31 @@ const Mission = () => {
                             />
 
                             {/* light dark overlay for readability (matches reference) */}
-                            <div className='absolute inset-0 bg-stone-950/50' />
+                            <div className='absolute inset-0 bg-stone-950/40' />
 
-                            <div className='relative p-8 sm:p-10 flex flex-col h-full min-h-[400px]'>
+                            <div className='relative p-10 sm:p-14 flex flex-col h-full'>
                                 <div className='grow'>
-                                    <p className='text-xs font-semibold tracking-widest text-white/90 uppercase'>
-                                        Our Services
-                                    </p>
-                                    <h2 className='mt-3 text-4xl sm:text-5xl font-semibold tracking-tight text-white leading-tight max-w-md'>
+                                    <div className='flex items-center gap-3 mb-6'>
+                                        <span className='h-px w-8 bg-red-400' />
+                                        <span className='text-red-400 font-bold uppercase tracking-widest text-[10px]'>
+                                            Our Services
+                                        </span>
+                                    </div>
+                                    <h2 className='text-3xl sm:text-4xl font-bold tracking-tight text-white leading-[1.1] max-w-lg'>
                                         From the way we interact with our patients to the care we
                                         provide.
                                     </h2>
-                                    <p className='mt-4 text-sm text-white/80 leading-relaxed max-w-md'>
+                                    <p className='mt-6 text-base text-white/70 leading-relaxed max-w-md'>
                                         These values are the foundation of our practice, ensuring
                                         that each patient receives the best possible dental care in
                                         a welcoming environment.
                                     </p>
                                 </div>
 
-                                <div className='mt-6 shrink-0'>
+                                <div className='mt-8 shrink-0'>
                                     <button
                                         type='button'
-                                        className='inline-flex items-center justify-center rounded-full bg-white px-7 py-3.5 text-sm font-semibold text-stone-900 shadow-sm hover:bg-white/90 focus:outline-none focus:ring-2 focus:ring-white/70'
+                                        className='inline-flex items-center justify-center rounded-full bg-white px-8 py-4 text-sm font-bold text-stone-900 shadow-lg hover:bg-stone-50 transition-all duration-300'
                                     >
                                         Meet our team
                                     </button>
@@ -126,27 +129,34 @@ const Mission = () => {
                         </div>
                     </div>
 
-                    {/* Right: Numbered value list */}
-                    <div className='lg:col-span-5'>
-                        <div className='h-full rounded-3xl border border-stone-200/80 bg-white px-8 py-8 sm:px-9 sm:py-9 shadow-sm'>
+                    {/* Right: Numbered value list (lg:col-span-5) */}
+                    <div className='lg:col-span-5 flex flex-col justify-center'>
+                        <div className='h-full rounded-[2.5rem] border border-stone-200/80 bg-white p-10 sm:p-12 shadow-sm ring-1 ring-stone-900/5'>
                             <div className='flex flex-col justify-center h-full'>
+                                <h2 className='text-2xl font-bold tracking-tight text-stone-900 leading-[1.1] mb-10'>
+                                    Our Core Values
+                                </h2>
                                 {values.map((item, idx) => (
                                     <div
                                         key={item.number}
                                         ref={(el) => (valuesRef.current[idx] = el)}
-                                        className={idx !== 0 ? 'mt-7' : ''}
+                                        className={idx !== 0 ? 'mt-10' : ''}
                                     >
-                                        <div className='text-xs font-semibold text-red-600'>
-                                            {item.number}
+                                        <div className='flex gap-5'>
+                                            <div className='shrink-0 text-sm font-black text-red-600/40'>
+                                                {item.number}
+                                            </div>
+                                            <div>
+                                                <h3 className='text-lg font-bold tracking-tight text-stone-900'>
+                                                    {item.title}
+                                                </h3>
+                                                <p className='mt-3 text-sm text-stone-600 leading-relaxed'>
+                                                    {item.description}
+                                                </p>
+                                            </div>
                                         </div>
-                                        <h3 className='mt-1.5 text-2xl font-semibold tracking-tight text-stone-900'>
-                                            {item.title}
-                                        </h3>
-                                        <p className='mt-2 text-sm text-stone-600 leading-relaxed'>
-                                            {item.description}
-                                        </p>
                                         {idx !== values.length - 1 && (
-                                            <div className='mt-7 h-px w-full bg-stone-200' />
+                                            <div className='mt-10 h-px w-full bg-stone-100' />
                                         )}
                                     </div>
                                 ))}

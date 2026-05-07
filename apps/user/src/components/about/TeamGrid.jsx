@@ -122,23 +122,34 @@ const TeamGrid = () => {
                     </div>
 
                     {/* Team grid */}
-                    <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8'>
+                    <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12'>
                         {team.map((doctor, index) => (
                             <div
                                 key={doctor.id}
                                 ref={(el) => (cardsRef.current[index] = el)}
-                                className='group cursor-pointer transition-all duration-300'
+                                className='group cursor-pointer'
                             >
-                                <div className='aspect-[3/4] rounded-[2rem] overflow-hidden mb-6 relative border border-stone-200 group-hover:border-red-500 group-hover:shadow-xl group-hover:shadow-red-500/10 transition-all duration-300'>
+                                <div className='aspect-[4/5] rounded-[2.5rem] overflow-hidden mb-8 relative border border-stone-100 shadow-sm group-hover:shadow-2xl group-hover:shadow-red-500/10 transition-all duration-500 ease-in-out'>
                                     <img
                                         src={doctor.image}
-                                        className='w-full h-full object-cover'
+                                        className='w-full h-full object-cover transition-transform duration-700 group-hover:scale-110'
                                         alt={doctor.name}
                                         loading='lazy'
                                     />
+                                    {/* Subtle overlay */}
+                                    <div className='absolute inset-0 bg-stone-900/5 group-hover:bg-transparent transition-colors duration-500' />
                                 </div>
-                                <h3 className='text-lg font-brand font-bold text-stone-900 mb-1 group-hover:text-red-600 transition-colors duration-300'>{doctor.name}</h3>
-                                <p className='text-sm font-bold text-red-600 uppercase tracking-widest group-hover:text-red-500 transition-colors duration-300'>{doctor.role}</p>
+                                <div className='px-2'>
+                                    <h3 className='text-xl sm:text-2xl font-bold text-stone-900 mb-2 leading-tight group-hover:text-red-600 transition-colors duration-300'>
+                                        {doctor.name}
+                                    </h3>
+                                    <div className='flex items-center gap-2'>
+                                        <span className='h-px w-4 bg-red-600/30' />
+                                        <p className='text-[10px] font-bold text-red-600 uppercase tracking-widest'>
+                                            {doctor.role}
+                                        </p>
+                                    </div>
+                                </div>
                             </div>
                         ))}
                     </div>

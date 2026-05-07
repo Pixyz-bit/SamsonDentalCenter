@@ -168,7 +168,7 @@ const GalleryV2 = ({ variant = "dark", showExploreButton = false }) => {
               Dental Gallery
             </span>
           </div>
-          <h2 className={`text-[clamp(1.5rem,7vw,4.5rem)] font-extrabold leading-[1.1] tracking-tight ${isDark ? "text-white" : "text-stone-900"} m-0 max-w-[90vw] lg:max-w-[40vw]`}>
+          <h2 className={`text-[clamp(2.5rem,6vw,4.5rem)] font-extrabold leading-[1.16] tracking-tighter ${isDark ? "text-white" : "text-stone-900"} m-0 max-w-[90vw] lg:max-w-[40vw]`}>
             <div className="overflow-hidden py-2 -my-2 whitespace-nowrap">
               <span className={`block ${isDark ? "text-white" : "text-stone-900"} title-reveal-line`}>
                 Intelligent Care.

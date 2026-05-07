@@ -87,32 +87,35 @@ const features = [
 
 const WhyChooseUs = () => {
     return (
-        <section className='py-16 sm:py-24 lg:py-32 bg-white relative overflow-hidden'>
+        <section ref={containerRef} className='py-16 lg:py-24 bg-white relative overflow-hidden'>
             {/* Background elements */}
             <div className='absolute -top-80 -left-80 w-160 h-160 bg-red-100/50 rounded-full blur-[100px] pointer-events-none'></div>
             <div className='absolute top-80 -right-80 w-160 h-160 bg-stone-200/50 rounded-full blur-[100px] pointer-events-none'></div>
 
             <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10'>
-                <div className='grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-24 items-center'>
+                <div className='grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-stretch'>
                     {/* Left Column: Text & Context */}
-                    <div className='flex flex-col gap-6 sm:gap-8 max-w-2xl'>
-                        <div className='flex flex-col gap-4'>
-                            <span className='text-red-600 font-semibold tracking-wide text-sm uppercase'>
-                                The Primera Difference
+                    <div className='lg:col-span-7 flex flex-col justify-center h-full'>
+                        <div className='flex items-center gap-3 mb-6'>
+                            <span className='h-px w-8 bg-red-600' />
+                            <span className='text-red-500 font-bold uppercase tracking-widest text-[10px]'>
+                                Why Trust Us
                             </span>
-                            <h2 className='text-[clamp(2.25rem,5vw+0.5rem,3.5rem)] font-bold text-stone-900 leading-[1.15] tracking-tight'>
-                                Why trust us with your <span className='text-red-600'>smile?</span>
-                            </h2>
                         </div>
-                        <p className='text-[clamp(1rem,1.5vw+0.5rem,1.125rem)] text-stone-600 leading-relaxed'>
+                        
+                        <h2 className='text-[clamp(2.25rem,5vw,3.5rem)] font-bold text-stone-900 leading-[1.1] tracking-tight'>
+                            Modern dental care <br /> 
+                            <span className='text-red-600'>built on trust.</span>
+                        </h2>
+                        
+                        <p className='mt-6 text-base sm:text-lg text-stone-600 leading-relaxed max-w-2xl'>
                             We believe that exceptional dental care goes beyond just fixing teeth.
                             It's about combining precise medical expertise with a compassionate,
-                            human touch. From the moment you walk through our doors, your comfort
-                            and long-term oral health are our highest priorities.
+                            human touch.
                         </p>
 
-                        <div className='pt-6'>
-                            <div className='flex items-center gap-4 p-4 rounded-xl bg-white border border-stone-200/80 shadow-sm w-fit'>
+                        <div className='pt-10 flex flex-wrap gap-4 items-center'>
+                            <div className='flex items-center gap-4 p-4 rounded-3xl bg-white border border-stone-100 shadow-xl shadow-stone-200/50 w-fit'>
                                 <div className='flex -space-x-4'>
                                     {[
                                         'https://images.unsplash.com/photo-1595152772835-219674b2a8a6?auto=format&fit=crop&q=80&w=100&h=100',
@@ -124,25 +127,19 @@ const WhyChooseUs = () => {
                                             key={i}
                                             src={src}
                                             alt={`Happy patient ${i + 1}`}
-                                            className='w-12 h-12 rounded-full border-2 border-white object-cover'
+                                            className='w-10 h-10 rounded-full border-2 border-white object-cover'
                                         />
                                     ))}
                                 </div>
-                                <div className='flex flex-col'>
-                                    <div className='flex items-center gap-1 text-amber-400'>
-                                        <div className='flex items-center gap-1 text-amber-400'>
-                                            {[1, 2, 3, 4, 5].map((star) => (
-                                                <svg
-                                                    key={star}
-                                                    className='w-4 h-4 fill-current'
-                                                    viewBox='0 0 20 20'
-                                                >
-                                                    <path d='M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z' />
-                                                </svg>
-                                            ))}
-                                        </div>
+                                <div className='flex flex-col pr-2'>
+                                    <div className='flex items-center gap-1 text-amber-400 mb-0.5'>
+                                        {[1, 2, 3, 4, 5].map((star) => (
+                                            <svg key={star} className='w-2.5 h-2.5 fill-current' viewBox='0 0 20 20'>
+                                                <path d='M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z' />
+                                            </svg>
+                                        ))}
                                     </div>
-                                    <span className='text-sm font-semibold text-stone-900'>
+                                    <span className='text-[10px] font-bold text-stone-900'>
                                         5,000+ Happy Patients
                                     </span>
                                 </div>
@@ -151,25 +148,27 @@ const WhyChooseUs = () => {
                     </div>
 
                     {/* Right Column: Features Grid */}
-                    <div className='grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6'>
-                        {features.map((feature) => (
-                            <div
-                                key={feature.id}
-                                className='bg-white rounded-2xl p-6 md:p-8 shadow-sm border border-stone-200/80 hover:shadow-md hover:border-red-200 hover:-translate-y-0.5 transition-all duration-200 ease-in-out flex flex-col gap-4 group'
-                            >
-                                <div className='w-12 h-12 rounded-xl bg-red-50 text-red-600 flex items-center justify-center group-hover:bg-red-600 group-hover:text-white transition-colors duration-200 ease-in-out'>
-                                    {feature.icon}
+                    <div className='lg:col-span-5 flex flex-col justify-center h-full'>
+                        <div className='grid grid-cols-1 sm:grid-cols-2 gap-4 items-stretch h-full'>
+                            {features.map((feature) => (
+                                <div
+                                    key={feature.id}
+                                    className='bg-white rounded-[2rem] p-6 shadow-sm border border-stone-100 hover:shadow-xl hover:border-red-100 transition-all duration-500 flex flex-col gap-4 group h-full'
+                                >
+                                    <div className='w-10 h-10 rounded-2xl bg-stone-50 text-stone-900 flex items-center justify-center group-hover:bg-red-600 group-hover:text-white transition-all duration-500'>
+                                        {feature.icon}
+                                    </div>
+                                    <div>
+                                        <h3 className='text-sm font-bold text-stone-900 group-hover:text-red-600 transition-colors duration-300'>
+                                            {feature.title}
+                                        </h3>
+                                        <p className='mt-1.5 text-[10px] text-stone-500 leading-relaxed'>
+                                            {feature.description}
+                                        </p>
+                                    </div>
                                 </div>
-                                <div>
-                                    <h3 className='font-bold text-stone-900 text-[clamp(1.125rem,1vw+0.5rem,1.25rem)] tracking-tight mb-2'>
-                                        {feature.title}
-                                    </h3>
-                                    <p className='text-sm text-stone-600 leading-relaxed'>
-                                        {feature.description}
-                                    </p>
-                                </div>
-                            </div>
-                        ))}
+                            ))}
+                        </div>
                     </div>
                 </div>
             </div>

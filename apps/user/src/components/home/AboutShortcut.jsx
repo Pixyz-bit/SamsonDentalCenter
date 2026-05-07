@@ -89,9 +89,9 @@ const AboutShortcut = () => {
               </h2>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 items-stretch">
               {/* Text Content Side */}
-              <div className="order-2 lg:order-1 space-y-8">
+              <div className="order-2 lg:order-1 space-y-8 flex flex-col justify-center h-full">
                   <p className="text-slate-600 text-lg leading-relaxed gsap-animate">
                       Our professionals use advanced technologies to achieve impressive results. Your teeth will become <span className="font-bold text-slate-900 bg-sky-500/20 px-1 rounded">8+ shades lighter</span>, and the cavity treatment procedure is not only pain-free but also 100% effective. <span className="text-sky-500 font-bold">Your smile will be your pride!</span>
                   </p>
@@ -100,15 +100,15 @@ const AboutShortcut = () => {
                   </p>
 
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4">
-                      <div className="bg-slate-50 p-6 rounded-2xl text-center border border-slate-100 gsap-animate">
+                      <div className="bg-slate-50 p-6 rounded-2xl text-center border border-slate-100 gsap-animate h-full flex flex-col justify-center">
                           <p className="text-3xl md:text-4xl font-black text-slate-900 mb-1">98%</p>
                           <p className="text-[10px] uppercase font-bold text-slate-500 tracking-widest">Satisfaction Rate</p>
                       </div>
-                      <div className="bg-slate-50 p-6 rounded-2xl text-center border border-slate-100 gsap-animate">
+                      <div className="bg-slate-50 p-6 rounded-2xl text-center border border-slate-100 gsap-animate h-full flex flex-col justify-center">
                           <p className="text-3xl md:text-4xl font-black text-slate-900 mb-1">85%</p>
                           <p className="text-[10px] uppercase font-bold text-slate-500 tracking-widest">Faster Recovery</p>
                       </div>
-                      <div className="bg-slate-50 p-6 rounded-2xl text-center border border-slate-100 gsap-animate">
+                      <div className="bg-slate-50 p-6 rounded-2xl text-center border border-slate-100 gsap-animate h-full flex flex-col justify-center">
                           <p className="text-3xl md:text-4xl font-black text-slate-900 mb-1">100%</p>
                           <p className="text-[10px] uppercase font-bold text-slate-500 tracking-widest">Transformations</p>
                       </div>
@@ -126,10 +126,10 @@ const AboutShortcut = () => {
               </div>
 
               {/* Slider Content Side */}
-              <div className="order-1 lg:order-2">
+              <div className="order-1 lg:order-2 h-full">
                   <div 
                     ref={containerRef}
-                    className="relative w-full aspect-[4/3] rounded-[2.5rem] overflow-hidden cursor-ew-resize select-none shadow-2xl border-4 border-slate-100 ring-1 ring-slate-200 gsap-animate"
+                    className="relative w-full aspect-[4/3] lg:aspect-auto lg:h-full min-h-[300px] md:min-h-[450px] rounded-[2.5rem] overflow-hidden cursor-ew-resize select-none shadow-2xl border-4 border-slate-100 ring-1 ring-slate-200 gsap-animate"
                     onMouseDown={onMouseDown}
                     onTouchMove={onTouchMove}
                   >

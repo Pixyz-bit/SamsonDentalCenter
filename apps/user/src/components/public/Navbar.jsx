@@ -41,27 +41,33 @@ const Navbar = () => {
                 setIsVisible(true);
             }
 
-            // GSAP smooth state changes - only based on scroll, not page
-            if (currentScrollY > 20) {
-                gsap.to(navRef.current, {
-                    backgroundColor: 'rgba(255, 255, 255, 1)',
-                    paddingTop: '0.75rem',
-                    paddingBottom: '0.75rem',
-                    boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.05)',
-                    borderBottom: '1px solid rgba(229, 231, 235, 1)',
-                    duration: 0.4,
-                    ease: 'power2.out',
-                });
-            } else {
-                gsap.to(navRef.current, {
-                    backgroundColor: 'transparent',
-                    paddingTop: '1.5rem',
-                    paddingBottom: '1.5rem',
-                    boxShadow: '0 0px 0px 0 rgba(0, 0, 0, 0)',
-                    borderBottom: '1px solid transparent',
-                    duration: 0.4,
-                    ease: 'power2.out',
-                });
+            // Optimized scroll handling
+            const isScrolled = currentScrollY > 20;
+            if (isScrolled !== navRef.current.isScrolled) {
+                navRef.current.isScrolled = isScrolled;
+                if (isScrolled) {
+                    gsap.to(navRef.current, {
+                        backgroundColor: 'rgba(23, 27, 30, 1)',
+                        backdropFilter: 'blur(12px)',
+                        paddingTop: '0.75rem',
+                        paddingBottom: '0.75rem',
+                        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+                        borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
+                        duration: 0.4,
+                        ease: 'power2.out',
+                    });
+                } else {
+                    gsap.to(navRef.current, {
+                        backgroundColor: 'rgba(23, 27, 30, 0)',
+                        backdropFilter: 'blur(0px)',
+                        paddingTop: '1.5rem',
+                        paddingBottom: '1.5rem',
+                        boxShadow: '0 0px 0px 0 rgba(0, 0, 0, 0)',
+                        borderBottom: '1px solid transparent',
+                        duration: 0.4,
+                        ease: 'power2.out',
+                    });
+                }
             }
 
             lastScrollY.current = currentScrollY;
@@ -107,12 +113,6 @@ const Navbar = () => {
             <nav
                 ref={navRef}
                 className='fixed top-0 left-0 right-0 z-[80] flex items-center'
-                style={{
-                    backgroundColor: 'transparent',
-                    paddingTop: '1.5rem',
-                    paddingBottom: '1.5rem',
-                    backdropFilter: 'none',
-                }}
             >
                 <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full'>
                     <div className='flex items-center justify-between'>
@@ -121,7 +121,7 @@ const Navbar = () => {
                             {/* Mobile Menu Toggle (Left on mobile) */}
                             <button
                                 className={`lg:hidden p-2 rounded-xl transition-all duration-300 ring-1 ${isScrolled || isMobileMenuOpen
-                                        ? 'text-stone-600 ring-stone-200 hover:bg-stone-100'
+                                        ? 'text-white/90 ring-white/10 hover:bg-white/10'
                                         : 'text-white/90 ring-white/10 hover:bg-white/10'
                                     }`}
                                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -145,16 +145,13 @@ const Navbar = () => {
                                     </div>
                                     <div className='flex flex-col items-start justify-center'>
                                         <span
-                                            className={`font-black text-[22px] tracking-[-0.04em] leading-none ${isScrolled || isMobileMenuOpen
-                                                ? 'text-stone-800'
-                                                : 'text-white'
-                                                }`}
+                                            className={`font-black text-[22px] tracking-[-0.04em] leading-none text-white`}
                                         >
                                             SAMSON
                                         </span>
                                         <span
                                             className={`text-[10px] uppercase tracking-[0.28em] font-bold mt-[2px] ${isScrolled || isMobileMenuOpen
-                                                ? 'text-red-600'
+                                                ? 'text-red-400'
                                                 : 'text-red-400'
                                                 }`}
                                         >
@@ -168,11 +165,11 @@ const Navbar = () => {
                         {/* Section 2: Links (Desktop Only) */}
                         <div className='hidden lg:flex items-center justify-center'>
                             <ul
-                                className='flex items-center justify-center gap-1 px-3 py-1.5 rounded-full transition-all duration-300 ring-1 h-[48px] bg-white/10 ring-white/20'
+                                className='flex items-center justify-center gap-1 px-3 py-1.5 rounded-full transition-colors duration-300 ring-1 h-[48px] bg-white/10 ring-white/20'
                                 style={{
-                                    backgroundColor: isScrolled ? 'rgba(255, 255, 255, 0.8)' : undefined,
+                                    backgroundColor: isScrolled ? 'rgba(255, 255, 255, 0.05)' : undefined,
                                     backdropFilter: isScrolled ? 'blur(12px)' : undefined,
-                                    borderColor: isScrolled ? 'rgba(229, 231, 235, 1)' : undefined,
+                                    borderColor: isScrolled ? 'rgba(255, 255, 255, 0.1)' : undefined,
                                 }}
                             >
                                 {navLinks.map((link, index) => (
@@ -184,12 +181,8 @@ const Navbar = () => {
                                             to={link.path}
                                             className={({ isActive }) =>
                                                 `font-medium text-sm transition-all duration-300 px-5 py-1.5 rounded-2xl ${isActive
-                                                    ? isScrolled
-                                                        ? 'bg-red-600 text-white shadow-sm'
-                                                        : 'bg-white/20 text-white backdrop-blur-sm shadow-sm'
-                                                    : isScrolled
-                                                        ? 'text-stone-600 hover:text-red-600 hover:bg-stone-100/50'
-                                                        : 'text-white/80 hover:text-white hover:bg-white/10'
+                                                    ? 'bg-white/20 text-white shadow-sm'
+                                                    : 'text-white/80 hover:text-white hover:bg-white/10'
                                                 }`
                                             }
                                         >
@@ -211,15 +204,15 @@ const Navbar = () => {
                                 ref={profileRef}
                             >
                                 {loading ? (
-                                    <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full transition-all duration-300 ${isScrolled ? 'bg-stone-100 ring-1 ring-stone-200' : 'bg-white/10 ring-1 ring-white/20'}`}>
-                                        <span className={`w-9 h-9 rounded-full overflow-hidden flex items-center justify-center transition-all duration-300 ${isScrolled ? 'bg-stone-200' : 'bg-white/20'} animate-pulse`}>
-                                            <svg className={`w-5 h-5 animate-spin ${isScrolled ? 'text-stone-400' : 'text-white/70'}`} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full transition-all duration-300 ${isScrolled ? 'bg-white/10 ring-1 ring-white/20' : 'bg-white/10 ring-1 ring-white/20'}`}>
+                                        <span className={`w-9 h-9 rounded-full overflow-hidden flex items-center justify-center transition-all duration-300 ${isScrolled ? 'bg-white/20' : 'bg-white/20'} animate-pulse`}>
+                                            <svg className={`w-5 h-5 animate-spin ${isScrolled ? 'text-white/70' : 'text-white/70'}`} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                                                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                             </svg>
                                         </span>
                                         <svg
-                                            className={`transition-transform duration-200 flex-shrink-0 opacity-50 ${isScrolled ? 'text-stone-400' : 'text-white/50'}`}
+                                            className={`transition-transform duration-200 flex-shrink-0 opacity-50 ${isScrolled ? 'text-white/50' : 'text-white/50'}`}
                                             width='18'
                                             height='20'
                                             viewBox='0 0 18 20'
@@ -234,7 +227,7 @@ const Navbar = () => {
                                         <button
                                             onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
                                             className={`flex items-center gap-2 px-3 py-1.5 rounded-full transition-all duration-300 ${isScrolled
-                                                ? 'hover:bg-stone-100 bg-white ring-1 ring-stone-200'
+                                                ? 'hover:bg-white/20 bg-white/10 ring-1 ring-white/10'
                                                 : 'hover:bg-white/20 bg-white/10 ring-1 ring-white/20'
                                                 }`}
                                             title={user ? (user.first_name ? `${user.last_name}, ${user.first_name}` : user.email) : 'Guest Menu'}
@@ -278,7 +271,7 @@ const Navbar = () => {
                                             </span>
                                             <svg
                                                 className={`transition-transform duration-200 flex-shrink-0 ${isProfileMenuOpen ? 'rotate-180' : ''
-                                                    } ${isScrolled ? 'text-stone-500' : 'text-white/70'}`}
+                                                    } text-white/70`}
                                                 width='18'
                                                 height='20'
                                                 viewBox='0 0 18 20'
