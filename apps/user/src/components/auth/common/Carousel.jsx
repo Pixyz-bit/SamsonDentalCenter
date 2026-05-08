@@ -19,7 +19,7 @@ export const Carousel = ({ className }) => {
     return (
         <div
             className={cn(
-                'hidden md:flex md:w-1/2 lg:w-[45%] flex-shrink-0 relative bg-slate-900 overflow-hidden min-h-full',
+                'hidden md:flex md:w-1/2 lg:w-[45%] flex-shrink-0 relative bg-stone-950 overflow-hidden min-h-full',
                 className,
             )}
         >
@@ -36,29 +36,33 @@ export const Carousel = ({ className }) => {
             ))}
 
             {/* Gradient Overlay - Improved visibility */}
-            <div className='absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/60 to-slate-900/30 z-10' />
+            <div className='absolute inset-0 bg-gradient-to-t from-stone-950 via-stone-950/60 to-stone-950/30 z-10' />
 
             {/* Content Overlay */}
             <div className='relative z-20 w-full p-8 lg:p-12 flex flex-col h-full justify-between text-left'>
                 {/* Brand */}
-                <div className='flex items-center gap-3'>
-                    <div className='w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-blue-600/20 ring-1 ring-white/10 backdrop-blur-sm'>
-                        <svg
-                            className='w-5 h-5 fill-current'
-                            viewBox='0 0 100 100'
-                        >
-                            <path d='M50 5 C25 5 20 40 20 60 C20 85 40 95 50 95 C60 95 80 85 80 60 C80 40 75 5 50 5 Z' />
-                        </svg>
+                <div className='flex items-center gap-3 transition-all duration-300 group flex-shrink-0'>
+                    <div className='w-8 flex-shrink-0 flex items-center justify-center transition-all duration-500 group-hover:scale-110'>
+                        <img
+                            src='/images/logo/samson-logo.png'
+                            alt='Samson Dental Logo'
+                            className='w-full h-auto'
+                        />
                     </div>
-                    <span className='font-sans font-bold text-white tracking-wide text-lg uppercase'>
-                        Samson Dental Center
-                    </span>
+                    <div className='flex flex-col items-start justify-center flex-shrink-0'>
+                        <span className='font-black text-[22px] tracking-[-0.04em] leading-none text-white whitespace-nowrap'>
+                            SAMSON
+                        </span>
+                        <span className='text-[10px] uppercase tracking-[0.28em] font-bold mt-[1px] text-red-600 whitespace-nowrap drop-shadow-[0_0_12px_rgba(203,0,16,0.5)]'>
+                            Dental Center
+                        </span>
+                    </div>
                 </div>
 
                 {/* Bottom Content */}
-                <div className='space-y-8'>
-                    <div className='inline-flex px-4 py-1.5 bg-white/10 border border-white/10 rounded-full backdrop-blur-md shadow-sm'>
-                        <span className='text-[11px] font-bold text-blue-200 uppercase tracking-widest'>
+                <div className='flex flex-col items-start'>
+                    <div className='inline-flex px-4 py-1.5 bg-red-600/20 border border-red-500/30 rounded-full backdrop-blur-md shadow-sm mb-3'>
+                        <span className='text-[11px] font-bold text-white uppercase tracking-widest'>
                             Patient Portal
                         </span>
                     </div>
@@ -76,14 +80,14 @@ export const Carousel = ({ className }) => {
                     </div>
 
                     {/* Indicators */}
-                    <div className='flex gap-3 pt-4'>
+                    <div className='flex gap-3 pt-8'>
                         {carouselImages.map((_, idx) => (
                             <div
                                 key={idx}
                                 className={cn(
                                     'h-1.5 rounded-full transition-all duration-500 ease-out',
                                     currentImageIndex === idx
-                                        ? 'w-8 bg-blue-500 shadow-[0_0_12px_rgba(59,130,246,0.5)]'
+                                        ? 'w-8 bg-red-600 shadow-[0_0_12px_rgba(203,0,16,0.5)]'
                                         : 'w-2 bg-white/20 hover:bg-white/40',
                                 )}
                             />

@@ -6,18 +6,22 @@ const Footer = () => {
             <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10'>
                 <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-16 mb-20 md:mb-24'>
                     <div className='col-span-1 md:col-span-2 lg:col-span-1'>
-                        <div className='flex items-center gap-3 mb-8'>
-                            <div className='w-10 h-10 rounded-xl bg-stone-900 flex items-center justify-center text-white shadow-sm'>
-                                <svg
-                                    viewBox='0 0 100 100'
-                                    className='w-6 h-6 fill-current'
-                                >
-                                    <path d='M50 5 C25 5 20 40 20 60 C20 85 40 95 50 95 C60 95 80 85 80 60 C80 40 75 5 50 5 Z' />
-                                </svg>
+                        <div className='flex items-center gap-4 mb-8 group cursor-pointer'>
+                            <div className='relative flex items-center justify-center w-12 h-12 z-10'>
+                                <img
+                                    src='/images/logo/samson-logo.png'
+                                    alt='Samson Dental Center Logo'
+                                    className='w-12 h-12 object-contain group-hover:scale-110 transition-transform duration-300 ease-out drop-shadow-md'
+                                />
                             </div>
-                            <span className='font-bold text-xl tracking-tighter text-white uppercase'>
-                                Samson <span className='text-stone-200'>Dental Center</span>
-                            </span>
+                            <div className='flex flex-col items-start justify-center flex-shrink-0'>
+                                <span className='font-black text-[20px] tracking-[-0.04em] leading-none text-white whitespace-nowrap'>
+                                    SAMSON
+                                </span>
+                                <span className='text-[9px] uppercase tracking-[0.28em] font-bold mt-[2px] text-red-500 whitespace-nowrap drop-shadow-[0_0_8px_rgba(239,68,68,0.5)]'>
+                                    Dental Center
+                                </span>
+                            </div>
                         </div>
                         <p className='text-sm leading-relaxed mb-10 max-w-sm text-stone-200'>
                             Empowering communities with world-class dental solutions and

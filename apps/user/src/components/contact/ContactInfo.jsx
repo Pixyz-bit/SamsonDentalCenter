@@ -23,38 +23,6 @@ const ContactInfo = () => {
     },
   ];
 
-  if (settings?.physical_address) {
-    contactItems.push({
-      icon: MapPin,
-      label: "Address",
-      value: settings.physical_address,
-      href: settings?.google_maps_link || undefined,
-      display: settings.physical_address,
-      isSocial: !!settings?.google_maps_link,
-    });
-  }
-
-  if (settings?.business_hours_text) {
-    contactItems.push({
-      icon: Clock,
-      label: "Business Hours",
-      value: settings.business_hours_text,
-      href: undefined,
-      display: settings.business_hours_text,
-      isSocial: false,
-    });
-  }
-
-  if (settings?.closed_time_text) {
-    contactItems.push({
-      icon: Clock, // Reusing Clock for closed times
-      label: "Closed",
-      value: settings.closed_time_text,
-      href: undefined,
-      display: settings.closed_time_text,
-      isSocial: false,
-    });
-  }
 
   if (settings?.facebook_url) {
     contactItems.push({
