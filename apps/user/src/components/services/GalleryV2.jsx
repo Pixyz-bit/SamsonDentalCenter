@@ -157,7 +157,7 @@ const GalleryV2 = ({ variant = "dark", showExploreButton = false }) => {
         ></div>
 
         {/* Text overlaid / stacked - Aligned with Navbar Logo */}
-        <div className="relative lg:absolute lg:inset-0 z-20 pointer-events-none flex items-start lg:items-center">
+        <div className="relative lg:absolute lg:inset-0 z-20 pointer-events-none flex items-start lg:items-center pt-8 sm:pt-12 lg:pt-0">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
             <div className="max-w-[90vw] lg:max-w-[40vw] pointer-events-auto">
               <div className="flex items-center gap-3 mb-4">

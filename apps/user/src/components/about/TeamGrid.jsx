@@ -1,12 +1,54 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/dist/ScrollTrigger';
 
 gsap.registerPlugin(ScrollTrigger);
 
+const TEAM_MEMBERS = [
+    {
+        id: 1,
+        name: 'Dr. Mae Angelica Garcellano',
+        role: 'Lead Dentist',
+        image: '/images/about/team-dr-samson.jpg',
+    },
+    {
+        id: 2,
+        name: 'Dr Maria Cheyenne Deniece Marasigan',
+        role: 'Dentist',
+        image: '/images/about/team-staff.jpg',
+    },
+    {
+        id: 3,
+        name: 'Dr. Sarah Samson',
+        role: 'Dentist',
+        image: '/images/about/team-technicians.jpg',
+    },
+    {
+        id: 4,
+        name: 'Dr. Silvestre Samson',
+        role: 'Dental Hygienist',
+        image: '/images/about/team-founders.jpg',
+    },
+];
+
 const TeamGrid = () => {
     const containerRef = useRef(null);
     const cardsRef = useRef([]);
+    const scrollContainerRef = useRef(null);
+    const [activeCard, setActiveCard] = useState(0);
+
+    const handleScroll = (e) => {
+        const container = e.currentTarget;
+        if (!container) return;
+        
+        const scrollLeft = container.scrollLeft;
+        const cardWidth = container.querySelector('.group')?.clientWidth || 310;
+        const gapWidth = 24;
+        const stepWidth = cardWidth + gapWidth;
+        
+        const newIndex = Math.round(scrollLeft / stepWidth);
+        setActiveCard(Math.min(Math.max(newIndex, 0), TEAM_MEMBERS.length - 1));
+    };
 
     useEffect(() => {
         const cards = cardsRef.current.filter(Boolean);
@@ -80,34 +122,6 @@ const TeamGrid = () => {
         };
     }, []);
 
-    // Original 4 doctors
-    const team = [
-        {
-            id: 1,
-            name: 'Dr. Mae Angelica Garcellano',
-            role: 'Lead Dentist',
-            image: '/images/about/team-dr-samson.jpg',
-        },
-        {
-            id: 2,
-            name: 'Dr Maria Cheyenne Deniece Marasigan',
-            role: 'Dentist',
-            image: '/images/about/team-staff.jpg',
-        },
-        {
-            id: 3,
-            name: 'Dr. Sarah Samson',
-            role: 'Dentist',
-            image: '/images/about/team-technicians.jpg',
-        },
-        {
-            id: 4,
-            name: 'Dr. Silvestre Samson',
-            role: 'Dental Hygienist',
-            image: '/images/about/team-founders.jpg',
-        },
-    ];
-
     return (
         <>
             <section ref={containerRef} className='bg-white py-10 md:py-20 relative'>
@@ -121,13 +135,17 @@ const TeamGrid = () => {
                         </div>
                     </div>
 
-                    {/* Team grid */}
-                    <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12'>
-                        {team.map((doctor, index) => (
+                    {/* Team grid / carousel */}
+                    <div 
+                        ref={scrollContainerRef}
+                        onScroll={handleScroll}
+                        className='flex sm:grid sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 lg:gap-12 overflow-x-auto sm:overflow-visible pb-4 sm:pb-0 snap-x snap-mandatory no-scrollbar px-4 -mx-4 sm:px-0 sm:mx-0'
+                    >
+                        {TEAM_MEMBERS.map((doctor, index) => (
                             <div
                                 key={doctor.id}
                                 ref={(el) => (cardsRef.current[index] = el)}
-                                className='group cursor-pointer'
+                                className='group cursor-pointer flex-shrink-0 w-[270px] xs:w-[310px] sm:w-auto snap-center snap-always'
                             >
                                 <div className='aspect-[4/4.5] rounded-2xl overflow-hidden mb-4 relative border border-stone-100 shadow-sm group-hover:shadow-2xl group-hover:shadow-red-500/10 transition-all duration-500 ease-in-out'>
                                     <img
@@ -140,7 +158,7 @@ const TeamGrid = () => {
                                     <div className='absolute inset-0 bg-stone-900/5 group-hover:bg-transparent transition-colors duration-500' />
                                 </div>
                                 <div className='px-2'>
-                                    <h3 className='text-xl sm:text-2xl font-bold text-stone-900 mb-2 leading-tight group-hover:text-red-600 transition-colors duration-300'>
+                                    <h3 className='text-xl sm:text-2xl font-bold text-stone-900 mb-2 leading-tight group-hover:text-red-600 transition-colors duration-300 truncate'>
                                         {doctor.name}
                                     </h3>
                                     <div className='flex items-center gap-2'>
@@ -151,6 +169,20 @@ const TeamGrid = () => {
                                     </div>
                                 </div>
                             </div>
+                        ))}
+                    </div>
+
+                    {/* Carousel Indicators for Mobile View */}
+                    <div className="flex sm:hidden justify-center items-center gap-2 mt-8">
+                        {TEAM_MEMBERS.map((_, dotIndex) => (
+                            <div 
+                                key={dotIndex} 
+                                className={`transition-all duration-300 rounded-full ${
+                                    activeCard === dotIndex 
+                                        ? 'w-4 h-1.5 bg-red-600' 
+                                        : 'w-1.5 h-1.5 bg-red-600/30'
+                                }`}
+                            />
                         ))}
                     </div>
                 </div>

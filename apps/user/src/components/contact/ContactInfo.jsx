@@ -73,7 +73,7 @@ const ContactInfo = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           {/* Left Column - Doctor Image with Blue Background */}
-          <div className="relative flex justify-center">
+          <div className="hidden lg:flex relative justify-center">
             {/* Decorative Blue Diagonal Background */}
 <div
     className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] md:w-[450px] md:h-[450px] bg-gradient-to-br from-red-500 to-red-600"
