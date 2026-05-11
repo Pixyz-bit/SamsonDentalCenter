@@ -127,40 +127,51 @@ const UserReviewStep = ({ formData, book_for_others, onSubmit, onBack, onEdit, s
             </div>
 
             {error && (
-                <div className='bg-red-50 dark:bg-red-900/10 border-2 border-red-200 dark:border-red-900/20 text-red-700 dark:text-red-400 p-5 rounded-3xl mb-8 animate-in shake duration-500 shadow-theme-md'>
-                    <div className="flex items-start gap-4">
-                        <div className="w-10 h-10 rounded-xl bg-red-100 dark:bg-red-900/30 flex items-center justify-center shrink-0 shadow-sm">
-                            <AlertCircle size={20} className="text-red-600" />
+                <div className='bg-red-50/50 dark:bg-red-950/10 border border-red-200 dark:border-red-900/30 rounded-2xl sm:rounded-3xl mb-8 animate-in shake duration-500 shadow-theme-md overflow-hidden'>
+                    <div className="px-5 pt-6 pb-5 sm:px-10 flex items-center justify-between border-b border-red-200/50 dark:border-red-900/30 gap-3">
+                        <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-xl bg-red-100 dark:bg-red-900/40 text-red-600 dark:text-red-400 flex items-center justify-center shrink-0 shadow-sm">
+                                <AlertCircle size={20} />
+                            </div>
+                            <h3 className="text-[14px] sm:text-lg font-bold text-red-600 dark:text-red-400">
+                                Submission Error
+                            </h3>
                         </div>
-                        <div className="flex-1 min-w-0">
-                            <h4 className="text-[10px] font-black uppercase tracking-widest mb-1">Submission Error</h4>
-                            <p className="text-sm font-bold leading-relaxed">{error}</p>
-                            <button onClick={handleRetry} disabled={submitting || isRetrying} className='mt-3 flex items-center gap-2 px-4 py-2 bg-red-600 text-white text-[11px] font-black rounded-lg hover:bg-red-700 transition-all uppercase tracking-widest shadow-lg shadow-red-500/20'>
-                                {submitting || isRetrying ? <Loader2 size={14} className="animate-spin" /> : <RefreshCw size={14} />}
-                                Retry Submission
-                            </button>
-                        </div>
+                        <button 
+                            onClick={handleRetry} 
+                            disabled={submitting || isRetrying} 
+                            className="flex items-center justify-center gap-1.5 sm:gap-2 rounded-full border border-red-200 bg-white dark:bg-gray-800 px-3 py-1.5 sm:px-5 sm:py-2 text-[10px] sm:text-sm font-bold text-red-600 hover:text-red-700 hover:bg-red-50 dark:border-red-900/30 dark:text-red-400 dark:hover:bg-red-900/20 transition-all shadow-theme-xs active:scale-95 shrink-0"
+                        >
+                            {submitting || isRetrying ? <Loader2 size={11} className="animate-spin" /> : <RefreshCw size={11} />}
+                            Retry
+                        </button>
+                    </div>
+                    
+                    <div className="px-5 py-6 sm:px-10 sm:py-8">
+                        <p className="text-[12px] sm:text-[14px] text-gray-900 dark:text-white font-bold leading-snug">
+                            {error}
+                        </p>
                     </div>
                 </div>
             )}
 
-            <div className='space-y-6'>
+            <div className='w-full space-y-4 sm:space-y-6'>
                 {/* 1. Service Selection */}
                 <ReviewSection title="Service Selection" icon={ClipboardList} onEditClick={() => onEdit(0)}>
                     <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-7 2xl:gap-x-32">
                         <div>
-                            <p className="text-[11px] sm:text-xs font-black text-gray-400 mb-1 leading-none uppercase tracking-widest">
+                            <p className="text-[11px] sm:text-xs font-black text-gray-400 mb-1 leading-none">
                                 Selected Treatment
                             </p>
-                            <p className="text-[15px] sm:text-lg font-black text-gray-900 dark:text-white leading-tight">
+                            <p className="text-[14px] sm:text-base font-bold text-gray-900 dark:text-white leading-tight">
                                 {formData.service_name || 'No service selected'}
                             </p>
                         </div>
                         <div>
-                            <p className="text-[11px] sm:text-xs font-black text-gray-400 mb-1 leading-none uppercase tracking-widest">
+                            <p className="text-[11px] sm:text-xs font-black text-gray-400 mb-1 leading-none">
                                 Duration
                             </p>
-                            <p className="text-[15px] sm:text-lg font-black text-gray-900 dark:text-white">
+                            <p className="text-[14px] sm:text-base font-bold text-gray-900 dark:text-white">
                                 {formData.service_duration ? `${formData.service_duration} mins` : '-'}
                             </p>
                         </div>
@@ -172,73 +183,145 @@ const UserReviewStep = ({ formData, book_for_others, onSubmit, onBack, onEdit, s
                     <div className="grid grid-cols-1 gap-6 sm:gap-7">
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 lg:gap-7">
                             <div>
-                                <p className="text-[11px] sm:text-xs font-black text-gray-400 mb-1 leading-none uppercase tracking-widest">
+                                <p className="text-[11px] sm:text-xs font-black text-gray-400 mb-1 leading-none">
                                     Appointment Date
                                 </p>
-                                <p className="text-[15px] sm:text-lg font-black text-gray-900 dark:text-white flex items-center gap-2">
-                                    <Calendar size={18} className="text-brand-500 sm:hidden" />
+                                <p className="text-[14px] sm:text-base font-bold text-gray-900 dark:text-white">
                                     {formatDate(formData.date)}
                                 </p>
                             </div>
                             <div>
-                                <p className="text-[11px] sm:text-xs font-black text-gray-400 mb-1 leading-none uppercase tracking-widest">
+                                <p className="text-[11px] sm:text-xs font-black text-gray-400 mb-1 leading-none">
                                     Timeslot
                                 </p>
-                                <p className="text-[15px] sm:text-lg font-black text-brand-500 flex items-center gap-2">
-                                    <Clock size={18} />
+                                <p className="text-[14px] sm:text-base font-bold text-gray-900 dark:text-white">
                                     {formatTimeRange(formData.time, formData.service_duration)}
                                 </p>
                             </div>
                         </div>
+
+                        <div className="pt-5 border-t border-gray-50 dark:border-gray-800/50">
+                            <p className="text-[11px] sm:text-xs font-black text-gray-400 mb-1.5 leading-none">
+                                Selected Dentist
+                            </p>
+                            <div className="text-[14px] sm:text-base font-bold">
+                                {!formData.dentist_id ? (
+                                    <span className="text-gray-400 dark:text-gray-500 italic font-medium">
+                                        Any Available Dentist
+                                    </span>
+                                ) : (
+                                    <span className="text-brand-600 dark:text-brand-400">
+                                        {formData.dentist_name || 'Selected Specialist'}
+                                    </span>
+                                )}
+                            </div>
+                        </div>
                     </div>
                 </ReviewSection>
 
-                {/* 3. Patient Info */}
-                <ReviewSection title="Patient Identity" icon={UserCircle} onEditClick={() => onEdit(2)}>
-                    <div className="space-y-6">
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-12">
-                            <div className="sm:col-span-2">
-                                <p className="text-[11px] sm:text-xs font-black text-gray-400 mb-1 leading-none uppercase tracking-widest">Patient Name</p>
-                                <p className="text-[15px] sm:text-lg font-black text-gray-900 dark:text-white truncate capitalize">{getPatientName()}</p>
-                            </div>
-                            <div>
-                                <p className="text-[11px] sm:text-xs font-black text-gray-400 mb-1 leading-none uppercase tracking-widest">Relationship</p>
-                                <p className="text-[14px] sm:text-base font-bold text-gray-700 dark:text-gray-300">{formData.booked_for_relationship || 'Self'}</p>
-                            </div>
-                            <div>
-                                <p className="text-[11px] sm:text-xs font-black text-gray-400 mb-1 leading-none uppercase tracking-widest">Sex</p>
-                                <p className="text-[14px] sm:text-base font-bold text-gray-700 dark:text-gray-300">
-                                    {formData.booked_for_sex === 'M' ? 'Male' : formData.booked_for_sex === 'F' ? 'Female' : 'Not specified'}
+                {/* 3. Patient Details (Unified with Guest) */}
+                <ReviewSection title="Patient Details" icon={UserCircle} onEditClick={() => onEdit(2)}>
+                    <div className="space-y-4 sm:space-y-6">
+                        {/* Names */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-2 gap-x-4 sm:gap-12">
+                            <div className="min-w-0">
+                                <p className="text-[11px] sm:text-xs font-black text-gray-400 mb-1 leading-none">Last Name</p>
+                                <p className="text-[14px] sm:text-base font-bold text-gray-900 dark:text-white truncate">
+                                    {formData.booked_for_last_name || user?.last_name || '—'}
                                 </p>
                             </div>
-                            <div>
-                                <p className="text-[11px] sm:text-xs font-black text-gray-400 mb-1 leading-none uppercase tracking-widest">Contact Email</p>
-                                <p className="text-[14px] sm:text-base font-bold text-gray-700 dark:text-gray-300 break-all">{user?.email}</p>
-                            </div>
-                            <div>
-                                <p className="text-[11px] sm:text-xs font-black text-gray-400 mb-1 leading-none uppercase tracking-widest">Contact Phone</p>
-                                <p className="text-[14px] sm:text-base font-bold text-gray-700 dark:text-gray-300">{formData.booked_for_phone || user?.phone}</p>
+                            <div className="min-w-0">
+                                <p className="text-[11px] sm:text-xs font-black text-gray-400 mb-1 leading-none">First Name</p>
+                                <p className="text-[14px] sm:text-base font-bold text-gray-900 dark:text-white truncate">
+                                    {formData.booked_for_first_name || user?.first_name || '—'}
+                                </p>
                             </div>
                         </div>
 
-                        {formData.patient_note && (
-                            <div className="p-4 bg-gray-50 dark:bg-gray-800/50 rounded-2xl border border-gray-100 dark:border-gray-700">
-                                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 flex items-center gap-2">
-                                    <StickyNote size={12} className="text-brand-500" /> Patient Note
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-2 gap-x-4 sm:gap-12">
+                            <div className="min-w-0">
+                                <p className="text-[11px] sm:text-xs font-black text-gray-400 mb-1 leading-none">Middle Name</p>
+                                <p className="text-[14px] sm:text-base font-bold text-gray-900 dark:text-white truncate">
+                                    {formData.booked_for_middle_name || user?.middle_name || '—'}
                                 </p>
-                                <p className="text-[13px] sm:text-sm font-medium text-gray-600 dark:text-gray-400 italic leading-relaxed">"{formData.patient_note}"</p>
+                            </div>
+                            <div className="min-w-0">
+                                <p className="text-[11px] sm:text-xs font-black text-gray-400 mb-1 leading-none">Suffix</p>
+                                <p className="text-[14px] sm:text-base font-bold text-gray-900 dark:text-white truncate">
+                                    {formData.booked_for_suffix_name || user?.suffix || '—'}
+                                </p>
+                            </div>
+                        </div>
+
+                        {/* DOB & Sex */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-2 gap-x-4 sm:gap-12 pt-4 border-t border-gray-50 dark:border-gray-800/50 mt-2 sm:mt-0">
+                            <div className="min-w-0">
+                                <p className="text-[11px] sm:text-xs font-black text-gray-400 mb-1 leading-none">Date of Birth</p>
+                                <p className="text-[14px] sm:text-base font-bold text-gray-900 dark:text-white">
+                                    {formData.booked_for_birthday ? formatDate(formData.booked_for_birthday) : (user?.date_of_birth ? formatDate(user.date_of_birth) : '—')}
+                                </p>
+                            </div>
+                            <div className="min-w-0">
+                                <p className="text-[11px] sm:text-xs font-black text-gray-400 mb-1 leading-none">Sex</p>
+                                <p className="text-[14px] sm:text-base font-bold text-gray-900 dark:text-white">
+                                    {(formData.booked_for_sex === 'M' || user?.sex === 'M') ? 'Male' : (formData.booked_for_sex === 'F' || user?.sex === 'F') ? 'Female' : '—'}
+                                </p>
+                            </div>
+                        </div>
+
+                        {/* Relationship (ONLY if not Self) */}
+                        {formData.booked_for_relationship && formData.booked_for_relationship !== 'Self' && (
+                            <div className="pt-4 border-t border-gray-50 dark:border-gray-800/50 mt-2">
+                                <p className="text-[11px] sm:text-xs font-black text-gray-400 mb-1 leading-none">Relationship to Account Holder</p>
+                                <p className="text-[14px] sm:text-base font-bold text-brand-600 dark:text-brand-400">
+                                    {formData.booked_for_relationship}
+                                </p>
                             </div>
                         )}
                     </div>
                 </ReviewSection>
+
+                {/* 4. Contact Details */}
+                <ReviewSection title="Contact Details" icon={Contact} onEditClick={() => onEdit(2)}>
+                    <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-7 2xl:gap-x-32">
+                        <div className="min-w-0">
+                            <p className="text-[11px] sm:text-xs font-black text-gray-400 mb-1 leading-none">
+                                Account Email
+                            </p>
+                            <p className="text-[14px] sm:text-base font-bold text-gray-900 dark:text-white break-all leading-tight">
+                                {user?.email}
+                            </p>
+                        </div>
+                        <div className="min-w-0">
+                            <p className="text-[11px] sm:text-xs font-black text-gray-400 mb-1 leading-none">
+                                Phone Number
+                            </p>
+                            <p className="text-[14px] sm:text-base font-bold text-gray-900 dark:text-white">
+                                {formData.booked_for_phone || user?.phone || '—'}
+                            </p>
+                        </div>
+                    </div>
+                </ReviewSection>
+
+                {/* 5. Additional Notes */}
+                <ReviewSection title="Additional Notes" icon={StickyNote} onEditClick={() => onEdit(2)}>
+                    <div className="min-w-0">
+                        <p className="text-[11px] sm:text-xs font-black text-gray-400 mb-1 leading-none">
+                            Note for the Clinic
+                        </p>
+                        <p className={`text-[14px] sm:text-base font-bold leading-relaxed break-words whitespace-pre-wrap ${formData.patient_note ? 'text-gray-900 dark:text-white' : 'text-gray-400 dark:text-gray-600 italic font-medium'}`}>
+                            {formData.patient_note || 'No additional notes provided'}
+                        </p>
+                    </div>
+                </ReviewSection>
             </div>
 
-            <div className='fixed bottom-0 left-0 right-0 sm:relative z-40 px-6 py-4 sm:px-0 sm:py-0 sm:mt-10 sm:pt-6 bg-white/95 dark:bg-gray-900/95 sm:bg-transparent backdrop-blur-md sm:backdrop-blur-none border-t border-gray-100 dark:border-gray-800 sm:border-t-0 shadow-theme-lg sm:shadow-none transition-all'>
+            <div className='fixed bottom-0 left-0 right-0 sm:relative z-40 px-6 py-4 sm:px-0 sm:py-0 sm:mt-10 sm:pt-6 bg-white/95 dark:bg-gray-900/95 sm:bg-transparent backdrop-blur-md sm:backdrop-blur-none border-t border-gray-100 dark:border-gray-800 sm:border-t-0 shadow-[0_-8px_20px_rgba(0,0,0,0.05)] sm:shadow-none transition-all'>
                 <div className='flex items-center gap-3 w-full sm:justify-between'>
                     <button 
                         onClick={onBack} 
                         disabled={submitting} 
-                        className='flex-1 sm:flex-none sm:min-w-[120px] text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white font-black text-[11px] sm:text-sm px-6 py-3.5 sm:px-8 transition-colors bg-gray-50 dark:bg-gray-800 sm:bg-transparent rounded-2xl border border-transparent shadow-theme-xs disabled:opacity-30'
+                        className='flex-1 sm:flex-none sm:min-w-[120px] text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white font-black text-[11px] sm:text-sm px-4 py-3.5 sm:px-8 transition-colors bg-gray-50 dark:bg-gray-800 sm:bg-transparent rounded-2xl border border-transparent shadow-theme-xs disabled:opacity-30'
                     >
                         Back
                     </button>
@@ -248,11 +331,11 @@ const UserReviewStep = ({ formData, book_for_others, onSubmit, onBack, onEdit, s
                         className='flex-[2] sm:flex-none sm:min-w-[240px] group bg-brand-500 hover:bg-brand-600 active:scale-95 text-white font-black px-6 py-3.5 sm:px-10 sm:py-4.5 rounded-2xl transition-all shadow-theme-lg disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center gap-1.5 sm:gap-3 text-[11px] sm:text-base'
                     >
                         {submitting ? (
-                            <><Loader2 size={20} className="animate-spin" /> Confirming...</>
+                            <div className='w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin' />
                         ) : (
                             <>
                                 Confirm Appointment 
-                                <ShieldCheck size={20} className="group-hover:scale-110 transition-transform" />
+                                <ShieldCheck size={14} className="sm:w-[22px] sm:h-[22px] group-hover:scale-110 transition-transform hidden sm:block" />
                             </>
                         )}
                     </button>

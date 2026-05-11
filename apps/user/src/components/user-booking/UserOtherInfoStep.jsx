@@ -58,6 +58,13 @@ const UserOtherInfoStep = ({ formData, onUpdate, onNext, onBack }) => {
         if (token) fetchProfiles();
     }, [token]);
 
+    // ✅ Auto-fill "Myself" as default if no selection exists
+    useEffect(() => {
+        if (user && !formData.patient_profile_id && !formData.booked_for_relationship) {
+            handleSelect('myself');
+        }
+    }, [user, formData.patient_profile_id, formData.booked_for_relationship]);
+
     // Close dropdown on outside click
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -275,74 +282,150 @@ const UserOtherInfoStep = ({ formData, onUpdate, onNext, onBack }) => {
                 </p>
             </div>
 
-            {/* Profile Selection Dropdown (Specific to User Flow) */}
+            {/* Profile Selection Dropdown (Synchronized with Dentist Selection style) */}
             <div className='mb-10 relative' ref={dropdownRef}>
-                <label className={labelClasses}>Who are we booking for?</label>
+                <h3 className='text-[13px] font-black text-gray-400 mb-4 flex items-center gap-2'>
+                    <div className='w-1.5 h-1.5 rounded-full bg-brand-500' />
+                    Who are we booking for?
+                </h3>
                 <button
                     type="button"
                     onClick={() => !loading && setIsOpen(!isOpen)}
                     disabled={loading}
-                    className={`w-full flex items-center justify-between p-4 bg-white dark:bg-white/[0.02] border-2 rounded-2xl transition-all shadow-theme-sm group ${
-                        isOpen ? 'border-brand-500 ring-4 ring-brand-500/10' : 'border-gray-100 dark:border-gray-800 hover:border-brand-200'
+                    className={`w-full flex items-center justify-between p-3.5 sm:p-4 bg-white dark:bg-white/[0.02] border-2 rounded-2xl transition-all shadow-theme-sm group ${
+                        isOpen 
+                            ? 'border-brand-500 ring-4 ring-brand-500/10 bg-brand-50/10' 
+                            : 'border-gray-100 dark:border-gray-800 hover:border-brand-400'
                     } ${loading ? 'opacity-50 cursor-wait' : ''}`}
                 >
-                    <div className='flex items-center gap-3'>
-                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-brand-500 transition-colors ${
-                            currentSelection === 'new' ? 'bg-brand-50 dark:bg-brand-500/10 text-brand-600' : 'bg-gray-50 dark:bg-white/5'
+                    <div className='flex items-center gap-3.5'>
+                        <div className={`w-10 h-10 rounded-lg flex items-center justify-center text-lg shrink-0 overflow-hidden border transition-all ${
+                            currentSelection === 'new' ? 'bg-brand-50 border-brand-100 dark:bg-brand-500/10 dark:border-brand-500/20 text-brand-500' : 'bg-gray-50 dark:bg-white/5 border-gray-100 dark:border-gray-800 text-gray-500'
                         }`}>
-                            {loading ? <Loader2 className="animate-spin" size={20} /> : (currentSelection === 'myself' ? <UserCircle size={24} /> : currentSelection === 'new' ? <Plus size={24} /> : <Users size={24} />)}
+                            {loading ? <Loader2 className="animate-spin" size={20} /> : (
+                                currentSelection === 'myself' ? <UserCircle size={24} /> : 
+                                currentSelection === 'new' ? <Plus size={24} /> : 
+                                <Users size={24} />
+                            )}
                         </div>
-                        <span className="text-[15px] font-black text-gray-900 dark:text-white leading-tight uppercase tracking-tight">
-                            {loading ? 'Loading profiles...' : getSelectedLabel()}
-                        </span>
+                        <div className="flex flex-col text-left justify-center">
+                            <span className="text-[12px] sm:text-[14px] font-black text-gray-900 dark:text-white leading-tight">
+                                {loading ? 'Loading profiles...' : getSelectedLabel()}
+                            </span>
+                            <span className="text-[9px] sm:text-[10px] font-bold text-gray-500 dark:text-gray-400 mt-0.5 leading-tight">
+                                {currentSelection === 'myself' ? 'Primary Account Holder' : 
+                                 currentSelection === 'new' ? 'Add a family member to your account' : 
+                                 'Selected family member'}
+                            </span>
+                        </div>
                     </div>
-                    <ChevronDown size={20} className={`text-gray-400 transition-transform duration-300 ${isOpen ? 'rotate-180 text-brand-500' : ''}`} />
+                    <div className={`p-1.5 rounded-lg bg-gray-50 dark:bg-gray-800 group-hover:bg-brand-50 dark:group-hover:bg-brand-500/10 transition-colors ${isOpen ? 'bg-brand-50 dark:bg-brand-500/10' : ''}`}>
+                        <ChevronDown size={18} className={`text-gray-400 transition-transform duration-500 ${isOpen ? 'rotate-180 text-brand-500' : 'group-hover:text-brand-500'}`} />
+                    </div>
                 </button>
 
                 {isOpen && (
-                    <div className='absolute top-[calc(100%+8px)] left-0 w-full bg-white dark:bg-[#0f172a] border-2 border-slate-100 dark:border-gray-800 rounded-2xl shadow-2xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200'>
-                        <div className='max-h-[300px] overflow-y-auto p-2 scrollbar-hide'>
-                            <button
-                                onClick={() => handleSelect('myself')}
-                                className={`w-full flex items-center gap-3 p-3 rounded-xl transition-all text-left mb-1 ${
-                                    currentSelection === 'myself' ? 'bg-brand-50 text-brand-600' : 'hover:bg-slate-50 dark:hover:bg-white/5'
-                                }`}
-                            >
-                                <div className='w-8 h-8 rounded-lg bg-brand-500/10 text-brand-500 flex items-center justify-center'><UserCircle size={18} /></div>
-                                <span className='text-sm font-black uppercase tracking-tight'>Myself (Primary)</span>
-                                {currentSelection === 'myself' && <Check size={16} className='ml-auto text-brand-500' />}
-                            </button>
-
-                            {profiles.map(p => (
+                    <>
+                        <div className='fixed inset-0 z-40' onClick={() => setIsOpen(false)} />
+                        <div className='absolute top-[calc(100%+8px)] left-0 w-full bg-white dark:bg-[#0f172a] border-2 border-gray-100 dark:border-gray-800 rounded-2xl shadow-xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-1 duration-200'>
+                            <div className='max-h-[320px] overflow-y-auto p-2 scrollbar-hide'>
                                 <button
-                                    key={p.id}
-                                    onClick={() => handleSelect(p.id)}
-                                    className={`w-full flex items-center gap-3 p-3 rounded-xl transition-all text-left mb-1 ${
-                                        currentSelection === p.id ? 'bg-brand-50 text-brand-600' : 'hover:bg-slate-50 dark:hover:bg-white/5'
+                                    onClick={() => handleSelect('myself')}
+                                    className={`w-full flex items-center gap-3.5 p-3 rounded-xl transition-all text-left mb-1 group ${
+                                        currentSelection === 'myself' 
+                                            ? 'bg-brand-50 dark:bg-brand-500/10 border border-brand-200 dark:border-brand-500/30' 
+                                            : 'border border-transparent hover:bg-gray-50 dark:hover:bg-white/5'
                                     }`}
                                 >
-                                    <div className='w-8 h-8 rounded-lg bg-slate-100 dark:bg-white/5 text-slate-400 flex items-center justify-center'><Users size={18} /></div>
-                                    <div className='flex flex-col'>
-                                        <span className='text-sm font-black uppercase tracking-tight'>{p.first_name} {p.last_name}</span>
-                                        <span className='text-[10px] font-bold text-slate-400 uppercase tracking-widest'>{p.relationship_to_primary || 'Dependent'}</span>
+                                    <div className={`w-10 h-10 shrink-0 rounded-lg flex items-center justify-center text-lg overflow-hidden border transition-colors ${
+                                        currentSelection === 'myself' ? 'bg-brand-500 border-brand-500 text-white' : 'bg-brand-50 border-brand-100 dark:bg-brand-500/10 dark:border-brand-500/20 text-brand-500'
+                                    }`}>
+                                        <UserCircle size={20} />
                                     </div>
-                                    {currentSelection === p.id && <Check size={16} className='ml-auto text-brand-500' />}
+                                    <div className='flex flex-col flex-grow justify-center'>
+                                        <span className={`text-[12px] sm:text-[14px] font-black ${currentSelection === 'myself' ? 'text-brand-700 dark:text-brand-400' : 'text-gray-900 dark:text-white'}`}>Myself (Primary)</span>
+                                        <span className={`text-[9px] sm:text-[10px] font-bold leading-tight mt-0.5 ${currentSelection === 'myself' ? 'text-brand-600/70 dark:text-brand-400/60' : 'text-gray-500 dark:text-gray-400'}`}>
+                                            Book an appointment for your own account.
+                                        </span>
+                                    </div>
+                                    {currentSelection === 'myself' && (
+                                        <div className='w-5 h-5 shrink-0 rounded-full bg-brand-500 flex items-center justify-center text-white'>
+                                            <Check size={12} strokeWidth={4} />
+                                        </div>
+                                    )}
                                 </button>
-                            ))}
 
-                            <div className='h-px bg-slate-100 dark:bg-gray-800 my-1 mx-2' />
+                                {profiles.length > 0 && (
+                                    <div className='px-3 py-1 mb-1'>
+                                        <div className='h-px bg-gray-100 dark:bg-gray-800 w-full' />
+                                    </div>
+                                )}
 
-                            <button
-                                onClick={() => handleSelect('new')}
-                                className={`w-full flex items-center gap-3 p-3 rounded-xl transition-all text-left ${
-                                    currentSelection === 'new' ? 'bg-brand-50 text-brand-600' : 'text-brand-500 hover:bg-brand-50 dark:hover:bg-brand-500/5'
-                                }`}
-                            >
-                                <div className='w-8 h-8 rounded-lg bg-brand-500/10 flex items-center justify-center'><Plus size={18} /></div>
-                                <span className='text-sm font-black uppercase tracking-tight'>Add New Family Member</span>
-                            </button>
+                                {profiles.map(p => {
+                                    const isSelected = currentSelection === p.id;
+                                    const profileInitials = ((p.first_name?.[0] || '') + (p.last_name?.[0] || '')).toUpperCase() || 'P';
+                                    return (
+                                        <button
+                                            key={p.id}
+                                            onClick={() => handleSelect(p.id)}
+                                            className={`w-full flex items-center gap-3.5 p-3 rounded-xl transition-all text-left mb-1 group ${
+                                                isSelected 
+                                                    ? 'bg-brand-50 dark:bg-brand-500/10 border border-brand-200 dark:border-brand-500/30' 
+                                                    : 'border border-transparent hover:bg-gray-50 dark:hover:bg-white/5'
+                                            }`}
+                                        >
+                                            <div className='w-10 h-10 shrink-0 rounded-lg bg-gray-50 dark:bg-white/5 flex items-center justify-center overflow-hidden border border-gray-100 dark:border-gray-800 group-hover:border-brand-200 transition-colors'>
+                                                <span className={`text-xs font-black ${isSelected ? 'text-brand-600' : 'text-gray-400'}`}>{profileInitials}</span>
+                                            </div>
+                                            <div className='flex flex-col flex-grow justify-center'>
+                                                <span className={`text-[12px] sm:text-[14px] font-black ${isSelected ? 'text-brand-700 dark:text-brand-400' : 'text-gray-900 dark:text-white'}`}>
+                                                    {p.first_name} {p.last_name}
+                                                </span>
+                                                <span className={`text-[9px] sm:text-[10px] font-bold mt-0.5 ${isSelected ? 'text-brand-600/70 dark:text-brand-400/60' : 'text-gray-500 dark:text-gray-400'}`}>
+                                                    {p.relationship_to_primary || 'Dependent'}
+                                                </span>
+                                            </div>
+                                            {isSelected && (
+                                                <div className='w-5 h-5 shrink-0 rounded-full bg-brand-500 flex items-center justify-center text-white'>
+                                                    <Check size={12} strokeWidth={4} />
+                                                </div>
+                                            )}
+                                        </button>
+                                    );
+                                })}
+
+                                <div className='px-3 py-1 mb-1'>
+                                    <div className='h-px bg-gray-100 dark:bg-gray-800 w-full' />
+                                </div>
+
+                                <button
+                                    onClick={() => handleSelect('new')}
+                                    className={`w-full flex items-center gap-3.5 p-3 rounded-xl transition-all text-left group ${
+                                        currentSelection === 'new' 
+                                            ? 'bg-brand-50 dark:bg-brand-500/10 border border-brand-200 dark:border-brand-500/30' 
+                                            : 'border border-transparent text-brand-500 hover:bg-brand-50 dark:hover:bg-brand-500/5'
+                                    }`}
+                                >
+                                    <div className={`w-10 h-10 shrink-0 rounded-lg flex items-center justify-center text-lg overflow-hidden border transition-colors ${
+                                        currentSelection === 'new' ? 'bg-brand-500 border-brand-500 text-white' : 'bg-brand-50 border-brand-100 dark:bg-brand-500/10 dark:border-brand-500/20 text-brand-500'
+                                    }`}>
+                                        <Plus size={20} />
+                                    </div>
+                                    <div className='flex flex-col flex-grow justify-center'>
+                                        <span className={`text-[12px] sm:text-[14px] font-black ${currentSelection === 'new' ? 'text-brand-700 dark:text-brand-400' : ''}`}>Add New Family Member</span>
+                                        <span className={`text-[9px] sm:text-[10px] font-bold leading-tight mt-0.5 ${currentSelection === 'new' ? 'text-brand-600/70 dark:text-brand-400/60' : 'text-gray-400'}`}>
+                                            Create a new profile for a dependent.
+                                        </span>
+                                    </div>
+                                    {currentSelection === 'new' && (
+                                        <div className='w-5 h-5 shrink-0 rounded-full bg-brand-500 flex items-center justify-center text-white'>
+                                            <Check size={12} strokeWidth={4} />
+                                        </div>
+                                    )}
+                                </button>
+                            </div>
                         </div>
-                    </div>
+                    </>
                 )}
             </div>
 

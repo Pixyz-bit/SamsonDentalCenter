@@ -7,8 +7,6 @@ import {
     Info, 
     ArrowRight,
     LayoutDashboard,
-    Stethoscope,
-    CheckCircle2,
     Check,
     ClipboardList,
     User,
@@ -24,8 +22,9 @@ const UserBookingSuccess = ({ result, onReset }) => {
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }, []);
 
-    const bookingResult = result?.bookingData || (result?.booked ? result : null);
-    const appointment = bookingResult?.appointment || {};
+    // Simplify data extraction to match Guest flow pattern
+    const formData = result?.formData || {};
+    const appointment = result?.appointment || {};
     
     const formatDate = (dateString) => {
         if (!dateString) return '---';
@@ -58,10 +57,20 @@ const UserBookingSuccess = ({ result, onReset }) => {
         } catch (e) { return startTime; }
     };
 
+    const getPatientName = () => {
+        if (appointment.last_name) {
+            return `${appointment.last_name}, ${appointment.first_name}`.trim();
+        }
+        if (formData.booked_for_last_name) {
+             return `${formData.booked_for_last_name}, ${formData.booked_for_first_name}`.trim();
+        }
+        return formData.booked_for_name || 'Self';
+    };
+
     return (
         <div className="w-full max-w-[600px] mx-auto animate-in fade-in zoom-in-95 duration-1000 pb-20 sm:pb-8">
             {/* 1. Visual Confirmation */}
-            <div className='mb-6 text-center px-4'>
+            <div className='mb-6 sm:mb-6 text-center px-4'>
                 <div className='w-20 h-20 sm:w-24 sm:h-24 bg-emerald-50 dark:bg-emerald-500/10 rounded-[1.5rem] sm:rounded-[2rem] flex items-center justify-center mx-auto mb-4 sm:mb-6 border border-emerald-100 dark:border-emerald-500/20 shadow-theme-lg animate-in zoom-in-50 duration-700 delay-300'>
                     <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-emerald-500 flex items-center justify-center text-white shadow-lg shadow-emerald-500/40 animate-in fade-in zoom-in duration-500 delay-500">
                         <Check className="w-8 h-8 sm:w-10 sm:h-10" strokeWidth={4} />
@@ -71,7 +80,7 @@ const UserBookingSuccess = ({ result, onReset }) => {
                     Thank you for choosing Us!
                 </h2>
                 <p className='text-[12px] sm:text-base text-gray-500 dark:text-gray-400 leading-relaxed font-medium max-w-sm mx-auto px-2'>
-                    Your appointment request has been successfully submitted and is currently being reviewed by our clinical team.
+                    Your booking request has been received. We've sent the details to <span className="text-brand-500 dark:text-brand-400 font-bold break-all">{formData.email || appointment.guest_email || 'your registered email'}</span>.
                 </p>
             </div>
 
@@ -80,18 +89,16 @@ const UserBookingSuccess = ({ result, onReset }) => {
                 <div className="px-5 pt-6 pb-5 sm:px-10 flex items-center justify-between border-b border-gray-100 dark:border-gray-800/50">
                     <div className="flex items-center gap-3">
                         <ClipboardList size={18} className="text-brand-500" />
-                        <h3 className="text-[14px] sm:text-lg font-bold text-gray-900 dark:text-white tracking-tight">Request Summary</h3>
+                        <h3 className="text-[14px] sm:text-lg font-bold text-gray-900 dark:text-white">Request Summary</h3>
                     </div>
-                    {appointment.id && (
-                        <div className="px-3 py-1.5 bg-brand-50/50 dark:bg-brand-500/10 rounded-full border border-brand-100/50 dark:border-brand-500/20 flex items-center shrink-0">
-                            <span className="text-[10px] sm:text-xs font-black font-mono tracking-tighter">
-                                <span className="text-brand-400 dark:text-brand-500 mr-1.5">REF</span>
-                                <span className="text-brand-600 dark:text-brand-400">
-                                    {appointment.id.slice(0, 8).toUpperCase()}
-                                </span>
+                    <div className="px-3 py-1.5 bg-brand-50/50 dark:bg-brand-500/10 rounded-full border border-brand-100/50 dark:border-brand-500/20 flex items-center shrink-0">
+                        <span className="text-[10px] sm:text-xs font-black font-mono tracking-tighter">
+                            <span className="text-brand-400 dark:text-brand-500 mr-1.5">REF</span>
+                            <span className="text-brand-600 dark:text-brand-400">
+                                {appointment.reference_id || (appointment.id && appointment.id.slice(0, 8).toUpperCase()) || `#PRM-${Math.floor(1000 + Math.random() * 9000)}`}
                             </span>
-                        </div>
-                    )}
+                        </span>
+                    </div>
                 </div>
 
                 <div className="px-5 py-6 sm:px-10 sm:py-8">
@@ -102,9 +109,9 @@ const UserBookingSuccess = ({ result, onReset }) => {
                                 <ShieldCheck className="text-brand-500" size={20} />
                             </div>
                             <div>
-                                <p className="text-[11px] sm:text-xs font-black text-gray-400 mb-1 leading-none uppercase tracking-widest">Service</p>
+                                <p className="text-[11px] sm:text-xs font-black text-gray-400 mb-1 leading-none">Service</p>
                                 <p className="text-[14px] sm:text-base font-bold text-gray-900 dark:text-white leading-tight">
-                                    {appointment?.service?.name || bookingResult?.service_name || 'Treatment'}
+                                    {appointment.service || appointment.service_name || formData.service_name || 'Treatment'}
                                 </p>
                             </div>
                         </div>
@@ -115,9 +122,9 @@ const UserBookingSuccess = ({ result, onReset }) => {
                                 <Calendar className="text-gray-500" size={20} />
                             </div>
                             <div>
-                                <p className="text-[11px] sm:text-xs font-black text-gray-400 mb-1 leading-none uppercase tracking-widest">Date</p>
+                                <p className="text-[11px] sm:text-xs font-black text-gray-400 mb-1 leading-none">Date</p>
                                 <p className="text-[14px] sm:text-base font-bold text-gray-900 dark:text-white leading-tight">
-                                    {formatDate(appointment.appointment_date || bookingResult?.date)}
+                                    {formatDate(appointment.date || appointment.appointment_date || formData.date)}
                                 </p>
                             </div>
                         </div>
@@ -128,9 +135,9 @@ const UserBookingSuccess = ({ result, onReset }) => {
                                 <Clock className="text-gray-500" size={20} />
                             </div>
                             <div>
-                                <p className="text-[11px] sm:text-xs font-black text-gray-400 mb-1 leading-none uppercase tracking-widest">Time Window</p>
+                                <p className="text-[11px] sm:text-xs font-black text-gray-400 mb-1 leading-none">Time Window</p>
                                 <p className="text-[14px] sm:text-base font-bold text-gray-900 dark:text-white leading-tight">
-                                    {formatTimeRange(appointment.start_time || bookingResult?.time, appointment.service?.duration_minutes || bookingResult?.service_duration)}
+                                    {formatTimeRange(appointment.time || appointment.start_time || formData.time, appointment.duration || appointment.service_duration || formData.service_duration)}
                                 </p>
                             </div>
                         </div>
@@ -141,20 +148,18 @@ const UserBookingSuccess = ({ result, onReset }) => {
                                 <User className="text-gray-500" size={20} />
                             </div>
                             <div>
-                                <p className="text-[11px] sm:text-xs font-black text-gray-400 mb-1 leading-none uppercase tracking-widest">Patient</p>
+                                <p className="text-[11px] sm:text-xs font-black text-gray-400 mb-1 leading-none">Patient</p>
                                 <p className="text-[14px] sm:text-base font-bold text-gray-900 dark:text-white leading-tight capitalize">
-                                    {appointment.last_name 
-                                        ? `${appointment.last_name}, ${appointment.first_name}`.trim()
-                                        : bookingResult?.booked_for_name || 'Self'}
+                                    {getPatientName()}
                                 </p>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div className="px-8 py-4 bg-gray-50 dark:bg-gray-800/50 border-t border-gray-100 dark:border-gray-700 flex items-center justify-between">
-                    <span className="text-[11px] sm:text-xs font-black text-gray-400 leading-none uppercase tracking-widest">Current Status</span>
-                    <div className="flex items-center gap-2 px-3 py-1.5 bg-amber-50 dark:bg-amber-500/10 text-amber-600 rounded-full text-[10px] font-black uppercase tracking-widest border border-amber-100/50 dark:border-amber-500/20">
+                <div className="px-5 py-4 sm:px-10 bg-gray-50 dark:bg-gray-800/50 border-t border-gray-100 dark:border-gray-800/50 flex items-center justify-between">
+                    <span className="text-[11px] sm:text-xs font-black text-gray-400 leading-none">Current Status</span>
+                    <div className="flex items-center gap-2 px-3 py-1.5 bg-amber-50 dark:bg-amber-500/10 text-amber-600 rounded-full text-[10px] sm:text-xs font-bold border border-amber-100/50 dark:border-amber-500/20 shadow-theme-xs">
                         <Clock size={12} className="animate-pulse" />
                         Awaiting Approval
                     </div>
@@ -173,24 +178,24 @@ const UserBookingSuccess = ({ result, onReset }) => {
                 </div>
                 
                 <div className="px-5 py-6 sm:px-10 sm:py-8">
-                    <ul className="space-y-4">
-                        {[
-                            { title: 'Clinical Review:', desc: 'Our team will review your request against the clinical schedule (usually within 24 hours).' },
-                            { title: 'Notification:', desc: 'You will receive an email once your appointment is confirmed or if any changes are needed.' },
-                            { title: 'Manage Online:', desc: 'Check your status, reschedule, or cancel anytime through your dashboard.' }
-                        ].map((step, i) => (
-                            <li key={i} className="flex items-start gap-4">
-                                <div className="w-1.5 h-1.5 rounded-full bg-brand-500 mt-2 shrink-0" />
-                                <p className="text-[13px] sm:text-[14px] font-medium text-gray-600 dark:text-gray-400 leading-relaxed">
-                                    <strong className="text-gray-900 dark:text-white">{step.title}</strong> {step.desc}
-                                </p>
-                            </li>
-                        ))}
+                    <ul className="space-y-3">
+                        <li className="flex items-start gap-3">
+                            <div className="w-1.5 h-1.5 rounded-full bg-brand-500 mt-2 shrink-0" />
+                            <p className="text-[12px] sm:text-[14px] font-medium text-gray-600 dark:text-gray-400 leading-relaxed">
+                                Our team will review your request and send a final confirmation within 24 hours.
+                            </p>
+                        </li>
+                        <li className="flex items-start gap-3">
+                            <div className="w-1.5 h-1.5 rounded-full bg-brand-500 mt-2 shrink-0" />
+                            <p className="text-[12px] sm:text-[14px] font-medium text-gray-600 dark:text-gray-400 leading-relaxed">
+                                You can check your status and manage your booking anytime through your dashboard.
+                            </p>
+                        </li>
                     </ul>
                 </div>
             </div>
 
-            {/* 4. Action Buttons */}
+            {/* 4. Action Buttons (Sticky Footer on Mobile) */}
             <div className="fixed bottom-0 left-0 w-full bg-white/90 dark:bg-gray-900/90 backdrop-blur-md border-t border-gray-100 dark:border-gray-800 p-4 sm:relative sm:bg-transparent sm:border-0 sm:p-0 sm:flex sm:flex-row gap-4 sm:mt-8 z-50">
                 <div className="max-w-[600px] mx-auto flex flex-row gap-3 sm:w-full">
                     <button
@@ -201,12 +206,11 @@ const UserBookingSuccess = ({ result, onReset }) => {
                         <span className="text-[11px] sm:text-base font-black">Home</span>
                     </button>
                     <button
-                        onClick={() => { onReset(); navigate('/patient'); }}
-                        className='flex-[2] group flex items-center justify-center gap-2 h-12 sm:h-14 rounded-xl sm:rounded-2xl bg-brand-500 hover:bg-brand-600 text-white font-black transition-all shadow-lg shadow-brand-500/20'
+                        onClick={onReset}
+                        className='flex-[2] flex items-center justify-center gap-2 h-12 sm:h-14 rounded-xl sm:rounded-2xl bg-brand-500 hover:bg-brand-600 text-white font-black transition-all shadow-lg shadow-brand-500/20'
                     >
-                        <LayoutDashboard size={20} className="sm:size-6" />
-                        <span className="text-[11px] sm:text-base font-black">Dashboard</span>
-                        <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+                        <CalendarPlus size={20} className="sm:size-6" />
+                        <span className="text-[11px] sm:text-lg font-black">Book Another</span>
                     </button>
                 </div>
             </div>

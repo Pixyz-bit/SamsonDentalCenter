@@ -248,7 +248,8 @@ const useUserBooking = (initialServiceId = null, initialServiceName = null) => {
                 setResult({
                     success: true,
                     booked: true,
-                    bookingData: booking,
+                    appointment: booking.appointment,
+                    formData: formData,
                     message: 'Appointment confirmed!',
                 });
             }
