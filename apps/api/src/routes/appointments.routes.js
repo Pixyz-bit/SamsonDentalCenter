@@ -9,6 +9,7 @@ import {
     reschedule,
     holdSlotHandler,
     releaseSlotHold,
+    releaseSlotHoldBySession,
     getActiveHoldHandler,
     guestValidate,
 } from '../controllers/appointments.controller.js';
@@ -24,6 +25,7 @@ import {
     rescheduleSchema,
     holdSlotSchema,
     releaseHoldSchema,
+    releaseHoldBySessionSchema,
     guestValidateSchema,
 } from '../schemas/appointment.schema.js';
 
@@ -52,5 +54,6 @@ router.patch('/:id/reschedule', validate(rescheduleSchema), requireAuth, resched
 router.post('/slots/hold', validate(holdSlotSchema), optionalAuth, holdSlotHandler); // Hold a slot for 5 min
 router.get('/slots/active-hold', optionalAuth, getActiveHoldHandler); // Check for existing hold
 router.post('/slots/release-hold', validate(releaseHoldSchema), optionalAuth, releaseSlotHold); // Release a held slot
+router.post('/slots/release-session-hold', validate(releaseHoldBySessionSchema), optionalAuth, releaseSlotHoldBySession); // Release all held slots for a session
 
 export default router;

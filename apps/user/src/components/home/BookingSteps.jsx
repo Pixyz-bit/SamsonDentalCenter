@@ -88,8 +88,8 @@ const BookingSteps = () => {
                 </svg>
               </div>
               <div>
-                <h2 className="text-3xl md:text-4xl font-black text-red-600 mb-1 font-brand tracking-tight leading-tight whitespace-nowrap">Your Dental Visit, Made Simple</h2>
-                <p className="text-stone-800 text-lg md:text-xl font-medium opacity-90 leading-tight">Quick and easy steps to quality care.</p>
+                <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-red-600 mb-2 font-brand tracking-tight leading-tight">Your Dental Visit, Made Simple</h2>
+                <p className="text-stone-800 text-[15px] sm:text-lg md:text-xl font-medium opacity-90 leading-tight">Quick and easy steps to quality care.</p>
               </div>
             </div>
 
@@ -100,7 +100,7 @@ const BookingSteps = () => {
                   
                   {/* Line connecting circles (except last one) */}
                   {index !== STEPS.length - 1 && (
-                    <div className="absolute left-[23px] md:left-[29px] top-12 md:top-[60px] bottom-[-32px] w-[2px] bg-red-600 origin-top step-line" />
+                    <div className="absolute left-[23px] md:left-[29px] top-12 md:top-[60px] bottom-[-24px] w-[2.5px] bg-red-600/20 origin-top step-line" />
                   )}
 
                   <div className="flex items-start gap-5 md:gap-8 step-item relative z-10">

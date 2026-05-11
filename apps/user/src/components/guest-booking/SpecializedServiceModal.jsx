@@ -87,7 +87,7 @@ const SpecializedServiceModal = ({ service, onClose }) => {
                             className='w-full bg-brand-500 hover:bg-brand-600 active:scale-[0.98]
                                        text-white font-black py-3 sm:py-3.5 px-6 rounded-xl
                                        transition-all flex items-center justify-center gap-2
-                                       shadow-lg shadow-brand-500/20 text-sm'
+                                       shadow-lg shadow-brand-500/20 text-[11px] sm:text-sm'
                         >
                             Login to Your Account
                             <ArrowRight size={16} />
@@ -97,7 +97,7 @@ const SpecializedServiceModal = ({ service, onClose }) => {
                             onClick={handleRegister}
                             className='w-full border-2 border-brand-200 dark:border-gray-700 hover:border-brand-500 
                                        text-gray-900 dark:text-white font-black py-3 sm:py-3.5 px-6 rounded-xl
-                                       transition-all hover:bg-brand-50 dark:hover:bg-brand-500/10 text-sm'
+                                       transition-all hover:bg-brand-50 dark:hover:bg-brand-500/10 text-[11px] sm:text-sm'
                         >
                             Create New Account
                         </button>

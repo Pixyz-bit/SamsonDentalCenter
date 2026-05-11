@@ -15,6 +15,7 @@ export const useToast = () => {
         success: (message, title) => context.showToast(message, 'success', title),
         error: (message, title) => context.showToast(message, 'error', title),
         info: (message, title) => context.showToast(message, 'info', title),
+        warning: (message, title) => context.showToast(message, 'warning', title),
     };
 };
 

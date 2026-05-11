@@ -28,8 +28,8 @@ const ServiceStep = ({ selectedServiceId, onSelect, onNext, allowSpecialized = f
     return (
         <div className="pb-10 sm:pb-6">
             <div className='mb-8 sm:mb-10'>
-                <h2 className='text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-2 sm:mb-3 tracking-tight uppercase'>
-                    Select a Service
+                <h2 className='text-lg sm:text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-2 sm:mb-3 tracking-tight'>
+                    Choose Service
                 </h2>
                 <p className='text-[13px] sm:text-sm md:text-base text-gray-500 dark:text-gray-400 max-w-3xl leading-relaxed'>
                     Choose the dental service you'd like to book from our available options.
@@ -54,14 +54,14 @@ const ServiceStep = ({ selectedServiceId, onSelect, onNext, allowSpecialized = f
             {loading && (
                 <div className='grid grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6'>
                     {[1, 2, 3, 4, 5, 6].map(i => (
-                        <div key={i} className='h-[160px] sm:h-[180px] rounded-2xl bg-gray-100 dark:bg-gray-800/50 animate-pulse'></div>
+                        <div key={i} className='h-[160px] sm:h-[180px] rounded-2xl bg-gray-200 dark:bg-gray-700/60 animate-pulse border border-gray-100 dark:border-gray-800'></div>
                     ))}
                 </div>
             )}
 
             {fetchError && (
                 <div className='bg-red-50 dark:bg-red-900/10 border border-red-100 dark:border-red-900/20 text-red-600 dark:text-red-400 p-6 rounded-2xl text-center'>
-                    <p className='font-bold mb-2 uppercase tracking-widest text-xs'>Failed to load services</p>
+                    <p className='font-bold mb-2 text-xs'>Failed to load services</p>
                     <p className='text-sm opacity-80'>{fetchError}</p>
                 </div>
             )}
@@ -72,9 +72,9 @@ const ServiceStep = ({ selectedServiceId, onSelect, onNext, allowSpecialized = f
                         <button
                             key={service.id}
                             onClick={() => handleServiceSelect(service)}
-                            className={`text-left p-4 sm:p-5 rounded-2xl border transition-all relative group flex flex-col h-full min-h-[160px] sm:min-h-[180px] ${selectedServiceId === service.id
-                                ? 'border-brand-500 bg-brand-50/30 dark:bg-brand-500/10 shadow-theme-sm'
-                                : 'border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03] hover:border-brand-300 dark:hover:border-brand-500/50 hover:shadow-theme-md'
+                            className={`text-left p-4 sm:p-5 rounded-2xl border-2 transition-all relative group flex flex-col h-full min-h-[160px] sm:min-h-[180px] ${selectedServiceId === service.id
+                                ? 'border-brand-500 bg-brand-50/30 dark:bg-brand-500/10 shadow-theme-md'
+                                : 'border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03] hover:border-brand-300 dark:hover:border-brand-500/50 shadow-theme-sm hover:shadow-theme-lg'
                                 }`}
                         >
                             <div className='flex-grow mb-4 sm:mb-5'>
@@ -95,7 +95,7 @@ const ServiceStep = ({ selectedServiceId, onSelect, onNext, allowSpecialized = f
                                         {service.duration_minutes}m
                                     </div>
                                     {service.tier?.toLowerCase() === 'specialized' && !allowSpecialized && (
-                                        <div className='flex items-center gap-1 sm:gap-1.5 text-[9px] sm:text-[10px] font-black text-amber-600 dark:text-amber-400 uppercase tracking-widest'>
+                                        <div className='flex items-center gap-1 sm:gap-1.5 text-[9px] sm:text-[10px] font-black text-amber-600 dark:text-amber-400'>
                                             <ShieldCheck size={12} className="shrink-0" />
                                             <span className="hidden sm:inline">Specialized</span>
                                         </div>
@@ -125,10 +125,10 @@ const ServiceStep = ({ selectedServiceId, onSelect, onNext, allowSpecialized = f
                     <button
                         onClick={onNext}
                         disabled={!selectedServiceId}
-                        className='flex-1 sm:flex-none sm:min-w-[240px] bg-brand-500 hover:bg-brand-600 active:scale-95 text-white font-black px-4 py-3.5 sm:px-10 sm:py-4 rounded-2xl transition-all shadow-theme-md disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-[10px] sm:text-base uppercase tracking-widest'
+                        className='flex-1 sm:flex-none sm:min-w-[240px] bg-brand-500 hover:bg-brand-600 active:scale-95 text-white font-black px-4 py-3.5 sm:px-10 sm:py-4 rounded-2xl transition-all shadow-theme-md disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center gap-1.5 sm:gap-2.5 text-[11px] sm:text-base'
                     >
-                        Continue to Date & Time
-                        <ArrowRight size={18} className="w-4 h-4 sm:w-5 sm:h-5" />
+                        Continue to Schedule
+                        <ArrowRight size={18} className="w-3.5 h-3.5 sm:w-5 sm:h-5" />
                     </button>
                 </div>
             </div>

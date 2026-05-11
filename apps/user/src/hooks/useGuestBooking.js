@@ -52,9 +52,11 @@ const DEFAULT_FORM_DATA = {
     email: '',
     phone: '',
     dentist_id: '',
+    dentist_name: '',
     service_tier: '',
     patient_note: '',
     birthday: '', // ✅ NEW: Guest birthday
+    sex: '',      // ✅ NEW: Guest biological sex
     agreed_to_terms: false, // ✅ NEW: Terms agreement
 };
 
@@ -156,6 +158,7 @@ const useGuestBooking = (initialServiceId = null, initialServiceName = null) => 
 
     const prevStep = () => {
         if (step > 0) {
+            setError(null);
             const nextIdx = step - 1;
             // ✅ Reset states when going back to Service step
             if (nextIdx === 0) {
@@ -171,6 +174,10 @@ const useGuestBooking = (initialServiceId = null, initialServiceName = null) => 
                     email: '',
                     phone: '',
                     dentist_id: '',
+                    dentist_name: '',
+                    patient_note: '',
+                    birthday: '',
+                    agreed_to_terms: false,
                     service_tier: prev.service_tier, // Keep tier for DateTimeStep usage
                 }));
             }
@@ -181,6 +188,7 @@ const useGuestBooking = (initialServiceId = null, initialServiceName = null) => 
     // Issue #3: Only allow going back to completed steps
     const goToStep = (index) => {
         if (index < step) {
+            setError(null);
             // ✅ Reset states when navigating back to Service step via breadcrumbs
             if (index === 0) {
                 slotHold.releaseHold();
@@ -195,6 +203,10 @@ const useGuestBooking = (initialServiceId = null, initialServiceName = null) => 
                     email: '',
                     phone: '',
                     dentist_id: '',
+                    dentist_name: '',
+                    patient_note: '',
+                    birthday: '',
+                    agreed_to_terms: false,
                     service_tier: prev.service_tier, // Keep tier
                 }));
             }
@@ -305,6 +317,7 @@ const useGuestBooking = (initialServiceId = null, initialServiceName = null) => 
                 verification_token: tokenToUse,
                 notes: formData.patient_note,
                 birthday: formData.birthday, // ✅ Pass birthday
+                sex: formData.sex,           // ✅ Pass biological sex
                 accepted_terms: formData.agreed_to_terms, // ✅ Pass terms agreement
                 terms_accepted_at: new Date().toISOString(), // ✅ Record timestamp
             };
@@ -316,7 +329,12 @@ const useGuestBooking = (initialServiceId = null, initialServiceName = null) => 
             if (data.booked) {
                 setResult(data);
                 setSubmitting(false);
+                
+                // ✅ Try to release server-side before clearing local state
+                // This ensures the hold is transitioned to 'converted' or 'released'
+                await slotHold.releaseHold().catch(() => {}); 
                 slotHold.clearHold();
+                
                 localStorage.removeItem(GUEST_BOOKING_STATE_KEY);
             } else {
                 setSubmitting(false);
@@ -370,10 +388,8 @@ const useGuestBooking = (initialServiceId = null, initialServiceName = null) => 
     };
 
     const reset = async () => {
-        // ✅ Release the hold on the backend first
-        if (slotHold.activeHold) {
-            await slotHold.releaseHold();
-        }
+        // ✅ Release the hold on the backend first - robust session-based cleanup
+        await slotHold.releaseHold().catch(() => {});
 
         setStep(0);
         setFormData({
@@ -391,6 +407,8 @@ const useGuestBooking = (initialServiceId = null, initialServiceName = null) => 
             service_tier: '', // Total reset
             patient_note: '',
             birthday: '',
+            dentist_id: '',
+            dentist_name: '',
         });
         setError(null);
         setSubmitting(false);
