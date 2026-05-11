@@ -233,7 +233,7 @@ const ConfirmStep = ({ formData, onSubmit, onBack, onEdit, onReset, submitting, 
 
                 {/* 3. Personal Details */}
                 <ReviewSection title="Personal Details" icon={UserCircle} onEditClick={() => onEdit(2)}>
-                    <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-7 2xl:gap-x-32">
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 lg:gap-7 2xl:gap-x-12">
                         <div className="min-w-0">
                             <p className="text-[11px] sm:text-xs font-black text-gray-400 mb-1 leading-none">
                                 Full Name
@@ -248,6 +248,14 @@ const ConfirmStep = ({ formData, onSubmit, onBack, onEdit, onReset, submitting, 
                             </p>
                             <p className="text-[14px] sm:text-base font-bold text-gray-900 dark:text-white">
                                 {formData.birthday ? formatDate(formData.birthday) : '—'}
+                            </p>
+                        </div>
+                        <div className="min-w-0">
+                            <p className="text-[11px] sm:text-xs font-black text-gray-400 mb-1 leading-none">
+                                Sex
+                            </p>
+                            <p className="text-[14px] sm:text-base font-bold text-gray-900 dark:text-white">
+                                {formData.sex || '—'}
                             </p>
                         </div>
                     </div>

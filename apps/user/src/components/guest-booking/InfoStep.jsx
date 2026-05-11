@@ -47,6 +47,7 @@ const InfoStep = ({ formData, onUpdate, onNext, onBack }) => {
         }
 
         if (!formData.birthday) newErrors.birthday = 'Date of birth is required.';
+        if (!formData.sex) newErrors.sex = 'Sex is required.';
 
         if (!formData.email?.trim()) {
             newErrors.email = 'Email address is required.';
@@ -209,7 +210,8 @@ const InfoStep = ({ formData, onUpdate, onNext, onBack }) => {
                     <h3 className="text-[14px] sm:text-lg font-bold text-gray-900 dark:text-white">Personal Details</h3>
                 </div>
 
-                <div className="px-5 py-6 sm:px-10 sm:py-8 space-y-6">
+                <div className="px-5 py-6 sm:px-10 sm:py-8 space-y-8">
+                    {/* Row 1: Primary Names (2 Columns on MD+) */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
                         {/* Last Name */}
                         <div>
@@ -238,32 +240,15 @@ const InfoStep = ({ formData, onUpdate, onNext, onBack }) => {
                             />
                             {errors.first && <p className='text-error-500 text-[10px] font-bold mt-1.5 ml-1'>{errors.first}</p>}
                         </div>
+                    </div>
 
-                        {/* Date of Birth */}
-                        <div>
-                            <label className={labelClasses}>Date of Birth <span className='text-brand-500'>*</span></label>
-                            <input
-                                id="field-birthday"
-                                type='date'
-                                value={formData.birthday || ''}
-                                onChange={(e) => handleFieldChange('birthday', e.target.value)}
-                                onClick={(e) => {
-                                    try {
-                                        e.target.showPicker();
-                                    } catch (err) {
-                                        // Fallback for browsers that don't support showPicker()
-                                    }
-                                }}
-                                className={getInputClasses(errors.birthday)}
-                                max={new Date().toISOString().split('T')[0]}
-                            />
-                            {errors.birthday && <p className='text-error-500 text-[10px] font-bold mt-1.5 ml-1'>{errors.birthday}</p>}
-                        </div>
-
+                    {/* Row 2: Secondary Names (2 Columns on MD+) */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6 pt-2 border-t border-gray-50 dark:border-gray-800/50">
                         {/* Middle Name */}
                         <div>
                             <label className={labelClasses}>Middle Name <span className="opacity-40 font-normal italic">(optional)</span></label>
                             <input
+                                id="field-middle"
                                 type='text'
                                 value={nameParts.middle}
                                 onChange={(e) => handleNamePartChange('middle', e.target.value)}
@@ -298,28 +283,70 @@ const InfoStep = ({ formData, onUpdate, onNext, onBack }) => {
                                         <option value="IV">IV</option>
                                         <option value="Other">Other...</option>
                                     </select>
-                                    <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400 group-hover/suffix:text-brand-500 transition-colors">
-                                        <ChevronDown size={18} />
+                                    <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
+                                        <ChevronDown size={16} />
                                     </div>
                                 </div>
                             ) : (
-                                <div className="relative animate-in slide-in-from-left-2 duration-300">
+                                <div className="relative">
                                     <input
                                         type='text'
                                         value={nameParts.suffix}
                                         onChange={(e) => handleNamePartChange('suffix', e.target.value)}
-                                        placeholder='e.g. PhD, Ret.'
-                                        autoFocus
+                                        placeholder='PhD'
                                         className={getInputClasses()}
+                                        autoFocus
                                     />
                                     <button
                                         onClick={() => { setShowCustomSuffix(false); handleNamePartChange('suffix', ''); }}
-                                        className="absolute right-3 top-1/2 -translate-y-1/2 px-2 py-1 rounded-md text-[10px] font-black text-brand-500 hover:bg-brand-50 dark:hover:bg-brand-500/10 transition-colors uppercase tracking-tight"
+                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-brand-500"
                                     >
-                                        Reset
+                                        <X size={14} />
                                     </button>
                                 </div>
                             )}
+                        </div>
+                    </div>
+
+                    {/* Row 3: DOB & Sex (2 Columns on MD+) */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6 pt-2 border-t border-gray-50 dark:border-gray-800/50">
+                        {/* Date of Birth */}
+                        <div>
+                            <label className={labelClasses}>Date of Birth <span className='text-brand-500'>*</span></label>
+                            <input
+                                id="field-birthday"
+                                type='date'
+                                value={formData.birthday || ''}
+                                onChange={(e) => handleFieldChange('birthday', e.target.value)}
+                                onClick={(e) => {
+                                    try { e.target.showPicker(); } catch (err) {}
+                                }}
+                                className={getInputClasses(errors.birthday)}
+                                max={new Date().toISOString().split('T')[0]}
+                            />
+                            {errors.birthday && <p className='text-error-500 text-[10px] font-bold mt-1.5 ml-1'>{errors.birthday}</p>}
+                        </div>
+
+                        {/* Sex */}
+                        <div>
+                            <label className={labelClasses}>Sex <span className='text-brand-500'>*</span></label>
+                            <div className="grid grid-cols-2 gap-3">
+                                {['Male', 'Female'].map((s) => (
+                                    <button
+                                        key={s}
+                                        id={`field-sex-${s.toLowerCase()}`}
+                                        onClick={() => handleFieldChange('sex', s)}
+                                        className={`py-3 px-4 rounded-xl border-2 font-bold text-xs transition-all flex items-center justify-center gap-2 ${
+                                            formData.sex === s
+                                                ? 'border-brand-500 bg-brand-50 text-brand-600 dark:bg-brand-500/10 dark:text-brand-400 shadow-sm'
+                                                : 'border-gray-100 bg-gray-50/50 text-gray-500 hover:border-gray-200 dark:border-gray-800 dark:bg-transparent dark:text-gray-400'
+                                        }`}
+                                    >
+                                        {s}
+                                    </button>
+                                ))}
+                            </div>
+                            {errors.sex && <p className='text-error-500 text-[10px] font-bold mt-1.5 ml-1'>{errors.sex}</p>}
                         </div>
                     </div>
                 </div>
@@ -416,7 +443,7 @@ const InfoStep = ({ formData, onUpdate, onNext, onBack }) => {
                 </div>
 
                 <div className="px-5 py-6 sm:px-10 sm:py-8">
-                    <div className='flex items-start gap-4 p-4 sm:p-6 bg-brand-50/30 dark:bg-brand-500/5 rounded-2xl border border-brand-100/50 dark:border-brand-500/10'>
+                    <div className='flex items-start gap-4'>
                         <div className="pt-0.5">
                             <input
                                 type="checkbox"

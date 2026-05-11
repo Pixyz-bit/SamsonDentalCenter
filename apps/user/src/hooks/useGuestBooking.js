@@ -56,6 +56,7 @@ const DEFAULT_FORM_DATA = {
     service_tier: '',
     patient_note: '',
     birthday: '', // ✅ NEW: Guest birthday
+    sex: '',      // ✅ NEW: Guest biological sex
     agreed_to_terms: false, // ✅ NEW: Terms agreement
 };
 
@@ -316,6 +317,7 @@ const useGuestBooking = (initialServiceId = null, initialServiceName = null) => 
                 verification_token: tokenToUse,
                 notes: formData.patient_note,
                 birthday: formData.birthday, // ✅ Pass birthday
+                sex: formData.sex,           // ✅ Pass biological sex
                 accepted_terms: formData.agreed_to_terms, // ✅ Pass terms agreement
                 terms_accepted_at: new Date().toISOString(), // ✅ Record timestamp
             };
