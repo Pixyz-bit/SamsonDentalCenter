@@ -9,8 +9,8 @@ const InputGroup = ({ label, icon: Icon, error, children }) => (
     <div className='space-y-1.5 group text-left'>
         <label
             className={cn(
-                'block text-xs font-semibold uppercase tracking-wide transition-colors',
-                error ? 'text-red-500' : 'text-slate-500 group-focus-within:text-blue-600',
+                'block text-[11px] font-bold uppercase tracking-[0.05em] transition-colors',
+                error ? 'text-red-500' : 'text-slate-500 group-focus-within:text-red-600',
             )}
         >
             {label}
@@ -18,11 +18,11 @@ const InputGroup = ({ label, icon: Icon, error, children }) => (
         <div className='relative'>
             <div
                 className={cn(
-                    'absolute left-3.5 top-1/2 -translate-y-1/2 transition-colors',
-                    error ? 'text-red-400' : 'text-slate-400 group-focus-within:text-blue-600',
+                    'absolute left-4 top-1/2 -translate-y-1/2 transition-colors duration-300',
+                    error ? 'text-red-400' : 'text-slate-400 group-focus-within:text-red-600',
                 )}
             >
-                <Icon size={18} />
+                <Icon size={18} strokeWidth={2.5} />
             </div>
             {children}
         </div>
@@ -36,12 +36,11 @@ const InputGroup = ({ label, icon: Icon, error, children }) => (
 
 const inputClassName = (error, value) =>
     cn(
-        'w-full bg-white border rounded-lg pl-10 pr-4 py-2.5 text-sm font-medium outline-none transition-all duration-200',
+        'w-full rounded-xl pl-11 pr-4 py-3 text-sm font-medium outline-none transition-all duration-300',
         error
-            ? 'border-red-300 focus:border-red-500 focus:ring-2 focus:ring-red-500/20 bg-red-50/10'
-            : value && value.length > 0
-              ? 'border-green-500/50 focus:border-green-500 focus:ring-2 focus:ring-green-500/20 bg-green-50/10'
-              : 'border-slate-200/60 focus:border-blue-600 focus:ring-2 focus:ring-blue-600/20 placeholder:text-slate-400',
+            ? 'bg-red-50/30 border border-red-300 text-red-900 placeholder:text-red-300 focus:bg-white focus:border-red-500 focus:ring-4 focus:ring-red-500/15'
+            : 'bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:bg-white focus:border-red-500 focus:ring-4 focus:ring-red-500/15 hover:border-slate-300',
+        value && !error && 'bg-white border-green-500/50 focus:border-green-500 focus:ring-4 focus:ring-green-500/15',
     );
 
 const RegisterForm = ({ onSubmit, loading = false, error = null }) => {
@@ -111,10 +110,10 @@ const RegisterForm = ({ onSubmit, loading = false, error = null }) => {
     return (
         <div className='flex flex-col h-full'>
             <div className='mb-6 text-center flex-shrink-0'>
-                <h2 className='text-2xl md:text-3xl font-bold text-slate-900 mb-2 tracking-tight'>
-                    Join Us
+                <h2 className='text-2xl md:text-3xl font-black text-slate-900 mb-2 tracking-tight'>
+                    Patient Registration
                 </h2>
-                <p className='text-slate-500 text-sm'>Register for a premium experience.</p>
+                <p className='text-slate-500 text-sm font-medium'>Register your account for a premium experience</p>
             </div>
 
             <div className='flex-grow'>
@@ -128,7 +127,7 @@ const RegisterForm = ({ onSubmit, loading = false, error = null }) => {
                         <div className='flex items-center gap-3 opacity-60'>
                             <div className='h-px flex-1 bg-slate-200'></div>
                             <span className='text-[10px] font-bold text-slate-400 uppercase tracking-widest'>
-                                Personal Identity
+                                Personal Information
                             </span>
                             <div className='h-px flex-1 bg-slate-200'></div>
                         </div>
@@ -147,7 +146,7 @@ const RegisterForm = ({ onSubmit, loading = false, error = null }) => {
                                         signupErrors.firstName,
                                         signupData.firstName,
                                     )}
-                                    placeholder='John'
+                                    placeholder='Enter your first name'
                                 />
                             </InputGroup>
                             <InputGroup
@@ -163,7 +162,7 @@ const RegisterForm = ({ onSubmit, loading = false, error = null }) => {
                                         signupErrors.middleName,
                                         signupData.middleName,
                                     )}
-                                    placeholder='Optional'
+                                    placeholder='Enter middle name (optional)'
                                 />
                             </InputGroup>
                             <InputGroup
@@ -179,7 +178,7 @@ const RegisterForm = ({ onSubmit, loading = false, error = null }) => {
                                         signupErrors.lastName,
                                         signupData.lastName,
                                     )}
-                                    placeholder='Doe'
+                                    placeholder='Enter your last name'
                                 />
                             </InputGroup>
                             <InputGroup
@@ -230,7 +229,7 @@ const RegisterForm = ({ onSubmit, loading = false, error = null }) => {
                         <div className='flex items-center gap-3 opacity-60'>
                             <div className='h-px flex-1 bg-slate-200'></div>
                             <span className='text-[10px] font-bold text-slate-400 uppercase tracking-widest'>
-                                Contact Info
+                                Contact Information
                             </span>
                             <div className='h-px flex-1 bg-slate-200'></div>
                         </div>
@@ -246,7 +245,7 @@ const RegisterForm = ({ onSubmit, loading = false, error = null }) => {
                                     value={signupData.email}
                                     onChange={(e) => updateField('email', e.target.value)}
                                     className={inputClassName(signupErrors.email, signupData.email)}
-                                    placeholder='name@example.com'
+                                    placeholder='Enter your email address'
                                 />
                             </InputGroup>
                             <InputGroup
@@ -259,7 +258,7 @@ const RegisterForm = ({ onSubmit, loading = false, error = null }) => {
                                     value={signupData.phone}
                                     onChange={(e) => updateField('phone', e.target.value)}
                                     className={inputClassName(signupErrors.phone, signupData.phone)}
-                                    placeholder='+1 (555) 000-0000'
+                                    placeholder='Enter your phone number'
                                 />
                             </InputGroup>
                         </div>
@@ -270,7 +269,7 @@ const RegisterForm = ({ onSubmit, loading = false, error = null }) => {
                         <div className='flex items-center gap-3 opacity-60'>
                             <div className='h-px flex-1 bg-slate-200'></div>
                             <span className='text-[10px] font-bold text-slate-400 uppercase tracking-widest'>
-                                Security
+                                Password Setup
                             </span>
                             <div className='h-px flex-1 bg-slate-200'></div>
                         </div>
@@ -289,7 +288,7 @@ const RegisterForm = ({ onSubmit, loading = false, error = null }) => {
                                         signupErrors.password,
                                         signupData.password,
                                     )}
-                                    placeholder='••••••••'
+                                    placeholder='Enter your password'
                                 />
                             </InputGroup>
                             <InputGroup
@@ -305,7 +304,7 @@ const RegisterForm = ({ onSubmit, loading = false, error = null }) => {
                                         signupErrors.confirmPassword,
                                         signupData.confirmPassword,
                                     )}
-                                    placeholder='••••••••'
+                                    placeholder='Confirm your password'
                                 />
                             </InputGroup>
                         </div>
@@ -320,22 +319,23 @@ const RegisterForm = ({ onSubmit, loading = false, error = null }) => {
                     </div>
                 )}
 
-                <Button
-                    form='register-form'
-                    type='submit'
-                    disabled={loading}
-                    className='w-full'
-                    size='lg'
-                >
-                    {loading ? 'Creating Account...' : 'Create Account'}
-                    {!loading && <ChevronRight className='ml-2 h-4 w-4' />}
-                </Button>
+                <div className='pt-3'>
+                    <Button
+                        form='register-form'
+                        type='submit'
+                        disabled={loading}
+                        className='w-full !bg-red-600 hover:!bg-red-700 active:scale-[0.98] transition-all duration-300 shadow-lg shadow-red-600/25 hover:shadow-red-600/40 border-0 font-bold rounded-xl py-3.5'
+                    >
+                        {loading ? 'Creating Account...' : 'Create Account'}
+                        {!loading && <ChevronRight className='ml-2 h-4 w-4' strokeWidth={3} />}
+                    </Button>
+                </div>
 
-                <p className='text-slate-500 text-sm mt-4'>
+                <p className='text-slate-500 text-sm mt-4 font-medium'>
                     Already have an account?{' '}
                     <button
                         onClick={() => navigate('/login')}
-                        className='text-blue-600 font-semibold hover:text-blue-700 hover:underline transition-colors'
+                        className='text-red-600 font-bold hover:text-red-700 hover:underline transition-colors'
                     >
                         Sign In
                     </button>

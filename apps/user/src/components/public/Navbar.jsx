@@ -167,7 +167,7 @@ const Navbar = () => {
                                     <span className='font-black text-[22px] tracking-[-0.04em] leading-none text-white whitespace-nowrap'>
                                         SAMSON
                                     </span>
-                                    <span className='text-[10px] uppercase tracking-[0.28em] font-bold mt-[1px] text-red-400 whitespace-nowrap'>
+                                    <span className='text-[10px] uppercase tracking-[0.28em] font-bold mt-[1px] text-red-500 whitespace-nowrap drop-shadow-[0_0_8px_rgba(239,68,68,0.5)]'>
                                         Dental Center
                                     </span>
                                 </div>
