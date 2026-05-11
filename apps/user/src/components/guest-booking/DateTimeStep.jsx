@@ -173,7 +173,7 @@ const DateTimeStep = ({
         const specialist = specialists.find(s => s.id === val);
         const doctorName = specialist 
             ? (specialist.profile?.first_name ? `Dr. ${specialist.profile.first_name} ${specialist.profile.last_name}`.trim() : specialist.profile?.full_name) 
-            : 'any available dentist';
+            : 'Any Available Dentist';
         
         toast.info(`Loading available dates for ${doctorName}...`);
 
@@ -299,7 +299,7 @@ const DateTimeStep = ({
     // Custom Premium Doctor Dropdown Component
     const DoctorDropdown = () => {
         const getDoctorName = (s) => {
-            if (!s?.profile) return 'Any available dentist';
+            if (!s?.profile) return 'Any Available Dentist';
             const { first_name, last_name, suffix, full_name } = s.profile;
             if (first_name || last_name) {
                 return `Dr. ${first_name} ${last_name}`.trim();
@@ -324,54 +324,73 @@ const DateTimeStep = ({
                     type="button"
                     onClick={() => !isProcessing && setIsDoctorDropdownOpen(!isDoctorDropdownOpen)}
                     disabled={isProcessing}
-                    className={`w-full flex items-center justify-between p-4 bg-white dark:bg-white/[0.02] border-2 rounded-2xl transition-all shadow-theme-md group ${
-                        isDoctorDropdownOpen ? 'border-brand-500 ring-4 ring-brand-500/10' : 'border-gray-200 dark:border-gray-800 hover:border-brand-300'
+                    className={`w-full flex items-center justify-between p-3.5 sm:p-4 bg-white dark:bg-white/[0.02] border-2 rounded-2xl transition-all shadow-theme-sm group ${
+                        isDoctorDropdownOpen 
+                            ? 'border-brand-500 ring-4 ring-brand-500/10 bg-brand-50/10' 
+                            : 'border-gray-200 dark:border-gray-800 hover:border-brand-400'
                     } ${isProcessing ? 'opacity-50 cursor-wait' : ''}`}
                 >
-                    <div className='flex items-center gap-4'>
-                        <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-xl shrink-0 transition-all ${
-                            !dentistId ? 'bg-brand-50 text-brand-500' : 'bg-gray-50 dark:bg-white/5'
+                    <div className='flex items-center gap-3.5 sm:gap-4'>
+                        <div className={`w-11 h-11 rounded-xl flex items-center justify-center text-lg shrink-0 transition-all ${
+                            !dentistId ? 'bg-brand-500 text-white' : 'bg-gray-100 dark:bg-white/5'
                         }`}>
                             {selectedDoctor?.photo_url ? (
                                 <img src={selectedDoctor.photo_url} alt="" className="w-full h-full object-cover rounded-xl" />
-                            ) : !dentistId ? <Users size={24} /> : initials}
+                            ) : !dentistId ? <Users size={22} /> : initials}
                         </div>
                         <div className="flex flex-col text-left">
-                            <span className="text-[15px] font-black text-gray-900 dark:text-white leading-tight">
-                                {selectedDoctor ? getDoctorName(selectedDoctor) : 'Any available dentist'}
+                            <span className="text-[14px] sm:text-[15px] font-black text-gray-900 dark:text-white leading-tight">
+                                {selectedDoctor ? getDoctorName(selectedDoctor) : 'Any Available Dentist'}
                             </span>
-                            <span className="text-[11px] font-bold text-gray-400">
+                            <p className="text-[11px] font-bold text-gray-500 dark:text-gray-400 mt-0.5">
                                 {selectedDoctor 
-                                    ? (serviceTier === 'specialized' ? 'Specialist' : 'Dentist') 
-                                    : "We'll match you with available dentist"}
-                            </span>
+                                    ? (serviceTier === 'specialized' ? 'Medical Specialist' : 'Clinical Dentist') 
+                                    : "Best match for your selected time"}
+                            </p>
                         </div>
                     </div>
-                    <ChevronDown size={20} className={`text-gray-400 transition-transform duration-300 ${isDoctorDropdownOpen ? 'rotate-180 text-brand-500' : ''}`} />
+                    <div className={`p-1.5 rounded-lg bg-gray-50 dark:bg-gray-800 group-hover:bg-brand-50 dark:group-hover:bg-brand-500/10 transition-colors ${isDoctorDropdownOpen ? 'bg-brand-50 dark:bg-brand-500/10' : ''}`}>
+                        <ChevronDown size={18} className={`text-gray-400 transition-transform duration-500 ${isDoctorDropdownOpen ? 'rotate-180 text-brand-500' : 'group-hover:text-brand-500'}`} />
+                    </div>
                 </button>
 
                 {/* Dropdown Menu Overlay */}
                 {isDoctorDropdownOpen && (
                     <>
                         <div className='fixed inset-0 z-40' onClick={() => setIsDoctorDropdownOpen(false)} />
-                        <div className='absolute top-[calc(100%+8px)] left-0 w-full bg-white dark:bg-[#0f172a] border-2 border-gray-100 dark:border-gray-800 rounded-2xl shadow-2xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200'>
-                            <div className='max-h-[300px] overflow-y-auto p-2 scrollbar-hide'>
+                        <div className='absolute top-[calc(100%+8px)] left-0 w-full bg-white dark:bg-[#0f172a] border-2 border-gray-100 dark:border-gray-800 rounded-2xl shadow-xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-1 duration-200'>
+                            <div className='max-h-[320px] overflow-y-auto p-2 scrollbar-hide'>
                                 {/* Any Dentist Option */}
                                 <button
                                     onClick={() => { handleSpecialistChange(''); setIsDoctorDropdownOpen(false); }}
-                                    className={`w-full flex items-center gap-4 p-3 rounded-xl transition-all text-left mb-1 ${
-                                        !dentistId ? 'bg-brand-50 text-brand-600' : 'hover:bg-gray-50 dark:hover:bg-white/5'
+                                    className={`w-full flex items-center gap-3.5 p-3 rounded-xl transition-all text-left mb-1 group ${
+                                        !dentistId 
+                                            ? 'bg-brand-50 dark:bg-brand-500/10 border border-brand-200 dark:border-brand-500/30' 
+                                            : 'border border-transparent hover:bg-gray-50 dark:hover:bg-white/5'
                                     }`}
                                 >
-                                    <div className='w-10 h-10 rounded-lg bg-brand-500/10 text-brand-500 flex items-center justify-center text-lg'>
+                                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center text-lg transition-colors ${
+                                        !dentistId ? 'bg-brand-500 text-white' : 'bg-brand-50 text-brand-500 dark:bg-brand-500/10'
+                                    }`}>
                                         <Users size={20} />
                                     </div>
-                                    <div className='flex flex-col'>
-                                        <span className='text-sm font-black'>Any available dentist</span>
-                                        <span className='text-[10px] font-bold opacity-70'>We'll match you with available dentist</span>
+                                    <div className='flex flex-col flex-grow'>
+                                        <span className={`text-[14px] font-black ${!dentistId ? 'text-brand-700 dark:text-brand-400' : 'text-gray-900 dark:text-white'}`}>Any Available Dentist</span>
+                                        <span className={`text-[10px] font-bold ${!dentistId ? 'text-brand-600/70 dark:text-brand-400/60' : 'text-gray-500 dark:text-gray-400'}`}>
+                                            We’ll match you with a dentist available at your selected time.
+                                        </span>
                                     </div>
-                                    {!dentistId && <Check size={18} className='ml-auto text-brand-500' />}
+                                    {!dentistId && (
+                                        <div className='w-5 h-5 rounded-full bg-brand-500 flex items-center justify-center text-white'>
+                                            <Check size={12} strokeWidth={4} />
+                                        </div>
+                                    )}
                                 </button>
+
+                                {/* Divider */}
+                                <div className='px-3 py-1 mb-1'>
+                                    <div className='h-px bg-gray-100 dark:bg-gray-800 w-full' />
+                                </div>
 
                                 {/* Doctor Options */}
                                 {specialists.map(s => {
@@ -381,20 +400,32 @@ const DateTimeStep = ({
                                         <button
                                             key={s.id}
                                             onClick={() => { handleSpecialistChange(s.id); setIsDoctorDropdownOpen(false); }}
-                                            className={`w-full flex items-center gap-4 p-3 rounded-xl transition-all text-left mb-1 ${
-                                                isSelected ? 'bg-brand-50 text-brand-600' : 'hover:bg-gray-50 dark:hover:bg-white/5'
+                                            className={`w-full flex items-center gap-3.5 p-3 rounded-xl transition-all text-left mb-1 group ${
+                                                isSelected 
+                                                    ? 'bg-brand-50 dark:bg-brand-500/10 border border-brand-200 dark:border-brand-500/30' 
+                                                    : 'border border-transparent hover:bg-gray-50 dark:hover:bg-white/5'
                                             }`}
                                         >
-                                            <div className='w-10 h-10 rounded-lg bg-gray-50 dark:bg-white/5 flex items-center justify-center overflow-hidden'>
-                                                {s.photo_url ? <img src={s.photo_url} alt="" className="w-full h-full object-cover" /> : <span className='text-xs font-black text-gray-400'>{doctorInitials}</span>}
+                                            <div className='w-10 h-10 rounded-lg bg-gray-50 dark:bg-white/5 flex items-center justify-center overflow-hidden border border-gray-100 dark:border-gray-800 group-hover:border-brand-200 transition-colors'>
+                                                {s.photo_url ? (
+                                                    <img src={s.photo_url} alt="" className="w-full h-full object-cover" />
+                                                ) : (
+                                                    <span className={`text-xs font-black ${isSelected ? 'text-brand-600' : 'text-gray-400'}`}>{doctorInitials}</span>
+                                                )}
                                             </div>
-                                            <div className='flex flex-col'>
-                                                <span className='text-sm font-black'>{getDoctorName(s)}</span>
-                                                <span className='text-[10px] font-bold opacity-70'>
-                                                    {serviceTier === 'specialized' ? 'Specialist' : 'Dentist'}
+                                            <div className='flex flex-col flex-grow'>
+                                                <span className={`text-[14px] font-black ${isSelected ? 'text-brand-700 dark:text-brand-400' : 'text-gray-900 dark:text-white'}`}>
+                                                    {getDoctorName(s)}
+                                                </span>
+                                                <span className={`text-[10px] font-bold ${isSelected ? 'text-brand-600/70 dark:text-brand-400/60' : 'text-gray-500 dark:text-gray-400'}`}>
+                                                    {serviceTier === 'specialized' ? 'Medical Specialist' : 'Clinical Dentist'}
                                                 </span>
                                             </div>
-                                            {isSelected && <Check size={18} className='ml-auto text-brand-500' />}
+                                            {isSelected && (
+                                                <div className='w-5 h-5 rounded-full bg-brand-500 flex items-center justify-center text-white'>
+                                                    <Check size={12} strokeWidth={4} />
+                                                </div>
+                                            )}
                                         </button>
                                     );
                                 })}
@@ -519,7 +550,7 @@ const DateTimeStep = ({
                             Choose Schedule
                         </h2>
                         <p className='text-[13px] sm:text-sm md:text-base text-gray-500 dark:text-gray-400 max-w-3xl leading-relaxed font-medium'>
-                            Pick a date, time, and dentist. Use "Any Dentist" for more options.
+                            Pick a date, time, and dentist. Use "Any Available Dentist" for more options.
                         </p>
                     </div>
 

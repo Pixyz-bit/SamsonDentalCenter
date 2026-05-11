@@ -373,7 +373,7 @@ const GuestBookingWizard = ({ booking, settings }) => {
                                 setShowRecoveryModal(false);
                                 handleReset();
                             }}
-                            className="flex-1 h-11 sm:h-12 text-[10px] sm:text-xs font-bold text-gray-400 hover:text-red-500 hover:bg-red-50 dark:text-gray-500 dark:hover:text-red-400 dark:hover:bg-red-900/10 transition-all duration-300 border border-transparent"
+                            className="flex-1 h-11 sm:h-12 text-[11px] sm:text-xs font-bold text-gray-400 hover:text-red-500 hover:bg-red-50 dark:text-gray-500 dark:hover:text-red-400 dark:hover:bg-red-900/10 transition-all duration-300 border border-transparent"
                         >
                             Discard
                         </Button>
@@ -384,7 +384,7 @@ const GuestBookingWizard = ({ booking, settings }) => {
                                 setShowRecoveryModal(false);
                                 setHasDismissedRecovery(true);
                             }}
-                            className="flex-1 h-11 sm:h-12 text-[10px] sm:text-sm font-black shadow-lg shadow-primary-500/20"
+                            className="flex-1 h-11 sm:h-12 text-[11px] sm:text-sm font-black shadow-lg shadow-primary-500/20"
                         >
                             Continue Booking
                         </Button>
@@ -436,7 +436,7 @@ const GuestBookingWizard = ({ booking, settings }) => {
                             variant="ghost" 
                             fullWidth 
                             onClick={() => setShowResetModal(false)}
-                            className="flex-1 h-10 sm:h-12 text-[10px] sm:text-xs font-bold text-gray-400 hover:text-gray-900 transition-all duration-300"
+                            className="flex-1 h-10 sm:h-12 text-[11px] sm:text-xs font-bold text-gray-400 hover:text-gray-900 transition-all duration-300"
                         >
                             Cancel
                         </Button>
@@ -447,7 +447,7 @@ const GuestBookingWizard = ({ booking, settings }) => {
                                 setShowResetModal(false);
                                 handleReset();
                             }}
-                            className="flex-[1.5] h-10 sm:h-12 text-[10px] sm:text-sm font-black bg-red-500 hover:bg-red-600 border-red-500 shadow-lg shadow-red-500/20"
+                            className="flex-[1.5] h-10 sm:h-12 text-[11px] sm:text-sm font-black bg-red-500 hover:bg-red-600 border-red-500 shadow-lg shadow-red-500/20"
                         >
                             START OVER
                         </Button>
@@ -612,7 +612,7 @@ const GuestBookingWizard = ({ booking, settings }) => {
                                 handleReset();
                                 navigate('/');
                             }}
-                            className="flex-1 h-11 text-[10px] sm:text-xs font-bold text-gray-400 hover:text-red-500 hover:bg-red-50 dark:text-gray-500 dark:hover:text-red-400 transition-colors"
+                            className="flex-1 h-11 text-[11px] sm:text-xs font-bold text-gray-400 hover:text-red-500 hover:bg-red-50 dark:text-gray-500 dark:hover:text-red-400 transition-colors"
                         >
                             Discard & Exit
                         </Button>
@@ -620,7 +620,7 @@ const GuestBookingWizard = ({ booking, settings }) => {
                             variant="primary" 
                             fullWidth 
                             onClick={() => setShowExitModal(false)}
-                            className="flex-[1.5] h-11 text-[10px] sm:text-sm font-black shadow-lg shadow-primary-500/20"
+                            className="flex-[1.5] h-11 text-[11px] sm:text-sm font-black shadow-lg shadow-primary-500/20"
                         >
                             Continue Booking
                         </Button>

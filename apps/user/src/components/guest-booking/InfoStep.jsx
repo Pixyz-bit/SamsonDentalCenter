@@ -246,14 +246,21 @@ const InfoStep = ({ formData, onUpdate, onNext, onBack }) => {
                             {/* Date of Birth */}
                             <div>
                                 <label className={labelClasses}>Date of Birth <span className='text-brand-500'>*</span></label>
-                                <input
-                                    id="field-birthday"
-                                    type='date'
-                                    value={formData.birthday || ''}
-                                    onChange={(e) => handleFieldChange('birthday', e.target.value)}
-                                    className={getInputClasses(errors.birthday)}
-                                    max={new Date().toISOString().split('T')[0]}
-                                />
+                                    <input
+                                        id="field-birthday"
+                                        type='date'
+                                        value={formData.birthday || ''}
+                                        onChange={(e) => handleFieldChange('birthday', e.target.value)}
+                                        onClick={(e) => {
+                                            try {
+                                                e.target.showPicker();
+                                            } catch (err) {
+                                                // Fallback for browsers that don't support showPicker()
+                                            }
+                                        }}
+                                        className={getInputClasses(errors.birthday)}
+                                        max={new Date().toISOString().split('T')[0]}
+                                    />
                                 {errors.birthday && <p className='text-error-500 text-[10px] font-bold mt-1.5 ml-1'>{errors.birthday}</p>}
                             </div>
 
@@ -434,7 +441,7 @@ const InfoStep = ({ formData, onUpdate, onNext, onBack }) => {
                             className="w-4 h-4 sm:w-6 sm:h-6 rounded-lg border-gray-300 text-brand-500 focus:ring-brand-500/20 cursor-pointer transition-all"
                         />
                     </div>
-                    <label htmlFor="terms" className="text-[11px] sm:text-[14px] text-gray-600 dark:text-gray-400 font-medium leading-relaxed cursor-pointer select-none">
+                    <label htmlFor="terms" className="text-[13px] sm:text-[14px] text-gray-600 dark:text-gray-400 font-medium leading-relaxed cursor-pointer select-none">
                         I agree to the <a href="/terms-of-service" target="_blank" className="text-brand-600 dark:text-brand-400 font-bold hover:underline">Terms of Service</a> and <a href="/privacy-policy" target="_blank" className="text-brand-600 dark:text-brand-400 font-bold hover:underline">Privacy Policy</a>.
                         <span className="block mt-1 text-[10px] sm:text-[12px] opacity-60 font-normal italic leading-snug">
                             I understand my data will be handled securely per clinic policy.
@@ -449,14 +456,14 @@ const InfoStep = ({ formData, onUpdate, onNext, onBack }) => {
                     <div className='flex items-center gap-2 w-full sm:justify-between'>
                         <button
                             onClick={onBack}
-                            className='flex-1 sm:flex-none sm:min-w-[120px] text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white font-black text-[9px] sm:text-sm px-2 py-3.5 sm:px-8 transition-colors uppercase tracking-widest bg-gray-50 dark:bg-gray-800 sm:bg-transparent rounded-2xl border border-transparent shadow-theme-xs'
+                            className='flex-1 sm:flex-none sm:min-w-[120px] text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white font-black text-[11px] sm:text-sm px-2 py-3.5 sm:px-8 transition-colors bg-gray-50 dark:bg-gray-800 sm:bg-transparent rounded-2xl border border-transparent shadow-theme-xs'
                         >
                             Back
                         </button>
                         <button
                             onClick={handleNext}
                             disabled={!formData.agreed_to_terms}
-                            className={`flex-1 sm:flex-none sm:min-w-[240px] font-black px-2 py-3.5 sm:px-10 sm:py-4 rounded-2xl transition-all shadow-theme-md flex items-center justify-center gap-1 sm:gap-2.5 text-[9px] sm:text-base uppercase tracking-widest ${formData.agreed_to_terms
+                            className={`flex-1 sm:flex-none sm:min-w-[240px] font-black px-2 py-3.5 sm:px-10 sm:py-4 rounded-2xl transition-all shadow-theme-md flex items-center justify-center gap-1 sm:gap-2.5 text-[11px] sm:text-base ${formData.agreed_to_terms
                                 ? 'bg-brand-500 hover:bg-brand-600 active:scale-95 text-white'
                                 : 'bg-gray-100 dark:bg-gray-800 text-gray-400 cursor-not-allowed grayscale opacity-50'
                                 }`}

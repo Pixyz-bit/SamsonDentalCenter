@@ -87,7 +87,7 @@ const GuestBookingSuccess = ({ result, onReset, booking }) => {
                             <ShieldCheck className="text-brand-500" size={20} />
                         </div>
                         <div>
-                            <p className="text-[11px] sm:text-xs font-black text-gray-400 mb-1 leading-none">Service</p>
+                            <p className="text-[13px] sm:text-xs font-black text-gray-400 mb-1 leading-none">Service</p>
                             <p className="text-[14px] sm:text-base font-bold text-gray-900 dark:text-white leading-tight">
                                 {appointment.service_name || formData.service_name}
                             </p>
@@ -100,7 +100,7 @@ const GuestBookingSuccess = ({ result, onReset, booking }) => {
                             <Calendar className="text-gray-500" size={20} />
                         </div>
                         <div>
-                            <p className="text-[11px] sm:text-xs font-black text-gray-400 mb-1 leading-none">Date</p>
+                            <p className="text-[13px] sm:text-xs font-black text-gray-400 mb-1 leading-none">Date</p>
                             <p className="text-[14px] sm:text-base font-bold text-gray-900 dark:text-white leading-tight">
                                 {formatDate(appointment.date || formData.date)}
                             </p>
@@ -113,7 +113,7 @@ const GuestBookingSuccess = ({ result, onReset, booking }) => {
                             <Clock className="text-gray-500" size={20} />
                         </div>
                         <div>
-                            <p className="text-[11px] sm:text-xs font-black text-gray-400 mb-1 leading-none">Time Window</p>
+                            <p className="text-[13px] sm:text-xs font-black text-gray-400 mb-1 leading-none">Time Window</p>
                             <p className="text-[14px] sm:text-base font-bold text-gray-900 dark:text-white leading-tight">
                                 {formatTimeRange(appointment.time || formData.time, appointment.service_duration || formData.service_duration)}
                             </p>
@@ -126,7 +126,7 @@ const GuestBookingSuccess = ({ result, onReset, booking }) => {
                             <User className="text-gray-500" size={20} />
                         </div>
                         <div>
-                            <p className="text-[11px] sm:text-xs font-black text-gray-400 mb-1 leading-none">Guest Patient</p>
+                            <p className="text-[13px] sm:text-xs font-black text-gray-400 mb-1 leading-none">Guest Patient</p>
                             <p className="text-[14px] sm:text-base font-bold text-gray-900 dark:text-white leading-tight capitalize">
                                 {`${appointment.guest_first_name || formData.first_name || ''} ${appointment.guest_last_name || formData.last_name || ''}`}
                             </p>

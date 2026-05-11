@@ -192,7 +192,7 @@ const OTPStep = ({ email, onVerify, onResend, isVerifying, error, onReset, resen
                     <button 
                         onClick={onReset}
                         disabled={isVerifying}
-                        className="w-full bg-red-50 hover:bg-red-100 text-red-600 dark:bg-red-900/10 dark:hover:bg-red-900/20 dark:text-red-400 font-bold text-[11px] py-3 rounded-2xl border border-red-100 dark:border-red-900/20 transition-colors disabled:opacity-30"
+                        className="w-full bg-red-50 hover:bg-red-100 text-red-600 dark:bg-red-900/10 dark:hover:bg-red-900/20 dark:text-red-400 font-black text-[11px] py-3 rounded-2xl border border-red-100 dark:border-red-900/20 transition-colors disabled:opacity-30"
                     >
                         Start Over (Release Slot Hold)
                     </button>

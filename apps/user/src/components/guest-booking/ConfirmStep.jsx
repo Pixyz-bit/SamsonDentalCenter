@@ -182,7 +182,7 @@ const ConfirmStep = ({ formData, onSubmit, onBack, onEdit, onReset, submitting, 
                 <ReviewSection title="Service Selection" onEditClick={() => onEdit(0)}>
                     <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-7 2xl:gap-x-32">
                         <div>
-                            <p className="mb-1 text-[11px] sm:text-xs font-bold text-gray-500 dark:text-gray-400">
+                            <p className="mb-1 text-[13px] sm:text-xs font-bold text-gray-500 dark:text-gray-400">
                                 Selected Treatment
                             </p>
                             <p className="text-[15px] sm:text-base font-bold text-gray-900 dark:text-white">
@@ -190,7 +190,7 @@ const ConfirmStep = ({ formData, onSubmit, onBack, onEdit, onReset, submitting, 
                             </p>
                         </div>
                         <div>
-                            <p className="mb-1 text-[11px] sm:text-xs font-bold text-gray-500 dark:text-gray-400">
+                            <p className="mb-1 text-[13px] sm:text-xs font-bold text-gray-500 dark:text-gray-400">
                                 Duration
                             </p>
                             <p className="text-[15px] sm:text-base font-bold text-gray-900 dark:text-white">
@@ -204,7 +204,7 @@ const ConfirmStep = ({ formData, onSubmit, onBack, onEdit, onReset, submitting, 
                 <ReviewSection title="Date & Time" onEditClick={() => onEdit(1)}>
                     <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-7 2xl:gap-x-32">
                         <div>
-                            <p className="mb-1 text-[11px] sm:text-xs font-bold text-gray-500 dark:text-gray-400">
+                            <p className="mb-1 text-[13px] sm:text-xs font-bold text-gray-500 dark:text-gray-400">
                                 Appointment Date
                             </p>
                             <p className="text-[15px] sm:text-base font-bold text-gray-900 dark:text-white">
@@ -212,7 +212,7 @@ const ConfirmStep = ({ formData, onSubmit, onBack, onEdit, onReset, submitting, 
                             </p>
                         </div>
                         <div>
-                            <p className="mb-1 text-[11px] sm:text-xs font-bold text-gray-500 dark:text-gray-400">
+                            <p className="mb-1 text-[13px] sm:text-xs font-bold text-gray-500 dark:text-gray-400">
                                 Selected Timeslot
                             </p>
                             <p className="text-[15px] sm:text-base font-bold text-gray-900 dark:text-white">
@@ -226,7 +226,7 @@ const ConfirmStep = ({ formData, onSubmit, onBack, onEdit, onReset, submitting, 
                 <ReviewSection title="Your Information" onEditClick={() => onEdit(2)}>
                     <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-7 2xl:gap-x-32">
                         <div className="min-w-0">
-                            <p className="mb-1 text-[11px] sm:text-xs font-bold text-gray-500 dark:text-gray-400 font-bold">
+                            <p className="mb-1 text-[13px] sm:text-xs font-bold text-gray-500 dark:text-gray-400 font-bold">
                                 Full Name
                             </p>
                             <p className="text-[15px] sm:text-base font-bold text-gray-900 dark:text-white truncate">
@@ -234,7 +234,7 @@ const ConfirmStep = ({ formData, onSubmit, onBack, onEdit, onReset, submitting, 
                             </p>
                         </div>
                         <div className="min-w-0">
-                            <p className="mb-1 text-[11px] sm:text-xs font-bold text-gray-500 dark:text-gray-400 font-bold">
+                            <p className="mb-1 text-[13px] sm:text-xs font-bold text-gray-500 dark:text-gray-400 font-bold">
                                 Email Address
                             </p>
                             <p className="text-[15px] sm:text-base font-bold text-gray-900 dark:text-white break-all leading-tight">
@@ -242,18 +242,18 @@ const ConfirmStep = ({ formData, onSubmit, onBack, onEdit, onReset, submitting, 
                             </p>
                         </div>
                         <div className="min-w-0">
-                            <p className="mb-0.5 text-[10px] sm:text-xs font-bold text-gray-500 dark:text-gray-400">
+                            <p className="mb-1 text-[13px] sm:text-xs font-bold text-gray-500 dark:text-gray-400">
                                 Phone Number
                             </p>
-                            <p className="text-[13px] sm:text-base font-bold text-gray-900 dark:text-white">
+                            <p className="text-[15px] sm:text-base font-bold text-gray-900 dark:text-white">
                                 {formData.phone}
                             </p>
                         </div>
                         <div className="min-w-0">
-                            <p className="mb-0.5 text-[10px] sm:text-xs font-bold text-gray-500 dark:text-gray-400">
+                            <p className="mb-1 text-[13px] sm:text-xs font-bold text-gray-500 dark:text-gray-400">
                                 Birthday
                             </p>
-                            <p className="text-[13px] sm:text-base font-bold text-gray-900 dark:text-white">
+                            <p className="text-[15px] sm:text-base font-bold text-gray-900 dark:text-white">
                                 {formData.birthday ? formatDate(formData.birthday) : '—'}
                             </p>
                         </div>
@@ -263,7 +263,7 @@ const ConfirmStep = ({ formData, onSubmit, onBack, onEdit, onReset, submitting, 
                 {/* 4. Additional Notes */}
                 <ReviewSection title="Additional Notes" onEditClick={() => onEdit(2)}>
                     <div className="min-w-0">
-                        <p className="mb-0.5 text-[10px] sm:text-xs font-bold text-gray-500 dark:text-gray-400">
+                        <p className="mb-1 text-[13px] sm:text-xs font-bold text-gray-500 dark:text-gray-400">
                             Note for the Clinic
                         </p>
                         <p className={`text-[13px] sm:text-base font-bold leading-relaxed ${formData.patient_note ? 'text-gray-900 dark:text-white' : 'text-gray-400 dark:text-gray-600 italic font-medium'}`}>
@@ -310,11 +310,11 @@ const ConfirmStep = ({ formData, onSubmit, onBack, onEdit, onReset, submitting, 
 
             {/* Final Navigation Controls */}
             <div className='fixed bottom-0 left-0 right-0 sm:relative z-40 px-6 py-4 sm:px-0 sm:py-0 sm:mt-10 sm:pt-6 bg-white/95 dark:bg-gray-900/95 sm:bg-transparent backdrop-blur-md sm:backdrop-blur-none border-t border-gray-100 dark:border-gray-800 sm:border-t-0 shadow-[0_-8px_20px_rgba(0,0,0,0.05)] sm:shadow-none transition-all'>
-                <div className='flex items-center gap-1.5 w-full sm:justify-between'>
+                <div className='flex items-center gap-3 w-full sm:justify-between'>
                     <button 
                         onClick={onBack} 
                         disabled={submitting} 
-                        className='flex-1 sm:flex-none sm:min-w-[120px] text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white font-black text-[9px] sm:text-sm px-4 py-3.5 sm:px-8 transition-colors disabled:opacity-30 bg-gray-50 dark:bg-gray-800 sm:bg-transparent rounded-2xl border border-transparent shadow-theme-xs'
+                        className='flex-1 sm:flex-none sm:min-w-[120px] text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white font-black text-[11px] sm:text-sm px-4 py-3.5 sm:px-8 transition-colors disabled:opacity-30 bg-gray-50 dark:bg-gray-800 sm:bg-transparent rounded-2xl border border-transparent shadow-theme-xs'
                     >
                         Back to Info
                     </button>
@@ -322,7 +322,7 @@ const ConfirmStep = ({ formData, onSubmit, onBack, onEdit, onReset, submitting, 
                     <button 
                         onClick={onSubmit} 
                         disabled={submitting} 
-                        className='flex-1 sm:flex-none sm:min-w-[200px] group bg-brand-500 hover:bg-brand-600 active:scale-95 text-white font-black px-4 py-3.5 sm:px-10 sm:py-4.5 rounded-2xl transition-all shadow-theme-lg disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center gap-1.5 sm:gap-3 text-[9px] sm:text-base'
+                        className='flex-1 sm:flex-none sm:min-w-[200px] group bg-brand-500 hover:bg-brand-600 active:scale-95 text-white font-black px-4 py-3.5 sm:px-10 sm:py-4.5 rounded-2xl transition-all shadow-theme-lg disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center gap-1.5 sm:gap-3 text-[11px] sm:text-base'
                     >
                         {submitting ? (
                             <div className='w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin' />
