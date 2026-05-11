@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ArrowRight, ChevronLeft, Calendar, Clock, Edit2, CheckCircle2, ShieldCheck, Mail, Loader2, Info, AlertCircle, ClipboardList, CalendarDays, UserRound, StickyNote, UserCircle, Contact } from 'lucide-react';
+import { ArrowRight, ChevronLeft, Calendar, Clock, Edit2, CheckCircle2, Check, ShieldCheck, Mail, Loader2, Info, AlertCircle, ClipboardList, CalendarDays, UserRound, StickyNote, UserCircle, Contact } from 'lucide-react';
 
 const ConfirmStep = ({ formData, onSubmit, onBack, onEdit, onReset, submitting, error, clinicPhone }) => {
     // ✅ Phase 1: Robust Auto-scroll to top on error
@@ -105,69 +105,92 @@ const ConfirmStep = ({ formData, onSubmit, onBack, onEdit, onReset, submitting, 
             </div>
 
             {error && (
-                <div className='bg-red-50/50 dark:bg-red-950/10 border border-red-200 dark:border-red-900/30 rounded-2xl p-4 sm:p-5 mb-8 animate-in shake duration-500 shadow-sm'>
-                    <div className="flex items-start gap-3 sm:gap-4">
-                        <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-red-100 dark:bg-red-900/40 text-red-600 dark:text-red-400 flex items-center justify-center shrink-0">
-                            <AlertCircle size={18} className="sm:hidden" />
-                            <AlertCircle size={20} className="hidden sm:block" />
-                        </div>
-                        
-                        <div className="flex-1 min-w-0">
-                            <div className="flex items-center justify-between gap-2 mb-1">
-                                <h3 className="text-[13px] sm:text-base font-black text-red-600 dark:text-red-400 truncate">
-                                    {error.includes('limited to 3 active bookings') ? 'Booking Limit Reached' : 
-                                     error.includes('already scheduled for this email on the selected date') ? 'Duplicate Appointment' :
-                                     error.includes('This time overlaps with another booking') ? 'Time Conflict' :
-                                     'Booking Restricted'}
-                                </h3>
-                                <span className="px-1.5 py-0.5 sm:px-2.5 sm:py-1 rounded-full text-[8px] sm:text-[10px] font-black bg-red-100 dark:bg-red-900/40 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800/50 uppercase tracking-tighter shrink-0">
-                                    Notice
-                                </span>
+                <div className='bg-red-50/50 dark:bg-red-950/10 border border-red-200 dark:border-red-900/30 rounded-2xl sm:rounded-3xl mb-8 animate-in shake duration-500 shadow-theme-md overflow-hidden'>
+                    <div className="px-5 pt-6 pb-5 sm:px-10 flex items-center justify-between border-b border-red-200/50 dark:border-red-900/30 gap-3">
+                        <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-xl bg-red-100 dark:bg-red-900/40 text-red-600 dark:text-red-400 flex items-center justify-center shrink-0 shadow-sm">
+                                <AlertCircle size={20} />
                             </div>
-                            
-                            {error.includes('limited to 3 active bookings') ? (
-                                <div className="space-y-1">
+                            <h3 className="text-[14px] sm:text-lg font-bold text-red-600 dark:text-red-400">
+                                {error.includes('limited to 3 active bookings') ? 'Booking Limit Reached' : 
+                                 error.includes('already scheduled for this email on the selected date') ? 'Duplicate Appointment' :
+                                 error.includes('This time overlaps with another booking') ? 'Time Conflict' :
+                                 'Booking Restricted'}
+                            </h3>
+                        </div>
+                        <div className="flex items-center justify-center gap-1.5 sm:gap-2 rounded-full px-3 py-1.5 sm:px-5 sm:py-2 text-[10px] sm:text-sm font-bold bg-red-100 dark:bg-red-900/40 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800/50 shrink-0">
+                            <Info size={11} className="sm:w-3.5 sm:h-3.5 opacity-70" />
+                            Notice
+                        </div>
+                    </div>
+                    
+                    <div className="px-5 py-6 sm:px-10 sm:py-8">
+                        {error.includes('limited to 3 active bookings') ? (
+                            <ul className="space-y-3">
+                                <li className="flex items-start gap-3">
+                                    <div className="w-1.5 h-1.5 rounded-full bg-red-500 mt-2 shrink-0" />
                                     <p className="text-[12px] sm:text-[14px] text-gray-900 dark:text-white font-bold leading-snug">
                                         Each email is limited to 3 active appointments to ensure fair scheduling.
                                     </p>
+                                </li>
+                                <li className="flex items-start gap-3">
+                                    <div className="w-1.5 h-1.5 rounded-full bg-red-500 mt-2 shrink-0" />
                                     <p className="text-[11px] sm:text-[13px] text-gray-500 dark:text-gray-400 font-medium leading-relaxed">
                                         Please use a different email to book for others, or contact us at <span className="font-bold text-gray-700 dark:text-gray-300">{clinicPhone}</span> if you believe this is an error.
                                     </p>
-                                </div>
-                            ) : error.includes('already scheduled for this email on the selected date') ? (
-                                <div className="space-y-1">
+                                </li>
+                            </ul>
+                        ) : error.includes('already scheduled for this email on the selected date') ? (
+                            <ul className="space-y-3">
+                                <li className="flex items-start gap-3">
+                                    <div className="w-1.5 h-1.5 rounded-full bg-red-500 mt-2 shrink-0" />
                                     <p className="text-[12px] sm:text-[14px] text-gray-900 dark:text-white font-bold leading-snug">
                                         You already have this treatment scheduled for this day under <span className="text-brand-600 dark:text-brand-400 underline decoration-brand-500/30">{formData.email}</span>.
                                     </p>
+                                </li>
+                                <li className="flex items-start gap-3">
+                                    <div className="w-1.5 h-1.5 rounded-full bg-red-500 mt-2 shrink-0" />
                                     <p className="text-[11px] sm:text-[13px] text-gray-500 dark:text-gray-400 font-medium leading-relaxed">
                                         Please use a different email to book for others, or contact us at <span className="font-bold text-gray-700 dark:text-gray-300">{clinicPhone}</span> if you believe this is an error.
                                     </p>
-                                </div>
-                            ) : error.includes('This time overlaps with another booking') ? (
-                                <div className="space-y-1">
+                                </li>
+                            </ul>
+                        ) : error.includes('This time overlaps with another booking') ? (
+                            <ul className="space-y-3">
+                                <li className="flex items-start gap-3">
+                                    <div className="w-1.5 h-1.5 rounded-full bg-red-500 mt-2 shrink-0" />
                                     <p className="text-[12px] sm:text-[14px] text-gray-900 dark:text-white font-bold leading-snug">
                                         This slot overlaps with an existing appointment for <span className="text-brand-600 dark:text-brand-400 underline decoration-brand-500/30">{formData.email}</span>.
                                     </p>
+                                </li>
+                                <li className="flex items-start gap-3">
+                                    <div className="w-1.5 h-1.5 rounded-full bg-red-500 mt-2 shrink-0" />
                                     <p className="text-[11px] sm:text-[13px] text-gray-500 dark:text-gray-400 font-medium leading-relaxed">
                                         Please use a different email to book for others, or contact us at <span className="font-bold text-gray-700 dark:text-gray-300">{clinicPhone}</span> if you believe this is an error.
                                     </p>
-                                </div>
-                            ) : (
-                                <div className="space-y-1">
+                                </li>
+                            </ul>
+                        ) : (
+                            <ul className="space-y-3">
+                                <li className="flex items-start gap-3">
+                                    <div className="w-1.5 h-1.5 rounded-full bg-red-500 mt-2 shrink-0" />
                                     <p className="text-[12px] sm:text-[14px] text-gray-900 dark:text-white font-bold leading-snug">
                                         For security, we limit the number of active bookings per guest account.
                                     </p>
+                                </li>
+                                <li className="flex items-start gap-3">
+                                    <div className="w-1.5 h-1.5 rounded-full bg-red-500 mt-2 shrink-0" />
                                     <p className="text-[11px] sm:text-[13px] text-gray-500 dark:text-gray-400 font-medium leading-relaxed">
                                         Please use a different email to book for others, or contact us at <span className="font-bold text-gray-700 dark:text-gray-300">{clinicPhone}</span> if you believe this is an error.
                                     </p>
-                                </div>
-                            )}
-                        </div>
+                                </li>
+                            </ul>
+                        )}
                     </div>
                 </div>
             )}
 
-            <div className='w-full space-y-6'>
+            <div className='w-full space-y-4 sm:space-y-6'>
                 {/* 1. Service Selection */}
                 <ReviewSection title="Service Selection" icon={ClipboardList} onEditClick={() => onEdit(0)}>
                     <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-7 2xl:gap-x-32">
@@ -233,30 +256,65 @@ const ConfirmStep = ({ formData, onSubmit, onBack, onEdit, onReset, submitting, 
 
                 {/* 3. Personal Details */}
                 <ReviewSection title="Personal Details" icon={UserCircle} onEditClick={() => onEdit(2)}>
-                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 lg:gap-7 2xl:gap-x-12">
-                        <div className="min-w-0">
-                            <p className="text-[11px] sm:text-xs font-black text-gray-400 mb-1 leading-none">
-                                Full Name
-                            </p>
-                            <p className="text-[14px] sm:text-base font-bold text-gray-900 dark:text-white break-words leading-tight">
-                                {formData.first_name ? `${formData.last_name}, ${formData.first_name} ${formData.middle_name || ''} ${formData.suffix_name || ''}`.replace(/\s+/g, ' ').trim() : (formData.full_name || '—')}
-                            </p>
+                    <div className="space-y-4 sm:space-y-6">
+                        {/* Row 1: Primary Names */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-2 gap-x-4 sm:gap-12">
+                            <div className="min-w-0">
+                                <p className="text-[11px] sm:text-xs font-black text-gray-400 mb-1 leading-none">
+                                    Last Name
+                                </p>
+                                <p className="text-[14px] sm:text-base font-bold text-gray-900 dark:text-white truncate">
+                                    {formData.last_name || '—'}
+                                </p>
+                            </div>
+                            <div className="min-w-0">
+                                <p className="text-[11px] sm:text-xs font-black text-gray-400 mb-1 leading-none">
+                                    First Name
+                                </p>
+                                <p className="text-[14px] sm:text-base font-bold text-gray-900 dark:text-white truncate">
+                                    {formData.first_name || '—'}
+                                </p>
+                            </div>
                         </div>
-                        <div className="min-w-0">
-                            <p className="text-[11px] sm:text-xs font-black text-gray-400 mb-1 leading-none">
-                                Birthday
-                            </p>
-                            <p className="text-[14px] sm:text-base font-bold text-gray-900 dark:text-white">
-                                {formData.birthday ? formatDate(formData.birthday) : '—'}
-                            </p>
+
+                        {/* Row 2: Secondary Names & Demographics */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-2 gap-x-4 sm:gap-12">
+                            <div className="min-w-0">
+                                <p className="text-[11px] sm:text-xs font-black text-gray-400 mb-1 leading-none">
+                                    Middle Name
+                                </p>
+                                <p className="text-[14px] sm:text-base font-bold text-gray-900 dark:text-white truncate">
+                                    {formData.middle_name || '—'}
+                                </p>
+                            </div>
+                            <div className="min-w-0">
+                                <p className="text-[11px] sm:text-xs font-black text-gray-400 mb-1 leading-none">
+                                    Suffix
+                                </p>
+                                <p className="text-[14px] sm:text-base font-bold text-gray-900 dark:text-white truncate">
+                                    {formData.suffix_name || '—'}
+                                </p>
+                            </div>
                         </div>
-                        <div className="min-w-0">
-                            <p className="text-[11px] sm:text-xs font-black text-gray-400 mb-1 leading-none">
-                                Sex
-                            </p>
-                            <p className="text-[14px] sm:text-base font-bold text-gray-900 dark:text-white">
-                                {formData.sex || '—'}
-                            </p>
+
+                        {/* Row 3: Demographics */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-2 gap-x-4 sm:gap-12 pt-4 border-t border-gray-50 dark:border-gray-800/50 mt-2 sm:mt-0">
+                            <div className="min-w-0">
+                                <p className="text-[11px] sm:text-xs font-black text-gray-400 mb-1 leading-none">
+                                    Date of Birth
+                                </p>
+                                <p className="text-[14px] sm:text-base font-bold text-gray-900 dark:text-white">
+                                    {formData.birthday ? formatDate(formData.birthday) : '—'}
+                                </p>
+                            </div>
+                            <div className="min-w-0">
+                                <p className="text-[11px] sm:text-xs font-black text-gray-400 mb-1 leading-none">
+                                    Sex
+                                </p>
+                                <p className="text-[14px] sm:text-base font-bold text-gray-900 dark:text-white">
+                                    {formData.sex || '—'}
+                                </p>
+                            </div>
                         </div>
                     </div>
                 </ReviewSection>
@@ -283,7 +341,7 @@ const ConfirmStep = ({ formData, onSubmit, onBack, onEdit, onReset, submitting, 
                     </div>
                 </ReviewSection>
 
-                {/* 4. Additional Notes */}
+                {/* 5. Additional Notes */}
                 <ReviewSection title="Additional Notes" icon={StickyNote} onEditClick={() => onEdit(2)}>
                     <div className="min-w-0">
                         <p className="text-[11px] sm:text-xs font-black text-gray-400 mb-1 leading-none">
@@ -295,18 +353,19 @@ const ConfirmStep = ({ formData, onSubmit, onBack, onEdit, onReset, submitting, 
                     </div>
                 </ReviewSection>
 
+
                 {/* Verification Email Highlight Banner */}
-                <div className='bg-brand-50/50 dark:bg-brand-500/5 border border-brand-100 dark:border-brand-500/10 rounded-2xl p-5 sm:p-7 animate-in zoom-in-95 duration-500 overflow-hidden'>
-                    <div className="flex flex-col gap-4">
-                        <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-xl bg-brand-500 text-white flex items-center justify-center shrink-0 shadow-lg shadow-brand-500/20">
-                                <Mail size={20} />
-                            </div>
-                            <h4 className="text-[14px] sm:text-lg font-black text-gray-900 dark:text-white tracking-tight leading-tight">
-                                Verify Your Email
-                            </h4>
+                <div className='mb-10 bg-brand-50/50 dark:bg-brand-500/5 border border-brand-100 dark:border-brand-500/10 rounded-2xl sm:rounded-3xl animate-in zoom-in-95 duration-500 overflow-hidden shadow-theme-md'>
+                    <div className="px-5 pt-6 pb-5 sm:px-10 flex items-center gap-3 border-b border-brand-100/50 dark:border-brand-500/10">
+                        <div className="w-10 h-10 rounded-xl bg-brand-500 text-white flex items-center justify-center shrink-0 shadow-lg shadow-brand-500/20">
+                            <Mail size={20} />
                         </div>
-                        
+                        <h4 className="text-[14px] sm:text-lg font-black text-gray-900 dark:text-white tracking-tight leading-tight">
+                            Verify Your Email
+                        </h4>
+                    </div>
+                    
+                    <div className="px-5 py-6 sm:px-10 sm:py-8">
                         <ul className="space-y-3">
                             <li className="flex items-start gap-3">
                                 <div className="w-1.5 h-1.5 rounded-full bg-brand-500 mt-2 shrink-0" />

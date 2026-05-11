@@ -210,9 +210,9 @@ const InfoStep = ({ formData, onUpdate, onNext, onBack }) => {
                     <h3 className="text-[14px] sm:text-lg font-bold text-gray-900 dark:text-white">Personal Details</h3>
                 </div>
 
-                <div className="px-5 py-6 sm:px-10 sm:py-8 space-y-8">
-                    {/* Row 1: Primary Names (2 Columns on MD+) */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
+                <div className="px-5 py-6 sm:px-10 sm:py-8 space-y-4 sm:space-y-8">
+                    {/* Row 1: Primary Names (2 Columns on SM+) */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-3 sm:gap-y-6">
                         {/* Last Name */}
                         <div>
                             <label className={labelClasses}>Last Name <span className='text-brand-500'>*</span></label>
@@ -242,8 +242,8 @@ const InfoStep = ({ formData, onUpdate, onNext, onBack }) => {
                         </div>
                     </div>
 
-                    {/* Row 2: Secondary Names (2 Columns on MD+) */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6 pt-2 border-t border-gray-50 dark:border-gray-800/50">
+                    {/* Row 2: Secondary Names (2 Columns on SM+) */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-3 sm:gap-y-6">
                         {/* Middle Name */}
                         <div>
                             <label className={labelClasses}>Middle Name <span className="opacity-40 font-normal italic">(optional)</span></label>
@@ -308,8 +308,8 @@ const InfoStep = ({ formData, onUpdate, onNext, onBack }) => {
                         </div>
                     </div>
 
-                    {/* Row 3: DOB & Sex (2 Columns on MD+) */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6 pt-2 border-t border-gray-50 dark:border-gray-800/50">
+                    {/* Row 3: DOB & Sex (2 Columns on SM+) */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-3 sm:gap-y-6 pt-4 sm:pt-0 sm:border-t-0 border-t border-gray-50 dark:border-gray-800/50 mt-2 sm:mt-0">
                         {/* Date of Birth */}
                         <div>
                             <label className={labelClasses}>Date of Birth <span className='text-brand-500'>*</span></label>
@@ -360,7 +360,7 @@ const InfoStep = ({ formData, onUpdate, onNext, onBack }) => {
                 </div>
 
                 <div className="px-5 py-6 sm:px-10 sm:py-8 space-y-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-6">
                         {/* Email Address */}
                         <div>
                             <label className={labelClasses}>Email address <span className='text-brand-500'>*</span></label>

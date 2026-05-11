@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { CheckCircle, Mail, Clock, Hash, ShieldCheck, ArrowRight, Home as HomeIcon, CalendarPlus, Calendar, User, Check, Info } from 'lucide-react';
+import { CheckCircle, Mail, Clock, Hash, ShieldCheck, ArrowRight, Home as HomeIcon, CalendarPlus, Calendar, User, Check, Info, ClipboardList } from 'lucide-react';
 
 const GuestBookingSuccess = ({ result, onReset, booking }) => {
     const navigate = useNavigate();
@@ -65,12 +65,13 @@ const GuestBookingSuccess = ({ result, onReset, booking }) => {
             </div>
 
             {/* 2. The "Quick Summary" (Request Summary) */}
-            <div className='bg-white dark:bg-gray-800/40 border border-gray-100 dark:border-gray-800 rounded-[28px] sm:rounded-[32px] p-4 sm:p-8 shadow-theme-xl mb-4 sm:mb-6 overflow-hidden relative'>
-                <div className="absolute top-0 left-0 w-full h-1 bg-brand-500/10"></div>
-                
-                <div className="flex items-center justify-between mb-5 sm:mb-8 pb-4 border-b border-gray-50 dark:border-gray-800/50">
-                    <h3 className="text-[10px] sm:text-sm font-black text-gray-400 tracking-[0.05em]">Request Summary</h3>
-                    <div className="px-3 py-1 bg-brand-50/50 dark:bg-brand-500/10 rounded-full border border-brand-100/50 dark:border-brand-500/20 flex items-center">
+            <div className='mb-6 sm:mb-8 bg-white dark:bg-white/[0.03] border border-gray-200 dark:border-gray-800 rounded-2xl sm:rounded-3xl shadow-theme-md overflow-hidden'>
+                <div className="px-5 pt-6 pb-5 sm:px-10 flex items-center justify-between border-b border-gray-100 dark:border-gray-800/50">
+                    <div className="flex items-center gap-3">
+                        <ClipboardList size={18} className="text-brand-500" />
+                        <h3 className="text-[14px] sm:text-lg font-bold text-gray-900 dark:text-white">Request Summary</h3>
+                    </div>
+                    <div className="px-3 py-1.5 bg-brand-50/50 dark:bg-brand-500/10 rounded-full border border-brand-100/50 dark:border-brand-500/20 flex items-center shrink-0">
                         <span className="text-[10px] sm:text-xs font-black font-mono tracking-tighter">
                             <span className="text-brand-400 dark:text-brand-500 mr-1.5">REF</span>
                             <span className="text-brand-600 dark:text-brand-400">
@@ -80,80 +81,89 @@ const GuestBookingSuccess = ({ result, onReset, booking }) => {
                     </div>
                 </div>
 
-                <div className="space-y-5 sm:space-y-6">
-                    {/* Service */}
-                    <div className="flex items-start gap-3 sm:gap-4">
-                        <div className="w-10 h-10 rounded-xl bg-brand-50 dark:bg-brand-900/20 flex items-center justify-center shrink-0 border border-brand-100/50 dark:border-brand-800/50">
-                            <ShieldCheck className="text-brand-500" size={20} />
+                <div className="px-5 py-6 sm:px-10 sm:py-8">
+                    <div className="space-y-5 sm:space-y-6">
+                        {/* Service */}
+                        <div className="flex items-start gap-3 sm:gap-4">
+                            <div className="w-10 h-10 rounded-xl bg-brand-50 dark:bg-brand-900/20 flex items-center justify-center shrink-0 border border-brand-100/50 dark:border-brand-800/50">
+                                <ShieldCheck className="text-brand-500" size={20} />
+                            </div>
+                            <div>
+                                <p className="text-[11px] sm:text-xs font-black text-gray-400 mb-1 leading-none">Service</p>
+                                <p className="text-[14px] sm:text-base font-bold text-gray-900 dark:text-white leading-tight">
+                                    {appointment.service_name || formData.service_name}
+                                </p>
+                            </div>
                         </div>
-                        <div>
-                            <p className="text-[13px] sm:text-xs font-black text-gray-400 mb-1 leading-none">Service</p>
-                            <p className="text-[14px] sm:text-base font-bold text-gray-900 dark:text-white leading-tight">
-                                {appointment.service_name || formData.service_name}
-                            </p>
-                        </div>
-                    </div>
 
-                    {/* Date */}
-                    <div className="flex items-start gap-3 sm:gap-4">
-                        <div className="w-10 h-10 rounded-xl bg-gray-50 dark:bg-gray-800 flex items-center justify-center shrink-0 border border-gray-100 dark:border-gray-700">
-                            <Calendar className="text-gray-500" size={20} />
+                        {/* Date */}
+                        <div className="flex items-start gap-3 sm:gap-4">
+                            <div className="w-10 h-10 rounded-xl bg-gray-50 dark:bg-gray-800 flex items-center justify-center shrink-0 border border-gray-100 dark:border-gray-700">
+                                <Calendar className="text-gray-500" size={20} />
+                            </div>
+                            <div>
+                                <p className="text-[11px] sm:text-xs font-black text-gray-400 mb-1 leading-none">Date</p>
+                                <p className="text-[14px] sm:text-base font-bold text-gray-900 dark:text-white leading-tight">
+                                    {formatDate(appointment.date || formData.date)}
+                                </p>
+                            </div>
                         </div>
-                        <div>
-                            <p className="text-[13px] sm:text-xs font-black text-gray-400 mb-1 leading-none">Date</p>
-                            <p className="text-[14px] sm:text-base font-bold text-gray-900 dark:text-white leading-tight">
-                                {formatDate(appointment.date || formData.date)}
-                            </p>
-                        </div>
-                    </div>
 
-                    {/* Time */}
-                    <div className="flex items-start gap-3 sm:gap-4">
-                        <div className="w-10 h-10 rounded-xl bg-gray-50 dark:bg-gray-800 flex items-center justify-center shrink-0 border border-gray-100 dark:border-gray-700">
-                            <Clock className="text-gray-500" size={20} />
+                        {/* Time */}
+                        <div className="flex items-start gap-3 sm:gap-4">
+                            <div className="w-10 h-10 rounded-xl bg-gray-50 dark:bg-gray-800 flex items-center justify-center shrink-0 border border-gray-100 dark:border-gray-700">
+                                <Clock className="text-gray-500" size={20} />
+                            </div>
+                            <div>
+                                <p className="text-[11px] sm:text-xs font-black text-gray-400 mb-1 leading-none">Time Window</p>
+                                <p className="text-[14px] sm:text-base font-bold text-gray-900 dark:text-white leading-tight">
+                                    {formatTimeRange(appointment.time || formData.time, appointment.service_duration || formData.service_duration)}
+                                </p>
+                            </div>
                         </div>
-                        <div>
-                            <p className="text-[13px] sm:text-xs font-black text-gray-400 mb-1 leading-none">Time Window</p>
-                            <p className="text-[14px] sm:text-base font-bold text-gray-900 dark:text-white leading-tight">
-                                {formatTimeRange(appointment.time || formData.time, appointment.service_duration || formData.service_duration)}
-                            </p>
-                        </div>
-                    </div>
 
-                    {/* Guest Patient */}
-                    <div className="flex items-start gap-3 sm:gap-4">
-                        <div className="w-10 h-10 rounded-xl bg-gray-50 dark:bg-gray-800 flex items-center justify-center shrink-0 border border-gray-100 dark:border-gray-700">
-                            <User className="text-gray-500" size={20} />
-                        </div>
-                        <div>
-                            <p className="text-[13px] sm:text-xs font-black text-gray-400 mb-1 leading-none">Guest Patient</p>
-                            <p className="text-[14px] sm:text-base font-bold text-gray-900 dark:text-white leading-tight capitalize">
-                                {`${appointment.guest_first_name || formData.first_name || ''} ${appointment.guest_last_name || formData.last_name || ''}`}
-                            </p>
+                        {/* Guest Patient */}
+                        <div className="flex items-start gap-3 sm:gap-4">
+                            <div className="w-10 h-10 rounded-xl bg-gray-50 dark:bg-gray-800 flex items-center justify-center shrink-0 border border-gray-100 dark:border-gray-700">
+                                <User className="text-gray-500" size={20} />
+                            </div>
+                            <div>
+                                <p className="text-[11px] sm:text-xs font-black text-gray-400 mb-1 leading-none">Guest Patient</p>
+                                <p className="text-[14px] sm:text-base font-bold text-gray-900 dark:text-white leading-tight capitalize">
+                                    {`${appointment.guest_first_name || formData.first_name || ''} ${appointment.guest_last_name || formData.last_name || ''}`}
+                                </p>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
 
             {/* 3. The "Next Steps" */}
-            <div className='bg-brand-50/30 dark:bg-brand-500/5 rounded-2xl sm:rounded-3xl p-4 sm:p-6 mb-4 sm:mb-6 border border-brand-100/50 dark:border-brand-500/10'>
-                <div className="flex gap-3 sm:gap-4 items-start">
-                    <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-white dark:bg-brand-500/20 text-brand-500 flex items-center justify-center shrink-0 shadow-theme-xs">
-                        <Info size={18} sm:size={20} />
+            <div className='mb-6 sm:mb-8 bg-brand-50/50 dark:bg-brand-500/5 border border-brand-100 dark:border-brand-500/10 rounded-2xl sm:rounded-3xl shadow-theme-md overflow-hidden'>
+                <div className="px-5 pt-6 pb-5 sm:px-10 flex items-center gap-3 border-b border-brand-100/50 dark:border-brand-500/10">
+                    <div className="w-10 h-10 rounded-xl bg-brand-500 text-white flex items-center justify-center shrink-0 shadow-lg shadow-brand-500/20">
+                        <Info size={20} />
                     </div>
-                    <div className="space-y-2 sm:space-y-3">
-                        <h4 className="text-[12px] sm:text-sm font-black text-gray-900 dark:text-white tracking-wide">What happens now?</h4>
-                        <div className="space-y-1.5 sm:space-y-2">
-                            <p className='text-[11px] sm:text-[13px] text-gray-600 dark:text-gray-400 font-medium leading-relaxed flex items-start gap-2'>
-                                <span className="w-1 h-1 rounded-full bg-brand-400 mt-1.5 shrink-0" />
+                    <h4 className="text-[14px] sm:text-lg font-bold text-gray-900 dark:text-white tracking-tight leading-tight">
+                        What happens now?
+                    </h4>
+                </div>
+                
+                <div className="px-5 py-6 sm:px-10 sm:py-8">
+                    <ul className="space-y-3">
+                        <li className="flex items-start gap-3">
+                            <div className="w-1.5 h-1.5 rounded-full bg-brand-500 mt-2 shrink-0" />
+                            <p className="text-[12px] sm:text-[14px] font-medium text-gray-600 dark:text-gray-400 leading-relaxed">
                                 Our team will review your request and send a final confirmation within 24 hours.
                             </p>
-                            <p className='text-[11px] sm:text-[13px] text-gray-600 dark:text-gray-400 font-medium leading-relaxed flex items-start gap-2'>
-                                <span className="w-1 h-1 rounded-full bg-brand-400 mt-1.5 shrink-0" />
+                        </li>
+                        <li className="flex items-start gap-3">
+                            <div className="w-1.5 h-1.5 rounded-full bg-brand-500 mt-2 shrink-0" />
+                            <p className="text-[12px] sm:text-[14px] font-medium text-gray-600 dark:text-gray-400 leading-relaxed">
                                 Please wait for the final confirmation before heading to the clinic.
                             </p>
-                        </div>
-                    </div>
+                        </li>
+                    </ul>
                 </div>
             </div>
 

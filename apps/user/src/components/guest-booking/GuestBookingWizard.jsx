@@ -245,14 +245,13 @@ const GuestBookingWizard = ({ booking, settings }) => {
                         />
                     </div>
                 </div>
-                
-                <div className="max-w-3xl mx-auto px-4 py-8 md:py-16">
+                <main className="max-w-6xl mx-auto px-8 md:px-12 py-10 md:py-16">
                     <GuestBookingSuccess
                         result={result}
                         onReset={handleReset}
                         booking={booking}
                     />
-                </div>
+                </main>
             </div>
         );
     }
@@ -414,12 +413,9 @@ const GuestBookingWizard = ({ booking, settings }) => {
 
                     {/* Body */}
                     <div className="px-6 py-6 sm:py-8 flex-1 overflow-y-auto">
-                        <div className="space-y-3 sm:space-y-4">
+                        <div className="space-y-4">
                             <p className="text-[14px] sm:text-[15px] text-gray-700 dark:text-gray-300 leading-relaxed font-medium">
-                                Do you want to <span className="text-red-600 dark:text-red-400 font-bold">release your slot hold</span> and start fresh?
-                            </p>
-                            <p className="text-[12px] sm:text-sm text-gray-500 dark:text-gray-400 leading-relaxed">
-                                If you start over, your selected time will be made available to other patients, and any information you've entered will be cleared.
+                                This will release your reserved time slot and clear all entered information. <span className="text-red-600 dark:text-red-400 font-bold">This action cannot be undone.</span>
                             </p>
                             <div className="p-3 sm:p-4 bg-amber-50 dark:bg-amber-900/10 rounded-xl sm:rounded-2xl border border-amber-100 dark:border-amber-800/30">
                                 <div className="flex items-center gap-3 text-amber-700 dark:text-amber-300">
@@ -449,7 +445,7 @@ const GuestBookingWizard = ({ booking, settings }) => {
                             }}
                             className="flex-[1.5] h-10 sm:h-12 text-[11px] sm:text-sm font-black bg-red-500 hover:bg-red-600 border-red-500 shadow-lg shadow-red-500/20"
                         >
-                            START OVER
+                            Yes, Start Over
                         </Button>
                     </div>
                 </div>
@@ -470,8 +466,8 @@ const GuestBookingWizard = ({ booking, settings }) => {
                             <Clock className="text-amber-600 dark:text-amber-400" size={22} />
                         </div>
                         <div>
-                            <h3 className="text-lg font-bold text-gray-900 dark:text-white">Session Expired</h3>
-                            <p className="text-xs text-gray-500 dark:text-gray-400">Your time slot was released</p>
+                            <h3 className="text-lg font-bold text-gray-900 dark:text-white">Need More Time?</h3>
+                            <p className="text-xs text-gray-500 dark:text-gray-400">Your current slot reservation has timed out.</p>
                         </div>
                     </div>
 
@@ -479,14 +475,8 @@ const GuestBookingWizard = ({ booking, settings }) => {
                     <div className="px-6 py-8 flex-1 overflow-y-auto text-center">
                         <div className="space-y-4">
                             <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed font-medium">
-                                For security and fairness, we can only hold a time slot for 10 minutes. Your previous selection has expired.
+                                We’ve kept your info ready for you. Simply pick a new time to complete your booking!
                             </p>
-                            <div className="p-4 bg-amber-50 dark:bg-amber-900/10 rounded-2xl border border-amber-100 dark:border-amber-800/30 flex items-center justify-center gap-3 mx-auto">
-                                <Info size={18} className="text-amber-600 dark:text-amber-400 shrink-0" />
-                                <p className="text-sm font-bold text-amber-800 dark:text-amber-300 leading-tight">
-                                    Please pick a new date and time to continue.
-                                </p>
-                            </div>
                         </div>
                     </div>
 
@@ -501,7 +491,7 @@ const GuestBookingWizard = ({ booking, settings }) => {
                             }}
                             className="flex-1 h-10 sm:h-12 text-[10px] sm:text-xs font-bold text-gray-400 hover:text-red-500 hover:bg-red-50 dark:text-gray-500 dark:hover:text-red-400 transition-all duration-300"
                         >
-                            Restart
+                            Start Over
                         </Button>
                         <Button 
                             variant="primary" 
@@ -509,7 +499,7 @@ const GuestBookingWizard = ({ booking, settings }) => {
                             onClick={() => setShowExpiryModal(false)}
                             className="flex-[1.5] h-10 sm:h-12 text-[10px] sm:text-sm font-black shadow-lg shadow-primary-500/20"
                         >
-                            Pick New Time
+                            Browse Schedule
                         </Button>
                     </div>
                 </div>
