@@ -22,9 +22,9 @@ const InfoStep = ({ formData, onUpdate, onNext, onBack }) => {
         return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
     };
 
-    const validateNames = (name) => {
-        // Only allow letters, spaces, and hyphens
-        return /^[a-zA-Z\s-]*$/.test(name);
+    const validateNames = (name, allowDots = false) => {
+        // Allow letters, spaces, hyphens, and optionally dots for suffixes
+        return allowDots ? /^[a-zA-Z\s.-]*$/.test(name) : /^[a-zA-Z\s-]*$/.test(name);
     };
 
     const validate = () => {
@@ -129,7 +129,7 @@ const InfoStep = ({ formData, onUpdate, onNext, onBack }) => {
     };
 
     const handleNamePartChange = (part, value) => {
-        if (!validateNames(value)) return;
+        if (!validateNames(value, part === 'suffix')) return;
 
         const updated = { ...nameParts, [part]: value };
         setNameParts(updated);
@@ -184,7 +184,7 @@ const InfoStep = ({ formData, onUpdate, onNext, onBack }) => {
         }
     };
 
-    const labelClasses = "mb-1.5 block text-[11px] sm:text-xs font-bold text-gray-700 dark:text-gray-400 uppercase tracking-widest opacity-80 leading-none";
+    const labelClasses = "mb-2 block text-[13px] sm:text-sm font-semibold text-gray-700 dark:text-gray-300 leading-none";
 
     return (
         <div className="animate-in fade-in slide-in-from-bottom-2 duration-500 pb-6 sm:pb-4">
@@ -206,13 +206,13 @@ const InfoStep = ({ formData, onUpdate, onNext, onBack }) => {
                 {/* Section: Personal Details */}
                 <section>
                     {/* Header with icon and title */}
-                    <div className="px-5 pt-7 pb-4 sm:px-10 flex items-center gap-3">
+                    <div className="px-5 pt-7 pb-5 sm:px-10 flex items-center gap-3 border-b border-gray-100 dark:border-gray-800/50">
                         <UserCircle size={18} className="text-brand-500" />
-                        <h3 className="text-xs sm:text-sm font-bold text-gray-800 dark:text-white/90 uppercase tracking-widest">Personal Details</h3>
+                        <h3 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white">Personal Details</h3>
                     </div>
 
-                    <div className="px-5 pb-6 sm:px-10 sm:pb-8 space-y-6">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8">
+                    <div className="px-5 py-6 sm:px-10 sm:py-8 space-y-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
                             {/* Last Name */}
                             <div>
                                 <label className={labelClasses}>Last Name <span className='text-brand-500'>*</span></label>
@@ -314,7 +314,7 @@ const InfoStep = ({ formData, onUpdate, onNext, onBack }) => {
                                         </button>
                                     </div>
                                 )}
-                            </div>v>
+                            </div>
                         </div>
                     </div>
                 </section>
@@ -322,12 +322,12 @@ const InfoStep = ({ formData, onUpdate, onNext, onBack }) => {
                 {/* Section: Contact Information */}
                 <section className="border-t border-gray-100 dark:border-gray-800/50">
                     {/* Header with icon and title */}
-                    <div className="px-5 pt-7 pb-4 sm:px-10 flex items-center gap-3">
+                    <div className="px-5 pt-7 pb-5 sm:px-10 flex items-center gap-3 border-b border-gray-100 dark:border-gray-800/50">
                         <Contact size={18} className="text-brand-500" />
-                        <h3 className="text-xs sm:text-sm font-bold text-gray-800 dark:text-white/90 uppercase tracking-widest">Contact Information</h3>
+                        <h3 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white">Contact Details</h3>
                     </div>
 
-                    <div className="px-5 pb-6 sm:px-10 sm:pb-8 space-y-6">
+                    <div className="px-5 py-6 sm:px-10 sm:py-8 space-y-6">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
                             {/* Email Address */}
                             <div>
@@ -390,7 +390,7 @@ const InfoStep = ({ formData, onUpdate, onNext, onBack }) => {
                         <div className="pt-2">
                             <div className="flex justify-between items-end mb-1">
                                 <label className={labelClasses}>Note for the clinic <span className="opacity-40 font-normal italic">(optional)</span></label>
-                                <span className={`text-[9px] font-bold uppercase tracking-wider ${formData.patient_note?.length >= 100 ? 'text-error-500' : 'text-gray-400'}`}>
+                                <span className={`text-[10px] font-bold ${formData.patient_note?.length >= 100 ? 'text-error-500' : 'text-gray-400'}`}>
                                     {formData.patient_note?.length || 0} / 100
                                 </span>
                             </div>

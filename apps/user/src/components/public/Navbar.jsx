@@ -187,7 +187,7 @@ const Navbar = () => {
                                         <NavLink
                                             to={link.path}
                                             className={({ isActive }) =>
-                                                `font-medium text-sm transition-all duration-300 px-5 py-1.5 rounded-2xl ${isActive
+                                                `font-semibold text-[15px] sm:text-base transition-all duration-300 px-5 py-2 rounded-2xl ${isActive
                                                     ? 'bg-white/20 text-white shadow-sm'
                                                     : 'text-white/80 hover:text-white hover:bg-white/10'
                                                 }`
@@ -293,12 +293,12 @@ const Navbar = () => {
                                         </button>
         
                                         {isProfileMenuOpen && (
-                                            <div className='absolute right-0 mt-3 w-[260px] rounded-2xl shadow-theme-lg z-50 p-3 border bg-white border-gray-200'>
-                                                <div className='px-4 py-2 mb-2'>
-                                                    <p className='truncate text-sm font-bold text-gray-900 dark:text-white'>
+                                            <div className='absolute right-0 mt-3 w-[280px] rounded-3xl shadow-2xl z-50 p-4 border bg-white dark:bg-gray-900 border-gray-100 dark:border-gray-800 animate-in fade-in zoom-in-95 duration-200'>
+                                                <div className='px-4 py-3 mb-3 bg-gray-50 dark:bg-white/5 rounded-2xl'>
+                                                    <p className='truncate text-[15px] font-black text-gray-900 dark:text-white leading-tight'>
                                                         {user ? (user.first_name ? `${user.last_name}, ${user.first_name}` : 'Authorized User') : 'Guest User'}
                                                     </p>
-                                                    <span className='mt-0.5 block text-xs truncate text-gray-500'>
+                                                    <span className='mt-1 block text-xs truncate text-gray-500 dark:text-gray-400 font-medium'>
                                                         {user ? user.email : 'Welcome to Primera Dental'}
                                                     </span>
                                                 </div>
@@ -308,10 +308,10 @@ const Navbar = () => {
                                                         <Link
                                                             to='/login'
                                                             state={{ from: location.pathname }}
-                                                            className='flex items-center gap-3 px-3 py-2.5 font-medium rounded-lg text-sm transition-colors text-gray-700 hover:bg-gray-100'
+                                                            className='flex items-center gap-3 px-4 py-3 font-semibold rounded-xl text-[14px] transition-all text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/10'
                                                             onClick={() => setIsProfileMenuOpen(false)}
                                                         >
-                                                            <X
+                                                            <LogOut
                                                                 size={18}
                                                                 className='text-gray-400'
                                                             />
@@ -319,7 +319,7 @@ const Navbar = () => {
                                                         </Link>
                                                         <Link
                                                             to='/register'
-                                                            className='flex items-center gap-3 px-3 py-2.5 font-medium rounded-lg text-sm transition-colors text-gray-700 hover:bg-gray-100'
+                                                            className='flex items-center gap-3 px-4 py-3 font-semibold rounded-xl text-[14px] transition-all text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/10'
                                                             onClick={() => setIsProfileMenuOpen(false)}
                                                         >
                                                             <Settings
@@ -330,7 +330,7 @@ const Navbar = () => {
                                                         </Link>
                                                         <Link
                                                             to='/book'
-                                                            className='flex items-center gap-3 px-3 py-2.5 mt-1 font-medium rounded-lg text-sm transition-colors bg-red-600 text-white hover:bg-red-700'
+                                                            className='flex items-center justify-center gap-3 px-4 py-3.5 mt-2 font-black rounded-xl text-sm transition-all bg-red-600 text-white hover:bg-red-700 shadow-lg shadow-red-500/20 active:scale-95'
                                                             onClick={() => setIsProfileMenuOpen(false)}
                                                         >
                                                             Book as a Guest
@@ -401,7 +401,7 @@ const Navbar = () => {
 
             {/* Mobile Sidebar */}
             <aside
-                className={`fixed top-0 left-0 w-80 h-[100dvh] bg-white shadow-2xl z-[1001] transform transition-transform duration-500 ease-out flex flex-col ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
+                className={`fixed top-0 left-0 w-[280px] sm:w-80 h-[100dvh] bg-white shadow-2xl z-[1001] transform transition-transform duration-500 ease-out flex flex-col ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
                     }`}
             >
                 {/* Sidebar Header: Logo */}
@@ -412,7 +412,7 @@ const Navbar = () => {
                         onClick={() => setIsMobileMenuOpen(false)}
                     >
                         <div className='w-9 flex items-center justify-center transition-transform duration-500 group-hover:scale-110'>
-                            <img src="/logo.png" alt="Samson Dental Logo" className="w-full h-auto brightness-0 invert" />
+                            <img src="/images/logo/samson-logo.png" alt="Samson Dental Logo" className="w-full h-auto" />
                         </div>
                         <div className='flex flex-col items-start justify-center'>
                             <span className='font-black text-[20px] tracking-[-0.04em] text-stone-800 uppercase leading-none'>
