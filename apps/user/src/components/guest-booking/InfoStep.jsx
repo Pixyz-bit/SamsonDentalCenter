@@ -313,26 +313,24 @@ const InfoStep = ({ formData, onUpdate, onNext, onBack }) => {
                         {/* Date of Birth */}
                         <div>
                             <label className={labelClasses}>Date of Birth <span className='text-brand-500'>*</span></label>
-                            <input
-                                id="field-birthday"
-                                type={formData.birthday ? 'date' : 'text'}
-                                placeholder='YYYY-MM-DD'
-                                value={formData.birthday || ''}
-                                onChange={(e) => handleFieldChange('birthday', e.target.value)}
-                                onFocus={(e) => {
-                                    e.target.type = 'date';
-                                    try { e.target.showPicker(); } catch (err) {}
-                                }}
-                                onBlur={(e) => {
-                                    if (!e.target.value) e.target.type = 'text';
-                                }}
-                                onClick={(e) => {
-                                    e.target.type = 'date';
-                                    try { e.target.showPicker(); } catch (err) {}
-                                }}
-                                className={getInputClasses(errors.birthday)}
-                                max={new Date().toISOString().split('T')[0]}
-                            />
+                            <div className="relative group">
+                                <input
+                                    id="field-birthday"
+                                    type='date'
+                                    value={formData.birthday || ''}
+                                    onChange={(e) => handleFieldChange('birthday', e.target.value)}
+                                    onClick={(e) => {
+                                        try { e.target.showPicker(); } catch (err) {}
+                                    }}
+                                    className={`${getInputClasses(errors.birthday)} w-full ${!formData.birthday ? 'text-transparent dark:text-transparent' : ''}`}
+                                    max={new Date().toISOString().split('T')[0]}
+                                />
+                                {!formData.birthday && (
+                                    <div className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400 dark:text-gray-500 text-[13px] sm:text-sm font-medium">
+                                        YYYY-MM-DD
+                                    </div>
+                                )}
+                            </div>
                             {errors.birthday && <p className='text-error-500 text-[10px] font-bold mt-1.5 ml-1'>{errors.birthday}</p>}
                         </div>
 
