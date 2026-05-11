@@ -355,23 +355,23 @@ const DateTimeStep = ({
                             : 'border-gray-200 dark:border-gray-800 hover:border-brand-400'
                     } ${isProcessing ? 'opacity-50 cursor-wait' : ''}`}
                 >
-                    <div className='flex items-center gap-3.5 sm:gap-4'>
-                        <div className={`w-11 h-11 rounded-xl flex items-center justify-center text-lg shrink-0 transition-all ${
-                            !dentistId ? 'bg-brand-500 text-white' : 'bg-gray-100 dark:bg-white/5'
+                    <div className='flex items-center gap-3.5'>
+                        <div className={`w-10 h-10 rounded-lg flex items-center justify-center text-lg shrink-0 overflow-hidden border transition-all ${
+                            !dentistId ? 'bg-brand-500 border-brand-500 text-white' : 'bg-gray-50 dark:bg-white/5 border-gray-100 dark:border-gray-800'
                         }`}>
                             {selectedDoctor?.photo_url ? (
-                                <img src={selectedDoctor.photo_url} alt="" className="w-full h-full object-cover rounded-xl" />
-                            ) : !dentistId ? <Users size={22} /> : initials}
+                                <img src={selectedDoctor.photo_url} alt="" className="w-full h-full object-cover" />
+                            ) : !dentistId ? <Users size={20} /> : initials}
                         </div>
-                        <div className="flex flex-col text-left">
-                            <span className="text-[14px] sm:text-[15px] font-black text-gray-900 dark:text-white leading-tight">
+                        <div className="flex flex-col text-left justify-center">
+                            <span className="text-[12px] sm:text-[14px] font-black text-gray-900 dark:text-white leading-tight">
                                 {selectedDoctor ? getDoctorName(selectedDoctor) : 'Any Available Dentist'}
                             </span>
-                            <p className="text-[11px] font-bold text-gray-500 dark:text-gray-400 mt-0.5">
+                            <span className="text-[9px] sm:text-[10px] font-bold text-gray-500 dark:text-gray-400 mt-0.5 leading-tight">
                                 {selectedDoctor 
                                     ? (serviceTier === 'specialized' ? 'Medical Specialist' : 'Clinical Dentist') 
                                     : "Best match for your selected time"}
-                            </p>
+                            </span>
                         </div>
                     </div>
                     <div className={`p-1.5 rounded-lg bg-gray-50 dark:bg-gray-800 group-hover:bg-brand-50 dark:group-hover:bg-brand-500/10 transition-colors ${isDoctorDropdownOpen ? 'bg-brand-50 dark:bg-brand-500/10' : ''}`}>
@@ -394,19 +394,19 @@ const DateTimeStep = ({
                                             : 'border border-transparent hover:bg-gray-50 dark:hover:bg-white/5'
                                     }`}
                                 >
-                                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center text-lg transition-colors ${
-                                        !dentistId ? 'bg-brand-500 text-white' : 'bg-brand-50 text-brand-500 dark:bg-brand-500/10'
+                                    <div className={`w-10 h-10 shrink-0 rounded-lg flex items-center justify-center text-lg overflow-hidden border transition-colors ${
+                                        !dentistId ? 'bg-brand-500 border-brand-500 text-white' : 'bg-brand-50 border-brand-100 dark:bg-brand-500/10 dark:border-brand-500/20 text-brand-500'
                                     }`}>
                                         <Users size={20} />
                                     </div>
-                                    <div className='flex flex-col flex-grow'>
-                                        <span className={`text-[14px] font-black ${!dentistId ? 'text-brand-700 dark:text-brand-400' : 'text-gray-900 dark:text-white'}`}>Any Available Dentist</span>
-                                        <span className={`text-[10px] font-bold ${!dentistId ? 'text-brand-600/70 dark:text-brand-400/60' : 'text-gray-500 dark:text-gray-400'}`}>
+                                    <div className='flex flex-col flex-grow justify-center'>
+                                        <span className={`text-[12px] sm:text-[14px] font-black ${!dentistId ? 'text-brand-700 dark:text-brand-400' : 'text-gray-900 dark:text-white'}`}>Any Available Dentist</span>
+                                        <span className={`text-[9px] sm:text-[10px] font-bold leading-tight mt-0.5 ${!dentistId ? 'text-brand-600/70 dark:text-brand-400/60' : 'text-gray-500 dark:text-gray-400'}`}>
                                             We’ll match you with a dentist available at your selected time.
                                         </span>
                                     </div>
                                     {!dentistId && (
-                                        <div className='w-5 h-5 rounded-full bg-brand-500 flex items-center justify-center text-white'>
+                                        <div className='w-5 h-5 shrink-0 rounded-full bg-brand-500 flex items-center justify-center text-white'>
                                             <Check size={12} strokeWidth={4} />
                                         </div>
                                     )}
@@ -431,23 +431,23 @@ const DateTimeStep = ({
                                                     : 'border border-transparent hover:bg-gray-50 dark:hover:bg-white/5'
                                             }`}
                                         >
-                                            <div className='w-10 h-10 rounded-lg bg-gray-50 dark:bg-white/5 flex items-center justify-center overflow-hidden border border-gray-100 dark:border-gray-800 group-hover:border-brand-200 transition-colors'>
+                                            <div className='w-10 h-10 shrink-0 rounded-lg bg-gray-50 dark:bg-white/5 flex items-center justify-center overflow-hidden border border-gray-100 dark:border-gray-800 group-hover:border-brand-200 transition-colors'>
                                                 {s.photo_url ? (
                                                     <img src={s.photo_url} alt="" className="w-full h-full object-cover" />
                                                 ) : (
                                                     <span className={`text-xs font-black ${isSelected ? 'text-brand-600' : 'text-gray-400'}`}>{doctorInitials}</span>
                                                 )}
                                             </div>
-                                            <div className='flex flex-col flex-grow'>
-                                                <span className={`text-[14px] font-black ${isSelected ? 'text-brand-700 dark:text-brand-400' : 'text-gray-900 dark:text-white'}`}>
+                                            <div className='flex flex-col flex-grow justify-center'>
+                                                <span className={`text-[12px] sm:text-[14px] font-black ${isSelected ? 'text-brand-700 dark:text-brand-400' : 'text-gray-900 dark:text-white'}`}>
                                                     {getDoctorName(s)}
                                                 </span>
-                                                <span className={`text-[10px] font-bold ${isSelected ? 'text-brand-600/70 dark:text-brand-400/60' : 'text-gray-500 dark:text-gray-400'}`}>
+                                                <span className={`text-[9px] sm:text-[10px] font-bold mt-0.5 ${isSelected ? 'text-brand-600/70 dark:text-brand-400/60' : 'text-gray-500 dark:text-gray-400'}`}>
                                                     {serviceTier === 'specialized' ? 'Medical Specialist' : 'Clinical Dentist'}
                                                 </span>
                                             </div>
                                             {isSelected && (
-                                                <div className='w-5 h-5 rounded-full bg-brand-500 flex items-center justify-center text-white'>
+                                                <div className='w-5 h-5 shrink-0 rounded-full bg-brand-500 flex items-center justify-center text-white'>
                                                     <Check size={12} strokeWidth={4} />
                                                 </div>
                                             )}

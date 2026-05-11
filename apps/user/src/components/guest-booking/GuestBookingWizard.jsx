@@ -282,13 +282,15 @@ const GuestBookingWizard = ({ booking, settings }) => {
 
                     {/* ✅ Phase 3: Global Timer (Right Side) */}
                     {slotHold.activeHold && (
-                        <div className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 flex items-center gap-1.5 sm:gap-3 px-2.5 sm:px-4 py-1.5 sm:py-2 bg-amber-50/50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-800/30 rounded-xl animate-in slide-in-from-right-10 duration-500 shadow-theme-xs sm:shadow-none">
+                        <div className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 flex items-center gap-1.5 sm:gap-3 px-2 sm:px-4 py-1 sm:py-2 bg-amber-50/50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-800/30 rounded-lg sm:rounded-xl animate-in slide-in-from-right-10 duration-500 shadow-theme-xs sm:shadow-none">
                             <Clock className="text-amber-600 dark:text-amber-400 animate-pulse hidden sm:block" size={18} />
-                            <div className="flex flex-col">
-                                <span className="text-[7px] sm:text-[9px] font-black text-amber-600/60 dark:text-amber-400/50 leading-none mb-0.5 sm:mb-1">
+                            <div className="flex flex-col items-center sm:items-start justify-center">
+                                {/* Desktop Label (Top) / Mobile Label (Bottom) */}
+                                <span className="order-2 sm:order-1 text-[6px] sm:text-[9px] font-black text-amber-600/70 dark:text-amber-400/50 leading-none mt-[1px] sm:mt-0 sm:mb-1 tracking-wider uppercase sm:normal-case">
                                     <span className="hidden sm:inline">Slot </span>Hold
                                 </span>
-                                <span className="text-[11px] sm:text-[13px] font-mono font-black text-amber-700 dark:text-amber-300 leading-none">
+                                {/* Desktop Time (Bottom) / Mobile Time (Top) */}
+                                <span className="order-1 sm:order-2 text-[10px] sm:text-[13px] font-mono font-black text-amber-700 dark:text-amber-300 leading-none">
                                     {slotHold.formattedTime}
                                 </span>
                             </div>
