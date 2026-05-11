@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, useCallback } from 'react';
+import { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import { ChevronLeft, ChevronRight, ChevronDown, RefreshCw, Lock, Calendar as CalendarIcon, Clock as ClockIcon, Info, ArrowRight, MousePointer2, Loader2, Plus, Check, Users, CalendarX, AlertCircle, X } from 'lucide-react';
 import useSlots from '../../hooks/useSlots';
 import { useClinicSettings } from '../../hooks/useClinicSettings';
@@ -20,6 +20,8 @@ const DateTimeStep = ({
     serviceTier,
     error,
 }) => {
+    const lastErrorRef = useRef(null);
+    const toast = useToast();
     const { activeHold, holdSlot, releaseHold, formattedTime, holdLoading, holdError, timeRemaining } = slotHold;
     const [pendingSlot, setPendingSlot] = useState(null);
     const [specialists, setSpecialists] = useState([]);
@@ -33,7 +35,6 @@ const DateTimeStep = ({
     
     // ✅ Fetch clinic-wide settings (holidays, schedule)
     const { settings, holidays, schedule, loading: settingsLoading, refetch: refetchSettings } = useClinicSettings();
-    const toast = useToast();
     
     // VISIBILITY LIMIT: 3 columns * 6 rows = 18 slots
     const INITIAL_VISIBLE_COUNT = 18;
@@ -172,6 +173,29 @@ const DateTimeStep = ({
         }
     }, [isLoading]);
 
+    // ✅ Sync Error Alerts with Success Alert style (Standard Toasts)
+    useEffect(() => {
+        if (holdError && holdError !== lastErrorRef.current) {
+            // User doesn't want duration on "Slot Taken" error
+            const isSlotTaken = holdError.toLowerCase().includes('someone else');
+            const durationText = (formattedTime && !isSlotTaken) ? ` (Hold expires in: ${formattedTime})` : '';
+            toast.error(`${holdError}${durationText}`);
+            lastErrorRef.current = holdError;
+        } else if (!holdError && lastErrorRef.current === holdError) {
+             // Only reset if it was specifically a hold error
+             lastErrorRef.current = null;
+        }
+    }, [holdError, toast]); // Remove formattedTime to stop multiple popups per second
+
+    useEffect(() => {
+        if (error && !error.includes('fetch') && error !== lastErrorRef.current) {
+            toast.error(error);
+            lastErrorRef.current = error;
+        } else if (!error && lastErrorRef.current === error) {
+            lastErrorRef.current = null;
+        }
+    }, [error, toast]);
+
     const handleSpecialistChange = async (id) => {
         if (isProcessing) return; 
         const val = id || null;
@@ -239,7 +263,7 @@ const DateTimeStep = ({
                 const holdResult = await holdSlot(serviceId, selectedDate, slotData.rawTime, dentistId);
                 if (holdResult?.success) {
                     onUpdate({ time: slotData.rawTime });
-                    toast.success('Slot hold success! You have 10 minutes to finish your booking.');
+                    toast.success(`Slot hold success! You have ${holdResult.expires_in_minutes || 10} minutes to finish your booking.`);
                 } else if (holdResult?.error === 'SLOT_TAKEN') {
                     refetchSlots();
                     return;
@@ -422,7 +446,10 @@ const DateTimeStep = ({
         );
     };
 
-    const showNoAppointments = !specialistsLoading && !statusLoading && (specialists.length === 0 || availabilityStatus?.is_bookable === false);
+    const hasNoSpecialists = !specialistsLoading && specialists.length === 0;
+    const hasStatusError = !statusLoading && availabilityStatus === null;
+    const hasNoSlots = (!statusLoading && availabilityStatus?.is_bookable === false) || hasStatusError;
+    const showNoAppointments = hasNoSpecialists || hasNoSlots;
 
     if ((specialistsLoading || statusLoading || settingsLoading) && (specialists.length === 0 || !availabilityStatus)) {
         return (
@@ -431,52 +458,58 @@ const DateTimeStep = ({
                     <div className='h-7 sm:h-10 bg-gray-200 dark:bg-gray-700/60 rounded-2xl w-full max-w-sm mb-4' />
                     <div className='h-4 bg-gray-100 dark:bg-gray-800/40 rounded-xl w-full max-w-2xl' />
                 </div>
+                
                 <div className="h-20 bg-gray-100 dark:bg-white/[0.02] border-2 border-gray-200 dark:border-gray-800 rounded-3xl w-full flex items-center px-4 gap-4">
                     <div className="w-12 h-12 bg-gray-200 dark:bg-gray-700/60 rounded-xl" />
                     <div className="flex flex-col gap-2 flex-grow">
                         <div className="h-4 bg-gray-200 dark:bg-gray-700/60 rounded-lg w-1/3" />
                         <div className="h-3 bg-gray-100 dark:bg-gray-800/40 rounded-lg w-1/4" />
                     </div>
+                    <div className="w-5 h-5 bg-gray-200 dark:bg-gray-700/60 rounded-md" />
                 </div>
+                
                 <div className='grid grid-cols-1 lg:grid-cols-[1.1fr_1fr] gap-x-8 gap-y-10 mb-10'>
                     <div className="flex flex-col gap-5">
-                        <div className="h-[440px] bg-gray-100 dark:bg-white/[0.02] border-2 border-gray-200 dark:border-gray-800 rounded-[40px] p-6" />
+                        <div className="h-4 bg-gray-200 dark:bg-gray-700/60 rounded-lg w-32 ml-1" />
+                        <div className="bg-gray-100 dark:bg-white/[0.02] border-2 border-gray-200 dark:border-gray-800 rounded-[32px] sm:rounded-[40px] p-6 h-[440px]">
+                            <div className="flex justify-between items-center mb-8">
+                                <div className="h-6 bg-gray-200 dark:bg-gray-700/60 rounded-xl w-32" />
+                                <div className="flex gap-2">
+                                    <div className="w-10 h-10 bg-gray-200 dark:bg-gray-700/60 rounded-xl" />
+                                    <div className="w-10 h-10 bg-gray-200 dark:bg-gray-700/60 rounded-xl" />
+                                </div>
+                            </div>
+                            <div className="grid grid-cols-7 gap-4">
+                                {[...Array(35)].map((_, i) => (
+                                    <div key={i} className="aspect-square bg-gray-200 dark:bg-gray-700/40 rounded-xl" />
+                                ))}
+                            </div>
+                        </div>
                     </div>
+
                     <div className="flex flex-col gap-5">
-                        <div className="h-[440px] bg-gray-100 dark:bg-white/[0.02] border-2 border-gray-200 dark:border-gray-800 rounded-[40px] p-6" />
+                        <div className="h-4 bg-gray-200 dark:bg-gray-700/60 rounded-lg w-40 ml-1" />
+                        <div className="bg-gray-100 dark:bg-white/[0.02] border-2 border-gray-200 dark:border-gray-800 rounded-[32px] sm:rounded-[40px] p-6 h-[440px]">
+                            <div className="h-5 bg-gray-200 dark:bg-gray-700/60 rounded-xl w-32 mb-10" />
+                            <div className="grid grid-cols-2 xsm:grid-cols-3 gap-3">
+                                {[...Array(12)].map((_, i) => (
+                                    <div key={i} className="h-12 bg-gray-200 dark:bg-gray-700/40 rounded-xl" />
+                                ))}
+                            </div>
+                        </div>
                     </div>
+                </div>
+                
+                <div className="flex flex-col sm:flex-row sm:justify-between items-center gap-4 pt-6 border-t border-gray-200 dark:border-gray-800 mt-4">
+                    <div className="h-6 bg-gray-200 dark:bg-gray-700/60 rounded-lg w-24" />
+                    <div className="h-14 bg-gray-300 dark:bg-gray-700/80 rounded-2xl w-52" />
                 </div>
             </div>
         );
     }
 
     return (
-        <div className="animate-in fade-in slide-in-from-bottom-2 duration-500 pb-[60px] sm:pb-6">
-            {/* FLOATING TOAST - Positioned under header */}
-            {(holdError || (error && !error.includes('fetch'))) && (
-                <div className="fixed top-[4.5rem] sm:top-24 right-4 sm:right-6 z-[9999] flex flex-col gap-3 max-w-[calc(100vw-2rem)] sm:max-w-sm pointer-events-none animate-in slide-in-from-right-10 fade-in duration-500">
-                    <div className="bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-2xl sm:rounded-3xl shadow-[0_15px_40px_rgba(0,0,0,0.08)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.3)] p-3 sm:p-5 flex gap-3 sm:gap-4 items-center ring-1 ring-black/5 pointer-events-auto">
-                        <div className={`w-9 h-9 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl ${holdError ? 'bg-red-500 shadow-red-500/20' : 'bg-amber-500 shadow-amber-500/20'} text-white flex items-center justify-center shrink-0 shadow-lg`}>
-                            <AlertCircle size={18} className="sm:w-6 sm:h-6" />
-                        </div>
-                        <div className="flex-grow min-w-0">
-                            <h4 className="text-[11px] sm:text-[13px] font-black text-gray-400 dark:text-gray-500 mb-0.5 sm:mb-1">Attention Required</h4>
-                            <p className="text-[12px] sm:text-[14px] font-bold text-gray-900 dark:text-white leading-tight break-words">
-                                {holdError || error}
-                            </p>
-                        </div>
-                        <button
-                            onClick={() => {
-                                if (holdError) slotHold.setHoldError?.(null);
-                            }}
-                            className="p-1.5 sm:p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
-                        >
-                            <X size={16} className="sm:w-[18px] sm:h-[18px]" />
-                        </button>
-                    </div>
-                </div>
-            )}
-
+        <div className="animate-in fade-in slide-in-from-bottom-2 duration-500 pb-[60px] sm:pb-8">
             {(error?.includes('fetch') || specialistsError?.includes('fetch')) ? (
                 <div className='grow flex flex-col py-10'>
                     <ErrorState
@@ -487,7 +520,6 @@ const DateTimeStep = ({
                 </div>
             ) : (
                 <>
-                    {/* Header Section */}
                     <div className='mb-8 sm:mb-10'>
                         <h2 className='text-lg sm:text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-2 sm:mb-3 tracking-tight'>
                             Choose Schedule
@@ -521,13 +553,9 @@ const DateTimeStep = ({
                         </div>
                     ) : (
                         <>
-                            {/* FULL WIDTH DENTIST SELECTION */}
                             <DoctorDropdown />
 
-                            {/* 2-COLUMN LAYOUT */}
                             <div className='grid grid-cols-1 lg:grid-cols-[1.1fr_1fr] gap-x-8 gap-y-10 mb-10'>
-
-                                {/* Column 1: Select Date (Calendar) */}
                                 <div className={`flex flex-col transition-all duration-300 ${isProcessing ? 'opacity-40 pointer-events-none cursor-wait' : ''}`}>
                                     <h3 className='text-[13px] font-black text-gray-400 mb-5 flex items-center gap-2'>
                                         <div className='w-1.5 h-1.5 rounded-full bg-brand-500' />
@@ -630,7 +658,6 @@ const DateTimeStep = ({
                                             })}
                                         </div>
 
-                                        {/* CALENDAR LEGEND */}
                                         <div className="mt-6 p-3 sm:p-5 bg-gray-50/50 dark:bg-white/[0.02] border border-gray-100 dark:border-gray-800 rounded-xl sm:rounded-2xl">
                                             <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center justify-between gap-y-3 sm:gap-y-4 gap-x-4 sm:gap-x-6">
                                                 <div className="flex items-center gap-2 sm:gap-3">
@@ -654,7 +681,6 @@ const DateTimeStep = ({
                                     </div>
                                 </div>
 
-                                {/* Column 2: Select Time (Slots) */}
                                 <div className='flex flex-col h-full'>
                                     <h3 className='text-[13px] font-black text-gray-400 mb-5 flex items-center gap-2'>
                                         <div className='w-1.5 h-1.5 rounded-full bg-brand-500' />
@@ -719,7 +745,6 @@ const DateTimeStep = ({
                                                             })}
                                                         </div>
 
-                                                        {/* LOAD MORE Button */}
                                                         {hasMoreSlots && (
                                                             <button
                                                                 onClick={() => setVisibleCount(prev => prev + 18)}
@@ -739,7 +764,7 @@ const DateTimeStep = ({
                                 </div>
                             </div>
 
-                            <div className='fixed bottom-0 left-0 right-0 sm:relative z-40 px-6 py-4 sm:px-0 sm:py-0 sm:mt-6 sm:pt-2 bg-white/95 dark:bg-gray-900/95 sm:bg-transparent backdrop-blur-md sm:backdrop-blur-none border-t border-gray-100 dark:border-gray-800 sm:border-t-0 shadow-[0_-8px_20px_rgba(0,0,0,0.05)] sm:shadow-none transition-all'>
+                            <div className='fixed bottom-0 left-0 right-0 sm:relative z-40 px-6 py-4 sm:px-0 sm:py-0 sm:mt-8 sm:pt-4 bg-white/95 dark:bg-gray-900/95 sm:bg-transparent backdrop-blur-md sm:backdrop-blur-none border-t border-gray-100 dark:border-gray-800 sm:border-t-0 shadow-[0_-8px_20px_rgba(0,0,0,0.05)] sm:shadow-none transition-all'>
                                 <div className='flex items-center gap-3 w-full sm:justify-between'>
                                     <button
                                         onClick={onBack}

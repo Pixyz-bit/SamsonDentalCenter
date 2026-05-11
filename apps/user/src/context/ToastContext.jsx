@@ -38,41 +38,45 @@ export const ToastProvider = ({ children }) => {
     }, []);
 
     return (
-        <ToastContext.Provider value={{ showToast }}>
+        <ToastContext.Provider value={{ showToast, removeToast }}>
             {children}
             {/* Toast Container - Positioned under the sticky header (approx 80px nav) */}
-            <div className="fixed top-[5.5rem] sm:top-24 right-4 sm:right-6 z-[9999] flex flex-col gap-2 sm:gap-3 w-[60vw] sm:w-auto sm:max-w-sm pointer-events-none">
+            <div className="fixed top-[5.5rem] sm:top-24 right-4 sm:right-6 z-[9999] flex flex-col gap-2 sm:gap-3 w-[85vw] sm:w-auto sm:max-w-sm pointer-events-none">
                 {toasts.map((toast) => (
                     <div 
                         key={toast.id}
-                        className="bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-xl sm:rounded-3xl shadow-[0_15px_40px_rgba(0,0,0,0.08)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.3)] p-2.5 sm:p-5 flex gap-2.5 sm:gap-4 items-center ring-1 ring-black/5 pointer-events-auto animate-in slide-in-from-right-5 fade-in duration-500 overflow-hidden relative"
+                        className="bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-xl sm:rounded-3xl shadow-[0_15px_40px_rgba(0,0,0,0.08)] dark:shadow-[0_20px_50_rgba(0,0,0,0.3)] p-3 sm:p-5 flex gap-3 sm:gap-4 items-center ring-1 ring-black/5 pointer-events-auto animate-in slide-in-from-right-5 fade-in duration-500 overflow-hidden relative"
                     >
-                        <div className={`w-8 h-8 sm:w-12 sm:h-12 rounded-lg sm:rounded-2xl flex items-center justify-center shrink-0 shadow-lg ${
+                        <div className={`w-9 h-9 sm:w-12 sm:h-12 rounded-lg sm:rounded-2xl flex items-center justify-center shrink-0 shadow-lg ${
                             toast.type === 'success' ? 'bg-success-500 shadow-success-500/20' : 
                             toast.type === 'error' ? 'bg-red-500 shadow-red-500/20' : 
                             'bg-amber-500 shadow-amber-500/20'
                         } text-white`}>
-                            {toast.type === 'success' ? <Check size={14} className="sm:w-6 sm:h-6" /> : 
-                             toast.type === 'error' ? <AlertCircle size={14} className="sm:w-6 sm:h-6" /> : 
-                             <Info size={14} className="sm:w-6 sm:h-6" />}
+                            {toast.type === 'success' ? <Check size={16} className="sm:w-6 sm:h-6" /> : 
+                             toast.type === 'error' ? <AlertCircle size={16} className="sm:w-6 sm:h-6" /> : 
+                             <Info size={16} className="sm:w-6 sm:h-6" />}
                         </div>
                         <div className="flex-grow min-w-0">
-                            <h4 className="text-[7px] sm:text-[11px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-0.5 sm:mb-1">
+                            <h4 className="text-[10px] sm:text-[11px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-0.5 sm:mb-1">
                                 {toast.title || (toast.type === 'success' ? 'Success' : 'Attention Required')}
                             </h4>
-                            <p className="text-[10px] sm:text-[14px] font-bold text-gray-900 dark:text-white leading-tight break-words">
+                            <p className="text-[12px] sm:text-[14px] font-bold text-gray-900 dark:text-white leading-tight break-words">
                                 {toast.message}
                             </p>
                         </div>
                         <button 
-                            onClick={() => removeToast(toast.id)} 
-                            className="p-1 sm:p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                removeToast(toast.id);
+                            }} 
+                            className="p-1.5 sm:p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors relative z-20 cursor-pointer pointer-events-auto"
+                            aria-label="Close notification"
                         >
-                            <X size={14} className="sm:w-[18px] sm:h-[18px]" />
+                            <X size={16} className="sm:w-[18px] sm:h-[18px]" />
                         </button>
 
                         {/* Progress Bar */}
-                        <div className="absolute bottom-0 left-0 w-full h-0.5 bg-gray-100 dark:bg-gray-800/50">
+                        <div className="absolute bottom-0 left-0 w-full h-1 bg-gray-100 dark:bg-gray-800/50">
                             <div 
                                 className={`h-full opacity-60 ${
                                     toast.type === 'success' ? 'bg-success-500' : 

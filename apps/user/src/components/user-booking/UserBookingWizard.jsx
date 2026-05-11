@@ -4,8 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import { useToast } from '../../context/ToastContext';
 import { Modal } from '../ui/Modal';
 import Button from '../ui/Button';
-import StepIndicator from '../guest-booking/StepIndicator';
-import ServiceStep from '../guest-booking/ServiceStep';
+import UserStepIndicator from './UserStepIndicator';
+import UserServiceStep from './UserServiceStep';
 import DateTimeStep from './DateTimeStep';
 import UserOtherInfoStep from './UserOtherInfoStep';
 import UserReviewStep from './UserReviewStep';
@@ -132,7 +132,7 @@ const UserBookingWizard = ({ booking }) => {
         }
     }, [hasCheckedRecovery, wasRecovered, step, slotHold.activeHold, showRecoveryModal, hasDismissedRecovery]);
 
-    const breadcrumbLabels = ['Service', 'Schedule', 'Patient Info', 'Review'];
+    const breadcrumbLabels = ['Service', 'Schedule', 'Details', 'Review'];
 
     const handleExit = () => {
         setShowExitModal(true);
@@ -143,10 +143,10 @@ const UserBookingWizard = ({ booking }) => {
             <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
                 <header className="sticky top-0 z-40 bg-white/80 dark:bg-gray-800/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 shadow-theme-xs">
                     <div className="max-w-6xl mx-auto px-4 sm:px-8 h-20 flex items-center justify-center relative">
-                        <StepIndicator
+                        <UserStepIndicator
                             currentStep={5}
-                            labels={[...breadcrumbLabels, 'Done']}
-                            onStepClick={() => { }}
+                            labels={[...breadcrumbLabels, 'Success']}
+                            onStepClick={() => {}}
                         />
                     </div>
                 </header>
@@ -171,7 +171,7 @@ const UserBookingWizard = ({ booking }) => {
                         </button>
                     </div>
 
-                    <StepIndicator
+                    <UserStepIndicator
                         currentStep={step + 1}
                         labels={breadcrumbLabels}
                         onStepClick={(index) => goToStep(index)}
@@ -194,9 +194,9 @@ const UserBookingWizard = ({ booking }) => {
                 {slotHold.activeHold && (
                     <div className="absolute bottom-0 left-0 w-full h-[3px] bg-gray-100 dark:bg-gray-800/50 overflow-hidden">
                         <div
-                            className="h-full bg-amber-500 transition-all duration-1000 ease-linear"
+                            className="h-full bg-amber-500 transition-all duration-1000 ease-linear shadow-[0_0_10px_rgba(245,158,11,0.5)]"
                             style={{
-                                width: `${(slotHold.timeRemaining / 600) * 100}%`,
+                                width: `${(slotHold.timeRemaining / ((slotHold.activeHold?.expires_in_minutes || 10) * 60)) * 100}%`,
                                 backgroundColor: slotHold.timeRemaining < 60 ? '#ef4444' : '#f59e0b'
                             }}
                         />
@@ -383,11 +383,10 @@ const UserBookingWizard = ({ booking }) => {
             <main className="max-w-6xl mx-auto px-8 md:px-12 py-10 md:py-16">
                 <div className="min-h-[60vh]">
                     {currentStep === 'service' && (
-                        <ServiceStep
+                        <UserServiceStep
                             selectedServiceId={formData.service_id}
                             onSelect={(id, name, tier, duration) => updateFields({ service_id: id, service_name: name, service_tier: tier, service_duration: duration })}
                             onNext={nextStep}
-                            allowSpecialized={true}
                         />
                     )}
 

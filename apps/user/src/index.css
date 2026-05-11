@@ -127,6 +127,19 @@
     --color-brand-800: var(--brand-800);
     --color-brand-900: var(--brand-900);
 
+    /* -- UI State Colors -- */
+    --color-success-50: var(--success-50);
+    --color-success-500: var(--success-500);
+    --color-success-600: var(--success-600);
+
+    --color-error-50: var(--error-50);
+    --color-error-500: var(--error-500);
+    --color-error-600: var(--error-600);
+
+    --color-warning-50: var(--warning-50);
+    --color-warning-500: var(--warning-500);
+    --color-warning-600: var(--warning-600);
+
     /* -- Typography -- */
     --font-sans: var(--font-main);
     --font-outfit: var(--font-main);

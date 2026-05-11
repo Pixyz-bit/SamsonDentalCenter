@@ -308,7 +308,7 @@ const GuestBookingWizard = ({ booking, settings }) => {
                         <div 
                             className="h-full bg-amber-500 transition-all duration-1000 ease-linear shadow-[0_0_10px_rgba(245,158,11,0.5)]"
                             style={{ 
-                                width: `${(slotHold.timeRemaining / 600) * 100}%`,
+                                width: `${(slotHold.timeRemaining / ((slotHold.activeHold?.expires_in_minutes || 10) * 60)) * 100}%`,
                                 backgroundColor: slotHold.timeRemaining < 60 ? '#ef4444' : '#f59e0b'
                             }}
                         />
