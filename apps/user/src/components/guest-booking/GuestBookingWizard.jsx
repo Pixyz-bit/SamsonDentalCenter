@@ -155,6 +155,10 @@ const GuestBookingWizard = ({ booking, settings }) => {
                         // If we are on a later step but the hold is gone, we MUST reset
                         handleReset();
                         toast.error('Session expired. Please start again.');
+                    } else if (step === 1) {
+                        // If we are on the schedule step but have no active hold on reload,
+                        // go back to the service selection step.
+                        goToStep(0);
                     }
                 } catch (err) {
                     console.error('Recovery check failed:', err);

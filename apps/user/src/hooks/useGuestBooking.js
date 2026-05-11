@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { api } from '../utils/api';
 import useSlotHold from './useSlotHold';
 
@@ -130,14 +130,7 @@ const useGuestBooking = (initialServiceId = null, initialServiceName = null) => 
         localStorage.setItem(GUEST_BOOKING_STATE_KEY, JSON.stringify(stateToSave));
     }, [step, formData, verificationToken, sessionId, failedOtpAttempts, otpResendCount]);
 
-    // ✅ Auto-release hold if user goes back and changes the service
-    // This handles the case where a user already picked a time, then goes back to Step 1
-    useEffect(() => {
-        if (slotHold.activeHold && formData.service_id && slotHold.activeHold.service_id !== formData.service_id) {
-            console.log('Service changed, releasing previous hold...');
-            slotHold.releaseHold();
-        }
-    }, [formData.service_id, slotHold.activeHold]);
+    // ✅ Step navigation with validation logic handled in functions below
 
     const currentStep = STEPS[step];
 
@@ -153,35 +146,27 @@ const useGuestBooking = (initialServiceId = null, initialServiceName = null) => 
     };
 
     const nextStep = () => {
+        // ✅ Commitment Check: Release hold and clear schedule ONLY if service actually changed 
+        // when advancing from the Service selection step (Step 0).
+        if (step === 0 && slotHold.activeHold && formData.service_id !== slotHold.activeHold.service_id) {
+            console.log('Service changed at point of advancement, releasing old hold...');
+            slotHold.releaseHold();
+            setFormData(prev => ({
+                ...prev,
+                date: '',
+                time: '',
+                dentist_id: '',
+                dentist_name: '',
+            }));
+        }
+
         if (step < STEPS.length - 1) setStep((s) => s + 1);
     };
 
     const prevStep = () => {
         if (step > 0) {
             setError(null);
-            const nextIdx = step - 1;
-            // ✅ Reset states when going back to Service step
-            if (nextIdx === 0) {
-                slotHold.releaseHold();
-                setFormData(prev => ({
-                    ...prev,
-                    date: '',
-                    time: '',
-                    first_name: '',
-                    last_name: '',
-                    middle_name: '',
-                    suffix_name: '',
-                    email: '',
-                    phone: '',
-                    dentist_id: '',
-                    dentist_name: '',
-                    patient_note: '',
-                    birthday: '',
-                    agreed_to_terms: false,
-                    service_tier: prev.service_tier, // Keep tier for DateTimeStep usage
-                }));
-            }
-            setStep(nextIdx);
+            setStep(step - 1);
         }
     };
 
@@ -189,27 +174,6 @@ const useGuestBooking = (initialServiceId = null, initialServiceName = null) => 
     const goToStep = (index) => {
         if (index < step) {
             setError(null);
-            // ✅ Reset states when navigating back to Service step via breadcrumbs
-            if (index === 0) {
-                slotHold.releaseHold();
-                setFormData(prev => ({
-                    ...prev,
-                    date: '',
-                    time: '',
-                    first_name: '',
-                    last_name: '',
-                    middle_name: '',
-                    suffix_name: '',
-                    email: '',
-                    phone: '',
-                    dentist_id: '',
-                    dentist_name: '',
-                    patient_note: '',
-                    birthday: '',
-                    agreed_to_terms: false,
-                    service_tier: prev.service_tier, // Keep tier
-                }));
-            }
             setStep(index);
         }
     };

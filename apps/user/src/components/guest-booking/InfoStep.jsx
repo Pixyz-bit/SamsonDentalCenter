@@ -315,10 +315,19 @@ const InfoStep = ({ formData, onUpdate, onNext, onBack }) => {
                             <label className={labelClasses}>Date of Birth <span className='text-brand-500'>*</span></label>
                             <input
                                 id="field-birthday"
-                                type='date'
+                                type={formData.birthday ? 'date' : 'text'}
+                                placeholder='YYYY-MM-DD'
                                 value={formData.birthday || ''}
                                 onChange={(e) => handleFieldChange('birthday', e.target.value)}
+                                onFocus={(e) => {
+                                    e.target.type = 'date';
+                                    try { e.target.showPicker(); } catch (err) {}
+                                }}
+                                onBlur={(e) => {
+                                    if (!e.target.value) e.target.type = 'text';
+                                }}
                                 onClick={(e) => {
+                                    e.target.type = 'date';
                                     try { e.target.showPicker(); } catch (err) {}
                                 }}
                                 className={getInputClasses(errors.birthday)}
