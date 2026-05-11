@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
     Clock, 
@@ -6,252 +7,212 @@ import {
     Info, 
     ArrowRight,
     LayoutDashboard,
-    Stethoscope
+    Check,
+    ClipboardList,
+    User,
+    Home as HomeIcon,
+    CalendarPlus
 } from 'lucide-react';
 
 const UserBookingSuccess = ({ result, onReset }) => {
     const navigate = useNavigate();
 
-    // Determine success type based on result payload
-    const bookingResult = result?.bookingData || (result?.booked ? result : null);
-    const waitlistResult = result?.waitlistData?.waitlist_entry || result?.waitlistData;
-    
-    const hasBooking = !!bookingResult?.booked || !!bookingResult?.id || !!bookingResult?.appointment;
-    const hasWaitlist = !!waitlistResult;
-    const isPending = bookingResult?.status === 'PENDING' || bookingResult?.requires_approval || bookingResult?.approval_status === 'pending';
-    const isDualSelection = hasBooking && hasWaitlist;
+    // Auto-scroll to top when success screen mounts
+    useEffect(() => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }, []);
 
-    // Time Formatting Helper (e.g. 09:00:00 -> 9:00 AM)
-    const formatTime = (timeString) => {
-        if (!timeString) return '';
+    // Simplify data extraction to match Guest flow pattern
+    const formData = result?.formData || {};
+    const appointment = result?.appointment || {};
+    
+    const formatDate = (dateString) => {
+        if (!dateString) return '---';
         try {
-            // Remove seconds if present
-            const parts = timeString.split(':');
-            const h = parseInt(parts[0], 10);
-            const m = parseInt(parts[1], 10);
-            const ampm = h >= 12 ? 'PM' : 'AM';
-            const formattedHour = h % 12 || 12;
-            const formattedMinute = m < 10 ? `0${m}` : m;
-            return `${formattedHour}:${formattedMinute} ${ampm}`;
-        } catch (e) {
-            return timeString;
+            return new Date(dateString).toLocaleDateString('en-US', {
+                weekday: 'long',
+                month: 'long',
+                day: 'numeric',
+                year: 'numeric'
+            });
+        } catch (e) { return dateString; }
+    };
+
+    const formatTimeRange = (startTime, durationMinutes) => {
+        if (!startTime) return '---';
+        try {
+            const [h, m] = startTime.split(':').map(Number);
+            const startDate = new Date();
+            startDate.setHours(h, m, 0, 0);
+            const endDate = new Date(startDate.getTime() + (durationMinutes || 60) * 60000);
+            
+            const format = (date) => {
+                const hour = date.getHours();
+                const min = date.getMinutes().toString().padStart(2, '0');
+                const ampm = hour >= 12 ? 'PM' : 'AM';
+                const h12 = hour > 12 ? hour - 12 : hour === 0 ? 12 : hour;
+                return `${h12}:${min} ${ampm}`;
+            };
+            return `${format(startDate)} – ${format(endDate)}`;
+        } catch (e) { return startTime; }
+    };
+
+    const getPatientName = () => {
+        if (appointment.last_name) {
+            return `${appointment.last_name}, ${appointment.first_name}`.trim();
         }
+        if (formData.booked_for_last_name) {
+             return `${formData.booked_for_last_name}, ${formData.booked_for_first_name}`.trim();
+        }
+        return formData.booked_for_name || 'Self';
     };
 
     return (
-        <div className="w-full animate-in fade-in slide-in-from-bottom-2 duration-500 overflow-hidden">
-            {/* Header Section: Fluid & Responsive */}
-            <div className='mb-8 sm:mb-10 text-left'>
-                <h2 className='text-xl sm:text-2xl md:text-3xl font-black text-gray-900 dark:text-white mb-2 sm:mb-3 tracking-tight uppercase leading-tight'>
-                    Booking Request Received!
+        <div className="w-full max-w-[600px] mx-auto animate-in fade-in zoom-in-95 duration-1000 pb-20 sm:pb-8">
+            {/* 1. Visual Confirmation */}
+            <div className='mb-6 sm:mb-6 text-center px-4'>
+                <div className='w-20 h-20 sm:w-24 sm:h-24 bg-emerald-50 dark:bg-emerald-500/10 rounded-[1.5rem] sm:rounded-[2rem] flex items-center justify-center mx-auto mb-4 sm:mb-6 border border-emerald-100 dark:border-emerald-500/20 shadow-theme-lg animate-in zoom-in-50 duration-700 delay-300'>
+                    <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-emerald-500 flex items-center justify-center text-white shadow-lg shadow-emerald-500/40 animate-in fade-in zoom-in duration-500 delay-500">
+                        <Check className="w-8 h-8 sm:w-10 sm:h-10" strokeWidth={4} />
+                    </div>
+                </div>
+                <h2 className='text-lg sm:text-3xl font-black text-gray-900 dark:text-white tracking-tight mb-2 sm:mb-3'>
+                    Thank you for choosing Us!
                 </h2>
-                <p className='text-[13px] sm:text-sm md:text-base text-gray-500 dark:text-gray-400 max-w-2xl leading-relaxed font-medium'>
-                    Your request is under review. Please wait at least 24 hours while we notify you of your status.
+                <p className='text-[12px] sm:text-base text-gray-500 dark:text-gray-400 leading-relaxed font-medium max-w-sm mx-auto px-2'>
+                    Your booking request has been received. We've sent the details to <span className="text-brand-500 dark:text-brand-400 font-bold break-all">{formData.email || appointment.guest_email || 'your registered email'}</span>.
                 </p>
             </div>
 
-            {/* Request Detail Cards: Optimized Grid - Full width for single, Side-by-Side for Dual */}
-            <div className={`grid ${isDualSelection ? 'grid-cols-2 lg:grid-cols-2' : 'grid-cols-1 w-full'} gap-3 sm:gap-6 mb-8`}>
-                {/* Primary Request Card */}
-                {hasBooking && (
-                    <div className="p-4 sm:p-6 border border-gray-200 rounded-[1.5rem] sm:rounded-2xl dark:border-gray-800 bg-white dark:bg-gray-900/50 shadow-sm flex flex-col h-full overflow-hidden">
-                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5 pb-5 border-b border-gray-100 dark:border-gray-800/80">
-                            <div className="flex items-center gap-2 sm:gap-3">
-                                <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-emerald-50 dark:bg-emerald-500/10 flex items-center justify-center text-emerald-600">
-                                    <Stethoscope size={18} className="sm:w-5 sm:h-5" />
-                                </div>
-                                <h3 className="text-[11px] sm:text-sm font-black text-gray-900 dark:text-white uppercase tracking-wider">
-                                    Primary Request
-                                </h3>
-                            </div>
-                            {(bookingResult.appointment?.id || bookingResult.id) && (
-                                <span className='hidden sm:block px-3 py-1 bg-gray-50 dark:bg-gray-800 rounded-lg text-[10px] sm:text-xs font-mono font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest'>
-                                    ID: {(bookingResult.appointment?.id || bookingResult.id).slice(0, 8).toUpperCase()}
-                                </span>
-                            )}
-                        </div>
+            {/* 2. Request Summary Card */}
+            <div className='mb-6 sm:mb-8 bg-white dark:bg-white/[0.03] border border-gray-200 dark:border-gray-800 rounded-2xl sm:rounded-3xl shadow-theme-md overflow-hidden'>
+                <div className="px-5 pt-6 pb-5 sm:px-10 flex items-center justify-between border-b border-gray-100 dark:border-gray-800/50">
+                    <div className="flex items-center gap-3">
+                        <ClipboardList size={18} className="text-brand-500" />
+                        <h3 className="text-[14px] sm:text-lg font-bold text-gray-900 dark:text-white">Request Summary</h3>
+                    </div>
+                    <div className="px-3 py-1.5 bg-brand-50/50 dark:bg-brand-500/10 rounded-full border border-brand-100/50 dark:border-brand-500/20 flex items-center shrink-0">
+                        <span className="text-[10px] sm:text-xs font-black font-mono tracking-tighter">
+                            <span className="text-brand-400 dark:text-brand-500 mr-1.5">REF</span>
+                            <span className="text-brand-600 dark:text-brand-400">
+                                {appointment.reference_id || (appointment.id && appointment.id.slice(0, 8).toUpperCase()) || `#PRM-${Math.floor(1000 + Math.random() * 9000)}`}
+                            </span>
+                        </span>
+                    </div>
+                </div>
 
-                        <div className="space-y-4 sm:space-y-5 flex-grow">
+                <div className="px-5 py-6 sm:px-10 sm:py-8">
+                    <div className="space-y-5 sm:space-y-6">
+                        {/* Service */}
+                        <div className="flex items-start gap-3 sm:gap-4">
+                            <div className="w-10 h-10 rounded-xl bg-brand-50 dark:bg-brand-900/20 flex items-center justify-center shrink-0 border border-brand-100/50 dark:border-brand-800/50">
+                                <ShieldCheck className="text-brand-500" size={20} />
+                            </div>
                             <div>
-                                <p className="mb-1 text-[9px] sm:text-[10px] md:text-xs font-black uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                                    Service
+                                <p className="text-[11px] sm:text-xs font-black text-gray-400 mb-1 leading-none">Service</p>
+                                <p className="text-[14px] sm:text-base font-bold text-gray-900 dark:text-white leading-tight">
+                                    {appointment.service || appointment.service_name || formData.service_name || 'Treatment'}
                                 </p>
-                                <p className="text-[12px] sm:text-[14px] md:text-[15px] font-bold text-gray-900 dark:text-white leading-tight truncate sm:whitespace-normal">
-                                    {bookingResult.appointment?.service?.name || bookingResult.appointment?.service || bookingResult.service?.name || bookingResult.service_name || 'Treatment'}
-                                </p>
-                            </div>
-                            <div className="space-y-3">
-                                <div>
-                                    <p className="mb-1 text-[9px] sm:text-[10px] md:text-xs font-black uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                                        Requested Date
-                                    </p>
-                                    <div className='flex items-center gap-1.5 text-gray-900 dark:text-white'>
-                                        <Calendar size={13} className="text-brand-500 shrink-0" />
-                                        <p className="text-[11px] sm:text-[13px] md:text-[14px] font-bold whitespace-nowrap">
-                                            {bookingResult.appointment?.appointment_date || bookingResult.appointment?.date || bookingResult.date}
-                                        </p>
-                                    </div>
-                                </div>
-                                <div>
-                                    <p className="mb-1 text-[9px] sm:text-[10px] md:text-xs font-black uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                                        Requested Time
-                                    </p>
-                                    <div className='flex items-center gap-1.5 text-gray-900 dark:text-white'>
-                                        <Clock size={13} className="text-brand-500 shrink-0" />
-                                        <p className="text-[11px] sm:text-[13px] md:text-[14px] font-bold">
-                                            {formatTime(bookingResult.appointment?.start_time || bookingResult.appointment?.time || bookingResult.time)}
-                                        </p>
-                                    </div>
-                                </div>
-                                <div>
-                                    <p className="mb-1 text-[9px] sm:text-[10px] md:text-xs font-black uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                                        Patient
-                                    </p>
-                                    <p className="text-[11px] sm:text-[13px] md:text-[14px] font-bold text-gray-900 dark:text-white">
-                                        {bookingResult.appointment?.last_name || bookingResult.last_name 
-                                            ? `${bookingResult.appointment?.last_name || bookingResult.last_name}, ${bookingResult.appointment?.first_name || bookingResult.first_name} ${bookingResult.appointment?.middle_name || bookingResult.middle_name || ''} ${bookingResult.appointment?.suffix || bookingResult.suffix || ''}`.replace(/\s+/g, ' ').trim()
-                                            : bookingResult.appointment?.guest_last_name || bookingResult.guest_last_name
-                                                ? `${bookingResult.appointment?.guest_last_name || bookingResult.guest_last_name}, ${bookingResult.appointment?.guest_first_name || bookingResult.guest_first_name} ${bookingResult.appointment?.guest_middle_name || bookingResult.guest_middle_name || ''} ${bookingResult.appointment?.guest_suffix || bookingResult.guest_suffix || ''}`.replace(/\s+/g, ' ').trim()
-                                                : bookingResult.appointment?.booked_for_name || bookingResult.booked_for_name || 'Yourself'}
-                                    </p>
-                                </div>
                             </div>
                         </div>
 
-                        <div className='mt-5 pt-4 border-t border-gray-50 dark:border-gray-800/50'>
-                            <p className={`text-[9px] sm:text-[11px] font-black uppercase tracking-widest ${isPending ? 'text-amber-600' : 'text-emerald-600'}`}>
-                                {isPending ? '⏳ Awaiting Approval' : '✅ Confirmed'}
-                            </p>
+                        {/* Date */}
+                        <div className="flex items-start gap-3 sm:gap-4">
+                            <div className="w-10 h-10 rounded-xl bg-gray-50 dark:bg-gray-800 flex items-center justify-center shrink-0 border border-gray-100 dark:border-gray-700">
+                                <Calendar className="text-gray-500" size={20} />
+                            </div>
+                            <div>
+                                <p className="text-[11px] sm:text-xs font-black text-gray-400 mb-1 leading-none">Date</p>
+                                <p className="text-[14px] sm:text-base font-bold text-gray-900 dark:text-white leading-tight">
+                                    {formatDate(appointment.date || appointment.appointment_date || formData.date)}
+                                </p>
+                            </div>
+                        </div>
+
+                        {/* Time */}
+                        <div className="flex items-start gap-3 sm:gap-4">
+                            <div className="w-10 h-10 rounded-xl bg-gray-50 dark:bg-gray-800 flex items-center justify-center shrink-0 border border-gray-100 dark:border-gray-700">
+                                <Clock className="text-gray-500" size={20} />
+                            </div>
+                            <div>
+                                <p className="text-[11px] sm:text-xs font-black text-gray-400 mb-1 leading-none">Time Window</p>
+                                <p className="text-[14px] sm:text-base font-bold text-gray-900 dark:text-white leading-tight">
+                                    {formatTimeRange(appointment.time || appointment.start_time || formData.time, appointment.duration || appointment.service_duration || formData.service_duration)}
+                                </p>
+                            </div>
+                        </div>
+
+                        {/* Patient */}
+                        <div className="flex items-start gap-3 sm:gap-4">
+                            <div className="w-10 h-10 rounded-xl bg-gray-50 dark:bg-gray-800 flex items-center justify-center shrink-0 border border-gray-100 dark:border-gray-700">
+                                <User className="text-gray-500" size={20} />
+                            </div>
+                            <div>
+                                <p className="text-[11px] sm:text-xs font-black text-gray-400 mb-1 leading-none">Patient</p>
+                                <p className="text-[14px] sm:text-base font-bold text-gray-900 dark:text-white leading-tight capitalize">
+                                    {getPatientName()}
+                                </p>
+                            </div>
                         </div>
                     </div>
-                )}
+                </div>
 
-                {/* Waitlist Request Card */}
-                {hasWaitlist && (
-                    <div className="p-4 sm:p-6 border border-gray-200 rounded-[1.5rem] sm:rounded-2xl dark:border-gray-800 bg-white dark:bg-gray-900/50 shadow-sm flex flex-col h-full overflow-hidden">
-                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5 pb-5 border-b border-gray-100 dark:border-gray-800/80">
-                            <div className="flex items-center gap-2 sm:gap-3">
-                                <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-blue-50 dark:bg-blue-500/10 flex items-center justify-center text-blue-600">
-                                    <Clock size={18} className="sm:w-5 sm:h-5" />
-                                </div>
-                                <h3 className="text-[11px] sm:text-sm font-black text-gray-900 dark:text-white uppercase tracking-wider">
-                                    Waitlist Request
-                                </h3>
-                            </div>
-                            {waitlistResult.id && (
-                                <span className='hidden sm:block px-3 py-1 bg-blue-50/50 dark:bg-blue-500/10 rounded-lg text-[10px] sm:text-xs font-mono font-bold text-blue-600 dark:text-blue-400 uppercase tracking-widest'>
-                                    WID: {waitlistResult.id.slice(0, 8).toUpperCase()}
-                                </span>
-                            )}
-                        </div>
-
-                        <div className="space-y-4 sm:space-y-5 flex-grow">
-                            <div>
-                                <p className="mb-1 text-[9px] sm:text-[10px] md:text-xs font-black uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                                    Service
-                                </p>
-                                <p className="text-[12px] sm:text-[14px] md:text-[15px] font-bold text-gray-900 dark:text-white leading-tight truncate sm:whitespace-normal">
-                                    {waitlistResult.service_name || waitlistResult.service || 'Treatment'}
-                                </p>
-                            </div>
-                            <div className="space-y-3">
-                                <div>
-                                    <p className="mb-1 text-[9px] sm:text-[10px] md:text-xs font-black uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                                        Preferred Date
-                                    </p>
-                                    <div className='flex items-center gap-1.5 text-gray-900 dark:text-white'>
-                                        <Calendar size={13} className="text-blue-500 shrink-0" />
-                                        <p className="text-[11px] sm:text-[13px] md:text-[14px] font-bold whitespace-nowrap">
-                                            {waitlistResult.preferred_date || waitlistResult.date}
-                                        </p>
-                                    </div>
-                                </div>
-                                <div>
-                                    <p className="mb-1 text-[9px] sm:text-[10px] md:text-xs font-black uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                                        Preferred Time
-                                    </p>
-                                    <div className='flex items-center gap-1.5 text-gray-900 dark:text-white'>
-                                        <Clock size={13} className="text-blue-500 shrink-0" />
-                                        <p className="text-[11px] sm:text-[13px] md:text-[14px] font-bold">
-                                            {formatTime(waitlistResult.preferred_time || waitlistResult.time)}
-                                        </p>
-                                    </div>
-                                </div>
-                                <div>
-                                    <p className="mb-1 text-[9px] sm:text-[10px] md:text-xs font-black uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                                        Patient
-                                    </p>
-                                    <p className="text-[11px] sm:text-[13px] md:text-[14px] font-bold text-gray-900 dark:text-white">
-                                        {waitlistResult.last_name 
-                                            ? `${waitlistResult.last_name}, ${waitlistResult.first_name} ${waitlistResult.middle_name || ''} ${waitlistResult.suffix || ''}`.replace(/\s+/g, ' ').trim()
-                                            : waitlistResult.booked_for_name || 'Yourself'}
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className='mt-5 pt-4 border-t border-gray-50 dark:border-gray-800/50'>
-                            <p className='text-[10px] sm:text-[11px] font-black uppercase tracking-widest text-blue-600'>
-                                ⏳ Position #{waitlistResult.position || result.waitlistData?.position || '1'}
-                            </p>
-                        </div>
+                <div className="px-5 py-4 sm:px-10 bg-gray-50 dark:bg-gray-800/50 border-t border-gray-100 dark:border-gray-800/50 flex items-center justify-between">
+                    <span className="text-[11px] sm:text-xs font-black text-gray-400 leading-none">Current Status</span>
+                    <div className="flex items-center gap-2 px-3 py-1.5 bg-amber-50 dark:bg-amber-500/10 text-amber-600 rounded-full text-[10px] sm:text-xs font-bold border border-amber-100/50 dark:border-amber-500/20 shadow-theme-xs">
+                        <Clock size={12} className="animate-pulse" />
+                        Awaiting Approval
                     </div>
-                )}
+                </div>
             </div>
 
-            {/* Informational Bulleted Pathway (Keeps its own section) */}
-            <div className='bg-brand-50/30 dark:bg-brand-500/5 border border-brand-100 dark:border-brand-500/10 rounded-2xl p-6 sm:p-8 mb-10 overflow-hidden'>
-                <div className="flex flex-col gap-6">
-                    <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-brand-500 text-white flex items-center justify-center shrink-0 shadow-lg shadow-brand-500/20">
-                            <Info size={22} className="sm:w-6 sm:h-6" />
-                        </div>
-                        <h4 className="text-[15px] sm:text-base md:text-lg font-black text-gray-900 dark:text-white uppercase tracking-tight leading-tight">
-                            What Happens Next?
-                        </h4>
+            {/* 3. Next Steps Card */}
+            <div className='mb-6 sm:mb-8 bg-brand-50/50 dark:bg-brand-500/5 border border-brand-100 dark:border-brand-500/10 rounded-2xl sm:rounded-3xl shadow-theme-md overflow-hidden'>
+                <div className="px-5 pt-6 pb-5 sm:px-10 flex items-center gap-3 border-b border-brand-100/50 dark:border-brand-500/10">
+                    <div className="w-10 h-10 rounded-xl bg-brand-500 text-white flex items-center justify-center shrink-0 shadow-lg shadow-brand-500/20">
+                        <Info size={20} />
                     </div>
-                    
-                    <ul className='space-y-4 text-[13px] sm:text-[14px] md:text-[15px] text-gray-600 dark:text-gray-400 leading-relaxed font-medium min-w-0'>
+                    <h4 className="text-[14px] sm:text-lg font-bold text-gray-900 dark:text-white tracking-tight leading-tight">
+                        What happens now?
+                    </h4>
+                </div>
+                
+                <div className="px-5 py-6 sm:px-10 sm:py-8">
+                    <ul className="space-y-3">
                         <li className="flex items-start gap-3">
-                            <div className="w-1.5 h-1.5 rounded-full bg-brand-500 mt-2.5 shrink-0" />
-                            <p><strong>Clinic Approval:</strong> Our team will review your primary appointment request (usually within 24 hours).</p>
+                            <div className="w-1.5 h-1.5 rounded-full bg-brand-500 mt-2 shrink-0" />
+                            <p className="text-[12px] sm:text-[14px] font-medium text-gray-600 dark:text-gray-400 leading-relaxed">
+                                Our team will review your request and send a final confirmation within 24 hours.
+                            </p>
                         </li>
                         <li className="flex items-start gap-3">
-                            <div className="w-1.5 h-1.5 rounded-full bg-brand-500 mt-2.5 shrink-0" />
-                            <p><strong>Waitlist Updates:</strong> We will email you immediately if your waitlisted time slot becomes available.</p>
-                        </li>
-                        <li className="flex items-start gap-3">
-                            <div className="w-1.5 h-1.5 rounded-full bg-brand-500 mt-2.5 shrink-0" />
-                            <p><strong>Manage Your Booking:</strong> You can visit your dashboard anytime to check your status, view details, reschedule, or cancel. </p>
+                            <div className="w-1.5 h-1.5 rounded-full bg-brand-500 mt-2 shrink-0" />
+                            <p className="text-[12px] sm:text-[14px] font-medium text-gray-600 dark:text-gray-400 leading-relaxed">
+                                You can check your status and manage your booking anytime through your dashboard.
+                            </p>
                         </li>
                     </ul>
                 </div>
             </div>
 
-            {/* Responsive Navigation Footer */}
-            <div className='flex flex-col-reverse sm:flex-row sm:justify-between items-center gap-4 pt-8 border-t border-gray-100 dark:border-gray-800'>
-                <button
-                    onClick={() => {
-                        onReset();
-                        navigate('/');
-                    }}
-                    className='w-full sm:w-auto text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white font-black text-[13px] sm:text-sm px-6 py-4 transition-colors uppercase tracking-widest'
-                >
-                    Go to Home
-                </button>
-                <button
-                    onClick={() => {
-                        onReset();
-                        navigate('/patient');
-                    }}
-                    className='w-full sm:w-auto group bg-brand-500 hover:bg-brand-600 active:scale-95 text-white font-black
-                               px-10 py-4.5 rounded-2xl transition-all shadow-theme-lg
-                               flex items-center justify-center gap-3 text-[14px] sm:text-base uppercase tracking-widest'
-                >
-                    <LayoutDashboard size={20} className="group-hover:scale-110 transition-transform" />
-                    Dashboard
-                    <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
-                </button>
+            {/* 4. Action Buttons (Sticky Footer on Mobile) */}
+            <div className="fixed bottom-0 left-0 w-full bg-white/90 dark:bg-gray-900/90 backdrop-blur-md border-t border-gray-100 dark:border-gray-800 p-4 sm:relative sm:bg-transparent sm:border-0 sm:p-0 sm:flex sm:flex-row gap-4 sm:mt-8 z-50">
+                <div className="max-w-[600px] mx-auto flex flex-row gap-3 sm:w-full">
+                    <button
+                        onClick={() => { onReset(); navigate('/'); }}
+                        className='flex-1 group flex items-center justify-center gap-2 h-12 sm:h-14 rounded-xl sm:rounded-2xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-all shadow-theme-xs'
+                    >
+                        <HomeIcon size={18} className="sm:size-[22px]" />
+                        <span className="text-[11px] sm:text-base font-black">Home</span>
+                    </button>
+                    <button
+                        onClick={onReset}
+                        className='flex-[2] flex items-center justify-center gap-2 h-12 sm:h-14 rounded-xl sm:rounded-2xl bg-brand-500 hover:bg-brand-600 text-white font-black transition-all shadow-lg shadow-brand-500/20'
+                    >
+                        <CalendarPlus size={20} className="sm:size-6" />
+                        <span className="text-[11px] sm:text-lg font-black">Book Another</span>
+                    </button>
+                </div>
             </div>
         </div>
     );

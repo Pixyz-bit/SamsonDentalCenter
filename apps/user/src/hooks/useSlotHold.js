@@ -139,6 +139,7 @@ const useSlotHold = (sessionId) => {
                         hold_id: response.hold_id,
                         previous_hold_id: response.previous_hold_id,
                         expires_at: response.expires_at,
+                        expires_in_minutes: response.expires_in_minutes,
                         already_held: response.already_held,
                     };
                 } else {

@@ -28,21 +28,31 @@
   Edit the variables below to change the look and feel of the entire website.
 */
 :root {
+    /* -- Spacing & Sizing -- */
+    --spacing: 0.25rem;
+    --container-xs: 20rem;
+    --container-sm: 24rem;
+    --container-md: 28rem;
+    --container-lg: 32rem;
+    --container-xl: 36rem;
+    --container-2xl: 42rem;
+    --container-3xl: 48rem;
+    --container-4xl: 56rem;
+    --container-6xl: 72rem;
+    --container-7xl: 80rem;
+
     /* -- Colors -- */
-    /* Main Brand Color (Samson Red - Sophisticated) */
     --brand-50: #fff1f2;
     --brand-100: #ffe4e6;
     --brand-200: #fecdd3;
     --brand-300: #fda4af;
     --brand-400: #fb7185;
-    --brand-500: #e11d48; /* Sophisticated Rose-Red */
-    /* Primary Accent */
+    --brand-500: #e11d48;
     --brand-600: #be123c;
     --brand-700: #9f1239;
     --brand-800: #881337;
     --brand-900: #4c0519;
 
-    /* Status Colors (from template) */
     --success-50: #ecfdf3;
     --success-500: #12b76a;
     --success-600: #039855;
@@ -55,7 +65,6 @@
     --warning-500: #f79009;
     --warning-600: #dc6803;
 
-    /* Gray Scale (from template) */
     --gray-25: #fcfcfd;
     --gray-50: #f9fafb;
     --gray-100: #f2f4f7;
@@ -68,50 +77,45 @@
     --gray-800: #1d2939;
     --gray-900: #101828;
 
-    /* -- Fonts -- */
     --font-main: "Outfit", sans-serif;
 }
 
 @theme {
-    /* Custom Samson Dental Colors */
-    --color-red-500: #e10011; /* Primary brand red */
-    --color-red-600: #cb0010; /* Darker red */
-    --color-red-700: #ab000d; /* Crimson red */
-    --color-red-950: #1a0202; /* Very dark red for backgrounds */
+    /* -- Sizing -- */
+    --spacing: var(--spacing);
+    --container-6xl: var(--container-6xl);
 
-    --color-stone-50: #f2f5f7; /* Light gray background */
-    --color-stone-100: #e1e8ed; /* Secondary light gray */
-    --color-stone-800: #121518; /* Dark gray for text */
-    --color-stone-900: #0a0c0e; /* Almost black */
-    --color-stone-950: #171b1e; /* Navbar and Footer background */
+    /* -- Colors (OKLCH & Custom) -- */
+    --color-red-50: oklch(97.1% 0.013 17.38);
+    --color-red-100: oklch(93.6% 0.032 17.717);
+    --color-red-200: oklch(88.5% 0.062 18.334);
+    --color-red-300: oklch(80.8% 0.114 19.571);
+    --color-red-400: oklch(70.4% 0.191 22.216);
+    --color-red-500: #e10011;
+    --color-red-600: #cb0010;
+    --color-red-700: #ab000d;
+    --color-red-800: oklch(44.4% 0.177 26.899);
+    --color-red-900: oklch(39.6% 0.141 25.723);
+    --color-red-950: #1a0202;
 
-    /* Fonts */
-    --font-sans: var(--font-main);
-    --font-outfit: var(--font-main);
+    --color-gray-50: var(--gray-50);
+    --color-gray-100: var(--gray-100);
+    --color-gray-200: var(--gray-200);
+    --color-gray-300: var(--gray-300);
+    --color-gray-400: var(--gray-400);
+    --color-gray-500: var(--gray-500);
+    --color-gray-600: var(--gray-600);
+    --color-gray-700: var(--gray-700);
+    --color-gray-800: var(--gray-800);
+    --color-gray-900: var(--gray-900);
 
-    --breakpoint-2xsm: 375px;
-    --breakpoint-xsm: 425px;
+    --color-stone-50: #f2f5f7;
+    --color-stone-100: #e1e8ed;
+    --color-stone-800: #121518;
+    --color-stone-900: #0a0c0e;
+    --color-stone-950: #171b1e;
 
-    /* Typography (from template) */
-    --text-title-2xl: 72px;
-    --text-title-2xl--line-height: 90px;
-    --text-title-xl: 60px;
-    --text-title-xl--line-height: 72px;
-    --text-title-lg: 48px;
-    --text-title-lg--line-height: 60px;
-    --text-title-md: 36px;
-    --text-title-md--line-height: 44px;
-    --text-title-sm: 30px;
-    --text-title-sm--line-height: 38px;
-    --text-theme-xl: 20px;
-    --text-theme-xl--line-height: 30px;
-    --text-theme-sm: 15px;
-    --text-theme-sm--line-height: 22px;
-    --text-theme-xs: 13px;
-    --text-theme-xs--line-height: 19px;
-
-    /* Colors mapped to brand variables */
-    --color-brand-25: #f2f7ff;
+    /* -- Brand Colors -- */
     --color-brand-50: var(--brand-50);
     --color-brand-100: var(--brand-100);
     --color-brand-200: var(--brand-200);
@@ -122,9 +126,8 @@
     --color-brand-700: var(--brand-700);
     --color-brand-800: var(--brand-800);
     --color-brand-900: var(--brand-900);
-    --color-brand-950: #161950;
 
-    /* Status Colors */
+    /* -- UI State Colors -- */
     --color-success-50: var(--success-50);
     --color-success-500: var(--success-500);
     --color-success-600: var(--success-600);
@@ -137,42 +140,29 @@
     --color-warning-500: var(--warning-500);
     --color-warning-600: var(--warning-600);
 
-    /* Gray Scale */
-    --color-gray-25: var(--gray-25);
-    --color-gray-50: var(--gray-50);
-    --color-gray-100: var(--gray-100);
-    --color-gray-200: var(--gray-200);
-    --color-gray-300: var(--gray-300);
-    --color-gray-400: var(--gray-400);
-    --color-gray-500: var(--gray-500);
-    --color-gray-600: var(--gray-600);
-    --color-gray-700: var(--gray-700);
-    --color-gray-800: var(--gray-800);
-    --color-gray-900: var(--gray-900);
+    /* -- Typography -- */
+    --font-sans: var(--font-main);
+    --font-outfit: var(--font-main);
+    
+    --text-theme-sm: 15px;
+    --text-theme-sm--line-height: 22px;
+    --text-theme-xs: 13px;
+    --text-theme-xs--line-height: 19px;
 
-    /* Shadows */
-    --shadow-theme-md: 0px 4px 8px -2px rgba(16, 24, 40, 0.1),
-        0px 2px 4px -2px rgba(16, 24, 40, 0.06);
-    --shadow-theme-lg: 0px 12px 16px -4px rgba(16, 24, 40, 0.08),
-        0px 4px 6px -2px rgba(16, 24, 40, 0.03);
-    --shadow-theme-sm: 0px 1px 3px 0px rgba(16, 24, 40, 0.1),
-        0px 1px 2px 0px rgba(16, 24, 40, 0.06);
-    --shadow-theme-xs: 0px 1px 2px 0px rgba(16, 24, 40, 0.05);
-
-    /* Z-Indices */
-    --z-index-1: 1;
-    --z-index-9: 9;
-    --z-index-99: 99;
-    --z-index-999: 999;
-    --z-index-9999: 9999;
+    /* -- Z-Indices -- */
     --z-index-99999: 99999;
-    --z-index-999999: 999999;
 }
 
 @layer base {
 
     html,
     body {
+        line-height: 1.5;
+        -webkit-text-size-adjust: 100%;
+        tab-size: 4;
+        font-feature-settings: var(--default-font-feature-settings, normal);
+        font-variation-settings: var(--default-font-variation-settings, normal);
+        -webkit-tap-highlight-color: transparent;
         font-family: var(--font-main);
         @apply bg-gray-50 text-gray-900 dark:bg-gray-900 dark:text-gray-100 antialiased;
     }

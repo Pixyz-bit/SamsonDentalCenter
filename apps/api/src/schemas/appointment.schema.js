@@ -16,6 +16,9 @@ export const bookGuestSchema = z.object({
             last: stringRequired,
             middle: stringSchema,
             suffix: stringSchema,
+            birthday: stringSchema, // ✅ Added
+            relationship: stringSchema, // ✅ Added
+            sex: stringSchema, // ✅ Added
         }).nullish(),
         user_session_id: stringSchema,
     }).passthrough(),
@@ -34,6 +37,9 @@ export const bookUserSchema = z.object({
             last: stringRequired,
             middle: stringSchema,
             suffix: stringSchema,
+            birthday: stringSchema, // ✅ Added
+            relationship: stringSchema, // ✅ Added
+            sex: stringSchema, // ✅ Added
         }).nullish(),
         user_session_id: stringSchema,
         dentist_id: stringSchema,
@@ -53,6 +59,9 @@ export const submitWizardSchema = z.object({
                 last: stringRequired,
                 middle: stringSchema,
                 suffix: stringSchema,
+                birthday: stringSchema, // ✅ Added
+                relationship: stringSchema, // ✅ Added
+                sex: stringSchema, // ✅ Added
             }).nullish(),
             user_session_id: stringSchema,
             dentist_id: stringSchema,
@@ -69,6 +78,9 @@ export const submitWizardSchema = z.object({
                 last: stringRequired,
                 middle: stringSchema,
                 suffix: stringSchema,
+                birthday: stringSchema, // ✅ Added
+                relationship: stringSchema, // ✅ Added
+                sex: stringSchema, // ✅ Added
             }).nullish(),
         }).passthrough().nullish(),
     }).passthrough(),

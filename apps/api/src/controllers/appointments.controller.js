@@ -124,7 +124,8 @@ export const bookUser = async (req, res, next) => {
             dentist_id,
             patient_profile_id,
             booked_for_birthday,
-            booked_for_relationship
+            booked_for_relationship,
+            booked_for_sex
         } = req.body;
 
         // Check date is in the future (using Philippine Time)
@@ -148,7 +149,9 @@ export const bookUser = async (req, res, next) => {
             null,                            // isPreferred
             patient_profile_id,              // patientProfileId
             booked_for_birthday,
-            booked_for_relationship
+            booked_for_relationship,
+            null,                            // notes (default)
+            booked_for_sex                   // ✅ patientSex
         );
 
         if (result.booked) {
@@ -194,9 +197,13 @@ export const submitWizard = async (req, res, next) => {
                     booking.dentist_id,              // preferredDentistId
                     0,                               // rescheduleCount
                     null,                            // isPreferred
-                    booking.patient_profile_id,      // ✅ patientProfileId
+                    booking.patient_profile_id === 'new' ? null : (booking.patient_profile_id || null),      // ✅ patientProfileId
                     booking.booked_for_name_parts?.birthday || null,
-                    booking.booked_for_name_parts?.relationship || null
+                    booking.booked_for_name_parts?.relationship || null,
+                    booking.notes || null,
+                    booking.booked_for_name_parts?.sex || null,
+                    booking.accepted_terms || false,
+                    booking.terms_accepted_at || null
                 );
             } catch (err) {
                 // If booking fails, return error and stop.

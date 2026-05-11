@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, useCallback } from 'react';
+import { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import { ChevronLeft, ChevronRight, ChevronDown, RefreshCw, Lock, Calendar as CalendarIcon, Clock as ClockIcon, Info, ArrowRight, MousePointer2, Loader2, Plus, Check, Users, CalendarX, AlertCircle, X } from 'lucide-react';
 import useSlots from '../../hooks/useSlots';
 import { useClinicSettings } from '../../hooks/useClinicSettings';
@@ -20,6 +20,8 @@ const DateTimeStep = ({
     serviceTier,
     error,
 }) => {
+    const lastErrorRef = useRef(null);
+    const toast = useToast();
     const { activeHold, holdSlot, releaseHold, formattedTime, holdLoading, holdError, timeRemaining } = slotHold;
     const [pendingSlot, setPendingSlot] = useState(null);
     const [specialists, setSpecialists] = useState([]);
@@ -179,6 +181,28 @@ const DateTimeStep = ({
         }
     }, [isLoading]);
 
+    // ✅ Sync Error Alerts with Success Alert style (Standard Toasts)
+    useEffect(() => {
+        if (holdError && holdError !== lastErrorRef.current) {
+            // User doesn't want duration on "Slot Taken" error
+            const isSlotTaken = holdError.toLowerCase().includes('someone else');
+            const durationText = (formattedTime && !isSlotTaken) ? ` (Hold expires in: ${formattedTime})` : '';
+            toast.error(`${holdError}${durationText}`);
+            lastErrorRef.current = holdError;
+        } else if (!holdError && lastErrorRef.current === holdError) {
+             lastErrorRef.current = null;
+        }
+    }, [holdError, toast]); // Remove formattedTime to stop multiple popups per second
+
+    useEffect(() => {
+        if (error && !error.includes('fetch') && error !== lastErrorRef.current) {
+            toast.error(error);
+            lastErrorRef.current = error;
+        } else if (!error && lastErrorRef.current === error) {
+            lastErrorRef.current = null;
+        }
+    }, [error, toast]);
+
     const handleSpecialistChange = async (id) => {
         if (isProcessing) return; // ✅ Block while loading
         const val = id || null;
@@ -237,8 +261,6 @@ const DateTimeStep = ({
         setVisibleCount(INITIAL_VISIBLE_COUNT); // RESET visibility when date changes or toggles
     };
 
-    const toast = useToast();
-
     const handleTimeClick = async (slotData) => {
         if (!serviceId || !selectedDate) return;
         
@@ -255,7 +277,7 @@ const DateTimeStep = ({
                 const holdResult = await holdSlot(serviceId, selectedDate, slotData.rawTime, dentistId);
                 if (holdResult?.success) {
                     onUpdate({ time: slotData.rawTime });
-                    toast.success('Slot hold success! You have 10 minutes to finish your booking.');
+                    toast.success(`Slot hold success! You have ${holdResult.expires_in_minutes || 10} minutes to finish your booking.`);
                 } else if (holdResult?.error === 'SLOT_TAKEN') {
                     refetchSlots();
                     return;
@@ -534,31 +556,6 @@ const DateTimeStep = ({
 
     return (
         <div className="animate-in fade-in slide-in-from-bottom-2 duration-500 pb-5 sm:pb-6">
-            {/* FLOATING TOAST LOGIC (SweetAlert style) - Positioned under header */}
-            {(holdError || (error && !error.includes('fetch'))) && (
-                <div className="fixed top-[4.5rem] sm:top-24 right-4 sm:right-6 z-[9999] flex flex-col gap-3 max-w-[calc(100vw-2rem)] sm:max-w-sm pointer-events-none animate-in slide-in-from-right-10 fade-in duration-500">
-                    <div className="bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-2xl sm:rounded-3xl shadow-[0_15px_40px_rgba(0,0,0,0.08)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.3)] p-3 sm:p-5 flex gap-3 sm:gap-4 items-center ring-1 ring-black/5 pointer-events-auto">
-                        <div className={`w-9 h-9 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl ${holdError ? 'bg-red-500 shadow-red-500/20' : 'bg-amber-500 shadow-amber-500/20'} text-white flex items-center justify-center shrink-0 shadow-lg`}>
-                            <AlertCircle size={18} className="sm:w-6 sm:h-6" />
-                        </div>
-                        <div className="flex-grow min-w-0">
-                            <h4 className="text-[11px] sm:text-[13px] font-black text-gray-400 dark:text-gray-500 mb-0.5 sm:mb-1">Attention Required</h4>
-                            <p className="text-[12px] sm:text-[14px] font-bold text-gray-900 dark:text-white leading-tight break-words">
-                                {holdError || error}
-                            </p>
-                        </div>
-                        <button 
-                            onClick={() => {
-                                if (holdError) slotHold.setHoldError?.(null);
-                            }} 
-                            className="p-1.5 sm:p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
-                        >
-                            <X size={16} className="sm:w-[18px] sm:h-[18px]" />
-                        </button>
-                    </div>
-                </div>
-            )}
-
             {(error?.includes('fetch') || specialistsError?.includes('fetch')) ? (
                 <div className='grow flex flex-col py-10'>
                      <ErrorState 

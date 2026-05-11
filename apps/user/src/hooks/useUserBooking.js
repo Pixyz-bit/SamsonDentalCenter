@@ -65,6 +65,7 @@ const useUserBooking = (initialServiceId = null, initialServiceName = null) => {
         booked_for_suffix_name: '',
         booked_for_birthday: '',
         booked_for_relationship: '',
+        booked_for_sex: '',       // ✅ Was missing — caused undefined in JSON payload
         booked_for_phone: '',
         dentist_id: '', // ✅ NEW: Preferred dentist (null = any available)
         // ✅ NEW: Deferred Waitlist Fields
@@ -72,16 +73,14 @@ const useUserBooking = (initialServiceId = null, initialServiceName = null) => {
         waitlist_time: '', // Selected full slot time
         service_tier: '', // ✅ NEW: Track tier
         patient_profile_id: '', // ✅ NEW: Selected dependent profile ID
+        patient_note: '',       // ✅ Was missing — caused undefined in JSON payload
+        agreed_to_terms: false, // ✅ Was missing — caused undefined in JSON payload
     });
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState(null);
     const [result, setResult] = useState(null);
     // ✅ Track submission timestamp to prevent rapid resubmissions
     const [lastSubmissionTime, setLastSubmissionTime] = useState(null);
-
-    // ✅ NEW: Active Waitlist State (to prevent duplicate UI entries)
-    const [userWaitlist, setUserWaitlist] = useState([]);
-    const [waitlistLoading, setWaitlistLoading] = useState(false);
 
     // ✅ Initialize slot hold hook at the wizard level to survive step changes
     const slotHold = useSlotHold(sessionId);
@@ -90,34 +89,7 @@ const useUserBooking = (initialServiceId = null, initialServiceName = null) => {
     useEffect(() => {
         const id = getOrCreateSessionId();
         setSessionId(id);
-        
-        // Fetch active waitlist entries to handle UI state
-        if (token) {
-            fetchUserWaitlist();
-        }
     }, [token]);
-
-    const fetchUserWaitlist = async () => {
-        try {
-            setWaitlistLoading(true);
-            const response = await api.get('/waitlist/my', token);
-            
-            // ✅ FIX: The backend returns { waitlist: [...] }, not just the array
-            const entries = response?.waitlist || [];
-            
-            // Filter only active entries (WAITING or NOTIFIED)
-            const active = entries.filter(w => 
-                ['WAITING', 'NOTIFIED', 'OFFER_PENDING'].includes(w.status)
-            );
-            
-            console.log(`[useUserBooking] Found ${active.length} active waitlist entries out of ${entries.length} total.`);
-            setUserWaitlist(active);
-        } catch (err) {
-            console.error('[useUserBooking] Failed to fetch waitlist:', err);
-        } finally {
-            setWaitlistLoading(false);
-        }
-    };
 
     // ✅ Auto-release hold if user goes back and changes the service
     useEffect(() => {
@@ -157,6 +129,19 @@ const useUserBooking = (initialServiceId = null, initialServiceName = null) => {
     };
 
     const nextStep = () => {
+        // ✅ Commitment Check: Release hold and clear schedule ONLY if service actually changed 
+        // when advancing from the Service selection step (Step 0).
+        if (step === 0 && slotHold.activeHold && formData.service_id !== slotHold.activeHold.service_id) {
+            slotHold.releaseHold().catch(() => {});
+            setFormData(prev => ({
+                ...prev,
+                date: '',
+                time: '',
+                dentist_id: '',
+                waitlist_date: '',
+                waitlist_time: '',
+            }));
+        }
         if (step < steps.length - 1) setStep((s) => s + 1);
     };
 
@@ -165,7 +150,7 @@ const useUserBooking = (initialServiceId = null, initialServiceName = null) => {
             const nextIdx = step - 1;
             // ✅ Reset states when going back to Service step
             if (nextIdx === 0) {
-                slotHold.releaseHold();
+                slotHold.releaseHold().catch(() => {});
                 setFormData(prev => ({
                     ...prev,
                     date: '',
@@ -173,7 +158,6 @@ const useUserBooking = (initialServiceId = null, initialServiceName = null) => {
                     dentist_id: '',
                     waitlist_date: '',
                     waitlist_time: '',
-                    service_tier: prev.service_tier, // Keep tier
                 }));
             }
             setStep(nextIdx);
@@ -183,9 +167,10 @@ const useUserBooking = (initialServiceId = null, initialServiceName = null) => {
     // Only allow going back to completed steps
     const goToStep = (index) => {
         if (index < step) {
+            setError(null);
             // ✅ Reset states when navigating back to Service step via breadcrumbs
             if (index === 0) {
-                slotHold.releaseHold();
+                slotHold.releaseHold().catch(() => {});
                 setFormData(prev => ({
                     ...prev,
                     date: '',
@@ -193,7 +178,6 @@ const useUserBooking = (initialServiceId = null, initialServiceName = null) => {
                     dentist_id: '',
                     waitlist_date: '',
                     waitlist_time: '',
-                    service_tier: prev.service_tier, // Keep tier
                 }));
             }
             setStep(index);
@@ -202,6 +186,7 @@ const useUserBooking = (initialServiceId = null, initialServiceName = null) => {
 
     // Submit booking to API with unified atomic endpoint
     const submit = async () => {
+        console.log('[useUserBooking DEBUG] Final formData before submit:', formData);
         // ✅ Implement client-side rate limiting (minimum 1 second between submissions)
         const now = Date.now();
         if (lastSubmissionTime && now - lastSubmissionTime < 1000) {
@@ -221,40 +206,33 @@ const useUserBooking = (initialServiceId = null, initialServiceName = null) => {
 
         try {
             // ✅ Unified Atomic Body
+            const isNewMember = !formData.patient_profile_id || formData.patient_profile_id === 'new';
             const body = {
                 service_id: formData.service_id,
-                booking: formData.time ? {
+                booking: {
                     date: formData.date,
                     time: formData.time,
-                    dentist_id: formData.dentist_id || null, // ✅ NEW: Preferred dentist
-                    booked_for_name_parts: book_for_others ? {
-                        first: formData.booked_for_first_name,
-                        last: formData.booked_for_last_name,
-                        middle: formData.booked_for_middle_name,
-                        suffix: formData.booked_for_suffix_name,
-                        birthday: formData.booked_for_birthday,
-                        relationship: formData.booked_for_relationship,
-                    } : null,
+                    dentist_id: formData.dentist_id || null,
+                    booked_for_name_parts: {
+                        first: formData.booked_for_first_name || user?.first_name || null,
+                        last: formData.booked_for_last_name || user?.last_name || null,
+                        middle: formData.booked_for_middle_name || user?.middle_name || null,
+                        suffix: formData.booked_for_suffix_name || user?.suffix || null,
+                        birthday: formData.booked_for_birthday || user?.date_of_birth || null,
+                        relationship: isNewMember
+                            ? (formData.booked_for_relationship || null)
+                            : (formData.booked_for_relationship || 'Self'),
+                        sex: formData.booked_for_sex || user?.sex || null,
+                    },
                     user_session_id: sessionId,
                     patient_profile_id: formData.patient_profile_id === 'new' ? null : (formData.patient_profile_id || null),
-                } : null,
-                waitlist: formData.waitlist_time ? {
-                    date: formData.waitlist_date,
-                    time: formData.waitlist_time,
-                    priority: 0,
-                    dentist_id: formData.dentist_id || null,
-                    booked_for_name_parts: book_for_others ? {
-                        first: formData.booked_for_first_name,
-                        last: formData.booked_for_last_name,
-                        middle: formData.booked_for_middle_name,
-                        suffix: formData.booked_for_suffix_name,
-                        birthday: formData.booked_for_birthday,
-                        relationship: formData.booked_for_relationship,
-                    } : null,
-                    patient_profile_id: formData.patient_profile_id === 'new' ? null : (formData.patient_profile_id || null),
-                } : null
+                    notes: formData.patient_note || null,
+                    accepted_terms: formData.agreed_to_terms || false,
+                    terms_accepted_at: formData.agreed_to_terms ? new Date().toISOString() : null,
+                }
             };
 
+            console.log('[useUserBooking DEBUG] FINAL BODY TO SEND:', JSON.stringify(body, null, 2));
             const response = await api.post('/appointments/submit-wizard', body, token);
             
             clearTimeout(timeoutId);
@@ -272,28 +250,23 @@ const useUserBooking = (initialServiceId = null, initialServiceName = null) => {
             const hasRequestedBooking = !!formData.time;
             const hasRequestedWaitlist = !!formData.waitlist_time;
 
-            if (bookingSuccess || waitlistSuccess) {
+            if (bookingSuccess) {
                 // ✅ Proactively refresh application state to eliminate realtime latency
                 if (typeof refreshAppts === 'function') refreshAppts();
                 if (typeof refreshNotifs === 'function') refreshNotifs();
 
                 setResult({
                     success: true,
-                    booked: bookingSuccess,
-                    waitlisted: waitlistSuccess,
-                    bookingData: booking,
-                    waitlistData: waitlist,
-                    message: (bookingSuccess && waitlistSuccess) 
-                        ? 'Both booking and waitlist confirmed!' 
-                        : bookingSuccess 
-                            ? 'Appointment confirmed!' 
-                            : 'Waitlist confirmed!',
+                    booked: true,
+                    appointment: booking.appointment,
+                    formData: formData,
+                    message: 'Appointment confirmed!',
                 });
             }
-            // ✅ SCENARIO 4: Total Failure (Neither requested action succeeded) ❌
+            // ✅ SCENARIO: Failure
             else {
                 setResult(null);
-                setError(booking?.message || waitlist?.message || 'The selected slot is no longer available. Please try another time.');
+                setError(booking?.message || 'The selected slot is no longer available. Please try another time.');
                 // Go back to datetime step so they can try again
                 setStep(STEPS.indexOf('datetime'));
             }
@@ -309,7 +282,10 @@ const useUserBooking = (initialServiceId = null, initialServiceName = null) => {
         }
     };
 
-    const reset = () => {
+    const reset = async () => {
+        // ✅ Release the hold on the backend first - robust session-based cleanup
+        await slotHold.releaseHold().catch(() => {});
+
         setStep(0);
         setFormData({
             service_id: '',
@@ -320,12 +296,15 @@ const useUserBooking = (initialServiceId = null, initialServiceName = null) => {
             booked_for_last_name: '',
             booked_for_middle_name: '',
             booked_for_suffix_name: '',
+            booked_for_birthday: '',
+            booked_for_relationship: '',
+            booked_for_sex: '',
+            booked_for_phone: '',
             dentist_id: '',
-            // ✅ Clear waitlist fields on reset
+            patient_profile_id: '', // Clear
+            patient_note: '',
             waitlist_date: '',
             waitlist_time: '',
-            service_tier: '', // Reset
-            patient_profile_id: '', // Clear
         });
         setError(null);
         setSubmitting(false); // ✅ Safety reset
@@ -361,9 +340,6 @@ const useUserBooking = (initialServiceId = null, initialServiceName = null) => {
         goToStep,
         submit,
         reset,
-        userWaitlist,
-        waitlistLoading,
-        fetchUserWaitlist, // Allow manual refresh if needed
     };
 };
 

@@ -7,7 +7,7 @@ import { AppError } from '../utils/errors.js';
 export const getPatientProfiles = async (profileId) => {
     const { data, error } = await supabaseAdmin
         .from('profiles')
-        .select('id, first_name, last_name, middle_name, suffix, date_of_birth, relationship_to_primary, full_name')
+        .select('id, first_name, last_name, middle_name, suffix, date_of_birth, relationship_to_primary, full_name, sex')
         .eq('primary_profile_id', profileId)
         .order('first_name', { ascending: true });
 
@@ -26,7 +26,7 @@ export const getPatientProfiles = async (profileId) => {
 export const getPatientProfileById = async (id, profileId) => {
     const { data, error } = await supabaseAdmin
         .from('profiles')
-        .select('id, first_name, last_name, middle_name, suffix, date_of_birth, relationship_to_primary, full_name')
+        .select('id, first_name, last_name, middle_name, suffix, date_of_birth, relationship_to_primary, full_name, sex')
         .eq('id', id)
         .eq('primary_profile_id', profileId)
         .single();
