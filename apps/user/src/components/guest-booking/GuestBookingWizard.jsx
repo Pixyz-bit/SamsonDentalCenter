@@ -208,7 +208,7 @@ const GuestBookingWizard = ({ booking, settings }) => {
         }
     }, [hasCheckedRecovery, wasRecovered, step, slotHold.activeHold, showRecoveryModal, hasDismissedRecovery, booking.failedOtpAttempts]);
 
-    const breadcrumbLabels = ['Service', 'Date & Time', 'Your Info', 'Review', 'Verify'];
+    const breadcrumbLabels = ['Service', 'Schedule', 'Details', 'Review', 'Verify'];
 
     const handleReset = () => {
         setWasRecovered(false);

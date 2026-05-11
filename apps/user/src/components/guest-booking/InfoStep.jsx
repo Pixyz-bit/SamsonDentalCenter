@@ -60,8 +60,12 @@ const InfoStep = ({ formData, onUpdate, onNext, onBack }) => {
             const sanitizedPhone = formData.phone.replace(/\D/g, '');
             const countryCode = formData.country_code || '+63';
             
-            if (countryCode === '+63' && sanitizedPhone.length !== 10) {
-                newErrors.phone = 'PH numbers must be exactly 10 digits.';
+            if (countryCode === '+63') {
+                if (sanitizedPhone.length !== 10) {
+                    newErrors.phone = 'PH numbers must be exactly 10 digits.';
+                } else if (!sanitizedPhone.startsWith('9')) {
+                    newErrors.phone = 'PH mobile numbers must start with 9.';
+                }
             } else if (sanitizedPhone.length < 7) {
                 newErrors.phone = 'Phone number is too short.';
             }
@@ -99,11 +103,21 @@ const InfoStep = ({ formData, onUpdate, onNext, onBack }) => {
 
         // Phone specific logic: Limit to 10 digits for PH (+63)
         if (field === 'phone') {
-            const sanitized = value.replace(/\D/g, '');
+            let sanitized = value.replace(/\D/g, '');
             const countryCode = formData.country_code || '+63';
             
-            if (countryCode === '+63' && sanitized.length > 10) return;
-            // For other countries, we can allow more, but PH is strictly 10
+            // Strictly enforce PH mobile format: starts with 9 and max 10 digits
+            if (countryCode === '+63') {
+                if (sanitized.length > 0 && sanitized[0] !== '9') {
+                    // If they type 09..., strip the 0
+                    if (sanitized[0] === '0') {
+                        sanitized = sanitized.substring(1);
+                    } else {
+                        return; // Ignore other starts
+                    }
+                }
+                if (sanitized.length > 10) return;
+            }
             onUpdate(field, sanitized);
         } else {
             onUpdate(field, value);
@@ -127,11 +141,11 @@ const InfoStep = ({ formData, onUpdate, onNext, onBack }) => {
     };
 
     const getInputClasses = (fieldError) => {
-        const base = "h-10 w-full rounded-lg border appearance-none px-3 py-2 text-[13px] sm:text-sm shadow-theme-xs placeholder:text-gray-400 focus:outline-hidden focus:ring-3 transition-colors bg-white dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 font-medium";
+        const base = "h-11 w-full rounded-xl border appearance-none px-4 py-2.5 text-[13px] sm:text-sm shadow-theme-sm placeholder:text-gray-400 focus:outline-hidden focus:ring-4 transition-all bg-white dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 font-medium";
         if (fieldError) {
             return `${base} border-error-500 focus:border-error-300 focus:ring-error-500/20 dark:text-error-400 dark:border-error-500 dark:focus:border-error-800`;
         }
-        return `${base} text-gray-800 border-gray-300 focus:border-brand-300 focus:ring-brand-500/20 dark:border-gray-700 dark:text-white/90 dark:focus:border-brand-800`;
+        return `${base} text-gray-800 border-gray-300 dark:border-gray-700 focus:border-brand-300 focus:ring-brand-500/15 hover:border-gray-400 dark:hover:border-gray-600 dark:text-white/90 dark:focus:border-brand-800 shadow-theme-xs hover:shadow-theme-sm`;
     };
 
     const formatTime = (timeString) => {
@@ -176,8 +190,8 @@ const InfoStep = ({ formData, onUpdate, onNext, onBack }) => {
         <div className="animate-in fade-in slide-in-from-bottom-2 duration-500 pb-6 sm:pb-4">
             {/* Header Section */}
             <div className='mb-6 sm:mb-8'>
-                <h2 className='text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-2 sm:mb-3 tracking-tight uppercase'>
-                    Patient Information
+                <h2 className='text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-2 sm:mb-3 tracking-tight'>
+                    Patient Details
                 </h2>
                 <p className='text-[13px] sm:text-sm md:text-base text-gray-500 dark:text-gray-400 leading-relaxed font-medium'>
                     Enter your details below to receive your appointment confirmation and status updates.
@@ -254,11 +268,10 @@ const InfoStep = ({ formData, onUpdate, onNext, onBack }) => {
                                 {errors.middle && <p className='text-error-500 text-[10px] font-bold mt-1.5 ml-1'>{errors.middle}</p>}
                             </div>
 
-                            {/* Suffix */}
-                            <div>
+                            {/* Suffix */}                            <div>
                                 <label className={labelClasses}>Suffix <span className="opacity-40 font-normal italic">(optional)</span></label>
                                 {!showCustomSuffix ? (
-                                    <div className="relative">
+                                    <div className="relative group/suffix">
                                         <select
                                             value={commonSuffixes.includes(nameParts.suffix) ? nameParts.suffix : ''}
                                             onChange={(e) => {
@@ -279,10 +292,12 @@ const InfoStep = ({ formData, onUpdate, onNext, onBack }) => {
                                             <option value="IV">IV</option>
                                             <option value="Other">Other...</option>
                                         </select>
-                                        <ChevronDown size={16} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+                                        <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400 group-hover/suffix:text-brand-500 transition-colors">
+                                            <ChevronDown size={18} />
+                                        </div>
                                     </div>
                                 ) : (
-                                    <div className="relative">
+                                    <div className="relative animate-in slide-in-from-left-2 duration-300">
                                         <input
                                             type='text'
                                             value={nameParts.suffix}
@@ -293,13 +308,13 @@ const InfoStep = ({ formData, onUpdate, onNext, onBack }) => {
                                         />
                                         <button
                                             onClick={() => { setShowCustomSuffix(false); handleNamePartChange('suffix', ''); }}
-                                            className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-bold text-brand-500 hover:text-brand-600 underline uppercase tracking-tight"
+                                            className="absolute right-3 top-1/2 -translate-y-1/2 px-2 py-1 rounded-md text-[10px] font-black text-brand-500 hover:bg-brand-50 dark:hover:bg-brand-500/10 transition-colors uppercase tracking-tight"
                                         >
                                             Reset
                                         </button>
                                     </div>
                                 )}
-                            </div>
+                            </div>v>
                         </div>
                     </div>
                 </section>

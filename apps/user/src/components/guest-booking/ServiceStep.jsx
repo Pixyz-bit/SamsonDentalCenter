@@ -28,8 +28,8 @@ const ServiceStep = ({ selectedServiceId, onSelect, onNext, allowSpecialized = f
     return (
         <div className="pb-10 sm:pb-6">
             <div className='mb-8 sm:mb-10'>
-                <h2 className='text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-2 sm:mb-3 tracking-tight uppercase'>
-                    Select a Service
+                <h2 className='text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-2 sm:mb-3 tracking-tight'>
+                    Choose Service
                 </h2>
                 <p className='text-[13px] sm:text-sm md:text-base text-gray-500 dark:text-gray-400 max-w-3xl leading-relaxed'>
                     Choose the dental service you'd like to book from our available options.
@@ -54,7 +54,7 @@ const ServiceStep = ({ selectedServiceId, onSelect, onNext, allowSpecialized = f
             {loading && (
                 <div className='grid grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6'>
                     {[1, 2, 3, 4, 5, 6].map(i => (
-                        <div key={i} className='h-[160px] sm:h-[180px] rounded-2xl bg-gray-100 dark:bg-gray-800/50 animate-pulse'></div>
+                        <div key={i} className='h-[160px] sm:h-[180px] rounded-2xl bg-gray-200 dark:bg-gray-700/60 animate-pulse border border-gray-100 dark:border-gray-800'></div>
                     ))}
                 </div>
             )}
@@ -72,9 +72,9 @@ const ServiceStep = ({ selectedServiceId, onSelect, onNext, allowSpecialized = f
                         <button
                             key={service.id}
                             onClick={() => handleServiceSelect(service)}
-                            className={`text-left p-4 sm:p-5 rounded-2xl border transition-all relative group flex flex-col h-full min-h-[160px] sm:min-h-[180px] ${selectedServiceId === service.id
-                                ? 'border-brand-500 bg-brand-50/30 dark:bg-brand-500/10 shadow-theme-sm'
-                                : 'border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03] hover:border-brand-300 dark:hover:border-brand-500/50 hover:shadow-theme-md'
+                            className={`text-left p-4 sm:p-5 rounded-2xl border-2 transition-all relative group flex flex-col h-full min-h-[160px] sm:min-h-[180px] ${selectedServiceId === service.id
+                                ? 'border-brand-500 bg-brand-50/30 dark:bg-brand-500/10 shadow-theme-md'
+                                : 'border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03] hover:border-brand-300 dark:hover:border-brand-500/50 shadow-theme-sm hover:shadow-theme-lg'
                                 }`}
                         >
                             <div className='flex-grow mb-4 sm:mb-5'>

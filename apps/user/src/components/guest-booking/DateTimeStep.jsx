@@ -169,6 +169,14 @@ const DateTimeStep = ({
         if (isLoading) return; // ✅ Block while loading
         const val = id || null;
         
+        // Inform user about loading
+        const specialist = specialists.find(s => s.id === val);
+        const doctorName = specialist 
+            ? (specialist.profile?.first_name ? `Dr. ${specialist.profile.first_name} ${specialist.profile.last_name}`.trim() : specialist.profile?.full_name) 
+            : 'any available dentist';
+        
+        toast.info(`Loading available dates for ${doctorName}...`);
+
         // 🎯 Reset everything when doctor changes
         if (selectedDate || selectedTime) {
             await releaseHold();
@@ -316,8 +324,8 @@ const DateTimeStep = ({
                     type="button"
                     onClick={() => !isProcessing && setIsDoctorDropdownOpen(!isDoctorDropdownOpen)}
                     disabled={isProcessing}
-                    className={`w-full flex items-center justify-between p-4 bg-white dark:bg-white/[0.02] border-2 rounded-2xl transition-all shadow-theme-sm group ${
-                        isDoctorDropdownOpen ? 'border-brand-500 ring-4 ring-brand-500/10' : 'border-gray-100 dark:border-gray-800 hover:border-brand-200'
+                    className={`w-full flex items-center justify-between p-4 bg-white dark:bg-white/[0.02] border-2 rounded-2xl transition-all shadow-theme-md group ${
+                        isDoctorDropdownOpen ? 'border-brand-500 ring-4 ring-brand-500/10' : 'border-gray-200 dark:border-gray-800 hover:border-brand-300'
                     } ${isProcessing ? 'opacity-50 cursor-wait' : ''}`}
                 >
                     <div className='flex items-center gap-4'>
@@ -411,35 +419,35 @@ const DateTimeStep = ({
             <div className="flex flex-col gap-10 animate-pulse py-2">
                 {/* Header Skeleton */}
                 <div className='mb-8 sm:mb-10'>
-                    <div className='h-7 sm:h-10 bg-slate-100 dark:bg-slate-800 rounded-2xl w-full max-w-sm mb-4' />
-                    <div className='h-4 bg-slate-50 dark:bg-gray-800/50 rounded-xl w-full max-w-2xl' />
+                    <div className='h-7 sm:h-10 bg-gray-200 dark:bg-gray-700/60 rounded-2xl w-full max-w-sm mb-4' />
+                    <div className='h-4 bg-gray-100 dark:bg-gray-800/40 rounded-xl w-full max-w-2xl' />
                 </div>
                 
                 {/* Doctor Select Skeleton */}
-                <div className="h-20 bg-slate-50 dark:bg-white/[0.02] border-2 border-slate-100 dark:border-slate-800 rounded-3xl w-full flex items-center px-4 gap-4">
-                    <div className="w-12 h-12 bg-slate-100 dark:bg-slate-800 rounded-xl" />
+                <div className="h-20 bg-gray-100 dark:bg-white/[0.02] border-2 border-gray-200 dark:border-gray-800 rounded-3xl w-full flex items-center px-4 gap-4">
+                    <div className="w-12 h-12 bg-gray-200 dark:bg-gray-700/60 rounded-xl" />
                     <div className="flex flex-col gap-2 flex-grow">
-                        <div className="h-4 bg-slate-100 dark:bg-slate-800 rounded-lg w-1/3" />
-                        <div className="h-3 bg-slate-50 dark:bg-gray-800/50 rounded-lg w-1/4" />
+                        <div className="h-4 bg-gray-200 dark:bg-gray-700/60 rounded-lg w-1/3" />
+                        <div className="h-3 bg-gray-100 dark:bg-gray-800/40 rounded-lg w-1/4" />
                     </div>
-                    <div className="w-5 h-5 bg-slate-100 dark:bg-slate-800 rounded-md" />
+                    <div className="w-5 h-5 bg-gray-200 dark:bg-gray-700/60 rounded-md" />
                 </div>
                 
                 <div className='grid grid-cols-1 lg:grid-cols-[1.1fr_1fr] gap-x-8 gap-y-10 mb-10'>
                     {/* Column 1: Calendar Skeleton */}
                     <div className="flex flex-col gap-5">
-                        <div className="h-4 bg-slate-100 dark:bg-slate-800 rounded-lg w-32 ml-1" />
-                        <div className="bg-slate-50 dark:bg-white/[0.02] border-2 border-slate-100 dark:border-slate-800 rounded-[32px] sm:rounded-[40px] p-6 h-[440px]">
+                        <div className="h-4 bg-gray-200 dark:bg-gray-700/60 rounded-lg w-32 ml-1" />
+                        <div className="bg-gray-100 dark:bg-white/[0.02] border-2 border-gray-200 dark:border-gray-800 rounded-[32px] sm:rounded-[40px] p-6 h-[440px]">
                             <div className="flex justify-between items-center mb-8">
-                                <div className="h-6 bg-slate-100 dark:bg-slate-800 rounded-xl w-32" />
+                                <div className="h-6 bg-gray-200 dark:bg-gray-700/60 rounded-xl w-32" />
                                 <div className="flex gap-2">
-                                    <div className="w-10 h-10 bg-slate-100 dark:bg-slate-800 rounded-xl" />
-                                    <div className="w-10 h-10 bg-slate-100 dark:bg-slate-800 rounded-xl" />
+                                    <div className="w-10 h-10 bg-gray-200 dark:bg-gray-700/60 rounded-xl" />
+                                    <div className="w-10 h-10 bg-gray-200 dark:bg-gray-700/60 rounded-xl" />
                                 </div>
                             </div>
                             <div className="grid grid-cols-7 gap-4">
                                 {[...Array(35)].map((_, i) => (
-                                    <div key={i} className="aspect-square bg-slate-100 dark:bg-slate-800/50 rounded-xl" />
+                                    <div key={i} className="aspect-square bg-gray-200 dark:bg-gray-700/40 rounded-xl" />
                                 ))}
                             </div>
                         </div>
@@ -447,12 +455,12 @@ const DateTimeStep = ({
 
                     {/* Column 2: Slots Skeleton */}
                     <div className="flex flex-col gap-5">
-                        <div className="h-4 bg-slate-100 dark:bg-slate-800 rounded-lg w-40 ml-1" />
-                        <div className="bg-slate-50 dark:bg-white/[0.02] border-2 border-slate-100 dark:border-slate-800 rounded-[32px] sm:rounded-[40px] p-6 h-[440px]">
-                            <div className="h-5 bg-slate-100 dark:bg-slate-800 rounded-xl w-32 mb-10" />
+                        <div className="h-4 bg-gray-200 dark:bg-gray-700/60 rounded-lg w-40 ml-1" />
+                        <div className="bg-gray-100 dark:bg-white/[0.02] border-2 border-gray-200 dark:border-gray-800 rounded-[32px] sm:rounded-[40px] p-6 h-[440px]">
+                            <div className="h-5 bg-gray-200 dark:bg-gray-700/60 rounded-xl w-32 mb-10" />
                             <div className="grid grid-cols-2 xsm:grid-cols-3 gap-3">
                                 {[...Array(12)].map((_, i) => (
-                                    <div key={i} className="h-12 bg-slate-100 dark:bg-slate-800/50 rounded-xl" />
+                                    <div key={i} className="h-12 bg-gray-200 dark:bg-gray-700/40 rounded-xl" />
                                 ))}
                             </div>
                         </div>
@@ -460,9 +468,9 @@ const DateTimeStep = ({
                 </div>
                 
                 {/* Footer Skeleton */}
-                <div className="flex flex-col sm:flex-row sm:justify-between items-center gap-4 pt-6 border-t border-slate-100 dark:border-slate-800 mt-4">
-                    <div className="h-6 bg-slate-100 dark:bg-slate-800 rounded-lg w-24" />
-                    <div className="h-14 bg-slate-200 dark:bg-slate-800 rounded-2xl w-52" />
+                <div className="flex flex-col sm:flex-row sm:justify-between items-center gap-4 pt-6 border-t border-gray-200 dark:border-gray-800 mt-4">
+                    <div className="h-6 bg-gray-200 dark:bg-gray-700/60 rounded-lg w-24" />
+                    <div className="h-14 bg-gray-300 dark:bg-gray-700/80 rounded-2xl w-52" />
                 </div>
             </div>
         );
@@ -507,11 +515,11 @@ const DateTimeStep = ({
                 <>
                     {/* Header Section */}
                     <div className='mb-8 sm:mb-10'>
-                        <h2 className='text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-2 sm:mb-3 tracking-tight uppercase'>
-                            Select Date & Time
+                        <h2 className='text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-2 sm:mb-3 tracking-tight'>
+                            Choose Schedule
                         </h2>
                         <p className='text-[13px] sm:text-sm md:text-base text-gray-500 dark:text-gray-400 max-w-3xl leading-relaxed font-medium'>
-                            Pick a date and time slot. Choose a specific dentist or "Any Available Dentist" for more flexibility.
+                            Pick a date, time, and dentist. Use "Any Dentist" for more options.
                         </p>
                     </div>
 
@@ -551,7 +559,7 @@ const DateTimeStep = ({
                                         <div className='w-1.5 h-1.5 rounded-full bg-brand-500' />
                                         Select Date
                                     </h3>
-                                    <div className='bg-white dark:bg-white/[0.02] border border-gray-100 dark:border-gray-800 rounded-3xl p-5 shadow-theme-sm h-full'>
+                                    <div className='bg-white dark:bg-white/[0.02] border-2 border-gray-200 dark:border-gray-800 rounded-3xl p-5 shadow-theme-md h-full'>
                                         <div className='flex items-center justify-between mb-5'>
                                             <h3 className='text-[15px] sm:text-base font-bold text-gray-900 dark:text-white flex items-center gap-2 tracking-tight uppercase'><CalendarIcon size={16} className='text-brand-500' />{viewDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</h3>
                                             <div className='flex items-center gap-2 sm:gap-3'>
@@ -572,7 +580,7 @@ const DateTimeStep = ({
                                         <div className='grid grid-cols-7 gap-1 mb-2'>
                                             {dayNames.map(day => (<div key={day} className='text-[10px] sm:text-[11px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest text-center py-2'>{day}</div>))}
                                         </div>
-                                        <div className='grid grid-cols-7 border-t border-l border-gray-100 dark:border-gray-800 rounded-xl overflow-hidden'>
+                                        <div className='grid grid-cols-7 border-t border-l border-gray-200 dark:border-gray-800 rounded-xl overflow-hidden'>
                                             {calendarDays.map((date, idx) => {
                                                 const key = formatDateKey(date);
                                                 const isCurrentMonth = date.getMonth() === viewDate.getMonth();
@@ -613,7 +621,7 @@ const DateTimeStep = ({
                                                         key={idx} 
                                                         onClick={() => !isDisabled && handleDateClick(date)} 
                                                         disabled={isDisabled} 
-                                                        className={`relative flex flex-col items-center justify-center aspect-square transition-all duration-300 border-r border-b border-gray-100 dark:border-gray-800 ${
+                                                        className={`relative flex flex-col items-center justify-center aspect-square transition-all duration-300 border-r border-b border-gray-200 dark:border-gray-800 ${
                                                             isSelected 
                                                                 ? 'z-10' 
                                                                 : isDisabled 
@@ -723,7 +731,7 @@ const DateTimeStep = ({
                                                                         className={`py-2 sm:py-3 rounded-xl text-[10px] sm:text-[12px] font-bold transition-all relative flex items-center justify-center ${
                                                                             isSelected ? 'bg-brand-500 text-white shadow-lg shadow-brand-500/20 ring-4 ring-brand-500/10' 
                                                                             : isHeldByMe ? 'bg-brand-50 dark:bg-brand-500/10 border-2 border-brand-200 text-brand-700 dark:text-brand-400' 
-                                                                            : isAvailable ? 'bg-white dark:bg-white/[0.03] border-2 border-transparent hover:border-brand-200 dark:hover:border-brand-500/50 hover:bg-white dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 shadow-theme-sm'
+                                                                            : isAvailable ? 'bg-white dark:bg-white/[0.03] border-2 border-gray-100 dark:border-gray-800/50 hover:border-brand-300 dark:hover:border-brand-500/50 hover:bg-white dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 shadow-theme-sm hover:shadow-theme-md'
                                                                             : 'bg-transparent dark:bg-transparent border-2 border-gray-100 dark:border-gray-800 text-gray-400 dark:text-gray-600 opacity-60 cursor-not-allowed'
                                                                         }`}
                                                                     >

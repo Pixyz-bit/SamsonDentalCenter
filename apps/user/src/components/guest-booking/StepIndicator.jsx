@@ -7,7 +7,7 @@ import { Check } from 'lucide-react';
  * - Mobile-responsive: Hide labels on small screens
  */
 const StepIndicator = ({ currentStep, onStepClick, labels, isLocked = false }) => {
-    const defaultLabels = ['Service', 'Date & Time', 'Your Info', 'Review', 'Confirm'];
+    const defaultLabels = ['Service', 'Schedule', 'Details', 'Review', 'Verify'];
     const stepLabels = labels || defaultLabels;
 
     return (
@@ -28,7 +28,7 @@ const StepIndicator = ({ currentStep, onStepClick, labels, isLocked = false }) =
                         >
                             {/* Circle */}
                             <div
-                                className={`w-5 h-5 sm:w-7 sm:h-7 rounded-full flex items-center justify-center text-[9px] sm:text-[11px] font-bold transition-all duration-300 ${
+                                className={`w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-[10px] sm:text-[12px] font-bold transition-all duration-300 ${
                                     isCompleted
                                         ? 'bg-brand-500 text-white shadow-theme-xs'
                                         : isActive
@@ -36,12 +36,12 @@ const StepIndicator = ({ currentStep, onStepClick, labels, isLocked = false }) =
                                           : 'bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500 group-hover:bg-gray-200 dark:group-hover:bg-gray-700 shadow-theme-xs'
                                 }`}
                             >
-                                {isCompleted ? <Check size={10} strokeWidth={4} /> : index + 1}
+                                {isCompleted ? <Check size={12} strokeWidth={4} /> : index + 1}
                             </div>
 
                             {/* Label: Under on Mobile, Right on Desktop */}
                             <span
-                                className={`text-[7px] sm:text-[12px] font-black uppercase tracking-tight whitespace-nowrap transition-colors text-center sm:text-left ${
+                                className={`text-[9px] sm:text-[14px] font-black tracking-tight whitespace-nowrap transition-colors text-center sm:text-left ${
                                     isActive
                                         ? 'text-gray-900 dark:text-white'
                                         : isCompleted
