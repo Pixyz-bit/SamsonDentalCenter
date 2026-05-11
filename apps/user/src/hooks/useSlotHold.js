@@ -173,19 +173,22 @@ const useSlotHold = (sessionId) => {
      * Usually called on component unmount, but can be called explicitly
      */
     const releaseHold = useCallback(async () => {
-        if (!activeHold?.hold_id) {
-            return;
-        }
-
         try {
-            await api.post('/appointments/slots/release-hold', {
-                hold_id: activeHold.hold_id,
-            });
+            if (activeHold?.hold_id) {
+                await api.post('/appointments/slots/release-hold', {
+                    hold_id: activeHold.hold_id,
+                });
+            } else if (sessionId) {
+                // Fallback: cleanup anything active for this session
+                await api.post('/appointments/slots/release-session-hold', {
+                    user_session_id: sessionId,
+                });
+            }
             setActiveHold(null);
         } catch (err) {
-            // Silently fail - hold will auto-expire
+            // Silently fail - hold will auto-expire or is already gone
         }
-    }, [activeHold?.hold_id]);
+    }, [activeHold?.hold_id, sessionId]);
 
     /**
      * Format time remaining as human-readable string

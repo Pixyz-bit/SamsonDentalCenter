@@ -139,6 +139,14 @@ export const releaseHoldSchema = z.object({
     params: z.any(),
 }).passthrough();
 
+export const releaseHoldBySessionSchema = z.object({
+    body: z.object({
+        user_session_id: stringRequired,
+    }).passthrough(),
+    query: z.any(),
+    params: z.any(),
+}).passthrough();
+
 export const guestValidateSchema = z.object({
     body: z.object({
         email: z.string().email(),

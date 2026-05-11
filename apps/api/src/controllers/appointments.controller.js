@@ -18,7 +18,7 @@ import {
 import { notifyWaitlist, joinWaitlist } from '../services/waitlist.service.js';
 import { getAvailableSlots } from '../services/slot.service.js';
 import { assignDentist } from '../services/dentist-assignment.service.js';
-import { holdSlot, releaseHold, getActiveHoldBySession } from '../services/slot-hold.service.js';
+import { holdSlot, releaseHold, releaseHoldBySession, getActiveHoldBySession } from '../services/slot-hold.service.js';
 import * as guestAuthService from '../services/guest-auth.service.js';
 import { getTodayPH } from '../utils/timezone.js';
 import { addMinutesToTime } from '../utils/time.js';
@@ -379,6 +379,24 @@ export const releaseSlotHold = async (req, res) => {
         return res.status(200).json(result);
     } catch (err) {
         console.error('Release hold error:', err);
+        return res.status(err.status || 500).json({ error: err.message });
+    }
+};
+
+/**
+ * POST /api/appointments/slots/release-session-hold
+ * Body: { user_session_id }
+ *
+ * Release all slot holds for a session.
+ */
+export const releaseSlotHoldBySession = async (req, res) => {
+    try {
+        const { user_session_id } = req.body;
+
+        const result = await releaseHoldBySession(user_session_id);
+        return res.status(200).json(result);
+    } catch (err) {
+        console.error('Release hold by session error:', err);
         return res.status(err.status || 500).json({ error: err.message });
     }
 };

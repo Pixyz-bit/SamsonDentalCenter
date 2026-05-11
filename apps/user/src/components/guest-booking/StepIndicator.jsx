@@ -32,7 +32,7 @@ const StepIndicator = ({ currentStep, onStepClick, labels, isLocked = false }) =
                                     isCompleted
                                         ? 'bg-brand-500 text-white shadow-theme-xs'
                                         : isActive
-                                          ? 'bg-brand-500 text-white ring-4 ring-brand-500/10 shadow-theme-xs scale-105'
+                                          ? (label === 'Success' ? 'bg-red-500 text-white ring-4 ring-red-500/10 shadow-theme-xs scale-105' : 'bg-brand-500 text-white ring-4 ring-brand-500/10 shadow-theme-xs scale-105')
                                           : 'bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500 group-hover:bg-gray-200 dark:group-hover:bg-gray-700 shadow-theme-xs'
                                 }`}
                             >
@@ -43,7 +43,7 @@ const StepIndicator = ({ currentStep, onStepClick, labels, isLocked = false }) =
                             <span
                                 className={`text-[9px] sm:text-[14px] font-black tracking-tight whitespace-nowrap transition-colors text-center sm:text-left ${
                                     isActive
-                                        ? 'text-gray-900 dark:text-white'
+                                        ? (label === 'Success' ? 'text-red-500' : 'text-gray-900 dark:text-white')
                                         : isCompleted
                                           ? 'text-brand-600 dark:text-brand-400'
                                           : 'text-gray-400 dark:text-gray-500'

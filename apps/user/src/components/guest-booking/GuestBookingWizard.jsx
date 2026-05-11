@@ -286,7 +286,7 @@ const GuestBookingWizard = ({ booking, settings }) => {
                         <div className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 flex items-center gap-1.5 sm:gap-3 px-2.5 sm:px-4 py-1.5 sm:py-2 bg-amber-50/50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-800/30 rounded-xl animate-in slide-in-from-right-10 duration-500 shadow-theme-xs sm:shadow-none">
                             <Clock className="text-amber-600 dark:text-amber-400 animate-pulse hidden sm:block" size={18} />
                             <div className="flex flex-col">
-                                <span className="text-[7px] sm:text-[9px] uppercase tracking-widest font-black text-amber-600/60 dark:text-amber-400/50 leading-none mb-0.5 sm:mb-1">
+                                <span className="text-[7px] sm:text-[9px] font-black text-amber-600/60 dark:text-amber-400/50 leading-none mb-0.5 sm:mb-1">
                                     <span className="hidden sm:inline">Slot </span>Hold
                                 </span>
                                 <span className="text-[11px] sm:text-[13px] font-mono font-black text-amber-700 dark:text-amber-300 leading-none">
@@ -327,8 +327,8 @@ const GuestBookingWizard = ({ booking, settings }) => {
                             <AlertCircle className="text-amber-600 dark:text-amber-400" size={20} sm:size={22} />
                         </div>
                         <div>
-                            <h3 className="text-sm sm:text-lg font-black text-gray-900 dark:text-white uppercase tracking-tight">Continue Booking?</h3>
-                            <p className="text-[9px] sm:text-xs text-gray-500 dark:text-gray-400 font-bold uppercase tracking-wider">We saved your progress</p>
+                            <h3 className="text-sm sm:text-lg font-black text-gray-900 dark:text-white">Resume Booking?</h3>
+                            <p className="text-[9px] sm:text-xs text-gray-500 dark:text-gray-400 font-bold">We’ve saved your progress.</p>
                         </div>
                     </div>
 
@@ -339,24 +339,27 @@ const GuestBookingWizard = ({ booking, settings }) => {
                                 <Calendar className="text-primary-600 dark:text-primary-400" size={24} sm:size={28} />
                             </div>
                             <div className="space-y-1.5 sm:space-y-2">
-                                <h4 className="text-base sm:text-lg font-black text-gray-900 dark:text-white leading-tight uppercase tracking-tight">Pending Appointment</h4>
+                                <h4 className="text-base sm:text-lg font-black text-gray-900 dark:text-white leading-tight">Reserved Slot:</h4>
                                 <p className="text-[12px] sm:text-[13px] text-gray-500 dark:text-gray-400 font-medium leading-snug">
-                                    We've held your selected slot while you were away:
+                                    We are still holding your appointment for:
                                 </p>
                             </div>
 
                             <div className="w-full py-3 sm:py-4 px-4 sm:px-6 bg-white dark:bg-gray-800 rounded-xl sm:rounded-2xl border border-primary-100 dark:border-primary-900/20 shadow-theme-xs flex flex-col items-center">
-                                <span className="text-[9px] sm:text-[10px] font-black text-primary-600 dark:text-primary-400 uppercase tracking-[0.2em] mb-1">
-                                    {formatDate(slotHold.activeHold?.date)}
-                                </span>
-                                <span className="text-lg sm:text-xl font-black text-gray-900 dark:text-white">
-                                    {formatTimeRange(slotHold.activeHold?.time, formData.service_duration)}
-                                </span>
+                                <div className="flex flex-col sm:flex-row items-center gap-1 sm:gap-3 text-center">
+                                    <span className="text-[10px] sm:text-xs font-black text-primary-600 dark:text-primary-400 uppercase tracking-widest">
+                                        {formatDate(slotHold.activeHold?.date)}
+                                    </span>
+                                    <span className="hidden sm:inline text-gray-300 dark:text-gray-700 font-light">|</span>
+                                    <span className="text-base sm:text-xl font-black text-gray-900 dark:text-white">
+                                        {formatTime(slotHold.activeHold?.time)}
+                                    </span>
+                                </div>
                             </div>
 
                             <div className="flex items-center gap-2 text-[11px] sm:text-[12px] font-bold text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg sm:rounded-xl">
                                 <Clock size={13} sm:size={14} className="animate-pulse" />
-                                <span>Slot expires in {slotHold.formattedTime}</span>
+                                <span>Hold expires in {slotHold.formattedTime}</span>
                             </div>
                         </div>
                     </div>
@@ -370,9 +373,9 @@ const GuestBookingWizard = ({ booking, settings }) => {
                                 setShowRecoveryModal(false);
                                 handleReset();
                             }}
-                            className="flex-1 h-11 sm:h-12 text-[10px] sm:text-xs font-bold text-gray-400 hover:text-red-500 hover:bg-red-50 dark:text-gray-500 dark:hover:text-red-400 dark:hover:bg-red-900/10 transition-all duration-300 uppercase tracking-widest border border-transparent"
+                            className="flex-1 h-11 sm:h-12 text-[10px] sm:text-xs font-bold text-gray-400 hover:text-red-500 hover:bg-red-50 dark:text-gray-500 dark:hover:text-red-400 dark:hover:bg-red-900/10 transition-all duration-300 border border-transparent"
                         >
-                            Start Fresh
+                            Discard
                         </Button>
                         <Button 
                             variant="primary" 
@@ -381,9 +384,9 @@ const GuestBookingWizard = ({ booking, settings }) => {
                                 setShowRecoveryModal(false);
                                 setHasDismissedRecovery(true);
                             }}
-                            className="flex-1 h-11 sm:h-12 text-[10px] sm:text-sm font-black shadow-lg shadow-primary-500/20 uppercase tracking-widest"
+                            className="flex-1 h-11 sm:h-12 text-[10px] sm:text-sm font-black shadow-lg shadow-primary-500/20"
                         >
-                            CONTINUE
+                            Continue Booking
                         </Button>
                     </div>
                 </div>
@@ -404,8 +407,8 @@ const GuestBookingWizard = ({ booking, settings }) => {
                             <AlertCircle className="text-red-600 dark:text-red-400" size={20} sm:size={22} />
                         </div>
                         <div>
-                            <h3 className="text-sm sm:text-lg font-black text-gray-900 dark:text-white uppercase tracking-tight">Start Over?</h3>
-                            <p className="text-[9px] sm:text-xs text-gray-500 dark:text-gray-400 font-bold uppercase tracking-wider">This action cannot be undone</p>
+                            <h3 className="text-sm sm:text-lg font-black text-gray-900 dark:text-white">Start Over?</h3>
+                            <p className="text-[9px] sm:text-xs text-gray-500 dark:text-gray-400 font-bold">This action cannot be undone</p>
                         </div>
                     </div>
 
@@ -433,7 +436,7 @@ const GuestBookingWizard = ({ booking, settings }) => {
                             variant="ghost" 
                             fullWidth 
                             onClick={() => setShowResetModal(false)}
-                            className="flex-1 h-10 sm:h-12 text-[10px] sm:text-xs font-bold text-gray-400 hover:text-gray-900 transition-all duration-300 uppercase tracking-widest"
+                            className="flex-1 h-10 sm:h-12 text-[10px] sm:text-xs font-bold text-gray-400 hover:text-gray-900 transition-all duration-300"
                         >
                             Cancel
                         </Button>
@@ -444,7 +447,7 @@ const GuestBookingWizard = ({ booking, settings }) => {
                                 setShowResetModal(false);
                                 handleReset();
                             }}
-                            className="flex-[1.5] h-10 sm:h-12 text-[10px] sm:text-sm font-black bg-red-500 hover:bg-red-600 border-red-500 shadow-lg shadow-red-500/20 uppercase tracking-widest"
+                            className="flex-[1.5] h-10 sm:h-12 text-[10px] sm:text-sm font-black bg-red-500 hover:bg-red-600 border-red-500 shadow-lg shadow-red-500/20"
                         >
                             START OVER
                         </Button>
@@ -496,17 +499,17 @@ const GuestBookingWizard = ({ booking, settings }) => {
                                 setShowExpiryModal(false);
                                 handleReset();
                             }}
-                            className="flex-1 h-10 sm:h-12 text-[10px] sm:text-xs font-bold text-gray-400 hover:text-red-500 hover:bg-red-50 dark:text-gray-500 dark:hover:text-red-400 transition-all duration-300 uppercase tracking-widest"
+                            className="flex-1 h-10 sm:h-12 text-[10px] sm:text-xs font-bold text-gray-400 hover:text-red-500 hover:bg-red-50 dark:text-gray-500 dark:hover:text-red-400 transition-all duration-300"
                         >
-                            RESTART
+                            Restart
                         </Button>
                         <Button 
                             variant="primary" 
                             fullWidth 
                             onClick={() => setShowExpiryModal(false)}
-                            className="flex-[1.5] h-10 sm:h-12 text-[10px] sm:text-sm font-black shadow-lg shadow-primary-500/20 uppercase tracking-widest"
+                            className="flex-[1.5] h-10 sm:h-12 text-[10px] sm:text-sm font-black shadow-lg shadow-primary-500/20"
                         >
-                            PICK NEW TIME
+                            Pick New Time
                         </Button>
                     </div>
                 </div>
@@ -528,8 +531,8 @@ const GuestBookingWizard = ({ booking, settings }) => {
                             <AlertCircle className="text-red-600 dark:text-red-400" size={22} />
                         </div>
                         <div>
-                            <h3 className="text-sm sm:text-lg font-black text-gray-900 dark:text-white uppercase tracking-tight">Security Lock</h3>
-                            <p className="text-[9px] sm:text-xs text-gray-500 dark:text-gray-400 font-bold uppercase tracking-wider">Access paused for your safety</p>
+                            <h3 className="text-sm sm:text-lg font-black text-gray-900 dark:text-white">Security Lock</h3>
+                            <p className="text-[9px] sm:text-xs text-gray-500 dark:text-gray-400 font-bold">Access paused for your safety</p>
                         </div>
                     </div>
 
@@ -552,8 +555,11 @@ const GuestBookingWizard = ({ booking, settings }) => {
                         <Button 
                             variant="ghost" 
                             fullWidth 
-                            onClick={() => navigate('/')}
-                            className="flex-1 h-11 text-[10px] sm:text-xs font-bold text-gray-400 hover:text-gray-900 uppercase tracking-widest"
+                            onClick={() => {
+                                handleReset();
+                                navigate('/');
+                            }}
+                            className="flex-1 h-11 text-[10px] sm:text-xs font-bold text-gray-400 hover:text-gray-900"
                         >
                             Go Home
                         </Button>
@@ -561,9 +567,9 @@ const GuestBookingWizard = ({ booking, settings }) => {
                             variant="primary" 
                             fullWidth 
                             onClick={handleReset}
-                            className="flex-[1.5] h-11 text-[10px] sm:text-sm font-black bg-brand-500 hover:bg-brand-600 border-brand-500 shadow-lg shadow-brand-500/20 uppercase tracking-widest"
+                            className="flex-[1.5] h-11 text-[10px] sm:text-sm font-black bg-brand-500 hover:bg-brand-600 border-brand-500 shadow-lg shadow-brand-500/20"
                         >
-                            START FRESH
+                            Start Fresh
                         </Button>
                     </div>
                 </div>
@@ -583,22 +589,17 @@ const GuestBookingWizard = ({ booking, settings }) => {
                             <LogOut className="text-amber-600 dark:text-amber-400 rotate-180" size={22} />
                         </div>
                         <div>
-                            <h3 className="text-sm sm:text-lg font-black text-gray-900 dark:text-white uppercase tracking-tight">Exit Booking?</h3>
-                            <p className="text-[9px] sm:text-xs text-gray-500 dark:text-gray-400 font-bold uppercase tracking-wider">Your progress will be lost</p>
+                            <h3 className="text-sm sm:text-lg font-black text-gray-900 dark:text-white">Discard Booking?</h3>
+                            <p className="text-[9px] sm:text-xs text-gray-500 dark:text-gray-400 font-bold">Action required to leave</p>
                         </div>
                     </div>
 
                     {/* Body */}
                     <div className="px-6 py-6 sm:py-8 flex-1 overflow-y-auto text-center">
                         <div className="space-y-4">
-                            <p className="text-[14px] sm:text-[15px] text-gray-600 dark:text-gray-400 leading-relaxed font-medium">
-                                Are you sure you want to leave the booking process?
+                            <p className="text-[14px] sm:text-[15px] text-gray-600 dark:text-gray-400 leading-relaxed font-bold italic">
+                                Your progress will be lost and your selected time slot will be released back to the calendar.
                             </p>
-                            <div className="p-4 bg-amber-50/50 dark:bg-amber-900/10 rounded-2xl border border-amber-100/50 dark:border-amber-800/30">
-                                <p className="text-[12px] sm:text-[13px] text-amber-700 dark:text-amber-400 leading-normal font-medium italic">
-                                    If you leave now, any selected time slots will be released back to the calendar.
-                                </p>
-                            </div>
                         </div>
                     </div>
 
@@ -607,21 +608,21 @@ const GuestBookingWizard = ({ booking, settings }) => {
                         <Button 
                             variant="ghost" 
                             fullWidth 
-                            onClick={() => setShowExitModal(false)}
-                            className="flex-1 h-11 text-[10px] sm:text-xs font-bold text-gray-400 hover:text-gray-900 dark:text-gray-500 dark:hover:text-white transition-colors uppercase tracking-widest"
-                        >
-                            KEEP BOOKING
-                        </Button>
-                        <Button 
-                            variant="primary" 
-                            fullWidth 
                             onClick={() => {
                                 handleReset();
                                 navigate('/');
                             }}
-                            className="flex-[1.5] h-11 text-[10px] sm:text-sm font-black bg-red-500 hover:bg-red-600 border-red-500 shadow-lg shadow-red-500/20 uppercase tracking-widest"
+                            className="flex-1 h-11 text-[10px] sm:text-xs font-bold text-gray-400 hover:text-red-500 hover:bg-red-50 dark:text-gray-500 dark:hover:text-red-400 transition-colors"
                         >
-                            YES, EXIT
+                            Discard & Exit
+                        </Button>
+                        <Button 
+                            variant="primary" 
+                            fullWidth 
+                            onClick={() => setShowExitModal(false)}
+                            className="flex-[1.5] h-11 text-[10px] sm:text-sm font-black shadow-lg shadow-primary-500/20"
+                        >
+                            Continue Booking
                         </Button>
                     </div>
                 </div>

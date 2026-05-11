@@ -21,6 +21,7 @@ import {
 import { getTodayPH } from '../utils/timezone.js';
 import { addMinutesToTime } from '../utils/time.js';
 import { AppError } from '../utils/errors.js';
+import { markHoldAsConvertedBySession } from './slot-hold.service.js';
 
 /**
  * Book an appointment for a guest (no user account).
@@ -175,6 +176,13 @@ export const bookAppointmentGuest = async (
         start_time: appointment.start_time,
         service: service.name,
     });
+
+    // ── 6. Cleanup: Mark the slot hold as converted if a session exists ──
+    if (userSessionId) {
+        await markHoldAsConvertedBySession(userSessionId).catch(err => 
+            console.error(`[Hold Cleanup] Failed to convert hold for session ${userSessionId}:`, err.message)
+        );
+    }
 
     return {
         booked: true,
@@ -426,6 +434,13 @@ export const bookAppointment = async (
             });
         }
 
+        // ── 5.5 Cleanup: Mark the slot hold as converted if a session exists ──
+        if (userSessionId) {
+            await markHoldAsConvertedBySession(userSessionId).catch(err => 
+                console.error(`[Hold Cleanup] Failed to convert hold for session ${userSessionId}:`, err.message)
+            );
+        }
+
         // ── 6. In-app notification ──
         await sendRequestReceived(patientId, {
             date: appointment.appointment_date,
@@ -561,6 +576,13 @@ export const bookAppointment = async (
             start_time: appointment.start_time,
             service: appointment.service?.name,
         }).catch(err => console.error('[Email] Failed to send booking receipt:', err.message));
+    }
+
+    // ── 5.5 Cleanup: Mark the slot hold as converted if a session exists ──
+    if (userSessionId) {
+        await markHoldAsConvertedBySession(userSessionId).catch(err => 
+            console.error(`[Hold Cleanup] Failed to convert hold for session ${userSessionId}:`, err.message)
+        );
     }
 
     // ── 6. In-app notification ──

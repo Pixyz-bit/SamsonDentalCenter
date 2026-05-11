@@ -316,7 +316,12 @@ const useGuestBooking = (initialServiceId = null, initialServiceName = null) => 
             if (data.booked) {
                 setResult(data);
                 setSubmitting(false);
+                
+                // ✅ Try to release server-side before clearing local state
+                // This ensures the hold is transitioned to 'converted' or 'released'
+                await slotHold.releaseHold().catch(() => {}); 
                 slotHold.clearHold();
+                
                 localStorage.removeItem(GUEST_BOOKING_STATE_KEY);
             } else {
                 setSubmitting(false);
@@ -370,10 +375,8 @@ const useGuestBooking = (initialServiceId = null, initialServiceName = null) => 
     };
 
     const reset = async () => {
-        // ✅ Release the hold on the backend first
-        if (slotHold.activeHold) {
-            await slotHold.releaseHold();
-        }
+        // ✅ Release the hold on the backend first - robust session-based cleanup
+        await slotHold.releaseHold().catch(() => {});
 
         setStep(0);
         setFormData({

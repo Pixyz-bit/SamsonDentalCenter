@@ -207,6 +207,28 @@ export const releaseHoldBySession = async (userSessionId) => {
 };
 
 /**
+ * Mark all active holds for a specific user session as 'converted'.
+ * Called after successful booking.
+ *
+ * @param {string} userSessionId - The browser session ID
+ * @returns {object} { converted: true, count: number }
+ */
+export const markHoldAsConvertedBySession = async (userSessionId) => {
+    const { data, error } = await supabaseAdmin
+        .from('slot_holds')
+        .update({ status: 'converted', updated_at: new Date().toISOString() })
+        .eq('user_session_id', userSessionId)
+        .eq('status', 'active');
+
+    if (error) {
+        console.error('Mark hold as converted error:', error);
+        return { converted: false, error: error.message };
+    }
+
+    return { converted: true, count: data?.length || 0 };
+};
+
+/**
  * Cleanup expired holds (optional cron job).
  *
  * Run periodically (every 1-5 minutes) to mark expired holds as 'expired'.
