@@ -314,7 +314,7 @@ const DateTimeStep = ({
 
         return (
             <div className='relative w-full mb-10'>
-                <h3 className='text-xs font-black text-gray-400 uppercase tracking-widest mb-4 flex items-center gap-2'>
+                <h3 className='text-[13px] font-black text-gray-400 mb-4 flex items-center gap-2'>
                     <div className='w-1.5 h-1.5 rounded-full bg-brand-500' />
                     Select Dentist
                 </h3>
@@ -486,7 +486,7 @@ const DateTimeStep = ({
                             <AlertCircle size={18} className="sm:w-6 sm:h-6" />
                         </div>
                         <div className="flex-grow min-w-0">
-                            <h4 className="text-[9px] sm:text-[11px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-0.5 sm:mb-1">Attention Required</h4>
+                            <h4 className="text-[11px] sm:text-[13px] font-black text-gray-400 dark:text-gray-500 mb-0.5 sm:mb-1">Attention Required</h4>
                             <p className="text-[12px] sm:text-[14px] font-bold text-gray-900 dark:text-white leading-tight break-words">
                                 {holdError || error}
                             </p>
@@ -529,7 +529,7 @@ const DateTimeStep = ({
                                 <CalendarX size={44} className="text-brand-500" />
                             </div>
                             
-                            <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4 uppercase tracking-tight font-display">
+                            <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4 tracking-tight font-display">
                                 No Available Appointments
                             </h3>
                             
@@ -539,7 +539,7 @@ const DateTimeStep = ({
                             
                             <button 
                                 onClick={onBack}
-                                className="flex items-center justify-center gap-3 px-10 py-5 bg-brand-500 hover:bg-brand-600 text-white font-black rounded-2xl transition-all shadow-xl shadow-brand-500/25 active:scale-95 text-xs uppercase tracking-widest"
+                                className="flex items-center justify-center gap-3 px-10 py-5 bg-brand-500 hover:bg-brand-600 text-white font-black rounded-2xl transition-all shadow-xl shadow-brand-500/25 active:scale-95 text-xs"
                             >
                                 <ChevronRight size={18} className="rotate-180" />
                                 Choose Another Service
@@ -555,13 +555,13 @@ const DateTimeStep = ({
                                 
                                 {/* Column 1: Select Date (Calendar) */}
                                 <div className={`flex flex-col transition-all duration-300 ${isProcessing ? 'opacity-40 pointer-events-none cursor-wait' : ''}`}>
-                                    <h3 className='text-xs font-black text-gray-400 uppercase tracking-widest mb-5 flex items-center gap-2'>
+                                    <h3 className='text-[13px] font-black text-gray-400 mb-5 flex items-center gap-2'>
                                         <div className='w-1.5 h-1.5 rounded-full bg-brand-500' />
                                         Select Date
                                     </h3>
                                     <div className='bg-white dark:bg-white/[0.02] border-2 border-gray-200 dark:border-gray-800 rounded-3xl p-5 shadow-theme-md h-full'>
                                         <div className='flex items-center justify-between mb-5'>
-                                            <h3 className='text-[15px] sm:text-base font-bold text-gray-900 dark:text-white flex items-center gap-2 tracking-tight uppercase'><CalendarIcon size={16} className='text-brand-500' />{viewDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</h3>
+                                            <h3 className='text-[15px] sm:text-base font-bold text-gray-900 dark:text-white flex items-center gap-2 tracking-tight'><CalendarIcon size={16} className='text-brand-500' />{viewDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</h3>
                                             <div className='flex items-center gap-2 sm:gap-3'>
                                                 <button 
                                                     onClick={handleGlobalRefresh} 
@@ -578,7 +578,7 @@ const DateTimeStep = ({
                                             </div>
                                         </div>
                                         <div className='grid grid-cols-7 gap-1 mb-2'>
-                                            {dayNames.map(day => (<div key={day} className='text-[10px] sm:text-[11px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest text-center py-2'>{day}</div>))}
+                                            {dayNames.map(day => (<div key={day} className='text-[11px] sm:text-[13px] font-black text-gray-400 dark:text-gray-500 text-center py-2'>{day}</div>))}
                                         </div>
                                         <div className='grid grid-cols-7 border-t border-l border-gray-200 dark:border-gray-800 rounded-xl overflow-hidden'>
                                             {calendarDays.map((date, idx) => {
@@ -669,19 +669,19 @@ const DateTimeStep = ({
                                             <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center justify-between gap-y-3 sm:gap-y-4 gap-x-4 sm:gap-x-6">
                                                 <div className="flex items-center gap-2 sm:gap-3">
                                                     <div className="w-3 h-3 sm:w-4 sm:h-4 rounded-md bg-brand-500 shadow-md ring-1 ring-white/20" />
-                                                    <span className="text-[9px] sm:text-[12px] font-black text-gray-700 dark:text-gray-300 uppercase tracking-widest">Selected</span>
+                                                    <span className="text-[10px] sm:text-[13px] font-black text-gray-700 dark:text-gray-300">Selected</span>
                                                 </div>
                                                 <div className="flex items-center gap-2 sm:gap-3">
                                                     <div className="w-3 h-3 sm:w-4 sm:h-4 rounded-md bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 shadow-sm" />
-                                                    <span className="text-[9px] sm:text-[12px] font-black text-gray-700 dark:text-gray-300 uppercase tracking-widest">Available</span>
+                                                    <span className="text-[10px] sm:text-[13px] font-black text-gray-700 dark:text-gray-300">Available</span>
                                                 </div>
                                                 <div className="flex items-center gap-2 sm:gap-3">
                                                     <div className="w-3 h-3 sm:w-4 sm:h-4 rounded-md border-2 sm:border-[2.5px] border-brand-500 bg-white dark:bg-transparent" />
-                                                    <span className="text-[9px] sm:text-[12px] font-black text-gray-700 dark:text-gray-300 uppercase tracking-widest">Today</span>
+                                                    <span className="text-[10px] sm:text-[13px] font-black text-gray-700 dark:text-gray-300">Today</span>
                                                 </div>
                                                 <div className="flex items-center gap-2 sm:gap-3">
                                                     <div className="w-3 h-3 sm:w-4 sm:h-4 rounded-md bg-gray-200 dark:bg-gray-800 opacity-60 border border-transparent" />
-                                                    <span className="text-[9px] sm:text-[12px] font-black text-gray-600 dark:text-gray-500 uppercase tracking-widest">Blocked</span>
+                                                    <span className="text-[10px] sm:text-[13px] font-black text-gray-600 dark:text-gray-500">Blocked</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -690,14 +690,14 @@ const DateTimeStep = ({
 
                                 {/* Column 2: Select Time (Slots) */}
                                 <div className='flex flex-col h-full'>
-                                    <h3 className='text-xs font-black text-gray-400 uppercase tracking-widest mb-5 flex items-center gap-2'>
+                                    <h3 className='text-[13px] font-black text-gray-400 mb-5 flex items-center gap-2'>
                                         <div className='w-1.5 h-1.5 rounded-full bg-brand-500' />
                                         Select Time
                                     </h3>
                                     {!selectedDate ? (
                                         <div className='flex-grow bg-gray-50 dark:bg-white/[0.02] border border-dashed border-gray-200 dark:border-gray-800 rounded-3xl flex flex-col items-center justify-center p-8 text-center animate-in fade-in zoom-in duration-500'>
                                             <div className='bg-white dark:bg-gray-800 w-14 h-14 rounded-2xl flex items-center justify-center shadow-theme-sm mb-5'><MousePointer2 size={28} className='text-brand-500' /></div>
-                                            <h4 className='text-base font-bold text-gray-900 dark:text-white mb-1.5 tracking-tight uppercase'>Pick a Date</h4>
+                                            <h4 className='text-base font-bold text-gray-900 dark:text-white mb-1.5 tracking-tight'>Pick a Date</h4>
                                             <p className='text-[12px] text-gray-500 dark:text-gray-400 max-w-[220px] leading-relaxed font-bold'>Select an available day from the calendar to see slots.</p>
                                         </div>
                                     ) : (
@@ -705,7 +705,7 @@ const DateTimeStep = ({
                                             <div className={`flex flex-col h-full ${isProcessing ? 'opacity-40 pointer-events-none cursor-wait' : ''}`}>
                                                 
                                                 <div className='flex items-center justify-between mb-5'>
-                                                    <h3 className='text-[15px] font-bold text-gray-900 dark:text-white flex items-center gap-2 tracking-tight uppercase'><ClockIcon size={18} className='text-brand-500' />Available Times</h3>
+                                                    <h3 className='text-[15px] font-bold text-gray-900 dark:text-white flex items-center gap-2 tracking-tight'><ClockIcon size={18} className='text-brand-500' />Available Times</h3>
                                                     <button onClick={handleGlobalRefresh} disabled={isProcessing} className='flex items-center gap-2 px-3 py-1.5 text-[11px] font-bold bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-400 rounded-lg border border-gray-100 dark:border-gray-700 shadow-theme-xs transition-all disabled:opacity-50'><RefreshCw size={14} className={isProcessing ? 'animate-spin' : ''} />Refresh</button>
                                                 </div>
 
@@ -757,7 +757,7 @@ const DateTimeStep = ({
                                                         {hasMoreSlots && (
                                                             <button 
                                                                 onClick={() => setVisibleCount(prev => prev + 18)}
-                                                                className='mb-8 w-full py-3 border-2 border-dashed border-gray-200 dark:border-gray-800 rounded-xl text-[11px] font-black text-gray-500 hover:text-brand-500 hover:border-brand-200 dark:hover:border-brand-500/50 transition-all flex items-center justify-center gap-2 uppercase tracking-widest bg-gray-50/50 dark:bg-gray-800/30'
+                                                                className='mb-8 w-full py-3 border-2 border-dashed border-gray-200 dark:border-gray-800 rounded-xl text-[11px] font-black text-gray-500 hover:text-brand-500 hover:border-brand-200 dark:hover:border-brand-500/50 transition-all flex items-center justify-center gap-2 bg-gray-50/50 dark:bg-gray-800/30'
                                                             >
                                                                 <Plus size={14} />
                                                                 Show More Times
@@ -780,14 +780,14 @@ const DateTimeStep = ({
                                     <button 
                                         onClick={onBack} 
                                         disabled={isProcessing} 
-                                        className='flex-1 sm:flex-none sm:min-w-[120px] text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white font-black text-[9px] sm:text-sm px-2 py-3.5 sm:px-8 transition-colors uppercase tracking-widest bg-gray-50 dark:bg-gray-800 sm:bg-transparent rounded-2xl border border-transparent shadow-theme-xs disabled:opacity-30'
+                                        className='flex-1 sm:flex-none sm:min-w-[120px] text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white font-black text-[11px] sm:text-base px-2 py-3.5 sm:px-8 transition-colors bg-gray-50 dark:bg-gray-800 sm:bg-transparent rounded-2xl border border-transparent shadow-theme-xs disabled:opacity-30'
                                     >
                                         Back to Service
                                     </button>
                                     <button 
                                         onClick={onNext} 
                                         disabled={!selectedDate || !selectedTime || isProcessing} 
-                                        className='flex-1 sm:flex-none sm:min-w-[240px] bg-brand-500 hover:bg-brand-600 active:scale-95 text-white font-black px-2 py-3.5 sm:px-10 sm:py-4 rounded-2xl transition-all shadow-theme-md disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center gap-1 sm:gap-2.5 text-[9px] sm:text-base uppercase tracking-widest'
+                                        className='flex-1 sm:flex-none sm:min-w-[240px] bg-brand-500 hover:bg-brand-600 active:scale-95 text-white font-black px-2 py-3.5 sm:px-10 sm:py-4 rounded-2xl transition-all shadow-theme-md disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center gap-1 sm:gap-2.5 text-[11px] sm:text-lg'
                                     >
                                         Continue to Info
                                         <ArrowRight size={16} className="w-3.5 h-3.5 sm:w-5 sm:h-5" />

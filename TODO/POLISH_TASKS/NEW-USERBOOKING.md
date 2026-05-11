@@ -19,7 +19,7 @@
 ## 📅 3. Guest Booking Wizard
 - [x] **Booking Cards:** Enhance border visibility and shadow depth for better focus.
 - [x] **"Your Info" Step:** 
-    - [x] Enforce strict **Philippine Phone Number** format validation.
+    - [x] Enforce strict **Philippine Phone Number** format (`09XX XXXX XXXX`) with auto-prefixing.
     - [x] Fix the **Suffix Dropdown** layout/functionality issues.
     - [x] Removed uppercase from section titles and labels.
     - [x] Added section separators and improved form spacing.

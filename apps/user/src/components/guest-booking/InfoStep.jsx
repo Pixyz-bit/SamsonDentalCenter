@@ -58,16 +58,10 @@ const InfoStep = ({ formData, onUpdate, onNext, onBack }) => {
             newErrors.phone = 'Phone number is required.';
         } else {
             const sanitizedPhone = formData.phone.replace(/\D/g, '');
-            const countryCode = formData.country_code || '+63';
-            
-            if (countryCode === '+63') {
-                if (sanitizedPhone.length !== 10) {
-                    newErrors.phone = 'PH numbers must be exactly 10 digits.';
-                } else if (!sanitizedPhone.startsWith('9')) {
-                    newErrors.phone = 'PH mobile numbers must start with 9.';
-                }
-            } else if (sanitizedPhone.length < 7) {
-                newErrors.phone = 'Phone number is too short.';
+            if (sanitizedPhone.length !== 11) {
+                newErrors.phone = 'Philippine mobile numbers must be exactly 11 digits.';
+            } else if (!sanitizedPhone.startsWith('09')) {
+                newErrors.phone = 'Philippine mobile numbers must start with 09.';
             }
         }
 
@@ -101,24 +95,32 @@ const InfoStep = ({ formData, onUpdate, onNext, onBack }) => {
         // Limit notes
         if (field === 'patient_note' && value.length > 100) return;
 
-        // Phone specific logic: Limit to 10 digits for PH (+63)
+        // Phone specific logic: Strictly enforce 09XX XXXX XXXX format
         if (field === 'phone') {
-            let sanitized = value.replace(/\D/g, '');
-            const countryCode = formData.country_code || '+63';
+            let digits = value.replace(/\D/g, '');
             
-            // Strictly enforce PH mobile format: starts with 9 and max 10 digits
-            if (countryCode === '+63') {
-                if (sanitized.length > 0 && sanitized[0] !== '9') {
-                    // If they type 09..., strip the 0
-                    if (sanitized[0] === '0') {
-                        sanitized = sanitized.substring(1);
-                    } else {
-                        return; // Ignore other starts
-                    }
-                }
-                if (sanitized.length > 10) return;
+            if (digits.length === 0) {
+                onUpdate('phone', '');
+                return;
             }
-            onUpdate(field, sanitized);
+
+            // Auto-prefix 09
+            if (digits.length === 1) {
+                digits = (digits === '0' || digits === '9') ? '09' : '09' + digits;
+            } else if (digits.length >= 2 && !digits.startsWith('09')) {
+                digits = digits.startsWith('9') ? '0' + digits : '09' + digits;
+            }
+
+            digits = digits.substring(0, 11);
+
+            let formatted = digits;
+            if (digits.length > 7) {
+                formatted = `${digits.slice(0, 3)} ${digits.slice(3, 7)} ${digits.slice(7)}`;
+            } else if (digits.length > 3) {
+                formatted = `${digits.slice(0, 3)} ${digits.slice(3)}`;
+            }
+
+            onUpdate('phone', formatted);
         } else {
             onUpdate(field, value);
         }
@@ -357,30 +359,19 @@ const InfoStep = ({ formData, onUpdate, onNext, onBack }) => {
                             {/* Phone Number */}
                             <div>
                                 <label className={labelClasses}>Phone Number <span className='text-brand-500'>*</span></label>
-                                <div className="flex gap-2">
-                                    <select
-                                        value={formData.country_code || '+63'}
-                                        onChange={(e) => handleFieldChange('country_code', e.target.value)}
-                                        className="h-10 w-24 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-800 dark:text-white/90 px-2 text-[12px] font-bold focus:ring-3 focus:ring-brand-500/20 focus:border-brand-300 outline-hidden"
-                                    >
-                                        <option value="+63">PH (+63)</option>
-                                        <option value="+1">US (+1)</option>
-                                        <option value="+61">AU (+61)</option>
-                                        <option value="+44">UK (+44)</option>
-                                    </select>
+                                <div className="relative">
                                     <input
                                         id="field-phone"
                                         type='tel'
                                         value={formData.phone}
                                         onChange={(e) => handleFieldChange('phone', e.target.value)}
-                                        placeholder={
-                                            (formData.country_code || '+63') === '+63' ? '9171234567' :
-                                                formData.country_code === '+1' ? '2025550123' :
-                                                    formData.country_code === '+61' ? '0412345678' :
-                                                        formData.country_code === '+44' ? '07700900123' : 'Phone number'
-                                        }
-                                        className={getInputClasses(errors.phone)}
+                                        placeholder='09XX XXXX XXXX'
+                                        maxLength={13} // 11 digits + 2 spaces
+                                        className={`${getInputClasses(errors.phone)} pr-20`}
                                     />
+                                    <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
+                                        <span className="text-[10px] font-black text-gray-400">PH (+63)</span>
+                                    </div>
                                 </div>
                                 {errors.phone && <p className='text-error-500 text-[10px] font-bold mt-1.5 ml-1'>{errors.phone}</p>}
                             </div>
@@ -409,20 +400,24 @@ const InfoStep = ({ formData, onUpdate, onNext, onBack }) => {
                                     <div className="w-10 h-10 rounded-xl bg-brand-500 text-white flex items-center justify-center shrink-0 shadow-lg shadow-brand-500/20">
                                         <Mail size={20} />
                                     </div>
-                                    <h4 className="text-[13px] sm:text-base font-black text-gray-900 dark:text-white uppercase tracking-tight">
+                                    <h4 className="text-[13px] sm:text-base font-black text-gray-900 dark:text-white tracking-tight">
                                         Verify Your Email
                                     </h4>
                                 </div>
-                                <div className='text-[12px] sm:text-[14px] text-gray-600 dark:text-gray-400 leading-relaxed font-medium'>
-                                    <p>This email is our <strong className="text-brand-600 dark:text-brand-400">only way</strong> to send your confirmation and status updates.</p>
-                                    <p className="mt-1.5 flex flex-wrap items-center gap-1.5">
-                                        Please double-check
-                                        <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md font-black break-all transition-all ${formData.email ? 'bg-brand-50 dark:bg-brand-500/10 text-brand-600 dark:text-brand-400 border border-brand-100 dark:border-brand-500/20' : 'text-gray-400 italic'}`}>
-                                            {formData.email || 'your email'}
-                                        </span>
-                                        before proceeding.
-                                    </p>
-                                </div>
+                                <ul className="space-y-3">
+                                    <li className="flex items-start gap-2.5">
+                                        <div className="w-1.5 h-1.5 rounded-full bg-brand-500 mt-2 shrink-0" />
+                                        <p className="text-[12px] sm:text-[14px] text-gray-600 dark:text-gray-400 leading-relaxed font-medium">
+                                            This email is our <strong className="text-brand-600 dark:text-brand-400">only way</strong> to send your confirmation and status updates.
+                                        </p>
+                                    </li>
+                                    <li className="flex items-start gap-2.5">
+                                        <div className="w-1.5 h-1.5 rounded-full bg-brand-500 mt-2 shrink-0" />
+                                        <p className="text-[12px] sm:text-[14px] text-gray-600 dark:text-gray-400 leading-relaxed font-medium">
+                                            Please double-check <strong className="text-brand-600 dark:text-brand-400 break-all">{formData.email || 'your email'}</strong> before proceeding.
+                                        </p>
+                                    </li>
+                                </ul>
                             </div>
                         </div>
                     </div>

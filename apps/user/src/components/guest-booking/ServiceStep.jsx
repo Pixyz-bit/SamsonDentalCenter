@@ -61,7 +61,7 @@ const ServiceStep = ({ selectedServiceId, onSelect, onNext, allowSpecialized = f
 
             {fetchError && (
                 <div className='bg-red-50 dark:bg-red-900/10 border border-red-100 dark:border-red-900/20 text-red-600 dark:text-red-400 p-6 rounded-2xl text-center'>
-                    <p className='font-bold mb-2 uppercase tracking-widest text-xs'>Failed to load services</p>
+                    <p className='font-bold mb-2 text-xs'>Failed to load services</p>
                     <p className='text-sm opacity-80'>{fetchError}</p>
                 </div>
             )}
@@ -95,7 +95,7 @@ const ServiceStep = ({ selectedServiceId, onSelect, onNext, allowSpecialized = f
                                         {service.duration_minutes}m
                                     </div>
                                     {service.tier?.toLowerCase() === 'specialized' && !allowSpecialized && (
-                                        <div className='flex items-center gap-1 sm:gap-1.5 text-[9px] sm:text-[10px] font-black text-amber-600 dark:text-amber-400 uppercase tracking-widest'>
+                                        <div className='flex items-center gap-1 sm:gap-1.5 text-[9px] sm:text-[10px] font-black text-amber-600 dark:text-amber-400'>
                                             <ShieldCheck size={12} className="shrink-0" />
                                             <span className="hidden sm:inline">Specialized</span>
                                         </div>
@@ -125,7 +125,7 @@ const ServiceStep = ({ selectedServiceId, onSelect, onNext, allowSpecialized = f
                     <button
                         onClick={onNext}
                         disabled={!selectedServiceId}
-                        className='flex-1 sm:flex-none sm:min-w-[240px] bg-brand-500 hover:bg-brand-600 active:scale-95 text-white font-black px-4 py-3.5 sm:px-10 sm:py-4 rounded-2xl transition-all shadow-theme-md disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-[10px] sm:text-base uppercase tracking-widest'
+                        className='flex-1 sm:flex-none sm:min-w-[240px] bg-brand-500 hover:bg-brand-600 active:scale-95 text-white font-black px-4 py-3.5 sm:px-10 sm:py-4 rounded-2xl transition-all shadow-theme-md disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-[11px] sm:text-lg'
                     >
                         Continue to Date & Time
                         <ArrowRight size={18} className="w-4 h-4 sm:w-5 sm:h-5" />
