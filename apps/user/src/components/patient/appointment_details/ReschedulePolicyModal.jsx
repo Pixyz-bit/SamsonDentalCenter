@@ -1,103 +1,108 @@
 import React from 'react';
 import { Phone, Mail, Clock, AlertTriangle } from 'lucide-react';
+import { Modal, ModalHeader, ModalBody, ModalFooter } from '../../ui/Modal';
+import Button from '../../ui/Button';
 
 const ReschedulePolicyModal = ({ show, onClose, onConfirm, mode = 'warning' }) => {
-    if (!show) return null;
-
     const isWarning = mode === 'warning';
 
-    const contactItems = [
-        {
-            icon: Phone,
-            label: 'Call Us',
-            display: '09123456789',
-            href: 'tel:09123456789',
-            color: 'text-blue-600',
-            bg: 'bg-blue-50 dark:bg-blue-500/10'
-        },
-        {
-            icon: Mail,
-            label: 'Email Us',
-            display: 'samsondentalcenter@gmail.com',
-            href: 'mailto:samsondentalcenter@gmail.com',
-            color: 'text-brand-600',
-            bg: 'bg-brand-50 dark:bg-brand-500/10'
-        }
-    ];
+    const title = isWarning ? 'Reschedule Policy' : 'Already Rescheduled';
+    const description = isWarning 
+        ? "You can only reschedule this appointment once through the portal."
+        : "This appointment has already been rescheduled once.";
 
     return (
-        <div 
-            className='fixed inset-0 z-[100001] flex items-center justify-center p-4 bg-black/50 dark:bg-black/70 backdrop-blur-sm'
-            onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+        <Modal 
+            isOpen={show} 
+            onClose={onClose} 
+            isBottomSheet={true} 
+            className='sm:max-w-[480px] w-full' 
+            showCloseButton={false}
         >
-            <div className='relative w-full max-w-md bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800 animate-[fadeIn_0.15s_ease-out] overflow-hidden'>
-                {/* Visual Header Bar */}
-                <div className={`h-1.5 w-full ${isWarning ? 'bg-amber-500' : 'bg-brand-500'}`} />
-                
-                <div className='p-6 sm:p-10 space-y-8'>
-                    {/* Icon & Title */}
-                    <div className='flex flex-col items-center text-center space-y-5'>
-                        <div className={`w-16 h-16 rounded-xl flex items-center justify-center ${
+            <ModalHeader 
+                title={title}
+                description={description}
+                onClose={onClose}
+            />
+
+            <ModalBody>
+                <div className='space-y-6'>
+                    {/* Visual Status Box */}
+                    <div className={`p-4 rounded-xl border flex gap-4 ${
+                        isWarning 
+                            ? 'bg-amber-50 dark:bg-amber-500/10 border-amber-100 dark:border-amber-500/20' 
+                            : 'bg-brand-50 dark:bg-brand-500/10 border-brand-100 dark:border-brand-500/20'
+                    }`}>
+                        <div className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${
                             isWarning 
-                                ? 'bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-500' 
-                                : 'bg-brand-50 text-brand-600 dark:bg-brand-500/10 dark:text-brand-400'
+                                ? 'bg-amber-100 text-amber-600 dark:bg-amber-500/20 dark:text-amber-400' 
+                                : 'bg-brand-100 text-brand-600 dark:bg-brand-500/20 dark:text-brand-400'
                         }`}>
-                            {isWarning ? <AlertTriangle size={32} /> : <Clock size={32} />}
+                            {isWarning ? <AlertTriangle size={20} /> : <Clock size={20} />}
                         </div>
-                        <div className='space-y-2'>
-                            <h3 className='text-xl sm:text-2xl font-black text-gray-900 dark:text-white font-outfit text-center'>
-                                {isWarning ? 'Reschedule Policy' : 'Already Rescheduled'}
-                            </h3>
-                            <p className='mt-2 text-center text-[13px] sm:text-sm font-medium text-gray-500 dark:text-gray-400 leading-relaxed max-w-[280px] mx-auto'>
-                                {isWarning 
-                                    ? "You can only reschedule this appointment once through the portal. Further changes will require contacting our clinic directly."
-                                    : "This appointment has already been rescheduled once. For further adjustments, please reach out to our team."
-                                }
-                            </p>
-                        </div>
+                        <p className='text-[13px] sm:text-sm font-semibold text-gray-600 dark:text-gray-400 leading-relaxed'>
+                            {isWarning 
+                                ? "For everyone's convenience, further changes after this reschedule will require contacting our clinic directly."
+                                : "For further adjustments, please reach out to our medical team through the contact details provided below."
+                            }
+                        </p>
                     </div>
 
-                    {/* Contact List (Only for Blocked mode) */}
+                    {/* Contact Information Card */}
                     {!isWarning && (
-                        <div className='space-y-3'>
-
-                            <div className='space-y-4 font-medium text-[13px] sm:text-sm text-gray-600 dark:text-gray-400 bg-white dark:bg-gray-900 p-4 border border-gray-100 dark:border-gray-800 rounded-xl'>
-                                <p className='flex items-center gap-3'>
-                                    <span className='w-8 h-8 rounded-lg bg-gray-50 dark:bg-gray-800 flex items-center justify-center text-gray-400 dark:text-gray-500 shrink-0'>
-                                        <Phone size={14} />
-                                    </span>
-                                    <span className='text-gray-900 dark:text-white font-black'>09123456789</span>
-                                </p>
-                                <p className='flex items-center gap-3 pt-3 border-t border-gray-100 dark:border-gray-800'>
-                                    <span className='w-8 h-8 rounded-lg bg-gray-50 dark:bg-gray-800 flex items-center justify-center text-gray-400 dark:text-gray-500 shrink-0'>
-                                        <Mail size={14} />
-                                    </span>
-                                    <span className='text-gray-900 dark:text-white font-black'>samsondentalcenter@gmail.com</span>
-                                </p>
+                        <div className='space-y-4'>
+                            <label className='text-[11px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest px-1'>
+                                Direct Contact
+                            </label>
+                            <div className='bg-gray-50 dark:bg-white/[0.02] border border-gray-100 dark:border-gray-800 rounded-xl overflow-hidden'>
+                                <a 
+                                    href='tel:09123456789'
+                                    className='flex items-center gap-4 p-4 hover:bg-gray-100 dark:hover:bg-white/[0.05] transition-colors group'
+                                >
+                                    <div className='w-9 h-9 rounded-lg bg-white dark:bg-gray-800 flex items-center justify-center text-gray-400 group-hover:text-brand-500 transition-colors shadow-sm'>
+                                        <Phone size={16} />
+                                    </div>
+                                    <div className='flex flex-col'>
+                                        <span className='text-[11px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider'>Call Us</span>
+                                        <span className='text-sm sm:text-base font-bold text-gray-900 dark:text-white'>09123456789</span>
+                                    </div>
+                                </a>
+                                <a 
+                                    href='mailto:samsondentalcenter@gmail.com'
+                                    className='flex items-center gap-4 p-4 border-t border-gray-100 dark:border-gray-800 hover:bg-gray-100 dark:hover:bg-white/[0.05] transition-colors group'
+                                >
+                                    <div className='w-9 h-9 rounded-lg bg-white dark:bg-gray-800 flex items-center justify-center text-gray-400 group-hover:text-brand-500 transition-colors shadow-sm'>
+                                        <Mail size={16} />
+                                    </div>
+                                    <div className='flex flex-col'>
+                                        <span className='text-[11px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider'>Email Us</span>
+                                        <span className='text-sm sm:text-base font-bold text-gray-900 dark:text-white'>samsondentalcenter@gmail.com</span>
+                                    </div>
+                                </a>
                             </div>
                         </div>
                     )}
-
-                    {/* Actions */}
-                    <div className='flex gap-3'>
-                        <button
-                            onClick={onClose}
-                            className='flex-1 px-6 py-4 rounded-lg border border-gray-200 dark:border-white/10 text-[15px] font-black text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5 transition-all active:scale-95'
-                        >
-                            {isWarning ? 'Go Back' : 'Close'}
-                        </button>
-                        {isWarning && (
-                            <button
-                                onClick={onConfirm}
-                                className='flex-1 px-6 py-4 rounded-lg bg-brand-500 text-[15px] font-black text-white hover:bg-brand-600 transition-all active:scale-95'
-                            >
-                                Continue
-                            </button>
-                        )}
-                    </div>
                 </div>
-            </div>
-        </div>
+            </ModalBody>
+
+            <ModalFooter>
+                <Button 
+                    variant='outline' 
+                    onClick={onClose}
+                    className='flex-1 h-12 rounded-xl font-bold text-[14px] sm:text-base'
+                >
+                    {isWarning ? 'Go Back' : 'Close'}
+                </Button>
+                {isWarning && (
+                    <Button 
+                        onClick={onConfirm}
+                        className='flex-1 h-12 rounded-xl bg-brand-500 text-white font-bold text-[14px] sm:text-base shadow-lg shadow-brand-500/20'
+                    >
+                        Continue
+                    </Button>
+                )}
+            </ModalFooter>
+        </Modal>
     );
 };
 
