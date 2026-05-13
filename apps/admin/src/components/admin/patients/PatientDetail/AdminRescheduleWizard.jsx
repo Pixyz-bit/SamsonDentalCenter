@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { X, Calendar, Clock, Stethoscope, ChevronLeft, ChevronRight, Loader2, CheckCircle2, RefreshCw, UserCheck } from 'lucide-react';
+import { X, Calendar, Clock, Stethoscope, ChevronLeft, ChevronRight, Loader2, CheckCircle2, RefreshCw, UserCheck, AlertCircle, ArrowRight } from 'lucide-react';
 import useAdminReschedule from '../../../../hooks/useAdminReschedule';
 import DateTimeStep from './steps/DateTimeStep';
 import { api } from '../../../../utils/api';
@@ -167,9 +167,17 @@ const RescheduleReviewStep = ({ appointment, formData, result, dentists }) => {
     );
 };
 
-// ─── Main Wizard ───────────────────────────────────────────────────────────────
 const AdminRescheduleWizard = ({ isOpen, onClose, appointment, token, onSuccess }) => {
     const reschedule = useAdminReschedule(appointment, token);
+    const contentRef = useRef(null);
+
+    // ✅ Auto-scroll to top on error
+    useEffect(() => {
+        if (error && contentRef.current) {
+            contentRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    }, [error]);
+
     const {
         step,
         currentStep,
@@ -184,6 +192,38 @@ const AdminRescheduleWizard = ({ isOpen, onClose, appointment, token, onSuccess 
         submit,
         reset,
     } = reschedule;
+
+    // ✅ Error Detail Parsing (Parity with User Booking)
+    const getErrorDetails = () => {
+        if (!error) return null;
+
+        if (error.includes('Conflict:')) {
+            return {
+                headline: 'Scheduling Conflict',
+                message: error,
+                solution: "This patient is already booked for another service during this time. Please select a different slot.",
+                action: { label: 'Change Time', onClick: prevStep }
+            };
+        }
+
+        if (error.includes('already booked for this service')) {
+            return {
+                headline: 'Duplicate Treatment',
+                message: "This patient already has this service scheduled for the selected date.",
+                solution: "Treatment guidelines limit this service to once per day per patient.",
+                action: { label: 'Change Date', onClick: prevStep }
+            };
+        }
+
+        return {
+            headline: 'Reschedule Alert',
+            message: error,
+            solution: "Please verify the schedule availability and try again.",
+            action: null
+        };
+    };
+
+    const errorDetails = getErrorDetails();
 
     const [showExitConfirm, setShowExitConfirm] = useState(false);
     const [dentists, setDentists] = useState([]);
@@ -302,13 +342,66 @@ const AdminRescheduleWizard = ({ isOpen, onClose, appointment, token, onSuccess 
                 </div>
 
                 {/* Content Area */}
-                <div className='p-8 sm:px-10 overflow-y-auto grow custom-scrollbar'>
-                    {error && (
-                        <div className='mb-8 p-5 rounded-3xl bg-red-50 dark:bg-red-500/5 border border-red-100 dark:border-red-500/10 text-red-600 dark:text-red-400 text-xs font-bold uppercase tracking-tight flex items-center gap-4 animate-in shake duration-500'>
-                            <div className='w-8 h-8 rounded-full bg-red-100 dark:bg-red-500/20 flex items-center justify-center shrink-0'>
-                                <X size={16} />
+                <div 
+                    ref={contentRef}
+                    className='p-8 sm:px-10 overflow-y-auto grow custom-scrollbar'
+                >
+                    {errorDetails && (
+                        <div className='bg-red-50/50 dark:bg-red-950/10 border border-red-200 dark:border-red-900/30 rounded-[2rem] mb-8 animate-in shake duration-500 shadow-theme-md overflow-hidden'>
+                            <div className="px-6 pt-6 pb-5 sm:px-8 flex items-center justify-between border-b border-red-200/50 dark:border-red-900/30 gap-3">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-10 h-10 rounded-xl bg-red-100 dark:bg-red-900/40 text-red-600 dark:text-red-400 flex items-center justify-center shrink-0 shadow-sm">
+                                        <AlertCircle size={20} />
+                                    </div>
+                                    <h3 className="text-sm sm:text-base font-black text-red-600 dark:text-red-400 uppercase tracking-tight">
+                                        {errorDetails.headline}
+                                    </h3>
+                                </div>
                             </div>
-                            {error}
+                            
+                            <div className="px-6 py-6 sm:px-8">
+                                <div className="space-y-6">
+                                    <ul className="space-y-4">
+                                        <li className="flex items-start gap-3">
+                                            <div className="w-1.5 h-1.5 rounded-full bg-red-600 mt-1.5 shrink-0 shadow-sm" />
+                                            <p className="text-xs sm:text-[13px] text-gray-900 dark:text-white font-bold leading-snug">
+                                                {errorDetails.message}
+                                            </p>
+                                        </li>
+                                        {errorDetails.solution && (
+                                            <li className="flex items-start gap-3">
+                                                <div className="w-1.5 h-1.5 rounded-full bg-red-400 mt-1.5 shrink-0 opacity-40" />
+                                                <p className="text-[10px] sm:text-[11px] text-gray-500 dark:text-gray-400 font-medium leading-relaxed uppercase tracking-wide">
+                                                    {errorDetails.solution}
+                                                </p>
+                                            </li>
+                                        )}
+                                    </ul>
+
+                                    <div className="pt-2 flex items-center justify-end gap-3">
+                                        <button
+                                            type="button"
+                                            onClick={submit}
+                                            disabled={submitting}
+                                            className="flex items-center justify-center gap-2 rounded-full border border-red-200 bg-white dark:bg-red-900/10 px-5 py-2.5 text-[10px] font-black uppercase tracking-widest text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all active:scale-95 shrink-0 disabled:opacity-50"
+                                        >
+                                            <RefreshCw size={12} className={submitting ? 'animate-spin' : ''} />
+                                            Retry
+                                        </button>
+                                        
+                                        {errorDetails.action && (
+                                            <button
+                                                type="button"
+                                                onClick={errorDetails.action.onClick}
+                                                className="flex items-center justify-center gap-2 rounded-full bg-red-600 hover:bg-red-700 text-white px-5 py-2.5 text-[10px] font-black uppercase tracking-widest transition-all shadow-theme-md active:scale-95 shrink-0"
+                                            >
+                                                {errorDetails.action.label}
+                                                <ArrowRight size={12} className="opacity-80" />
+                                            </button>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     )}
 

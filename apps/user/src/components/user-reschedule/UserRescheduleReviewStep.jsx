@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { 
     ArrowLeft, 
     ArrowRight, 
@@ -56,6 +56,16 @@ const ReviewSection = ({ title, children, onEditClick, icon: Icon }) => (
 );
 
 const UserRescheduleReviewStep = ({ formData, appointment, onSubmit, onBack, submitting, error }) => {
+    // ✅ Phase 1: Robust Auto-scroll to top on error
+    useEffect(() => {
+        if (error) {
+            window.scrollTo({ top: 0, behavior: 'auto' });
+            setTimeout(() => {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }, 50);
+        }
+    }, [error]);
+
     const service = appointment?.service;
     const serviceName = service?.name || appointment?.service || '—';
     const duration = service?.duration_minutes || 30;
@@ -76,6 +86,47 @@ const UserRescheduleReviewStep = ({ formData, appointment, onSubmit, onBack, sub
         ? `Dr. ${appointment.dentist.profile.first_name} ${appointment.dentist.profile.last_name}`
         : appointment?.dentist?.full_name || 'Any Available Dentist';
 
+    // ✅ Error Detail Parsing (Parity with UserBookingWizard)
+    const getErrorDetails = () => {
+        if (!error) return null;
+
+        if (error.includes('already been rescheduled once')) {
+            return {
+                headline: 'Reschedule Limit Reached',
+                message: "This appointment has already been rescheduled once and cannot be changed again through the portal.",
+                solution: "Please contact our clinic directly if you need further adjustments to this schedule.",
+                action: null
+            };
+        }
+
+        if (error.includes('Conflict:')) {
+            return {
+                headline: 'Time Slot Conflict',
+                message: error,
+                solution: "You already have another appointment during this time range. Please select a different slot.",
+                action: { label: 'Change Time', onClick: onBack }
+            };
+        }
+
+        if (error.includes('already booked for this service')) {
+            return {
+                headline: 'Duplicate Booking',
+                message: "You already have this service scheduled for the selected date.",
+                solution: "Patients are limited to one instance of this treatment per day. Please choose a different date.",
+                action: { label: 'Change Date', onClick: onBack }
+            };
+        }
+
+        return {
+            headline: 'Scheduling Alert',
+            message: error,
+            solution: "We encountered an issue while updating your appointment. Please review the message above.",
+            action: null
+        };
+    };
+
+    const errorDetails = getErrorDetails();
+
     return (
         <div className="animate-in fade-in slide-in-from-bottom-2 duration-500 pb-[60px] sm:pb-6">
             <div className="mb-8 sm:mb-10">
@@ -87,7 +138,7 @@ const UserRescheduleReviewStep = ({ formData, appointment, onSubmit, onBack, sub
                 </p>
             </div>
 
-            {error && (
+            {errorDetails && (
                 <div className='bg-red-50/50 dark:bg-red-950/10 border border-red-200 dark:border-red-900/30 rounded-2xl sm:rounded-3xl mb-8 animate-in shake duration-500 shadow-theme-md overflow-hidden'>
                     <div className="px-5 pt-6 pb-5 sm:px-10 flex items-center justify-between border-b border-red-200/50 dark:border-red-900/30 gap-3">
                         <div className="flex items-center gap-3">
@@ -95,14 +146,53 @@ const UserRescheduleReviewStep = ({ formData, appointment, onSubmit, onBack, sub
                                 <AlertCircle size={20} />
                             </div>
                             <h3 className="text-[14px] sm:text-lg font-bold text-red-600 dark:text-red-400">
-                                Scheduling Alert
+                                {errorDetails.headline}
                             </h3>
                         </div>
                     </div>
+                    
                     <div className="px-5 py-6 sm:px-10 sm:py-8">
-                        <p className="text-[13px] sm:text-[15px] text-gray-900 dark:text-white font-bold leading-snug">
-                            {error}
-                        </p>
+                        <div className="space-y-6">
+                            <ul className="space-y-4">
+                                <li className="flex items-start gap-3">
+                                    <div className="w-1.5 h-1.5 rounded-full bg-red-600 mt-2 shrink-0 shadow-sm" />
+                                    <p className="text-[13px] sm:text-[15px] text-gray-900 dark:text-white font-bold leading-snug">
+                                        {errorDetails.message}
+                                    </p>
+                                </li>
+                                {errorDetails.solution && (
+                                    <li className="flex items-start gap-3">
+                                        <div className="w-1.5 h-1.5 rounded-full bg-red-400 mt-2 shrink-0 opacity-40" />
+                                        <p className="text-[11px] sm:text-[13px] text-gray-500 dark:text-gray-400 font-medium leading-relaxed">
+                                            {errorDetails.solution}
+                                        </p>
+                                    </li>
+                                )}
+                            </ul>
+
+                            <div className="pt-2 flex items-center justify-end gap-3">
+                                <button
+                                    type="button"
+                                    onClick={onSubmit}
+                                    disabled={submitting}
+                                    className="flex items-center justify-center gap-2 rounded-full border border-red-200 bg-white dark:bg-red-900/10 px-4 py-2 sm:px-6 sm:py-2.5 text-[10px] sm:text-sm font-bold text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all active:scale-95 shrink-0 disabled:opacity-50"
+                                >
+                                    <RefreshCw size={14} className={submitting ? 'animate-spin' : ''} />
+                                    Retry
+                                </button>
+                                
+                                {errorDetails.action && (
+                                    <button
+                                        type="button"
+                                        onClick={errorDetails.action.onClick}
+                                        className="flex items-center justify-center gap-1.5 sm:gap-2 rounded-full bg-red-600 hover:bg-red-700 text-white px-4 py-2 sm:px-6 sm:py-2.5 text-[10px] sm:text-sm font-bold transition-all shadow-theme-md active:scale-95 shrink-0"
+                                    >
+                                        {errorDetails.action.label}
+                                        <ArrowRight size={14} className="opacity-80" />
+                                    </button>
+                                )}
+                            </div>
+                        </div>
                     </div>
                 </div>
             )}
