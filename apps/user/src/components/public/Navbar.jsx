@@ -108,9 +108,9 @@ const Navbar = () => {
             gsap.from('.nav-anim', {
                 y: -20,
                 opacity: 0,
-                duration: 0.8,
-                stagger: 0.1,
-                ease: 'power3.out',
+                duration: 1.2,
+                stagger: 0.08,
+                ease: 'power2.out',
                 delay: 0.1,
                 clearProps: 'all',
             });
