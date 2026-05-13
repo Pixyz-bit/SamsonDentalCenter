@@ -329,9 +329,12 @@ const UserOtherInfoStep = ({ formData, onUpdate, onNext, onBack }) => {
 
                 {isOpen && (
                     <>
-                        <div className='fixed inset-0 z-40' onClick={() => setIsOpen(false)} />
-                        <div className='absolute top-[calc(100%+8px)] left-0 w-full bg-white dark:bg-[#0f172a] border-2 border-gray-100 dark:border-gray-800 rounded-2xl shadow-xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-1 duration-200'>
-                            <div className='max-h-[320px] overflow-y-auto p-2 scrollbar-hide'>
+                        <div className='fixed inset-0 z-20' onClick={() => setIsOpen(false)} />
+                        <div className='absolute top-[calc(100%+8px)] left-0 w-full bg-white dark:bg-[#0f172a] border-2 border-gray-100 dark:border-gray-800 rounded-2xl shadow-xl z-30 overflow-hidden animate-in fade-in slide-in-from-top-1 duration-200'>
+                            <div 
+                                className='max-h-[320px] overflow-y-auto p-2 overscroll-contain scroll-smooth'
+                                onWheel={(e) => e.stopPropagation()}
+                            >
                                 <button
                                     onClick={() => handleSelect('myself')}
                                     className={`w-full flex items-center gap-3.5 p-3 rounded-xl transition-all text-left mb-1 group ${

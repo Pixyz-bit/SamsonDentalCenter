@@ -44,10 +44,13 @@ const UserReviewStep = ({
     const [isRetrying, setIsRetrying] = useState(false);
     const [isEntryLocked, setIsEntryLocked] = useState(true);
 
-    // Scroll to top on error
+    // ✅ Phase 1: Robust Auto-scroll to top on error
     useEffect(() => {
         if (error) {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            window.scrollTo({ top: 0, behavior: 'auto' });
+            setTimeout(() => {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }, 50);
         }
     }, [error]);
 

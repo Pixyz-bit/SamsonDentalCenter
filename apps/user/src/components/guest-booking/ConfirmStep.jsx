@@ -411,7 +411,7 @@ const ConfirmStep = ({ formData, onSubmit, onBack, onEdit, onReset, submitting, 
                         disabled={submitting} 
                         className='flex-1 sm:flex-none sm:min-w-[120px] text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white font-black text-[11px] sm:text-sm px-4 py-3.5 sm:px-8 transition-colors disabled:opacity-30 bg-gray-50 dark:bg-gray-800 sm:bg-transparent rounded-2xl border border-transparent shadow-theme-xs'
                     >
-                        Back to Info
+                        Back to Details
                     </button>
                     
                     <button 
