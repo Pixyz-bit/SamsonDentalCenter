@@ -47,28 +47,25 @@ const StatCard = ({ title, value, subtitle, icon: Icon, color = 'brand', link = 
     }
 
     return (
-        <div className='relative rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03] flex items-center gap-2.5 sm:gap-5 p-3 sm:p-5 min-h-[80px] sm:min-h-[100px] h-full transition-all hover:shadow-sm'>
+        <div className='relative rounded-2xl border border-gray-100 bg-white dark:border-gray-800 dark:bg-white/[0.03] flex items-center gap-3 sm:gap-4 px-4 py-3.5 min-h-[70px] sm:min-h-[90px] h-full transition-all hover:shadow-md'>
             {/* Icon */}
-            <div className={`flex items-center justify-center w-10 h-10 sm:w-14 sm:h-14 rounded-full shrink-0 ${colorClasses[color] || colorClasses.brand}`}>
-                {Icon && <Icon size={18} className="sm:w-[26px] sm:h-[26px]" />}
+            <div className={`flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-full shrink-0 ${colorClasses[color] || colorClasses.brand}`}>
+                {Icon && <Icon size={18} className="sm:w-[22px] sm:h-[22px]" />}
             </div>
 
             {/* Content */}
             <div className='flex-grow min-w-0 flex flex-col justify-center'>
-                <span className='text-[12px] sm:text-[13px] text-gray-500 dark:text-gray-400 font-medium truncate mb-0.5'>
+                <span className='text-[12px] sm:text-[13px] text-gray-700 dark:text-gray-400 font-medium truncate mb-0.5'>
                     {title}
                 </span>
                 <div className='flex items-center justify-between gap-1'>
-                    <h4 className='text-xl sm:text-2xl lg:text-[28px] font-bold text-gray-900 dark:text-white truncate leading-tight tabular-nums tracking-tight font-outfit'>
+                    <h4 className='text-xl sm:text-2xl lg:text-[26px] font-medium text-gray-900 dark:text-white truncate leading-tight tabular-nums tracking-tight'>
                         {displayValue}
                     </h4>
                     {link && (
-                        <Link
-                            to={link}
-                            className='hidden sm:flex items-center justify-center w-8 h-8 rounded-full bg-gray-50 dark:bg-white/5 text-gray-400 hover:text-brand-500 hover:bg-brand-50 dark:hover:bg-brand-500/10 transition-all shrink-0'
-                        >
-                            <ArrowUpRight size={16} />
-                        </Link>
+                        <div className='hidden sm:flex items-center justify-center w-8 h-8 text-gray-300 group-hover:text-brand-500 transition-all shrink-0'>
+                            <ArrowUpRight size={20} strokeWidth={2.5} />
+                        </div>
                     )}
                 </div>
             </div>

@@ -132,43 +132,45 @@ export default function DashboardCalendar({ appointments = [], loading = false }
     return (
         <div className="flex flex-col border border-gray-200 dark:border-gray-800 rounded-2xl bg-white/50 dark:bg-white/[0.02] backdrop-blur-md shadow-sm overflow-hidden transition-all duration-300">
             {/* Header Section */}
-            <div className="px-6 py-5 border-b border-gray-100 dark:border-gray-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-xl bg-brand-50 dark:bg-brand-500/10 flex items-center justify-center text-brand-500">
-                        <CalendarIcon size={20} />
+                    <div className="w-10 h-10 rounded-xl bg-brand-500 text-white flex items-center justify-center shadow-md shadow-brand-500/10">
+                        <ChevronRight size={22} strokeWidth={2.5} />
                     </div>
                     <div>
-                        <h4 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white tracking-tight leading-tight">Upcoming Schedule</h4>
-                        <p className="text-[10px] sm:text-xs font-semibold text-gray-500 dark:text-gray-400 mt-0.5">Timeline view of your dental journey • <span className="text-brand-500">Approved & Pending Sessions</span></p>
+                        <h4 className="text-[18px] sm:text-[20px] font-medium text-gray-900 dark:text-white tracking-tight leading-tight">Upcoming Schedule</h4>
+                        <p className="text-[11px] sm:text-[12px] font-medium text-gray-700 dark:text-gray-400 mt-0.5">
+                            Timeline view of your dental journey • <span className="text-brand-500">Approved & Pending Sessions</span>
+                        </p>
                     </div>
                 </div>
-                <Link to="/patient/appointments" className="hidden sm:inline-flex items-center gap-2 px-5 h-11 text-[11px] font-bold border border-gray-200 dark:border-gray-800 rounded-xl hover:bg-brand-50 dark:hover:bg-brand-500/10 hover:text-brand-600 dark:hover:text-brand-400 hover:border-brand-500/30 transition-all text-gray-700 dark:text-gray-300 tracking-wider">
-                    View All Requests <ArrowRight size={14} />
+                <Link to="/patient/appointments" className="hidden sm:inline-flex items-center gap-2 px-4 h-9 text-[11px] font-medium border border-gray-200 dark:border-gray-800 rounded-xl hover:bg-brand-50 dark:hover:bg-brand-500/10 hover:text-brand-600 dark:hover:text-brand-400 hover:border-brand-500/30 transition-all text-gray-700 dark:text-gray-300 tracking-wide">
+                    View all requests <ArrowRight size={14} />
                 </Link>
             </div>
 
             {/* Navigation Section */}
-            <div className='flex items-center justify-between px-4 sm:px-6 py-3 border-b border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-white/[0.01]'>
-                <h3 className='text-[clamp(0.85rem,2vw,1.1rem)] font-bold text-gray-900 dark:text-white tracking-tight'>{`Week of ${format(startDate, 'MMMM d, yyyy')}`}</h3>
+            <div className='flex items-center justify-between px-4 sm:px-6 py-2.5 border-b border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-white/[0.01]'>
+                <h3 className='text-[14px] sm:text-[15px] font-medium text-gray-900 dark:text-white tracking-tight'>{`Week of ${format(startDate, 'MMMM d, yyyy')}`}</h3>
                 <div className="flex items-center gap-2">
-                    <button onClick={goToday} className="text-[10px] sm:text-xs font-bold px-3 h-8 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-white dark:hover:bg-white/5 transition-all text-gray-600 dark:text-gray-400">Today</button>
+                    <button onClick={goToday} className="text-[11px] font-medium px-3 h-7.5 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-white dark:hover:bg-white/5 transition-all text-gray-700 dark:text-gray-400">Today</button>
                     <div className="flex items-center gap-1">
-                        <button onClick={() => nav(-7)} className="p-1.5 rounded-lg hover:bg-white dark:hover:bg-white/5 border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400"><ChevronLeft size={14} /></button>
-                        <button onClick={() => nav(7)} className="p-1.5 rounded-lg hover:bg-white dark:hover:bg-white/5 border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400"><ChevronRight size={14} /></button>
+                        <button onClick={() => nav(-7)} className="p-1.5 rounded-lg hover:bg-white dark:hover:bg-white/5 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-400"><ChevronLeft size={14} strokeWidth={2.5} /></button>
+                        <button onClick={() => nav(7)} className="p-1.5 rounded-lg hover:bg-white dark:hover:bg-white/5 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-400"><ChevronRight size={14} strokeWidth={2.5} /></button>
                     </div>
                 </div>
             </div>
 
             {/* Calendar Grid (Scrollbar at top using rotateX hack) */}
-            <div className='overflow-x-auto grow scroll-smooth pb-2' style={{ transform: 'rotateX(180deg)' }}>
+            <div className='overflow-x-auto grow scroll-smooth pb-1' style={{ transform: 'rotateX(180deg)' }}>
                 <div style={{ minWidth: `${CALENDAR_MIN_WIDTH}px`, transform: 'rotateX(180deg)' }} className='h-full flex flex-col'>
                     
                     {/* Time Scale Header (Absolute Positioning for perfect alignment) */}
                     <div className='grid border-b border-gray-300 dark:border-gray-700 bg-gray-50/20 dark:bg-white/[0.03] sticky top-0 z-30' style={{ gridTemplateColumns: `${dayColWidth}px ${timelinePadding}px 1fr` }}>
-                        <div className='p-3 border-r border-gray-300 dark:border-gray-700 sticky left-0 bg-white dark:bg-gray-900 z-40 text-[9px] font-bold text-gray-400 dark:text-gray-500 text-center'>Day / Time</div>
+                        <div className='p-2.5 border-r border-gray-300 dark:border-gray-700 sticky left-0 bg-white dark:bg-gray-900 z-40 text-[9px] font-medium text-gray-400 dark:text-gray-500 text-center flex items-center justify-center'>Day / Time</div>
                         <div className='border-r border-gray-300 dark:border-gray-700 bg-gray-50/10 dark:bg-white/[0.01]' />
                         
-                        <div className='relative h-14 w-full'>
+                        <div className='relative h-11 w-full'>
                             {/* Header Grid Lines (Ticks) */}
                             <div className='absolute inset-0 grid pointer-events-none' style={{ gridTemplateColumns: `repeat(${TIME_SLOTS.length - 1}, 1fr)` }}>
                                 {TIME_SLOTS.slice(0, -1).map((_, i) => (
@@ -182,10 +184,10 @@ export default function DashboardCalendar({ appointments = [], loading = false }
                                 return (
                                     <div 
                                         key={i} 
-                                        className='absolute bottom-2 -translate-x-1/2 px-1 bg-white dark:bg-transparent z-10'
+                                        className='absolute bottom-1.5 -translate-x-1/2 px-1 bg-white dark:bg-transparent z-10'
                                         style={{ left: `${percent}%` }}
                                     >
-                                        <p className={`font-black text-gray-800 dark:text-gray-200 tabular-nums ${slot.value.includes(':30') ? 'text-[clamp(0.5rem,1.2vw,0.6rem)] opacity-40' : 'text-[clamp(0.65rem,1.5vw,0.75rem)]'}`}>
+                                        <p className={`font-medium text-gray-800 dark:text-gray-200 tabular-nums ${slot.value.includes(':30') ? 'text-[9px] opacity-40' : 'text-[11px]'}`}>
                                             {format(new Date().setHours(...slot.value.split(':')), slot.value.includes(':30') ? 'h:mm' : 'h a')}
                                         </p>
                                     </div>
@@ -200,7 +202,7 @@ export default function DashboardCalendar({ appointments = [], loading = false }
                             const active = isSameDay(day, new Date());
                             const dayAppts = appointments.filter(a => isSameDay(new Date(a.date), day));
                             const tracks = getAppointmentTracks(dayAppts);
-                            const rowHeight = Math.max(1, tracks.length) * 110 + 24; // 110px per card + padding
+                            const rowHeight = Math.max(1, tracks.length) * 90 + 16; // 90px per card + padding
 
                             return (
                                 <div 
@@ -209,9 +211,9 @@ export default function DashboardCalendar({ appointments = [], loading = false }
                                     style={{ gridTemplateColumns, minHeight: `${rowHeight}px` }}
                                 >
                                     {/* Sticky Date Label (Opaque to prevent overlap visibility) */}
-                                    <div className={`p-3 border-r border-gray-300 dark:border-gray-700 sticky left-0 z-20 flex flex-col items-center justify-center shadow-[4px_0_10px_rgba(0,0,0,0.05)] dark:shadow-[4px_0_10px_rgba(0,0,0,0.3)] ${active ? 'bg-brand-50 dark:bg-gray-800' : 'bg-white dark:bg-gray-900'}`}>
-                                        <span className={`text-[clamp(1.1rem,3vw,1.75rem)] font-bold leading-none ${active ? 'text-brand-500 dark:text-brand-400' : 'text-gray-900 dark:text-gray-100'}`}>{format(day, 'd')}</span>
-                                        <span className={`text-[clamp(0.5rem,1.2vw,0.65rem)] font-bold mt-1 ${active ? 'text-brand-500 dark:text-brand-400 opacity-80' : 'text-gray-400 dark:text-gray-500'}`}>{format(day, 'EEE')}</span>
+                                    <div className={`p-2.5 border-r border-gray-300 dark:border-gray-700 sticky left-0 z-20 flex flex-col items-center justify-center shadow-[4px_0_10px_rgba(0,0,0,0.05)] dark:shadow-[4px_0_10px_rgba(0,0,0,0.3)] ${active ? 'bg-brand-50 dark:bg-gray-800' : 'bg-white dark:bg-gray-900'}`}>
+                                        <span className={`text-[20px] sm:text-[24px] font-medium leading-none ${active ? 'text-brand-500 dark:text-brand-400' : 'text-gray-900 dark:text-gray-100'}`}>{format(day, 'd')}</span>
+                                        <span className={`text-[10px] font-medium mt-0.5 ${active ? 'text-brand-500 dark:text-brand-400 opacity-80' : 'text-gray-400 dark:text-gray-500'}`}>{format(day, 'EEE')}</span>
                                     </div>
                                     
                                     <div className='border-r border-gray-300 dark:border-gray-700 bg-gray-50/10 dark:bg-white/[0.01]' />
@@ -226,7 +228,7 @@ export default function DashboardCalendar({ appointments = [], loading = false }
                                         </div>
 
                                         {/* Positioned Appointments */}
-                                        <div className='relative h-full w-full py-4'>
+                                        <div className='relative h-full w-full py-3'>
                                             {tracks.map((track, trackIndex) => (
                                                 track.map((app, i) => {
                                                     const start = getMinuteOffset(app.start_time);
@@ -243,27 +245,28 @@ export default function DashboardCalendar({ appointments = [], loading = false }
                                                             style={{ 
                                                                 left: `${left}%`,
                                                                 width: `${width}%`,
-                                                                top: `${trackIndex * 110 + 12}px`,
-                                                                height: '100px'
+                                                                top: `${trackIndex * 90 + 8}px`,
+                                                                height: '82px'
                                                             }}
                                                         >
                                                             <Link 
                                                                 to={`/patient/appointments/${app.id}`}
                                                                 className={`
-                                                                    h-full w-full p-3 flex flex-col justify-center overflow-hidden 
-                                                                    shadow-sm border-l-[4px] border-y border-r dark:border-r-0 backdrop-blur-[2px] transition-all group
+                                                                    h-full w-full p-2.5 flex flex-col justify-center overflow-hidden 
+                                                                    shadow-sm border-l-[3px] border-y border-r dark:border-r-0 backdrop-blur-[2px] transition-all group
                                                                     ${styles.card}
                                                                 `}
                                                             >
-                                                                <div className={`font-bold truncate leading-tight text-[clamp(0.7rem,1.4vw,0.85rem)] mb-0.5 tracking-tight ${styles.title}`}>
+                                                                <div className={`font-medium truncate leading-tight text-[13px] sm:text-[14px] mb-1 tracking-tight ${styles.title}`}>
                                                                     {app.service?.name || app.service}
                                                                 </div>
                                                                 {(app.patient_name || app.booked_for_name) && (
-                                                                    <div className="text-[10px] font-bold text-gray-500 dark:text-gray-400 mb-1 truncate tracking-tighter">
-                                                                        For: {app.patient_name || app.booked_for_name}
+                                                                    <div className="text-[11px] sm:text-[12px] font-medium text-gray-700 dark:text-gray-400 mb-1 truncate flex items-center gap-1">
+                                                                        <span className="opacity-70">For:</span>
+                                                                        <span className="text-gray-900 dark:text-white">{app.patient_name || app.booked_for_name}</span>
                                                                     </div>
                                                                 )}
-                                                                <div className={`font-bold truncate opacity-90 text-[clamp(0.6rem,1.2vw,0.75rem)] mb-0.5 ${styles.time}`}>
+                                                                <div className={`font-medium truncate opacity-90 text-[11px] sm:text-[12px] ${styles.time}`}>
                                                                     {(() => {
                                                                         const [h, m] = app.start_time.split(':').map(Number);
                                                                         const s = new Date();
@@ -271,9 +274,6 @@ export default function DashboardCalendar({ appointments = [], loading = false }
                                                                         const e = addMinutes(s, duration);
                                                                         return `${format(s, 'h:mm')} - ${format(e, 'h:mm a')}`;
                                                                     })()}
-                                                                </div>
-                                                                <div className={`opacity-70 text-[clamp(0.55rem,1.1vw,0.7rem)] font-bold ${styles.duration}`}>
-                                                                    {duration} mins
                                                                 </div>
                                                             </Link>
                                                         </div>
