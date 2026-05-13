@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { 
     ArrowLeft, 
     ArrowRight, 
@@ -12,6 +12,7 @@ import {
     ShieldCheck,
     User
 } from 'lucide-react';
+import { useToast } from '../../context/ToastContext';
 import { formatDate, formatTime } from '../../hooks/useAppointments';
 
 // Helper to calculate end time based on start time (HH:mm) and duration (minutes)
@@ -56,6 +57,9 @@ const ReviewSection = ({ title, children, onEditClick, icon: Icon }) => (
 );
 
 const UserRescheduleReviewStep = ({ formData, appointment, onSubmit, onBack, submitting, error }) => {
+    const toast = useToast();
+    const [isEntryLocked, setIsEntryLocked] = useState(true);
+
     // ✅ Phase 1: Robust Auto-scroll to top on error
     useEffect(() => {
         if (error) {
@@ -65,6 +69,19 @@ const UserRescheduleReviewStep = ({ formData, appointment, onSubmit, onBack, sub
             }, 50);
         }
     }, [error]);
+
+    // Click Protection
+    useEffect(() => {
+        const timer = setTimeout(() => setIsEntryLocked(false), 500);
+        return () => clearTimeout(timer);
+    }, []);
+
+    const handleFinalSubmit = async () => {
+        if (submitting || isEntryLocked) return;
+
+        toast.info('Processing your reschedule request...');
+        await onSubmit();
+    };
 
     const service = appointment?.service;
     const serviceName = service?.name || appointment?.service || '—';
@@ -173,8 +190,8 @@ const UserRescheduleReviewStep = ({ formData, appointment, onSubmit, onBack, sub
                             <div className="pt-2 flex items-center justify-end gap-3">
                                 <button
                                     type="button"
-                                    onClick={onSubmit}
-                                    disabled={submitting}
+                                    onClick={handleFinalSubmit}
+                                    disabled={submitting || isEntryLocked}
                                     className="flex items-center justify-center gap-2 rounded-full border border-red-200 bg-white dark:bg-red-900/10 px-4 py-2 sm:px-6 sm:py-2.5 text-[10px] sm:text-sm font-bold text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all active:scale-95 shrink-0 disabled:opacity-50"
                                 >
                                     <RefreshCw size={14} className={submitting ? 'animate-spin' : ''} />
@@ -305,8 +322,8 @@ const UserRescheduleReviewStep = ({ formData, appointment, onSubmit, onBack, sub
                     </button>
                     <button 
                         type="button"
-                        onClick={onSubmit} 
-                        disabled={submitting} 
+                        onClick={handleFinalSubmit} 
+                        disabled={submitting || isEntryLocked} 
                         className='flex-[2] sm:flex-none sm:min-w-[240px] group bg-brand-500 hover:bg-brand-600 active:scale-95 text-white font-black px-6 py-3.5 sm:px-10 sm:py-4.5 rounded-2xl transition-all shadow-theme-lg disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center gap-1.5 sm:gap-3 text-[11px] sm:text-base'
                     >
                         { submitting ? (
