@@ -159,15 +159,15 @@ const Navbar = () => {
                                 to='/'
                                 className='hidden lg:flex items-center gap-3 transition-all duration-300 group flex-shrink-0 nav-logo'
                             >
-                                <div className='w-8 flex-shrink-0 flex items-center justify-center transition-all duration-500 group-hover:scale-110'>
-                                    <img src="/images/logo/samson-logo.png" alt="Samson Dental Logo" className="w-full h-auto" />
+                                <div className='w-[24px] flex-shrink-0 flex items-center justify-center transition-all duration-500 group-hover:scale-110'>
+                                    <img src="/images/logo/samson-logo.png" alt="Samson Dental Logo" className="w-10 h-auto min-w-[40px]" />
                                 </div>
-                                <div className='flex flex-col items-start justify-center flex-shrink-0'>
-                                    <span className='font-black text-[22px] tracking-[-0.04em] leading-none text-white whitespace-nowrap'>
+                                <div className='flex flex-col items-start justify-center flex-shrink-0 ml-1'>
+                                    <span className='font-black text-[24px] tracking-[-0.01em] leading-[0.8] text-white whitespace-nowrap font-serif'>
                                         SAMSON
                                     </span>
-                                    <span className='text-[10px] uppercase tracking-[0.28em] font-bold mt-[1px] text-red-500 whitespace-nowrap drop-shadow-[0_0_8px_rgba(239,68,68,0.5)]'>
-                                        Dental Center
+                                    <span className='text-[10px] uppercase tracking-[0.16em] font-black mt-0 text-white whitespace-nowrap font-serif block w-full text-center'>
+                                        DENTAL CENTER
                                     </span>
                                 </div>
                             </Link>
@@ -412,15 +412,15 @@ const Navbar = () => {
                         className='flex items-center space-x-3 group'
                         onClick={() => setIsMobileMenuOpen(false)}
                     >
-                        <div className='w-9 flex items-center justify-center transition-transform duration-500 group-hover:scale-110'>
-                            <img src="/images/logo/samson-logo.png" alt="Samson Dental Logo" className="w-full h-auto" />
+                        <div className='w-[24px] flex items-center justify-center transition-transform duration-500 group-hover:scale-110'>
+                            <img src="/images/logo/samson-logo.png" alt="Samson Dental Logo" className="w-10 h-auto min-w-[40px]" />
                         </div>
-                        <div className='flex flex-col items-start justify-center'>
-                            <span className='font-black text-[20px] tracking-[-0.04em] text-stone-800 uppercase leading-none'>
+                        <div className='flex flex-col items-start justify-center ml-1'>
+                            <span className='font-black text-[24px] tracking-[-0.01em] text-stone-800 uppercase leading-[0.8] font-serif'>
                                 SAMSON
                             </span>
-                            <span className='text-[9px] uppercase tracking-[0.28em] mt-[2px] font-bold text-red-600'>
-                                Dental Center
+                            <span className='text-[10px] uppercase tracking-[0.16em] mt-0 font-black text-stone-400 font-serif block w-full text-center'>
+                                DENTAL CENTER
                             </span>
                         </div>
                     </Link>

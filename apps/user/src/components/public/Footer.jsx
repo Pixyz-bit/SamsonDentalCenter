@@ -14,12 +14,12 @@ const Footer = () => {
                                     className='w-12 h-12 object-contain group-hover:scale-110 transition-transform duration-300 ease-out drop-shadow-md'
                                 />
                             </div>
-                            <div className='flex flex-col items-start justify-center flex-shrink-0'>
-                                <span className='font-black text-[20px] tracking-[-0.04em] leading-none text-white whitespace-nowrap'>
+                            <div className='flex flex-col items-start justify-center flex-shrink-0 ml-1'>
+                                <span className='font-black text-[24px] tracking-[-0.01em] leading-[0.8] text-white whitespace-nowrap font-serif'>
                                     SAMSON
                                 </span>
-                                <span className='text-[9px] uppercase tracking-[0.28em] font-bold mt-[2px] text-red-500 whitespace-nowrap drop-shadow-[0_0_8px_rgba(239,68,68,0.5)]'>
-                                    Dental Center
+                                <span className='text-[10px] uppercase tracking-[0.16em] font-black mt-0 text-gray-400 whitespace-nowrap font-serif block w-full text-center'>
+                                    DENTAL CENTER
                                 </span>
                             </div>
                         </div>
