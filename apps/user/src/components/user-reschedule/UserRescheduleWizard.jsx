@@ -9,6 +9,29 @@ import UserRescheduleSuccess from './UserRescheduleSuccess';
 import { Modal } from '../ui/Modal';
 import Button from '../ui/Button';
 
+const formatDate = (dateStr) => {
+    if (!dateStr) return '';
+    try {
+        const date = new Date(dateStr);
+        return date.toLocaleDateString('en-US', {
+            month: 'long',
+            day: 'numeric',
+            year: 'numeric',
+        });
+    } catch (e) { return dateStr; }
+};
+
+const formatTime = (time24) => {
+    if (!time24) return '';
+    try {
+        const [hours, minutes] = time24.split(':');
+        const hour = parseInt(hours, 10);
+        const ampm = hour >= 12 ? 'PM' : 'AM';
+        const displayHour = hour > 12 ? hour - 12 : hour === 0 ? 12 : hour;
+        return `${displayHour}:${minutes} ${ampm}`;
+    } catch (e) { return time24; }
+};
+
 const UserRescheduleWizard = ({ reschedule, appointment }) => {
     const navigate = useNavigate();
     const toast = useToast();
@@ -60,10 +83,11 @@ const UserRescheduleWizard = ({ reschedule, appointment }) => {
         }
 
         // Auto-show expiry modal if hold is lost while on review step
-        if (!slotHold.activeHold && !result && currentStep === 'review' && !showExpiryModal) {
+        // ✅ Added check for !slotHold.isCheckingHold to avoid false positives during hydration
+        if (!slotHold.isCheckingHold && !slotHold.activeHold && !result && currentStep === 'review' && !showExpiryModal) {
             setShowExpiryModal(true);
         }
-    }, [slotHold.activeHold, slotHold.timeRemaining, toast, result, currentStep, showExpiryModal]);
+    }, [slotHold.activeHold, slotHold.timeRemaining, slotHold.isCheckingHold, toast, result, currentStep, showExpiryModal]);
 
     // Auto-scroll to top when step changes
     useEffect(() => {
@@ -148,6 +172,8 @@ const UserRescheduleWizard = ({ reschedule, appointment }) => {
             <Modal
                 isOpen={showExitModal}
                 onClose={() => setShowExitModal(false)}
+                showCloseButton={false}
+                closeOnOverlayClick={false}
                 className="max-w-md"
                 isBottomSheet={true}
             >
@@ -197,7 +223,8 @@ const UserRescheduleWizard = ({ reschedule, appointment }) => {
             <Modal
                 isOpen={showExpiryModal}
                 onClose={() => setShowExpiryModal(false)}
-                showCloseButton={true}
+                showCloseButton={false}
+                closeOnOverlayClick={false}
                 className="max-w-md"
                 isBottomSheet={true}
             >
@@ -265,15 +292,32 @@ const UserRescheduleWizard = ({ reschedule, appointment }) => {
                     </div>
 
                     <div className="px-6 py-6 sm:py-8 flex-1 overflow-y-auto">
-                        <div className="p-5 sm:p-6 bg-brand-50/50 dark:bg-brand-900/10 border border-brand-100/50 dark:border-brand-800/30 rounded-2xl sm:rounded-3xl flex flex-col items-center text-center gap-4 shadow-theme-xs">
-                            <div className="w-12 h-12 rounded-2xl bg-white dark:bg-brand-800 flex items-center justify-center shrink-0 shadow-theme-sm">
-                                <Calendar className="text-brand-600 dark:text-brand-400" size={24} />
+                        <div className="p-5 sm:p-6 bg-brand-50/50 dark:bg-brand-900/10 border border-brand-100/50 dark:border-brand-800/30 rounded-2xl sm:rounded-3xl flex flex-col items-center text-center gap-4 sm:gap-5 shadow-theme-xs">
+                            <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl bg-white dark:bg-brand-800 flex items-center justify-center shrink-0 shadow-theme-sm">
+                                <Calendar className="text-brand-600 dark:text-brand-400" size={24} sm:size={28} />
                             </div>
-                            <div className="space-y-1.5">
-                                <h4 className="text-base font-black text-gray-900 dark:text-white leading-tight">Held Slot:</h4>
-                                <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">
-                                    Your previously selected time is still reserved for you.
+                            <div className="space-y-1.5 sm:space-y-2">
+                                <h4 className="text-base sm:text-lg font-black text-gray-900 dark:text-white leading-tight">Reserved Slot:</h4>
+                                <p className="text-[12px] sm:text-[13px] text-gray-500 dark:text-gray-400 font-medium leading-snug">
+                                    We are still holding your appointment for:
                                 </p>
+                            </div>
+
+                            <div className="w-full py-3 sm:py-4 px-4 sm:px-6 bg-white dark:bg-gray-800 rounded-xl sm:rounded-2xl border border-brand-100 dark:border-brand-900/20 shadow-theme-xs flex flex-col items-center">
+                                <div className="flex flex-col sm:flex-row items-center gap-1 sm:gap-3 text-center">
+                                    <span className="text-[10px] sm:text-xs font-black text-brand-600 dark:text-brand-400 uppercase tracking-widest">
+                                        {formatDate(slotHold.activeHold?.date)}
+                                    </span>
+                                    <span className="hidden sm:inline text-gray-300 dark:text-gray-700 font-light">|</span>
+                                    <span className="text-base sm:text-xl font-black text-gray-900 dark:text-white">
+                                        {formatTime(slotHold.activeHold?.time)}
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div className="flex items-center gap-2 text-[11px] sm:text-[12px] font-bold text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg sm:rounded-xl">
+                                <Clock size={13} sm:size={14} className="animate-pulse" />
+                                <span>Hold expires in {slotHold.formattedTime}</span>
                             </div>
                         </div>
                     </div>
@@ -286,20 +330,19 @@ const UserRescheduleWizard = ({ reschedule, appointment }) => {
                                 setShowRecoveryModal(false);
                                 reset();
                             }}
-                            className="flex-1 h-11 text-[11px] sm:text-xs font-bold text-gray-400 hover:text-red-500 hover:bg-red-50 dark:text-gray-500 dark:hover:text-red-400 transition-all duration-300"
+                            className="flex-1 h-11 text-[11px] sm:text-xs font-bold text-gray-400 hover:text-red-500 hover:bg-red-50 dark:text-gray-500 dark:hover:text-red-400 transition-all duration-300 border border-transparent"
                         >
-                            Start Over
+                            Discard & Start Over
                         </Button>
                         <Button
                             variant="primary"
                             fullWidth
                             onClick={() => {
                                 setShowRecoveryModal(false);
-                                goToStep(2); // Jump to review
                             }}
                             className="flex-[1.5] h-11 text-[11px] sm:text-sm font-black shadow-lg shadow-brand-500/20"
                         >
-                            Continue to Review
+                            Continue Reschedule
                         </Button>
                     </div>
                 </div>

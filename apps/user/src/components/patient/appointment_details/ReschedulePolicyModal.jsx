@@ -22,7 +22,6 @@ const ReschedulePolicyModal = ({ show, onClose, onConfirm, mode = 'warning' }) =
             <ModalHeader 
                 title={title}
                 description={description}
-                onClose={onClose}
             />
 
             <ModalBody>
