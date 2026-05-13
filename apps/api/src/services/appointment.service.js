@@ -435,7 +435,9 @@ export const bookAppointment = async (
 
         // ── 1.5. Run Anti-Abuse and Overlap Guards ──
         // This checks for: dependent limits, active appointment quotas, overlapping slots, and same-day/same-service abuse.
-        await checkUserBookingAbuse(patientId, serviceId, date, time, patientProfileId);
+        const isNewDependent = !patientProfileId && !!firstName && !!lastName;
+        const isReschedule = (rescheduleCount || 0) > 0;
+        await checkUserBookingAbuse(patientId, serviceId, date, time, patientProfileId, isReschedule, isNewDependent);
 
         const isSpecialized = service.tier === SERVICE_TIER.SPECIALIZED;
 
@@ -1846,10 +1848,18 @@ export const bookAppointment = async (
  * Validate booking rules to prevent abuse (User Flow).
  * Checks: Dependent limits, Overlapping slots, Same-day/service guard, and Account/Individual quotas.
  */
-export const checkUserBookingAbuse = async (patientId, serviceId, date, time, patientProfileId = null) => {
+export const checkUserBookingAbuse = async (
+    patientId, 
+    serviceId, 
+    date, 
+    time, 
+    patientProfileId = null, 
+    isReschedule = false,
+    isNewDependent = false
+) => {
     // 1. Dependent Count Check
-    // If patientProfileId is null, it means they are creating a NEW dependent during this booking
-    if (!patientProfileId) {
+    // ONLY check if we are actually trying to create a new dependent profile
+    if (isNewDependent && !isReschedule) {
         const { count: dependentCount } = await supabaseAdmin
             .from('profiles')
             .select('*', { count: 'exact', head: true })

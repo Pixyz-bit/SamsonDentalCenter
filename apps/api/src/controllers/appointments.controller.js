@@ -436,10 +436,10 @@ export const userValidate = async (req, res, next) => {
     try {
         const { service_id, date, time, patient_profile_id } = req.body;
         
-        // Normalize patient_profile_id
-        const profileId = patient_profile_id === 'new' ? null : (patient_profile_id || null);
+        const isNewDependent = patient_profile_id === 'new';
+        const profileId = isNewDependent ? null : (patient_profile_id || null);
 
-        await checkUserBookingAbuse(req.user.id, service_id, date, time, profileId);
+        await checkUserBookingAbuse(req.user.id, service_id, date, time, profileId, false, isNewDependent);
         
         return res.status(200).json({ 
             success: true, 
