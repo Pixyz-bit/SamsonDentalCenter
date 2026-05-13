@@ -134,70 +134,73 @@ const MyAppointments = () => {
                             </div>
 
                             {/* Row 2: All Filters */}
-                            <div className='px-4 sm:px-6 py-4 flex flex-nowrap items-center gap-3 overflow-x-auto hide-scrollbar'>
-                                {/* 1. Family Member Dropdown */}
-                                <div className='relative w-auto min-w-[220px] shrink-0'>
-                                    <div className='absolute left-3.5 top-3.5 text-brand-500'>
+                            <div className='px-4 sm:px-6 pb-5 pt-2'>
+                                <div className='flex flex-nowrap items-center gap-3 overflow-x-auto no-scrollbar'>
+                                    {/* 1. Family Member Dropdown */}
+                                    <div className='relative w-[170px] sm:w-[230px] shrink-0'>
+                                    <div className='absolute left-3.5 top-1/2 -translate-y-1/2 text-brand-500 pointer-events-none'>
                                         <Users size={16} />
                                     </div>
-                                    <select
-                                        value={selectedPersonId}
-                                        onChange={(e) => setSelectedPersonId(e.target.value)}
-                                        className='w-full pl-10 pr-10 py-3 bg-brand-50/50 dark:bg-brand-500/10 border border-brand-100 dark:border-brand-900/50 rounded-lg text-xs font-bold text-brand-700 dark:text-brand-300 appearance-none outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-all cursor-pointer'
-                                    >
-                                        <option value='all' className='dark:bg-gray-900'>All Family Members</option>
-                                        <option value={user?.id} className='dark:bg-gray-900'>Me ({user?.full_name})</option>
-                                        {dependents.map(dep => (
-                                            <option key={dep.id} value={dep.id} className='dark:bg-gray-900'>
-                                                {dep.full_name} ({dep.relationship_to_primary})
-                                            </option>
-                                        ))}
-                                    </select>
-                                    <div className='absolute right-4 top-4.5 w-0 h-0 border-l-[4px] border-l-transparent border-r-[4px] border-r-transparent border-t-[5px] border-t-brand-500 pointer-events-none' />
-                                </div>
+                                        <select
+                                            value={selectedPersonId}
+                                            onChange={(e) => setSelectedPersonId(e.target.value)}
+                                            className='w-full pl-10 pr-10 py-3 bg-brand-50/50 dark:bg-brand-500/10 border border-brand-100 dark:border-brand-900/50 rounded-lg text-xs font-bold text-brand-700 dark:text-brand-300 appearance-none outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-all cursor-pointer truncate'
+                                        >
+                                            <option value='all' className='dark:bg-gray-900'>All Family Members</option>
+                                            <option value={user?.id} className='dark:bg-gray-900'>Me ({user?.full_name})</option>
+                                            {dependents.map(dep => (
+                                                <option key={dep.id} value={dep.id} className='dark:bg-gray-900'>
+                                                    {dep.full_name} ({dep.relationship_to_primary})
+                                                </option>
+                                            ))}
+                                        </select>
+                                        <div className='absolute right-4 top-4.5 w-0 h-0 border-l-[4px] border-l-transparent border-r-[4px] border-r-transparent border-t-[5px] border-t-brand-500 pointer-events-none' />
+                                    </div>
 
-                                {/* 2. Timeframe Dropdown */}
-                                <div className='relative w-auto min-w-[160px] shrink-0'>
-                                    <div className='absolute left-3.5 top-3.5 text-gray-400'>
+                                    {/* 2. Timeframe Dropdown */}
+                                    <div className='relative w-[150px] sm:w-[170px] shrink-0'>
+                                    <div className='absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none'>
                                         <Clock size={16} />
                                     </div>
-                                    <select
-                                        value={timeframe}
-                                        onChange={(e) => setTimeframe(e.target.value)}
-                                        className='w-full pl-10 pr-10 py-3 bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-gray-800 rounded-lg text-xs font-bold text-gray-600 dark:text-gray-400 appearance-none outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-all cursor-pointer'
-                                    >
-                                        <option value='all' className='dark:bg-gray-900'>Any Upcoming</option>
-                                        <option value='today' className='dark:bg-gray-900'>Today</option>
-                                        <option value='week' className='dark:bg-gray-900'>This Week</option>
-                                        <option value='month' className='dark:bg-gray-900'>This Month</option>
-                                    </select>
-                                    <div className='absolute right-4 top-4.5 w-0 h-0 border-l-[4px] border-l-transparent border-r-[4px] border-r-transparent border-t-[5px] border-t-gray-400 pointer-events-none' />
-                                </div>
-
-                                {/* 3. Date Picker Filter */}
-                                <div className='relative w-auto min-w-[180px] shrink-0'>
-                                    <div className='absolute left-3.5 top-3.5 text-gray-400'>
-                                        <Calendar size={16} />
-                                    </div>
-                                    <input
-                                        type='date'
-                                        value={specificDate}
-                                        onChange={(e) => setSpecificDate(e.target.value)}
-                                        className='w-full pl-10 pr-10 py-3 bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-gray-800 rounded-lg text-xs font-bold text-gray-600 dark:text-gray-400 outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-all cursor-pointer color-scheme-dark'
-                                    />
-                                    {specificDate && (
-                                        <button
-                                            onClick={() => setSpecificDate('')}
-                                            className='absolute inset-y-0 right-3 flex items-center text-gray-400 hover:text-brand-500 transition-colors'
-                                            title="Clear date"
+                                        <select
+                                            value={timeframe}
+                                            onChange={(e) => setTimeframe(e.target.value)}
+                                            className='w-full pl-10 pr-10 py-3 bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-gray-800 rounded-lg text-xs font-bold text-gray-600 dark:text-gray-400 appearance-none outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-all cursor-pointer truncate'
                                         >
-                                            <span className='text-[10px] font-black bg-gray-100 dark:bg-white/10 w-5 h-5 flex items-center justify-center rounded-full'>✕</span>
-                                        </button>
-                                    )}
-                                </div>
+                                            <option value='all' className='dark:bg-gray-900'>Any Upcoming</option>
+                                            <option value='today' className='dark:bg-gray-900'>Today</option>
+                                            <option value='week' className='dark:bg-gray-900'>This Week</option>
+                                            <option value='month' className='dark:bg-gray-900'>This Month</option>
+                                        </select>
+                                        <div className='absolute right-4 top-4.5 w-0 h-0 border-l-[4px] border-l-transparent border-r-[4px] border-r-transparent border-t-[5px] border-t-gray-400 pointer-events-none' />
+                                    </div>
 
-                                <div className='hidden sm:block ml-auto text-[10px] font-bold text-gray-400 uppercase tracking-wider'>
-                                    Upcoming: {filtered.length}
+                                    {/* 3. Date Picker Filter */}
+                                    <div className='relative w-[150px] sm:w-[190px] shrink-0'>
+                                        <div className='absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none'>
+                                            <Calendar size={16} />
+                                        </div>
+                                        <input
+                                            type='date'
+                                            value={specificDate}
+                                            onChange={(e) => setSpecificDate(e.target.value)}
+                                            onClick={(e) => e.target.showPicker?.()}
+                                            className='w-full pl-10 pr-10 py-3 bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-gray-800 rounded-lg text-xs font-bold text-gray-600 dark:text-gray-400 outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-all cursor-pointer color-scheme-dark'
+                                        />
+                                        {specificDate && (
+                                            <button
+                                                onClick={() => setSpecificDate('')}
+                                                className='absolute inset-y-0 right-3 flex items-center text-gray-400 hover:text-brand-500 transition-colors'
+                                                title="Clear date"
+                                            >
+                                                <span className='text-[10px] font-black bg-gray-100 dark:bg-white/10 w-5 h-5 flex items-center justify-center rounded-full'>✕</span>
+                                            </button>
+                                        )}
+                                    </div>
+
+                                    <div className='hidden sm:block ml-auto text-[10px] font-bold text-gray-400 uppercase tracking-wider'>
+                                        Upcoming: {filtered.length}
+                                    </div>
                                 </div>
                             </div>
                         </div>

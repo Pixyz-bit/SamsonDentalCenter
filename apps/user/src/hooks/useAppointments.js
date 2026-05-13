@@ -184,8 +184,8 @@ export const useAppointments = ({ status = 'all', sort = 'desc', limit = 10, pat
                 result = result.filter(a => isApproved(a) && !isOutdated(a));
             }
             else if (status === 'requests') {
-                // Requests are pending or rejected
-                result = result.filter(a => isPending(a) || isRejected(a));
+                // Requests are pending, rejected, or active approved
+                result = result.filter(a => isPending(a) || isRejected(a) || (isApproved(a) && !isOutdated(a)));
             }
             else if (status === 'history') {
                 result = result.filter(isHistoryStatus);
@@ -217,7 +217,7 @@ export const useAppointments = ({ status = 'all', sort = 'desc', limit = 10, pat
         return {
             all: base.filter(a => !['CANCELLED', 'LATE_CANCEL', 'NO_SHOW', 'RESCHEDULED'].includes((a.status || '').toUpperCase())).length,
             upcoming: base.filter(a => isApproved(a) && !isOutdated(a)).length,
-            requests: base.filter(a => isPending(a) || isRejected(a)).length,
+            requests: base.filter(a => isPending(a) || isRejected(a) || (isApproved(a) && !isOutdated(a))).length,
             approved: base.filter(isApproved).length,
             pending: base.filter(isPending).length,
             decline: base.filter(isRejected).length,

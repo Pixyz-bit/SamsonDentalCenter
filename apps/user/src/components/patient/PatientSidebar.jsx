@@ -249,19 +249,26 @@ const PatientSidebar = () => {
         >
             <div className={`py-8 flex w-full transition-all duration-300 pl-[13px]`}>
                 <Link to='/patient' className="flex items-center min-h-[40px]">
-                    <div className="flex items-center">
-                        <span className="text-2xl font-black text-brand-500 font-outfit min-w-[24px] flex justify-center">
-                            S
-                        </span>
-                        <span 
-                            className={`sidebar-text-base text-xl font-bold tracking-tight text-gray-900 dark:text-white uppercase font-outfit ${
-                                isExpanded || isHovered || isMobileOpen 
-                                ? 'opacity-100 max-w-[200px] visible ml-0' 
-                                : 'opacity-0 max-w-0 invisible ml-0'
-                            }`}
-                        >
-                            amson <span className='text-brand-500'>Dental</span>
-                        </span>
+                    <div className='flex items-center gap-3 transition-all duration-300 group flex-shrink-0'>
+                        <div className='w-8 flex-shrink-0 flex items-center justify-center transition-all duration-500 group-hover:scale-110'>
+                            <img
+                                src='/images/logo/samson-logo.png'
+                                alt='Samson Dental Logo'
+                                className='w-full h-auto'
+                            />
+                        </div>
+                        <div className={`flex flex-col items-start justify-center flex-shrink-0 transition-all duration-300 ${
+                            isExpanded || isHovered || isMobileOpen 
+                            ? 'opacity-100 max-w-[200px] visible ml-0' 
+                            : 'opacity-0 max-w-0 invisible ml-0'
+                        }`}>
+                            <span className='font-black text-[18px] tracking-[-0.04em] leading-none text-gray-900 dark:text-white whitespace-nowrap font-outfit'>
+                                SAMSON
+                            </span>
+                            <span className='text-[8px] uppercase tracking-[0.28em] font-bold mt-[1px] text-red-600 whitespace-nowrap font-outfit'>
+                                Dental Center
+                            </span>
+                        </div>
                     </div>
                 </Link>
             </div>
