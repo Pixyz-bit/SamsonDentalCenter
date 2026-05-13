@@ -7,18 +7,18 @@ const DoctorOverview = ({ dentistName, specialization }) => {
                 <h3 className='text-base sm:text-xl text-gray-900 dark:text-white font-bold tracking-tight mb-6 pb-4 border-b border-gray-100 dark:border-white/5'>
                     Assigned Doctor
                 </h3>
-                <div className='flex items-center gap-4 sm:gap-8'>
-                    <div className='w-14 h-14 sm:w-24 sm:h-24 rounded-2xl bg-brand-500/10 text-brand-500 flex items-center justify-center font-bold text-2xl sm:text-4xl border border-brand-500/20 shrink-0 shadow-sm'>
+                <div className='flex items-center gap-4 sm:gap-6'>
+                    <div className='w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-brand-500/10 text-brand-500 flex items-center justify-center font-bold text-xl sm:text-2xl border border-brand-500/20 shrink-0 shadow-sm'>
                         {dentistName
                             .replace(/^Dr\.\s*/i, '')
                             .charAt(0)
                             .toUpperCase()}
                     </div>
-                    <div className='space-y-1 sm:space-y-2 overflow-hidden'>
-                        <h4 className='text-lg sm:text-3xl font-bold text-gray-900 dark:text-white truncate leading-tight'>
+                    <div className='space-y-0.5 sm:space-y-1 overflow-hidden'>
+                        <h4 className='text-base sm:text-xl font-bold text-gray-900 dark:text-white truncate leading-tight'>
                             {dentistName}
                         </h4>
-                        <p className='text-sm sm:text-lg text-brand-600 dark:text-brand-400 font-bold'>
+                        <p className='text-xs sm:text-sm text-brand-600 dark:text-brand-400 font-bold'>
                             {specialization || 'General Dentistry'}
                         </p>
                     </div>

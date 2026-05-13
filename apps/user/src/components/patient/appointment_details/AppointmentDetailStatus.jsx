@@ -146,7 +146,7 @@ const AppointmentDetailStatus = ({
         <div className='animate-[fadeIn_0.2s_ease-out]'>
             {/* Timeline Container */}
             <div className='relative w-full pb-2 sm:pb-6'>
-                <div className='flex flex-col sm:flex-row items-start justify-between w-full max-w-4xl px-2 sm:px-4 space-y-8 sm:space-y-0'>
+                <div className='flex flex-col sm:flex-row items-start justify-between w-full px-2 sm:px-4 space-y-8 sm:space-y-0'>
                     {steps.map((step, index) => {
                         const isLast = index === steps.length - 1;
                         const isCompletedStep = step.status === 'completed';
@@ -191,7 +191,7 @@ const AppointmentDetailStatus = ({
                                     <h4 className='text-[14px] sm:text-[14px] font-bold mb-1 transition-colors text-gray-900 dark:text-white'>
                                         {step.title}
                                     </h4>
-                                    <p className='text-[12px] sm:text-[12px] font-medium leading-relaxed max-w-[240px] sm:max-w-[160px] transition-colors text-gray-600 dark:text-gray-400'>
+                                    <p className='text-[12px] sm:text-[12px] font-medium leading-relaxed max-w-[240px] sm:max-w-[280px] transition-colors text-gray-600 dark:text-gray-400'>
                                         {step.desc}
                                     </p>
                                     {step.time && (
