@@ -152,10 +152,17 @@ const UserRescheduleSuccess = ({ result, appointment, onReset }) => {
 
                 <div className="px-5 py-4 sm:px-10 bg-gray-50 dark:bg-gray-800/50 border-t border-gray-100 dark:border-gray-800/50 flex items-center justify-between">
                     <span className="text-[11px] sm:text-xs font-black text-gray-400 leading-none">Current Status</span>
-                    <div className="flex items-center gap-2 px-3 py-1.5 bg-amber-50 dark:bg-amber-500/10 text-amber-600 rounded-full text-[10px] sm:text-xs font-bold border border-amber-100/50 dark:border-amber-500/20 shadow-theme-xs">
-                        <Clock size={12} className="animate-pulse" />
-                        Awaiting Approval
-                    </div>
+                    {newAppt.status === 'CONFIRMED' ? (
+                        <div className="flex items-center gap-2 px-3 py-1.5 bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 rounded-full text-[10px] sm:text-xs font-bold border border-emerald-100/50 dark:border-emerald-500/20 shadow-theme-xs">
+                            <Check size={12} />
+                            Confirmed
+                        </div>
+                    ) : (
+                        <div className="flex items-center gap-2 px-3 py-1.5 bg-amber-50 dark:bg-amber-500/10 text-amber-600 rounded-full text-[10px] sm:text-xs font-bold border border-amber-100/50 dark:border-amber-500/20 shadow-theme-xs">
+                            <Clock size={12} className="animate-pulse" />
+                            Awaiting Approval
+                        </div>
+                    )}
                 </div>
             </div>
 
@@ -175,7 +182,9 @@ const UserRescheduleSuccess = ({ result, appointment, onReset }) => {
                         <li className="flex items-start gap-3">
                             <div className="w-1.5 h-1.5 rounded-full bg-brand-500 mt-2 shrink-0" />
                             <p className="text-[12px] sm:text-[14px] font-medium text-gray-600 dark:text-gray-400 leading-relaxed">
-                                Our team will re-verify your new slot and send a final confirmation within 24 hours.
+                                {newAppt.status === 'CONFIRMED' 
+                                    ? "Your appointment is confirmed. We've updated our schedule and notified your dentist." 
+                                    : "Our team will review your request and send a final confirmation within 24 hours."}
                             </p>
                         </li>
                         <li className="flex items-start gap-3">
@@ -196,14 +205,14 @@ const UserRescheduleSuccess = ({ result, appointment, onReset }) => {
                         className='flex-1 group flex items-center justify-center gap-2 h-12 sm:h-14 rounded-xl sm:rounded-2xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-all shadow-theme-xs'
                     >
                         <HomeIcon size={18} className="sm:size-[22px]" />
-                        <span className="text-[11px] sm:text-base font-black">Home</span>
+                        <span className="text-[11px] sm:text-base font-black uppercase tracking-widest">Home</span>
                     </button>
                     <button
                         onClick={() => { onReset(); navigate('/patient/appointments'); }}
                         className='flex-[2] flex items-center justify-center gap-2 h-12 sm:h-14 rounded-xl sm:rounded-2xl bg-brand-500 hover:bg-brand-600 text-white font-black transition-all shadow-lg shadow-brand-500/20'
                     >
                         <LayoutDashboard size={20} className="sm:size-6" />
-                        <span className="text-[11px] sm:text-lg font-black">Go to Dashboard</span>
+                        <span className="text-[11px] sm:text-lg font-black uppercase tracking-widest">Go to Dashboard</span>
                     </button>
                 </div>
             </div>

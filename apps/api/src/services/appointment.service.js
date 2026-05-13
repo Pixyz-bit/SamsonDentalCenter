@@ -234,6 +234,7 @@ export const bookAppointment = async (
     patientSex = null, // ✅ NEW: Snapshot patient sex
     acceptedTerms = false, // ✅ NEW: Compliance tracking
     termsAcceptedAt = null, // ✅ NEW: Compliance tracking
+    appointmentIdToIgnore = null // ✅ FIX: Ignore this record during abuse checks (Reschedule flow)
 ) => {
     console.log('📦 [SERVICE-DUMP] Arguments received:', {
         patientId, serviceId, date, time, sendEmail,
@@ -437,7 +438,7 @@ export const bookAppointment = async (
         // This checks for: dependent limits, active appointment quotas, overlapping slots, and same-day/same-service abuse.
         const isNewDependent = !patientProfileId && !!firstName && !!lastName;
         const isReschedule = (rescheduleCount || 0) > 0;
-        await checkUserBookingAbuse(patientId, serviceId, date, time, patientProfileId, isReschedule, isNewDependent);
+        await checkUserBookingAbuse(patientId, serviceId, date, time, patientProfileId, isReschedule, isNewDependent, appointmentIdToIgnore);
 
         const isSpecialized = service.tier === SERVICE_TIER.SPECIALIZED;
 
@@ -1162,13 +1163,21 @@ export const bookAppointment = async (
             original.service_id,
             newDate,
             newTime,
-            false,
-            null,
-            undefined,
+            false, // sendEmail
+            null,  // bookedForNameParts
+            undefined, // source
             userSessionId,
             preferredDentistId,
             original.reschedule_count + 1,
-            !!preferredDentistId // ✅ If they chose a doctor during reschedule, it's preferred
+            !!preferredDentistId,
+            original.patient_id, // ✅ FIX: Maintain the actual patient profile identity
+            original.patient_birthday,
+            original.patient_relationship,
+            original.notes,
+            original.patient_sex,
+            original.accepted_terms,
+            original.terms_accepted_at,
+            appointmentId // ✅ FIX: Exclude original from duplicate/overlap checks
         );
 
         if (!newBooking.booked) {
@@ -1857,7 +1866,8 @@ export const checkUserBookingAbuse = async (
     time, 
     patientProfileId = null, 
     isReschedule = false,
-    isNewDependent = false
+    isNewDependent = false,
+    appointmentIdToIgnore = null // ✅ FIX: Skip checks for this specific ID (Reschedule Flow)
 ) => {
     // 1. Dependent Count Check
     // ONLY check if we are actually trying to create a new dependent profile
@@ -1877,13 +1887,20 @@ export const checkUserBookingAbuse = async (
 
     // 2. Active Appointment Limits (Per Individual)
     // Each individual (primary or dependent) is limited to 3 active appointments.
-    const { count: individualTotal } = await supabaseAdmin
+    let quotaQuery = supabaseAdmin
         .from('appointments')
         .select('*', { count: 'exact', head: true })
         .eq('patient_id', targetIndividualId)
         .in('status', [APPOINTMENT_STATUS.PENDING, APPOINTMENT_STATUS.CONFIRMED]);
 
-    if (individualTotal >= CLINIC_CONFIG.MAX_ACTIVE_APPOINTMENTS_PER_INDIVIDUAL) {
+    if (appointmentIdToIgnore) {
+        quotaQuery = quotaQuery.neq('id', appointmentIdToIgnore);
+    }
+
+    const { count: individualTotal } = await quotaQuery;
+    
+    // ✅ RELAXED: During reschedule, we don't count against the quota since we are replacing an existing booking.
+    if (!isReschedule && individualTotal >= CLINIC_CONFIG.MAX_ACTIVE_APPOINTMENTS_PER_INDIVIDUAL) {
         throw new AppError(`This individual already has ${CLINIC_CONFIG.MAX_ACTIVE_APPOINTMENTS_PER_INDIVIDUAL} active appointments.`, 403);
     }
 
@@ -1893,32 +1910,46 @@ export const checkUserBookingAbuse = async (
     
     const endTime = addMinutesToTime(time, service.duration_minutes);
 
-    const { data: overlaps } = await supabaseAdmin
+    let overlapQuery = supabaseAdmin
         .from('appointments')
         .select('id, start_time, end_time, service:services(name)')
         .eq('patient_id', targetIndividualId)
         .eq('appointment_date', date)
         .in('status', [APPOINTMENT_STATUS.PENDING, APPOINTMENT_STATUS.CONFIRMED, APPOINTMENT_STATUS.IN_PROGRESS])
         .lt('start_time', endTime)
-        .gt('end_time', time)
-        .limit(1);
+        .gt('end_time', time);
+
+    if (appointmentIdToIgnore) {
+        overlapQuery = overlapQuery.neq('id', appointmentIdToIgnore);
+    }
+
+    const { data: overlaps } = await overlapQuery.limit(1);
 
     if (overlaps && overlaps.length > 0) {
         throw new AppError(`Conflict: This individual already has a "${overlaps[0].service?.name || 'appointment'}" during this time range (${overlaps[0].start_time.slice(0,5)} - ${overlaps[0].end_time.slice(0,5)}).`, 409);
     }
 
     // 4. Same Service Same Day Check
-    const { data: sameService } = await supabaseAdmin
-        .from('appointments')
-        .select('id')
-        .eq('patient_id', targetIndividualId)
-        .eq('appointment_date', date)
-        .eq('service_id', serviceId)
-        .in('status', [APPOINTMENT_STATUS.PENDING, APPOINTMENT_STATUS.CONFIRMED])
-        .limit(1);
+    // ✅ RELAXED: Skip this check during rescheduling to allow users to move their appointment to a 
+    // different time on the same day without being flagged as a duplicate of themselves.
+    if (!isReschedule) {
+        let dupQuery = supabaseAdmin
+            .from('appointments')
+            .select('id')
+            .eq('patient_id', targetIndividualId)
+            .eq('appointment_date', date)
+            .eq('service_id', serviceId)
+            .in('status', [APPOINTMENT_STATUS.PENDING, APPOINTMENT_STATUS.CONFIRMED]);
 
-    if (sameService && sameService.length > 0) {
-        throw new AppError(`This individual is already booked for this service on this date.`, 409);
+        if (appointmentIdToIgnore) {
+            dupQuery = dupQuery.neq('id', appointmentIdToIgnore);
+        }
+
+        const { data: sameService } = await dupQuery.limit(1);
+
+        if (sameService && sameService.length > 0) {
+            throw new AppError(`You already have this service scheduled for the selected date. Patients are limited to one instance of this treatment per day. Please choose a different date.`, 409);
+        }
     }
 
     return { success: true };

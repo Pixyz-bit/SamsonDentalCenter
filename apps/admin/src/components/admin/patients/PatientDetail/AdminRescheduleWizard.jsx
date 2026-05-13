@@ -171,10 +171,17 @@ const AdminRescheduleWizard = ({ isOpen, onClose, appointment, token, onSuccess 
     const reschedule = useAdminReschedule(appointment, token);
     const contentRef = useRef(null);
 
-    // ✅ Auto-scroll to top on error
+    // ✅ Robust Auto-scroll to top on error
     useEffect(() => {
         if (error && contentRef.current) {
-            contentRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+            // First jump to ensure we are at the top (auto) then smooth scroll
+            contentRef.current.scrollTo({ top: 0, behavior: 'auto' });
+            const timer = setTimeout(() => {
+                if (contentRef.current) {
+                    contentRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+                }
+            }, 50);
+            return () => clearTimeout(timer);
         }
     }, [error]);
 
