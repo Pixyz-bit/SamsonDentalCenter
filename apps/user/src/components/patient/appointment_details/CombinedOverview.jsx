@@ -19,14 +19,14 @@ const CombinedOverview = ({
                         Assigned Doctor
                     </h3>
                     <div className='flex items-center gap-4 sm:gap-5'>
-                        <div className='w-12 h-12 sm:w-16 sm:h-16 rounded-xl bg-brand-500/10 text-brand-500 flex items-center justify-center font-black text-xl sm:text-2xl border border-brand-500/20 shrink-0'>
+                        <div className='w-12 h-12 sm:w-16 sm:h-16 rounded-xl bg-brand-500/10 text-brand-500 flex items-center justify-center font-bold text-xl sm:text-2xl border border-brand-500/20 shrink-0'>
                             {dentistName
                                 .replace(/^Dr\.\s*/i, '')
                                 .charAt(0)
                                 .toUpperCase()}
                         </div>
                         <div className='space-y-0.5 sm:space-y-1 overflow-hidden'>
-                            <h4 className='text-base sm:text-xl font-black text-gray-900 dark:text-white truncate leading-tight'>
+                            <h4 className='text-base sm:text-xl font-bold text-gray-900 dark:text-white truncate leading-tight'>
                                 {dentistName}
                             </h4>
                             <p className='text-xs sm:text-[13px] text-brand-600 dark:text-brand-400 font-bold'>
@@ -51,41 +51,41 @@ const CombinedOverview = ({
                         <Calendar className='w-3 h-3' />
                         Date
                     </div>
-                    <div className='text-[13px] sm:text-[16px] font-black text-gray-900 dark:text-white'>
+                    <div className='text-[13px] sm:text-[16px] font-bold text-gray-900 dark:text-white'>
                         {dateFormatted}
                     </div>
                 </div>
 
                 {/* Time Selection */}
                 <div className='space-y-2 sm:space-y-3'>
-                    <div className='flex items-center gap-2 text-[9px] text-gray-400 dark:text-gray-500 font-extrabold uppercase tracking-[0.15em]'>
+                    <div className='flex items-center gap-2 text-[9px] text-gray-400 dark:text-gray-500 font-bold uppercase tracking-[0.15em]'>
                         <Clock className='w-3 h-3' />
                         Time
                     </div>
-                    <div className='text-[13px] sm:text-[16px] font-black text-gray-900 dark:text-white'>
+                    <div className='text-[13px] sm:text-[16px] font-bold text-gray-900 dark:text-white'>
                         {timeFormatted}
                     </div>
                 </div>
 
                 {/* Duration */}
                 <div className='space-y-2 sm:space-y-3'>
-                    <div className='flex items-center gap-2 text-[9px] text-gray-400 dark:text-gray-500 font-extrabold uppercase tracking-[0.15em]'>
+                    <div className='flex items-center gap-2 text-[9px] text-gray-400 dark:text-gray-500 font-bold uppercase tracking-[0.15em]'>
                         <Timer className='w-3 h-3' />
                         Duration
                     </div>
-                    <div className='text-[13px] sm:text-[16px] font-black text-gray-900 dark:text-white'>
+                    <div className='text-[13px] sm:text-[16px] font-bold text-gray-900 dark:text-white'>
                         {duration || '30 - 60 mins'}
                     </div>
                 </div>
 
                 {/* Patient Information */}
                 <div className='space-y-2 sm:space-y-3'>
-                    <div className='flex items-center gap-2 text-[9px] text-gray-400 dark:text-gray-500 font-extrabold uppercase tracking-[0.15em]'>
+                    <div className='flex items-center gap-2 text-[9px] text-gray-400 dark:text-gray-500 font-bold uppercase tracking-[0.15em]'>
                         <User className='w-3 h-3' />
                         Patient
                     </div>
                     <div className='space-y-2'>
-                        <div className='text-[13px] sm:text-[16px] font-black text-gray-900 dark:text-white'>
+                        <div className='text-[13px] sm:text-[16px] font-bold text-gray-900 dark:text-white'>
                             {patientLabel}
                         </div>
                     </div>

@@ -169,7 +169,7 @@ const AppointmentDetails = () => {
                             <div className='bg-white dark:bg-gray-800/40 border border-gray-200 dark:border-gray-800 rounded-2xl mx-4 sm:mx-0 px-4 py-5 sm:p-8 shadow-theme-xs'>
                                 <div className='flex flex-row items-center justify-between gap-4'>
                                     <div className='space-y-2'>
-                                        <h2 className='text-xl sm:text-3xl md:text-4xl font-black text-gray-900 dark:text-white font-outfit leading-tight tracking-tight'>
+                                        <h2 className='text-xl sm:text-3xl md:text-4xl font-bold text-gray-900 dark:text-white font-outfit leading-tight tracking-tight'>
                                             {serviceName}
                                         </h2>
                                         <div className='flex items-center gap-2 text-[9px] sm:text-[11px] text-gray-500 dark:text-gray-400 font-bold'>
@@ -182,7 +182,7 @@ const AppointmentDetails = () => {
 
                                     <div className='shrink-0'>
                                         <span
-                                            className={`px-4 py-2 text-[11px] sm:text-xs font-black rounded-xl uppercase tracking-widest shadow-sm ${
+                                            className={`px-4 py-2 text-[11px] sm:text-xs font-bold rounded-xl uppercase tracking-widest shadow-sm ${
                                                 badgeColor === 'success'
                                                     ? 'bg-success-50 text-success-600 dark:bg-success-500/10 dark:text-success-400 shadow-success-500/5'
                                                     : badgeColor === 'warning'

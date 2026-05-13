@@ -11,7 +11,7 @@ const AppointmentDetailActionBar = ({ onBack }) => {
                 >
                     <ChevronLeft size={20} />
                 </button>
-                <h1 className='text-[15px] sm:text-lg font-black text-gray-900 dark:text-white font-outfit leading-tight sm:hidden'>
+                <h1 className='text-[15px] sm:text-lg font-bold text-gray-900 dark:text-white font-outfit leading-tight sm:hidden'>
                     Appointment Details
                 </h1>
             </div>
