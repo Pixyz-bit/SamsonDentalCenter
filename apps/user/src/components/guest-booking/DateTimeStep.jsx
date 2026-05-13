@@ -404,9 +404,12 @@ const DateTimeStep = ({
                 {/* Dropdown Menu Overlay */}
                 {isDoctorDropdownOpen && (
                     <>
-                        <div className='fixed inset-0 z-40' onClick={() => setIsDoctorDropdownOpen(false)} />
-                        <div className='absolute top-[calc(100%+8px)] left-0 w-full bg-white dark:bg-[#0f172a] border-2 border-gray-100 dark:border-gray-800 rounded-2xl shadow-xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-1 duration-200'>
-                            <div className='max-h-[320px] overflow-y-auto p-2 scrollbar-hide'>
+                        <div className='fixed inset-0 z-20' onClick={() => setIsDoctorDropdownOpen(false)} />
+                        <div className='absolute top-[calc(100%+8px)] left-0 w-full bg-white dark:bg-[#0f172a] border-2 border-gray-100 dark:border-gray-800 rounded-2xl shadow-xl z-30 overflow-hidden animate-in fade-in slide-in-from-top-1 duration-200'>
+                            <div 
+                                className='max-h-[320px] overflow-y-auto p-2 overscroll-contain scroll-smooth'
+                                onWheel={(e) => e.stopPropagation()}
+                            >
                                 {/* Any Dentist Option */}
                                 <button
                                     onClick={() => { handleSpecialistChange(''); setIsDoctorDropdownOpen(false); }}

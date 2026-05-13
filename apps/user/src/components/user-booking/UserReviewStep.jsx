@@ -18,19 +18,131 @@ import {
     CalendarDays,
     UserCircle,
     Contact,
-    StickyNote
+    StickyNote,
+    Info,
+    ArrowRight
 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { useToast } from '../../context/ToastContext';
 import { useAuth } from '../../context/AuthContext';
 
-const UserReviewStep = ({ formData, book_for_others, onSubmit, onUpdate, onBack, onEdit, submitting, error }) => {
+const UserReviewStep = ({ 
+    formData, 
+    book_for_others, 
+    onSubmit, 
+    onUpdate, 
+    onBack, 
+    onEdit, 
+    onValidate, 
+    isVerifying,
+    submitting, 
+    error 
+}) => {
     const { user } = useAuth();
+    const toast = useToast();
+    const navigate = useNavigate();
     const [isRetrying, setIsRetrying] = useState(false);
+    const [isEntryLocked, setIsEntryLocked] = useState(true);
 
+    // ✅ Phase 1: Robust Auto-scroll to top on error
     useEffect(() => {
         if (error) {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            window.scrollTo({ top: 0, behavior: 'auto' });
+            setTimeout(() => {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }, 50);
         }
     }, [error]);
+
+    // Click Protection
+    useEffect(() => {
+        const timer = setTimeout(() => setIsEntryLocked(false), 500);
+        return () => clearTimeout(timer);
+    }, []);
+
+    // handleFinalSubmit: Sequential validation then submission
+    const handleFinalSubmit = async () => {
+        // Only block if we are actually in the middle of a request
+        if (submitting || isVerifying || isEntryLocked) return;
+
+        // Clear any previous error before starting a new check
+        onUpdate({});
+
+        // 1. Run pre-flight validation
+        const validation = await onValidate();
+        
+        // 2. Only proceed to submit if validation passed
+        if (validation && validation.success) {
+            toast.info('Processing your appointment request...');
+            await onSubmit();
+            toast.success('Appointment requested successfully!');
+        } else if (validation && validation.error) {
+            toast.error(validation.error);
+        }
+    };
+
+    // Parse errors for specialized feedback
+    const getErrorDetails = () => {
+        if (!error) return null;
+        
+        const isSelf = !formData.booked_for_relationship || formData.booked_for_relationship === 'Self';
+        const pName = formData.booked_for_first_name || 'The patient';
+        const serviceName = formData.service_name || 'this service';
+
+        // Check for Quota Limit (Backend: "This individual already has 3 active appointments.")
+        if (error.includes('already has 3 active appointments') || error.includes('limit of 3 active appointments')) {
+            return {
+                headline: 'Booking Limit Reached',
+                message: isSelf 
+                    ? "You've reached the maximum of 3 active appointments allowed per patient."
+                    : `${pName} already has 3 active appointments scheduled.`,
+                solution: "To book a new visit, please complete or cancel one of your existing appointments first.",
+                action: { label: 'View Appointments', onClick: () => navigate('/') }
+            };
+        }
+
+        if (error.includes('Conflict:')) {
+            const existingServiceMatch = error.match(/has a \[(.*?)\]/);
+            const existingService = existingServiceMatch ? existingServiceMatch[1] : 'another service';
+            
+            return {
+                headline: 'Time Slot Unavailable',
+                message: isSelf
+                    ? `You are already scheduled for ${existingService} at this time.`
+                    : `${pName} is already booked for ${existingService} during this slot.`,
+                solution: "Our system prevents overlapping appointments for the same patient. Please select a different time.",
+                action: { label: 'Change Time', onClick: () => onEdit(1) }
+            };
+        }
+
+        if (error.includes('already booked for this service')) {
+            return {
+                headline: 'Duplicate Service',
+                message: isSelf
+                    ? `You already have a ${serviceName} scheduled for this day.`
+                    : `${pName} is already scheduled for a ${serviceName} on this date.`,
+                solution: "Most treatments are limited to once per day. Please choose a different service or date.",
+                action: { label: 'Change Service', onClick: () => onEdit(0) }
+            };
+        }
+
+        if (error.includes('limit of 10 family members')) {
+            return {
+                headline: 'Family Profile Limit',
+                message: "Your account has reached the maximum capacity of 10 linked family members.",
+                solution: "To add a new member, please manage your inactive profiles in settings or contact our support team.",
+                action: { label: 'Manage Family', onClick: () => navigate('/') }
+            };
+        }
+
+        return {
+            headline: 'Scheduling Alert',
+            message: error,
+            action: null
+        };
+    };
+
+    const errorDetails = getErrorDetails();
 
     const formatDate = (dateString) => {
         if (!dateString) return 'Not selected';
@@ -126,7 +238,7 @@ const UserReviewStep = ({ formData, book_for_others, onSubmit, onUpdate, onBack,
                 </p>
             </div>
 
-            {error && (
+            {errorDetails && (
                 <div className='bg-red-50/50 dark:bg-red-950/10 border border-red-200 dark:border-red-900/30 rounded-2xl sm:rounded-3xl mb-8 animate-in shake duration-500 shadow-theme-md overflow-hidden'>
                     <div className="px-5 pt-6 pb-5 sm:px-10 flex items-center justify-between border-b border-red-200/50 dark:border-red-900/30 gap-3">
                         <div className="flex items-center gap-3">
@@ -134,23 +246,52 @@ const UserReviewStep = ({ formData, book_for_others, onSubmit, onUpdate, onBack,
                                 <AlertCircle size={20} />
                             </div>
                             <h3 className="text-[14px] sm:text-lg font-bold text-red-600 dark:text-red-400">
-                                Submission Error
+                                {errorDetails.headline}
                             </h3>
                         </div>
-                        <button 
-                            onClick={handleRetry} 
-                            disabled={submitting || isRetrying} 
-                            className="flex items-center justify-center gap-1.5 sm:gap-2 rounded-full border border-red-200 bg-white dark:bg-gray-800 px-3 py-1.5 sm:px-5 sm:py-2 text-[10px] sm:text-sm font-bold text-red-600 hover:text-red-700 hover:bg-red-50 dark:border-red-900/30 dark:text-red-400 dark:hover:bg-red-900/20 transition-all shadow-theme-xs active:scale-95 shrink-0"
-                        >
-                            {submitting || isRetrying ? <Loader2 size={11} className="animate-spin" /> : <RefreshCw size={11} />}
-                            Retry
-                        </button>
                     </div>
                     
                     <div className="px-5 py-6 sm:px-10 sm:py-8">
-                        <p className="text-[12px] sm:text-[14px] text-gray-900 dark:text-white font-bold leading-snug">
-                            {error}
-                        </p>
+                        <div className="space-y-6">
+                            <ul className="space-y-4">
+                                <li className="flex items-start gap-3">
+                                    <div className="w-1.5 h-1.5 rounded-full bg-red-600 mt-2 shrink-0 shadow-sm" />
+                                    <p className="text-[13px] sm:text-[15px] text-gray-900 dark:text-white font-bold leading-snug">
+                                        {errorDetails.message}
+                                    </p>
+                                </li>
+                                {errorDetails.solution && (
+                                    <li className="flex items-start gap-3">
+                                        <div className="w-1.5 h-1.5 rounded-full bg-red-400 mt-2 shrink-0 opacity-40" />
+                                        <p className="text-[11px] sm:text-[13px] text-gray-500 dark:text-gray-400 font-medium leading-relaxed">
+                                            {errorDetails.solution}
+                                        </p>
+                                    </li>
+                                )}
+                            </ul>
+
+                            <div className="pt-2 flex items-center justify-end gap-3">
+                                <button
+                                    type="button"
+                                    onClick={handleFinalSubmit}
+                                    className="flex items-center justify-center gap-2 rounded-full border border-red-200 bg-white dark:bg-red-900/10 px-4 py-2 sm:px-6 sm:py-2.5 text-[10px] sm:text-sm font-bold text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all active:scale-95 shrink-0"
+                                >
+                                    <RefreshCw size={14} className={(isVerifying || submitting) ? 'animate-spin' : ''} />
+                                    Retry
+                                </button>
+                                
+                                {errorDetails.action && (
+                                    <button
+                                        type="button"
+                                        onClick={errorDetails.action.onClick}
+                                        className="flex items-center justify-center gap-1.5 sm:gap-2 rounded-full bg-red-600 hover:bg-red-700 text-white px-4 py-2 sm:px-6 sm:py-2.5 text-[10px] sm:text-sm font-bold transition-all shadow-theme-md active:scale-95 shrink-0"
+                                    >
+                                        {errorDetails.action.label}
+                                        <ArrowRight size={14} className="opacity-80" />
+                                    </button>
+                                )}
+                            </div>
+                        </div>
                     </div>
                 </div>
             )}
@@ -348,21 +489,25 @@ const UserReviewStep = ({ formData, book_for_others, onSubmit, onUpdate, onBack,
                 <div className='flex items-center gap-3 w-full sm:justify-between'>
                     <button 
                         onClick={onBack} 
-                        disabled={submitting} 
+                        disabled={submitting || isVerifying} 
                         className='flex-1 sm:flex-none sm:min-w-[120px] text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white font-black text-[11px] sm:text-sm px-4 py-3.5 sm:px-8 transition-colors bg-gray-50 dark:bg-gray-800 sm:bg-transparent rounded-2xl border border-transparent shadow-theme-xs disabled:opacity-30'
                     >
                         Back
                     </button>
                     <button 
-                        onClick={onSubmit} 
-                        disabled={submitting} 
+                        type="button"
+                        onClick={handleFinalSubmit} 
+                        disabled={submitting || isVerifying || isEntryLocked} 
                         className='flex-[2] sm:flex-none sm:min-w-[240px] group bg-brand-500 hover:bg-brand-600 active:scale-95 text-white font-black px-6 py-3.5 sm:px-10 sm:py-4.5 rounded-2xl transition-all shadow-theme-lg disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center gap-1.5 sm:gap-3 text-[11px] sm:text-base'
                     >
-                        {submitting ? (
-                            <div className='w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin' />
+                        { (submitting || isVerifying) ? (
+                            <>
+                                <Loader2 size={20} className="animate-spin" />
+                                <span>{isVerifying ? 'Verifying Eligibility...' : 'Confirming...'}</span>
+                            </>
                         ) : (
                             <>
-                                Confirm Appointment 
+                                <span>Confirm Appointment</span>
                                 <ShieldCheck size={14} className="sm:w-[22px] sm:h-[22px] group-hover:scale-110 transition-transform hidden sm:block" />
                             </>
                         )}

@@ -12,6 +12,7 @@ import {
     releaseSlotHoldBySession,
     getActiveHoldHandler,
     guestValidate,
+    userValidate,
 } from '../controllers/appointments.controller.js';
 import { requireAuth, optionalAuth } from '../middleware/auth.middleware.js';
 import { validate } from '../utils/validate.js';
@@ -41,6 +42,7 @@ router.post('/book-guest', validate(bookGuestSchema), optionalAuth, bookGuest); 
 
 // --- 2. Protected Routes ---
 // These strictly require a login to see personal data
+router.post('/user-validate', requireAuth, userValidate); // Pre-flight anti-abuse checks
 router.post('/book-user', validate(bookUserSchema), requireAuth, bookUser); // Patient books → CONFIRMED immediately
 router.post('/submit-wizard', validate(submitWizardSchema), requireAuth, submitWizard); // Atomic Unified submission
 

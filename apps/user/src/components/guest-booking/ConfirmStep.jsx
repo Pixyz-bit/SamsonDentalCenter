@@ -1,7 +1,48 @@
 import { useState, useEffect } from 'react';
-import { ArrowRight, ChevronLeft, Calendar, Clock, Edit2, CheckCircle2, Check, ShieldCheck, Mail, Loader2, Info, AlertCircle, ClipboardList, CalendarDays, UserRound, StickyNote, UserCircle, Contact } from 'lucide-react';
+import { ArrowRight, ChevronLeft, Calendar, Clock, Edit2, CheckCircle2, Check, ShieldCheck, Mail, Loader2, Info, AlertCircle, ClipboardList, CalendarDays, UserRound, StickyNote, UserCircle, Contact, RefreshCw } from 'lucide-react';
+import { useToast } from '../../context/ToastContext';
 
 const ConfirmStep = ({ formData, onSubmit, onBack, onEdit, onReset, submitting, error, clinicPhone }) => {
+    const toast = useToast();
+
+    // Parse errors for specialized feedback (Synced with User flow)
+    const getErrorDetails = () => {
+        if (!error) return null;
+
+        if (error.includes('Conflict:') || error.includes('already booked for another service')) {
+            return {
+                headline: 'Time Slot Unavailable',
+                message: `You are already scheduled for an appointment during this time slot.`,
+                solution: "Our system prevents overlapping appointments. Please select a different time for your visit.",
+                action: { label: 'Change Time', onClick: () => onBack() }
+            };
+        }
+
+        if (error.includes('already booked for this service')) {
+            return {
+                headline: 'Duplicate Service',
+                message: `You already have an appointment for this service on this date.`,
+                solution: "Most treatments are limited to once per day. Please choose a different service or date.",
+                action: { label: 'Change Service', onClick: () => onEdit(0) }
+            };
+        }
+
+        return {
+            headline: 'Verification Note',
+            message: error,
+            action: null
+        };
+    };
+
+    const errorDetails = getErrorDetails();
+
+    const handleFinalSubmit = async () => {
+        if (submitting) return;
+        toast.info('Processing your booking request...');
+        await onSubmit();
+        toast.success('Booking request submitted successfully!');
+    };
+
     // ✅ Phase 1: Robust Auto-scroll to top on error
     useEffect(() => {
         if (error) {
@@ -104,7 +145,7 @@ const ConfirmStep = ({ formData, onSubmit, onBack, onEdit, onReset, submitting, 
                 </p>
             </div>
 
-            {error && (
+            {errorDetails && (
                 <div className='bg-red-50/50 dark:bg-red-950/10 border border-red-200 dark:border-red-900/30 rounded-2xl sm:rounded-3xl mb-8 animate-in shake duration-500 shadow-theme-md overflow-hidden'>
                     <div className="px-5 pt-6 pb-5 sm:px-10 flex items-center justify-between border-b border-red-200/50 dark:border-red-900/30 gap-3">
                         <div className="flex items-center gap-3">
@@ -112,80 +153,52 @@ const ConfirmStep = ({ formData, onSubmit, onBack, onEdit, onReset, submitting, 
                                 <AlertCircle size={20} />
                             </div>
                             <h3 className="text-[14px] sm:text-lg font-bold text-red-600 dark:text-red-400">
-                                {error.includes('limited to 3 active bookings') ? 'Booking Limit Reached' : 
-                                 error.includes('already scheduled for this email on the selected date') ? 'Duplicate Appointment' :
-                                 error.includes('This time overlaps with another booking') ? 'Time Conflict' :
-                                 'Booking Restricted'}
+                                {errorDetails.headline}
                             </h3>
-                        </div>
-                        <div className="flex items-center justify-center gap-1.5 sm:gap-2 rounded-full px-3 py-1.5 sm:px-5 sm:py-2 text-[10px] sm:text-sm font-bold bg-red-100 dark:bg-red-900/40 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800/50 shrink-0">
-                            <Info size={11} className="sm:w-3.5 sm:h-3.5 opacity-70" />
-                            Notice
                         </div>
                     </div>
                     
                     <div className="px-5 py-6 sm:px-10 sm:py-8">
-                        {error.includes('limited to 3 active bookings') ? (
-                            <ul className="space-y-3">
+                        <div className="space-y-6">
+                            <ul className="space-y-4">
                                 <li className="flex items-start gap-3">
-                                    <div className="w-1.5 h-1.5 rounded-full bg-red-500 mt-2 shrink-0" />
-                                    <p className="text-[12px] sm:text-[14px] text-gray-900 dark:text-white font-bold leading-snug">
-                                        Each email is limited to 3 active appointments to ensure fair scheduling.
+                                    <div className="w-1.5 h-1.5 rounded-full bg-red-600 mt-2 shrink-0 shadow-sm" />
+                                    <p className="text-[13px] sm:text-[15px] text-gray-900 dark:text-white font-bold leading-snug">
+                                        {errorDetails.message}
                                     </p>
                                 </li>
-                                <li className="flex items-start gap-3">
-                                    <div className="w-1.5 h-1.5 rounded-full bg-red-500 mt-2 shrink-0" />
-                                    <p className="text-[11px] sm:text-[13px] text-gray-500 dark:text-gray-400 font-medium leading-relaxed">
-                                        Please use a different email to book for others, or contact us at <span className="font-bold text-gray-700 dark:text-gray-300">{clinicPhone}</span> if you believe this is an error.
-                                    </p>
-                                </li>
+                                {errorDetails.solution && (
+                                    <li className="flex items-start gap-3">
+                                        <div className="w-1.5 h-1.5 rounded-full bg-red-400 mt-2 shrink-0 opacity-40" />
+                                        <p className="text-[11px] sm:text-[13px] text-gray-500 dark:text-gray-400 font-medium leading-relaxed">
+                                            {errorDetails.solution}
+                                        </p>
+                                    </li>
+                                )}
                             </ul>
-                        ) : error.includes('already scheduled for this email on the selected date') ? (
-                            <ul className="space-y-3">
-                                <li className="flex items-start gap-3">
-                                    <div className="w-1.5 h-1.5 rounded-full bg-red-500 mt-2 shrink-0" />
-                                    <p className="text-[12px] sm:text-[14px] text-gray-900 dark:text-white font-bold leading-snug">
-                                        You already have this treatment scheduled for this day under <span className="text-brand-600 dark:text-brand-400 underline decoration-brand-500/30">{formData.email}</span>.
-                                    </p>
-                                </li>
-                                <li className="flex items-start gap-3">
-                                    <div className="w-1.5 h-1.5 rounded-full bg-red-500 mt-2 shrink-0" />
-                                    <p className="text-[11px] sm:text-[13px] text-gray-500 dark:text-gray-400 font-medium leading-relaxed">
-                                        Please use a different email to book for others, or contact us at <span className="font-bold text-gray-700 dark:text-gray-300">{clinicPhone}</span> if you believe this is an error.
-                                    </p>
-                                </li>
-                            </ul>
-                        ) : error.includes('This time overlaps with another booking') ? (
-                            <ul className="space-y-3">
-                                <li className="flex items-start gap-3">
-                                    <div className="w-1.5 h-1.5 rounded-full bg-red-500 mt-2 shrink-0" />
-                                    <p className="text-[12px] sm:text-[14px] text-gray-900 dark:text-white font-bold leading-snug">
-                                        This slot overlaps with an existing appointment for <span className="text-brand-600 dark:text-brand-400 underline decoration-brand-500/30">{formData.email}</span>.
-                                    </p>
-                                </li>
-                                <li className="flex items-start gap-3">
-                                    <div className="w-1.5 h-1.5 rounded-full bg-red-500 mt-2 shrink-0" />
-                                    <p className="text-[11px] sm:text-[13px] text-gray-500 dark:text-gray-400 font-medium leading-relaxed">
-                                        Please use a different email to book for others, or contact us at <span className="font-bold text-gray-700 dark:text-gray-300">{clinicPhone}</span> if you believe this is an error.
-                                    </p>
-                                </li>
-                            </ul>
-                        ) : (
-                            <ul className="space-y-3">
-                                <li className="flex items-start gap-3">
-                                    <div className="w-1.5 h-1.5 rounded-full bg-red-500 mt-2 shrink-0" />
-                                    <p className="text-[12px] sm:text-[14px] text-gray-900 dark:text-white font-bold leading-snug">
-                                        For security, we limit the number of active bookings per guest account.
-                                    </p>
-                                </li>
-                                <li className="flex items-start gap-3">
-                                    <div className="w-1.5 h-1.5 rounded-full bg-red-500 mt-2 shrink-0" />
-                                    <p className="text-[11px] sm:text-[13px] text-gray-500 dark:text-gray-400 font-medium leading-relaxed">
-                                        Please use a different email to book for others, or contact us at <span className="font-bold text-gray-700 dark:text-gray-300">{clinicPhone}</span> if you believe this is an error.
-                                    </p>
-                                </li>
-                            </ul>
-                        )}
+
+                            <div className="pt-2 flex items-center justify-end gap-3">
+                                <button
+                                    type="button"
+                                    onClick={handleFinalSubmit}
+                                    className="flex items-center justify-center gap-2 rounded-full border border-red-200 bg-white dark:bg-red-900/10 px-4 py-2 sm:px-6 sm:py-2.5 text-[10px] sm:text-sm font-bold text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all active:scale-95 shrink-0"
+                                >
+                                    <RefreshCw size={14} className={submitting ? 'animate-spin' : ''} />
+                                    Retry
+                                </button>
+                                
+                                {errorDetails.action && (
+                                    <button
+                                        type="button"
+                                        onClick={errorDetails.action.onClick}
+                                        className="flex items-center justify-center gap-1.5 sm:gap-2 rounded-full bg-red-600 hover:bg-red-700 text-white px-4 py-2 sm:px-6 sm:py-2.5 text-[10px] sm:text-sm font-bold transition-all shadow-theme-md active:scale-95 shrink-0"
+                                    >
+                                        {errorDetails.action.label}
+                                        <ArrowRight size={14} className="opacity-80" />
+                                    </button>
+                                )}
+                            </div>
+                        </div>
                     </div>
                 </div>
             )}
@@ -398,11 +411,11 @@ const ConfirmStep = ({ formData, onSubmit, onBack, onEdit, onReset, submitting, 
                         disabled={submitting} 
                         className='flex-1 sm:flex-none sm:min-w-[120px] text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white font-black text-[11px] sm:text-sm px-4 py-3.5 sm:px-8 transition-colors disabled:opacity-30 bg-gray-50 dark:bg-gray-800 sm:bg-transparent rounded-2xl border border-transparent shadow-theme-xs'
                     >
-                        Back to Info
+                        Back to Details
                     </button>
                     
                     <button 
-                        onClick={onSubmit} 
+                        onClick={handleFinalSubmit} 
                         disabled={submitting} 
                         className='flex-1 sm:flex-none sm:min-w-[200px] group bg-brand-500 hover:bg-brand-600 active:scale-95 text-white font-black px-4 py-3.5 sm:px-10 sm:py-4.5 rounded-2xl transition-all shadow-theme-lg disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center gap-1.5 sm:gap-3 text-[11px] sm:text-base'
                     >

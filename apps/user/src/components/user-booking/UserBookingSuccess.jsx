@@ -13,13 +13,23 @@ import {
     Home as HomeIcon,
     CalendarPlus
 } from 'lucide-react';
+import { api } from '../../utils/api';
 
 const UserBookingSuccess = ({ result, onReset }) => {
     const navigate = useNavigate();
 
-    // Auto-scroll to top when success screen mounts
+    // ✅ ROBUST CLEANUP: Purge any lingering slot holds for this session
     useEffect(() => {
         window.scrollTo({ top: 0, behavior: 'smooth' });
+        
+        const sessionId = sessionStorage.getItem('user_session_id');
+        if (sessionId) {
+            console.log('[Success] Purging lingering holds for session:', sessionId);
+            // This is a fail-safe in case the backend conversion didn't hit every record
+            // or the user had orphaned holds from previous browser sessions.
+            api.post('/appointments/slots/release-session-hold', { user_session_id: sessionId })
+                .catch(err => console.error('[Cleanup Error]', err));
+        }
     }, []);
 
     // Simplify data extraction to match Guest flow pattern

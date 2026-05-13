@@ -9,6 +9,7 @@ import {
     cancelGuestAppointmentAction,
     insertConfirmedGuestAppointment,
     rescheduleGuestAppointment,
+    checkUserBookingAbuse,
 } from '../services/appointment.service.js';
 import { validateGuestBooking } from '../services/appointment-validation.service.js';
 import {
@@ -422,6 +423,33 @@ export const getActiveHoldHandler = async (req, res, next) => {
         const hold = await getActiveHoldBySession(session_id);
         return res.status(200).json(hold || { hold_id: null });
     } catch (err) {
+        next(err);
+    }
+};
+
+/**
+ * POST /api/appointments/user-validate
+ * Pre-flight check for user booking anti-abuse rules.
+ * Intercepts: Overlapping slots, active quotas, and dependent limits.
+ */
+export const userValidate = async (req, res, next) => {
+    try {
+        const { service_id, date, time, patient_profile_id } = req.body;
+        
+        // Normalize patient_profile_id
+        const profileId = patient_profile_id === 'new' ? null : (patient_profile_id || null);
+
+        await checkUserBookingAbuse(req.user.id, service_id, date, time, profileId);
+        
+        return res.status(200).json({ 
+            success: true, 
+            message: 'Validation successful. You are eligible to book this slot.' 
+        });
+    } catch (err) {
+        // If it's a known validation error, return as a clean 4xx response
+        if (err.statusCode && err.statusCode < 500) {
+            return res.status(err.statusCode).json({ error: err.message });
+        }
         next(err);
     }
 };
