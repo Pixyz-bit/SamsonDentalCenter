@@ -130,7 +130,10 @@ const AppointmentDetailStatus = ({
         return [step1, step2, step3];
     };
 
-    const steps = getSteps();
+    const steps = getSteps().map(step => ({
+        ...step,
+        time: step.time ? step.time.replace(/, \d{4},/, ',') : null
+    }));
 
     const getIcon = (status) => {
         if (status === 'completed') return <Check size={18} strokeWidth={3} />;
@@ -141,10 +144,9 @@ const AppointmentDetailStatus = ({
 
     return (
         <div className='animate-[fadeIn_0.2s_ease-out]'>
-            {/* Horizontal Timeline Container */}
-            <div className='relative w-full overflow-x-auto no-scrollbar pb-2 sm:pb-6'>
-                <div className='flex items-start justify-center'>
-                    <div className='flex items-start justify-between w-full max-w-4xl sm:px-4'>
+            {/* Timeline Container */}
+            <div className='relative w-full pb-2 sm:pb-6'>
+                <div className='flex flex-col sm:flex-row items-start justify-between w-full max-w-4xl px-2 sm:px-4 space-y-8 sm:space-y-0'>
                     {steps.map((step, index) => {
                         const isLast = index === steps.length - 1;
                         const isCompletedStep = step.status === 'completed';
@@ -152,18 +154,23 @@ const AppointmentDetailStatus = ({
                         const isActiveStep = step.status === 'active' || step.status === 'pending-active';
                         
                         return (
-                            <div key={step.id} className='relative flex flex-col items-center text-center flex-1'>
+                            <div key={step.id} className='relative flex flex-row sm:flex-col items-start sm:items-center text-left sm:text-center flex-1 w-full gap-4 sm:gap-0'>
                                 {/* Connector Line */}
                                 {!isLast && (
-                                    <div className='absolute top-[1.125rem] sm:top-6 left-1/2 w-full h-[2px] bg-gray-100 dark:bg-white/5'>
-                                        <div 
-                                            className={`h-full transition-all duration-700 ${isCompletedStep ? 'bg-brand-500 w-full' : 'w-0'}`} 
-                                        />
-                                    </div>
+                                    <>
+                                        {/* Desktop Connector */}
+                                        <div className='hidden sm:block absolute top-6 left-1/2 w-full h-[2px] bg-gray-100 dark:bg-white/5'>
+                                            <div className={`h-full transition-all duration-700 ${isCompletedStep ? 'bg-brand-500 w-full' : 'w-0'}`} />
+                                        </div>
+                                        {/* Mobile Connector */}
+                                        <div className='block sm:hidden absolute left-[1.125rem] top-9 w-[2px] h-full bg-gray-100 dark:bg-white/5'>
+                                            <div className={`w-full transition-all duration-700 ${isCompletedStep ? 'bg-brand-500 h-full' : 'h-0'}`} />
+                                        </div>
+                                    </>
                                 )}
 
                                 {/* Step Icon/Dot */}
-                                <div className='relative z-10 mb-3 sm:mb-6'>
+                                <div className='relative z-10 sm:mb-6 shrink-0'>
                                     <div className={`w-9 h-9 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all duration-500 ${
                                         isCompletedStep 
                                             ? 'bg-brand-500 text-white' 
@@ -180,15 +187,15 @@ const AppointmentDetailStatus = ({
                                 </div>
 
                                 {/* Step Label */}
-                                <div className='px-4'>
-                                    <h4 className='text-[13px] sm:text-[14px] font-black mb-1.5 transition-colors text-gray-900 dark:text-white'>
+                                <div className='sm:px-4 pt-1 sm:pt-0'>
+                                    <h4 className='text-[14px] sm:text-[14px] font-bold mb-1 transition-colors text-gray-900 dark:text-white'>
                                         {step.title}
                                     </h4>
-                                    <p className='text-[11px] sm:text-[12px] font-bold leading-relaxed max-w-[160px] transition-colors text-gray-600 dark:text-gray-400'>
+                                    <p className='text-[12px] sm:text-[12px] font-medium leading-relaxed max-w-[240px] sm:max-w-[160px] transition-colors text-gray-600 dark:text-gray-400'>
                                         {step.desc}
                                     </p>
                                     {step.time && (
-                                        <div className='mt-2.5 text-[10px] sm:text-[11px] text-brand-600/70 dark:text-brand-400/70 font-mono font-bold uppercase tracking-wider'>
+                                        <div className='mt-2 text-[10px] sm:text-[11px] text-brand-600/70 dark:text-brand-400/70 font-mono font-bold uppercase tracking-wider'>
                                             {step.time}
                                         </div>
                                     )}
