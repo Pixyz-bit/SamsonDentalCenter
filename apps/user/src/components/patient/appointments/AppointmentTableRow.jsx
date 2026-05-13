@@ -55,18 +55,18 @@ const AppointmentTableRow = ({ appointment, user, onViewDetails }) => {
                     {getInitial(appointment.service)}
                 </div>
                 
-                <div className='flex flex-col sm:flex-row sm:items-center flex-grow gap-4 sm:gap-12 min-w-0'>
+                <div className='flex flex-col sm:flex-row sm:items-center flex-grow gap-4 sm:gap-0 min-w-0'>
                     {/* Service Column */}
-                    <div className='flex flex-col min-w-0 sm:w-48 lg:w-64'>
-                        <p className='hidden sm:block text-[10px] font-bold text-gray-400 mb-1 uppercase tracking-widest'>Service</p>
+                    <div className='flex flex-col min-w-0 sm:w-[200px] lg:w-[260px] shrink-0'>
+                        <p className='hidden sm:block text-[10px] font-bold text-gray-400 mb-1'>Service</p>
                         <h3 className='text-[13px] sm:text-[15px] font-bold text-gray-900 dark:text-white truncate leading-tight group-hover:text-brand-500 transition-colors'>
                             {appointment.service}
                         </h3>
                     </div>
 
                     {/* Patient Column */}
-                    <div className='flex flex-col min-w-0'>
-                        <p className='hidden sm:block text-[10px] font-bold text-gray-400 mb-1 uppercase tracking-widest'>Patient</p>
+                    <div className='flex flex-col min-w-0 flex-grow sm:pl-8 sm:border-l sm:border-gray-100 sm:dark:border-white/5'>
+                        <p className='hidden sm:block text-[10px] font-bold text-gray-400 mb-1'>Patient</p>
                         <div className='flex items-center gap-1.5 text-gray-500 dark:text-gray-400'>
                             <User size={12} className='sm:hidden shrink-0' />
                             <span className='text-[11px] sm:text-[14px] font-bold truncate'>
