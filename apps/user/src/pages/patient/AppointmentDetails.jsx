@@ -256,6 +256,8 @@ const AppointmentDetails = () => {
                 rawId={raw?.id || ''}
                 cancelling={cancelling}
                 handleCancel={handleCancel}
+                isPending={isPending}
+                serviceName={serviceName}
             />
 
             <ReschedulePolicyModal

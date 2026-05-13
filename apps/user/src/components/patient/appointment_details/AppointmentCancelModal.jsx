@@ -11,7 +11,7 @@ const CANCEL_REASONS = [
     "Other"
 ];
 
-const AppointmentCancelModal = ({ show, onClose, cancelReason, setCancelReason, rawId, cancelling, handleCancel }) => {
+const AppointmentCancelModal = ({ show, onClose, cancelReason, setCancelReason, rawId, cancelling, handleCancel, isPending, serviceName }) => {
     const [reasonType, setReasonType] = useState("");
     const [showOthers, setShowOthers] = useState(false);
 
@@ -37,16 +37,27 @@ const AppointmentCancelModal = ({ show, onClose, cancelReason, setCancelReason, 
 
     const isReady = reasonType !== "" && (!showOthers || (showOthers && cancelReason.trim().length > 0));
 
+    // Conditional Content
+    const title = isPending ? "Withdraw Booking Request?" : "Cancel Approved Appointment?";
+    const description = isPending 
+        ? `Are you sure you want to cancel your pending request for ${serviceName}? This will remove your submission from our verification queue.`
+        : `Are you sure you want to cancel your upcoming ${serviceName}?`;
+    
+    const confirmLabel = isPending ? "Confirm Withdrawal" : "Confirm Cancellation";
+    const cancelLabel = isPending ? "Keep Request" : "Keep Appointment";
+
     return (
-        <Modal isOpen={show} onClose={onClose} isBottomSheet={true} className='sm:max-w-[480px] w-full' showCloseButton={false}>
-            <div className='h-1.5 w-full bg-error-500 absolute top-0 left-0' />
-            
+        <Modal isOpen={show} onClose={onClose} isBottomSheet={true} className='sm:max-w-[500px] w-full' showCloseButton={false}>
             <ModalHeader 
-                title="Are you sure?" 
-                description="We're sorry you can't make it. You can always reschedule for a better time."
+                title={title}
+                description={description}
                 onClose={onClose}
                 icon={
-                    <div className='w-12 h-12 rounded-xl bg-error-50 dark:bg-error-500/10 flex items-center justify-center text-error-500 mb-4'>
+                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 ${
+                        isPending 
+                            ? 'bg-warning-50 dark:bg-warning-500/10 text-warning-500' 
+                            : 'bg-error-50 dark:bg-error-500/10 text-error-500'
+                    }`}>
                         <AlertCircle size={24} />
                     </div>
                 }
@@ -54,10 +65,33 @@ const AppointmentCancelModal = ({ show, onClose, cancelReason, setCancelReason, 
 
             <ModalBody>
                 <div className='space-y-6'>
+                    {/* Policy Notice Box */}
+                    {isPending ? (
+                        <div className='bg-warning-50 dark:bg-warning-500/10 border border-warning-100 dark:border-warning-500/20 rounded-xl p-4 space-y-2'>
+                            <div className='flex items-center gap-2 text-warning-700 dark:text-warning-400 font-black text-[11px] uppercase tracking-wider'>
+                                <AlertCircle size={14} />
+                                Fair Use Notice
+                            </div>
+                            <p className='text-[12px] font-semibold text-warning-600 dark:text-warning-300 leading-relaxed'>
+                                Repeatedly creating and withdrawing requests holds up slots for other patients. Frequent withdrawals will restrict your online booking access, forcing manual phone verification for future appointments.
+                            </p>
+                        </div>
+                    ) : (
+                        <div className='bg-error-50 dark:bg-error-500/10 border border-error-100 dark:border-error-500/20 rounded-xl p-4 space-y-2'>
+                            <div className='flex items-center gap-2 text-error-700 dark:text-error-400 font-black text-[11px] uppercase tracking-wider'>
+                                <AlertCircle size={14} />
+                                Late Cancellation Policy
+                            </div>
+                            <p className='text-[12px] font-semibold text-error-600 dark:text-error-300 leading-relaxed'>
+                                This slot was locked exclusively for you. To maintain fair scheduling, canceling approved sessions on short notice will restrict your account from booking online, requiring you to visit or call the clinic manually.
+                            </p>
+                        </div>
+                    )}
+
                     {/* Reason Selection */}
                     <div className='space-y-3'>
                         <label className='text-[11px] font-black uppercase tracking-widest text-gray-400 dark:text-gray-500 block px-1'>
-                            Cancellation Reason
+                            Reason for Cancellation
                         </label>
                         
                         <div className='relative group'>
@@ -65,7 +99,7 @@ const AppointmentCancelModal = ({ show, onClose, cancelReason, setCancelReason, 
                                 value={reasonType}
                                 onChange={handleTypeChange}
                                 disabled={cancelling}
-                                className={`w-full bg-gray-50 dark:bg-white/5 border-2 border-transparent text-gray-900 dark:text-white px-4 py-3.5 rounded-xl text-sm font-bold focus:outline-none focus:border-error-500 transition-all appearance-none outline-none shadow-theme-sm ${
+                                className={`w-full bg-gray-50 dark:bg-white/5 border-2 border-transparent text-gray-900 dark:text-white px-4 py-3.5 rounded-xl text-sm font-bold focus:outline-none focus:border-brand-500 transition-all appearance-none outline-none shadow-theme-sm ${
                                     !reasonType ? 'text-gray-400 dark:text-gray-600' : ''
                                 }`}
                             >
@@ -95,7 +129,7 @@ const AppointmentCancelModal = ({ show, onClose, cancelReason, setCancelReason, 
                                     placeholder='Briefly tell us why...'
                                     rows={3}
                                     maxLength={300}
-                                    className='w-full px-5 py-3 border border-gray-100 dark:border-gray-800 rounded-xl text-[14px] bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-error-500/50 resize-none transition-all shadow-theme-sm'
+                                    className='w-full px-5 py-3 border border-gray-100 dark:border-gray-800 rounded-xl text-[14px] bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-500/50 resize-none transition-all shadow-theme-sm'
                                 />
                             </div>
                         )}
@@ -110,17 +144,21 @@ const AppointmentCancelModal = ({ show, onClose, cancelReason, setCancelReason, 
                     disabled={cancelling}
                     className="flex-1 sm:flex-none h-12 px-6 rounded-xl font-black text-[11px] sm:text-sm"
                 >
-                    Keep Appointment
+                    {cancelLabel}
                 </Button>
                 <Button 
                     onClick={handleCancel}
                     disabled={cancelling || !isReady || (showOthers && cancelReason.trim().length < 2)}
-                    className="flex-1 sm:flex-none h-12 px-8 bg-error-500 hover:bg-error-600 text-white rounded-xl font-black text-[11px] sm:text-sm shadow-lg shadow-error-500/20"
+                    className={`flex-1 sm:flex-none h-12 px-8 text-white rounded-xl font-black text-[11px] sm:text-sm shadow-lg transition-all ${
+                        isPending 
+                            ? 'bg-warning-500 hover:bg-warning-600 shadow-warning-500/20' 
+                            : 'bg-error-500 hover:bg-error-600 shadow-error-500/20'
+                    }`}
                 >
                     {cancelling ? (
                         <div className='w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin' />
                     ) : (
-                        'Confirm Cancel'
+                        confirmLabel
                     )}
                 </Button>
             </ModalFooter>
