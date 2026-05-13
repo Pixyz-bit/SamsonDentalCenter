@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useModal } from '../../../hooks/useModal';
-import { Modal } from '../../ui/Modal';
+import { Modal, ModalHeader, ModalBody, ModalFooter } from '../../ui/Modal';
 import Button from '../../ui/Button';
 import Input from '../../ui/Input';
 import Label from '../../ui/Label';
@@ -23,11 +23,16 @@ export default function UserInfoCard() {
             const middle_name = formData.get('middle_name').trim();
             const suffix = formData.get('suffix').trim();
             
+            const date_of_birth = formData.get('date_of_birth');
+            const sex = formData.get('sex');
+            
             await updateProfile({ 
                 first_name, 
                 last_name, 
                 middle_name, 
-                suffix
+                suffix,
+                date_of_birth,
+                sex
             });
             showToast('Personal information updated!');
             closeModal();
@@ -49,20 +54,28 @@ export default function UserInfoCard() {
 
                     <div className='grid grid-cols-1 gap-y-5 sm:grid-cols-2 lg:grid-cols-4 lg:gap-x-8'>
                         <div>
-                            <p className='mb-1.5 text-[10px] font-bold uppercase tracking-wider text-gray-400'>Last Name</p>
+                            <p className='mb-1.5 text-[10px] font-bold text-gray-400'>Last Name</p>
                             <p className='text-sm font-semibold text-gray-800 dark:text-white/90'>{user?.last_name || '—'}</p>
                         </div>
                         <div>
-                            <p className='mb-1.5 text-[10px] font-bold uppercase tracking-wider text-gray-400'>First Name</p>
+                            <p className='mb-1.5 text-[10px] font-bold text-gray-400'>First Name</p>
                             <p className='text-sm font-semibold text-gray-800 dark:text-white/90'>{user?.first_name || '—'}</p>
                         </div>
                         <div>
-                            <p className='mb-1.5 text-[10px] font-bold uppercase tracking-wider text-gray-400'>Middle Name</p>
+                            <p className='mb-1.5 text-[10px] font-bold text-gray-400'>Middle Name</p>
                             <p className='text-sm font-semibold text-gray-800 dark:text-white/90'>{user?.middle_name || '—'}</p>
                         </div>
                         <div>
-                            <p className='mb-1.5 text-[10px] font-bold uppercase tracking-wider text-gray-400'>Suffix</p>
+                            <p className='mb-1.5 text-[10px] font-bold text-gray-400'>Suffix</p>
                             <p className='text-sm font-semibold text-gray-800 dark:text-white/90'>{user?.suffix || '—'}</p>
+                        </div>
+                        <div>
+                            <p className='mb-1.5 text-[10px] font-bold text-gray-400'>Date of Birth</p>
+                            <p className='text-sm font-semibold text-gray-800 dark:text-white/90'>{user?.date_of_birth || '—'}</p>
+                        </div>
+                        <div>
+                            <p className='mb-1.5 text-[10px] font-bold text-gray-400'>Sex</p>
+                            <p className='text-sm font-semibold text-gray-800 dark:text-white/90'>{user?.sex || '—'}</p>
                         </div>
                     </div>
                 </div>
@@ -91,70 +104,97 @@ export default function UserInfoCard() {
                 </Button>
             </div>
 
-            <Modal isOpen={isOpen} onClose={closeModal} className='max-w-[480px] w-[95%] sm:w-full m-auto'>
-                <div className='no-scrollbar relative w-full overflow-y-auto rounded-xl bg-white p-6 dark:bg-gray-900 sm:p-8'>
-                    <div className='pr-8 sm:pr-12'>
-                        <h4 className='mb-1 text-xl font-bold text-gray-900 dark:text-white'>
-                            Edit Information
-                        </h4>
-                        <p className='mb-6 text-sm text-gray-500 dark:text-gray-400'>
-                            Update your personal and contact details.
-                        </p>
-                    </div>
-                    <form className='flex flex-col gap-6' onSubmit={handleSave}>
-                        <div className='space-y-6'>
-                            <div className='grid grid-cols-2 gap-4'>
-                                <div className="col-span-1">
-                                    <Label className="text-[10px] font-bold uppercase tracking-[0.1em] text-gray-400 mb-2 block">First Name</Label>
+            <Modal isOpen={isOpen} onClose={closeModal} isBottomSheet={true} className='sm:max-w-[500px] w-full' showCloseButton={false}>
+                <ModalHeader 
+                    title="Edit Information" 
+                    description="Update your personal details below." 
+                    onClose={closeModal} 
+                />
+                <form onSubmit={handleSave} className="flex flex-col flex-1 min-h-0">
+                    <ModalBody>
+                        <div className='space-y-5'>
+                            <div className='grid grid-cols-1 gap-5'>
+                                <div>
+                                    <Label className="text-[13px] sm:text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 block">First Name</Label>
                                     <Input 
                                         name="first_name"
-                                        className="text-sm font-medium h-12 rounded-lg" 
+                                        className="text-[13px] sm:text-sm font-medium h-11 rounded-xl shadow-theme-sm" 
                                         defaultValue={user?.first_name}
                                         required
-                                        placeholder="First"
+                                        placeholder="First Name"
                                     />
                                 </div>
-                                <div className="col-span-1">
-                                    <Label className="text-[10px] font-bold uppercase tracking-[0.1em] text-gray-400 mb-2 block">Last Name</Label>
+                                <div>
+                                    <Label className="text-[13px] sm:text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 block">Last Name</Label>
                                     <Input 
                                         name="last_name"
-                                        className="text-sm font-medium h-12 rounded-lg" 
+                                        className="text-[13px] sm:text-sm font-medium h-11 rounded-xl shadow-theme-sm" 
                                         defaultValue={user?.last_name}
                                         required
-                                        placeholder="Last"
+                                        placeholder="Last Name"
                                     />
                                 </div>
-                                <div className="col-span-1">
-                                    <Label className="text-[10px] font-bold uppercase tracking-[0.1em] text-gray-400 mb-2 block">Middle Name</Label>
+                                <div>
+                                    <Label className="text-[13px] sm:text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 block">Middle Name</Label>
                                     <Input 
                                         name="middle_name"
-                                        className="text-sm font-medium h-12 rounded-lg" 
+                                        className="text-[13px] sm:text-sm font-medium h-11 rounded-xl shadow-theme-sm" 
                                         defaultValue={user?.middle_name}
-                                        placeholder="Middle"
+                                        placeholder="Middle Name"
                                     />
                                 </div>
-                                <div className="col-span-1">
-                                    <Label className="text-[10px] font-bold uppercase tracking-[0.1em] text-gray-400 mb-2 block">Suffix</Label>
+                                <div>
+                                    <Label className="text-[13px] sm:text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 block">Suffix</Label>
                                     <Input 
                                         name="suffix"
-                                        className="text-sm font-medium h-12 rounded-lg" 
+                                        className="text-[13px] sm:text-sm font-medium h-11 rounded-xl shadow-theme-sm" 
                                         defaultValue={user?.suffix}
-                                        placeholder="Jr/Sr/etc"
+                                        placeholder="Suffix (Jr, Sr, etc.)"
                                     />
+                                </div>
+                                <div>
+                                    <Label className="text-[13px] sm:text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 block">Date of Birth</Label>
+                                    <Input 
+                                        name="date_of_birth"
+                                        type="date"
+                                        className="text-[13px] sm:text-sm font-medium h-11 rounded-xl shadow-theme-sm" 
+                                        defaultValue={user?.date_of_birth}
+                                        required
+                                    />
+                                </div>
+                                <div>
+                                    <Label className="text-[13px] sm:text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 block">Sex</Label>
+                                    <div className="relative">
+                                        <select 
+                                            name="sex"
+                                            className="w-full text-[13px] sm:text-sm font-medium h-11 px-4 pr-10 rounded-xl border border-gray-200 bg-white dark:bg-gray-800 dark:border-gray-700 outline-none focus:border-brand-500 transition-colors appearance-none shadow-theme-sm"
+                                            defaultValue={user?.sex || ''}
+                                            required
+                                        >
+                                            <option value="" disabled>Select Sex</option>
+                                            <option value="Male">Male</option>
+                                            <option value="Female">Female</option>
+                                        </select>
+                                        <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-gray-400">
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                                <polyline points="6 9 12 15 18 9"></polyline>
+                                            </svg>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
+                    </ModalBody>
 
-                        <div className='flex items-center gap-3 mt-2 sm:justify-end'>
-                            <Button variant='outline' type="button" onClick={closeModal} className="flex-1 sm:flex-none h-11 px-6 rounded-lg font-bold" disabled={isSaving}>
-                                Cancel
-                            </Button>
-                            <Button type='submit' className="flex-1 sm:flex-none h-11 px-6 rounded-lg font-bold" disabled={isSaving}>
-                                {isSaving ? 'Saving...' : 'Save'}
-                            </Button>
-                        </div>
-                    </form>
-                </div>
+                    <ModalFooter>
+                        <Button variant='outline' type="button" onClick={closeModal} className="flex-1 sm:flex-none h-11 px-6 rounded-xl font-black text-[11px] sm:text-sm" disabled={isSaving}>
+                            Cancel
+                        </Button>
+                        <Button type='submit' className="flex-1 sm:flex-none h-11 px-6 rounded-xl font-black text-[11px] sm:text-sm" disabled={isSaving}>
+                            {isSaving ? 'Saving...' : 'Save Changes'}
+                        </Button>
+                    </ModalFooter>
+                </form>
             </Modal>
         </div>
     );

@@ -46,17 +46,17 @@ export const Modal = ({
         ? 'w-full h-full'
         : `relative w-full bg-white dark:bg-gray-900 flex flex-col overflow-hidden ${
             isBottomSheet 
-                ? 'rounded-t-[32px] sm:rounded-3xl max-h-[95vh] sm:max-h-[90vh] animate-in slide-in-from-bottom duration-500' 
-                : 'rounded-xl max-h-[90vh]'
+                ? 'rounded-t-[24px] sm:rounded-2xl max-h-[90dvh] animate-in slide-in-from-bottom-full duration-500 mb-0' 
+                : 'rounded-2xl max-h-[90vh]'
         }`;
 
     return (
-        <div className={`fixed inset-0 flex overflow-y-auto modal z-[999999] ${
-            isBottomSheet ? 'items-end sm:items-center justify-center' : 'items-center justify-center'
+        <div className={`fixed top-0 left-0 right-0 h-[100dvh] flex overflow-hidden modal z-[999999] ${
+            isBottomSheet ? 'flex-col justify-end sm:items-center sm:justify-center p-0 sm:p-4' : 'items-center justify-center p-4'
         }`}>
             {!isFullscreen && (
                 <div
-                    className='fixed inset-0 h-full w-full bg-gray-900/60 backdrop-blur-sm transition-opacity duration-500'
+                    className='absolute inset-0 h-full w-full bg-gray-900/60 backdrop-blur-sm transition-opacity duration-500'
                     onClick={closeOnOverlayClick ? onClose : undefined}
                 ></div>
             )}
@@ -86,8 +86,50 @@ export const Modal = ({
                         </svg>
                     </button>
                 )}
-                <div className='flex-1 overflow-y-auto no-scrollbar'>{children}</div>
+                <div className='flex-1 flex flex-col min-h-0'>{children}</div>
             </div>
         </div>
     );
 };
+
+export const ModalHeader = ({ title, description, onClose, className = '' }) => (
+    <div className={`px-5 py-4 sm:px-6 sm:py-5 border-b border-gray-100 dark:border-gray-800 shrink-0 ${className}`}>
+        <div className='flex items-center justify-between gap-4'>
+            <div>
+                <h4 className='text-base sm:text-lg font-bold text-gray-900 dark:text-white leading-tight'>
+                    {title}
+                </h4>
+                {description && (
+                    <p className='mt-1 text-[12px] sm:text-sm text-gray-500 dark:text-gray-400 font-medium'>
+                        {description}
+                    </p>
+                )}
+            </div>
+            {onClose && (
+                <button
+                    onClick={onClose}
+                    className='flex h-9 w-9 items-center justify-center rounded-full bg-gray-50 text-gray-400 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:text-gray-500 dark:hover:bg-gray-700 dark:hover:text-white transition-colors'
+                >
+                    <svg width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2.5' strokeLinecap='round' strokeLinejoin='round'>
+                        <line x1='18' y1='6' x2='6' y2='18'></line>
+                        <line x1='6' y1='6' x2='18' y2='18'></line>
+                    </svg>
+                </button>
+            )}
+        </div>
+    </div>
+);
+
+export const ModalBody = ({ children, className = '' }) => (
+    <div className={`flex-1 overflow-y-auto p-5 sm:p-8 ${className}`}>
+        {children}
+    </div>
+);
+
+export const ModalFooter = ({ children, className = '' }) => (
+    <div className={`px-5 py-4 sm:px-8 sm:py-6 border-t border-gray-100 dark:border-gray-800 bg-gray-50/30 dark:bg-white/[0.02] shrink-0 ${className}`}>
+        <div className='flex items-center justify-end gap-3'>
+            {children}
+        </div>
+    </div>
+);

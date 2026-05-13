@@ -21,7 +21,7 @@ const COOKIE_OPTIONS = {
  */
 export const register = async (req, res, next) => {
     try {
-        const { email, password, first_name, last_name, middle_name, suffix, phone } = req.body;
+        const { email, password, first_name, last_name, middle_name, suffix, phone, sex, date_of_birth } = req.body;
 
         // ── Validate input ──
         if (!email || !password || !first_name || !last_name) {
@@ -65,7 +65,9 @@ export const register = async (req, res, next) => {
                     last_name, 
                     middle_name, 
                     suffix, 
-                    role: 'patient' 
+                    role: 'patient',
+                    sex,
+                    date_of_birth
                 },
             },
         });
@@ -78,6 +80,8 @@ export const register = async (req, res, next) => {
         const profileUpdates = {};
         if (phone) profileUpdates.phone = phone;
         if (req.body.preferred_time) profileUpdates.preferred_time = req.body.preferred_time;
+        if (sex) profileUpdates.sex = sex;
+        if (date_of_birth) profileUpdates.date_of_birth = date_of_birth;
 
         if (Object.keys(profileUpdates).length > 0 && data.user?.id) {
             await supabaseAdmin.from('profiles').update(profileUpdates).eq('id', data.user.id);
@@ -181,6 +185,7 @@ export const getProfile = async (req, res, next) => {
             role: req.user.role,
             avatar_url: req.user.avatar_url,
             date_of_birth: req.user.date_of_birth,
+            sex: req.user.sex,
         };
 
         return res.json({ user });
@@ -194,7 +199,7 @@ export const getProfile = async (req, res, next) => {
  */
 export const updateProfile = async (req, res, next) => {
     try {
-        const { full_name, first_name, last_name, middle_name, suffix, phone, avatar_url, date_of_birth } = req.body;
+        const { full_name, first_name, last_name, middle_name, suffix, phone, avatar_url, date_of_birth, sex } = req.body;
 
         const updates = {};
         if (first_name !== undefined) updates.first_name = first_name;
@@ -217,6 +222,7 @@ export const updateProfile = async (req, res, next) => {
         if (phone !== undefined) updates.phone = phone;
         if (avatar_url !== undefined) updates.avatar_url = avatar_url;
         if (date_of_birth !== undefined) updates.date_of_birth = date_of_birth;
+        if (sex !== undefined) updates.sex = sex;
         updates.updated_at = new Date().toISOString();
 
         if (Object.keys(updates).length <= 1) {

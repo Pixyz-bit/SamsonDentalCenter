@@ -43,7 +43,7 @@ export const getPatientProfileById = async (id, profileId) => {
  * Create a new patient profile (Stub profile linked to primary).
  */
 export const createPatientProfile = async (profileId, profileData) => {
-    const { first_name, last_name, middle_name, suffix, date_of_birth, relationship } = profileData;
+    const { first_name, last_name, middle_name, suffix, date_of_birth, relationship, sex } = profileData;
 
     if (!first_name || !last_name || !date_of_birth || !relationship) {
         throw new AppError('First name, last name, DOB, and relationship are required.', 400);
@@ -61,6 +61,7 @@ export const createPatientProfile = async (profileId, profileData) => {
             suffix,
             full_name,
             date_of_birth,
+            sex,
             relationship_to_primary: relationship,
             role: 'patient',
             is_registered: false // It's a stub profile

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useModal } from '../../../hooks/useModal';
-import { Modal } from '../../ui/Modal';
+import { Modal, ModalHeader, ModalBody, ModalFooter } from '../../ui/Modal';
 import Button from '../../ui/Button';
 import Input from '../../ui/Input';
 import Label from '../../ui/Label';
@@ -96,75 +96,42 @@ export default function UserMetaCard() {
                     </Button>
                 </div>
             </div>
-            {isOpen && (
-                <div 
-                    className='fixed inset-0 z-[100001] flex items-center justify-center p-4 bg-black/60 dark:bg-black/80 backdrop-blur-md w-screen h-screen'
-                    onClick={(e) => { if (e.target === e.currentTarget) closeModal(); }}
-                >
-                    <div className='relative w-full max-w-md bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800 animate-[fadeIn_0.2s_ease-out] overflow-hidden'>
-                        {/* Visual Header Bar */}
-                        <div className='h-1.5 w-full bg-brand-500' />
-                        
-                        <div className='p-6 sm:p-8 space-y-6'>
-                            {/* Icon & Title */}
-                            <div className='flex flex-col items-center text-center space-y-4'>
-                                <div className='w-14 h-14 rounded-lg flex items-center justify-center bg-brand-50 text-brand-600 dark:bg-brand-500/10 dark:text-brand-400'>
-                                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
-                                    </svg>
-                                </div>
-                                <div className='space-y-1'>
-                                    <h3 className='text-xl sm:text-2xl font-black text-gray-900 dark:text-white font-outfit text-center uppercase tracking-tight'>
-                                        Edit Avatar
-                                    </h3>
-                                    <p className='text-[13px] sm:text-sm font-medium text-gray-500 dark:text-gray-400 leading-relaxed max-w-[280px] mx-auto'>
-                                        Choose a profile avatar.
-                                    </p>
-                                </div>
-                            </div>
-
-                            <div className='grid grid-cols-3 gap-3'>
-                                {AVATARS.map((url, i) => (
-                                    <div 
-                                        key={i}
-                                        onClick={() => setSelectedAvatar(url)}
-                                        className={`relative cursor-pointer group rounded-lg border-2 transition-all duration-300 aspect-square overflow-hidden flex items-center justify-center p-1
-                                            ${selectedAvatar === url ? 'border-brand-500 bg-brand-50' : 'border-gray-100 hover:border-gray-200 bg-gray-50/50'}`}
-                                    >
-                                        <img src={url} alt={`Avatar ${i}`} className="w-full h-full object-cover rounded-md group-hover:scale-110 transition-transform" />
-                                        {selectedAvatar === url && (
-                                            <div className="absolute top-1 right-1 bg-brand-500 text-white rounded-full p-0.5 shadow-sm scale-75">
-                                                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                    <path d="M10 3L4.5 8.5L2 6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-                                                </svg>
-                                            </div>
-                                        )}
+            <Modal isOpen={isOpen} onClose={closeModal} isBottomSheet={true} className='sm:max-w-[480px] w-full' showCloseButton={false}>
+                <ModalHeader 
+                    title="Edit Avatar" 
+                    description="Choose a profile avatar that represents you." 
+                    onClose={closeModal} 
+                />
+                <ModalBody>
+                    <div className='grid grid-cols-3 gap-3'>
+                        {AVATARS.map((url, i) => (
+                            <div 
+                                key={i}
+                                onClick={() => setSelectedAvatar(url)}
+                                className={`relative cursor-pointer group rounded-xl border-2 transition-all duration-300 aspect-square overflow-hidden flex items-center justify-center p-1
+                                    ${selectedAvatar === url ? 'border-brand-500 bg-brand-50' : 'border-gray-100 hover:border-gray-200 bg-gray-50/50'}`}
+                            >
+                                <img src={url} alt={`Avatar ${i}`} className="w-full h-full object-cover rounded-lg group-hover:scale-110 transition-transform" />
+                                {selectedAvatar === url && (
+                                    <div className="absolute top-1.5 right-1.5 bg-brand-500 text-white rounded-full p-1 shadow-sm">
+                                        <svg width="10" height="10" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M10 3L4.5 8.5L2 6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+                                        </svg>
                                     </div>
-                                ))}
+                                )}
                             </div>
-
-                            <div className='flex gap-3 pt-2'>
-                                <button
-                                    onClick={closeModal}
-                                    type="button"
-                                    disabled={isSaving}
-                                    className='flex-1 px-4 py-3.5 rounded-lg border border-gray-100 dark:border-white/5 text-[14px] font-black text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5 transition-all active:scale-95'
-                                >
-                                    Cancel
-                                </button>
-                                <button
-                                    onClick={handleSave}
-                                    type='button'
-                                    disabled={isSaving}
-                                    className='flex-1 px-6 py-3.5 rounded-lg bg-brand-500 text-[14px] font-black text-white hover:bg-brand-600 transition-all active:scale-95 disabled:opacity-50'
-                                >
-                                    {isSaving ? 'Saving...' : 'Save'}
-                                </button>
-                            </div>
-                        </div>
+                        ))}
                     </div>
-                </div>
-            )}
+                </ModalBody>
+                <ModalFooter>
+                    <Button variant='outline' onClick={closeModal} disabled={isSaving} className="flex-1 sm:flex-none rounded-xl font-black text-[11px] sm:text-sm">
+                        Cancel
+                    </Button>
+                    <Button onClick={handleSave} disabled={isSaving} className="flex-1 sm:flex-none rounded-xl font-black text-[11px] sm:text-sm">
+                        {isSaving ? 'Saving...' : 'Save Changes'}
+                    </Button>
+                </ModalFooter>
+            </Modal>
         </>
     );
 }

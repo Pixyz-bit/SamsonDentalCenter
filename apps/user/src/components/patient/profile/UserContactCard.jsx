@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useModal } from '../../../hooks/useModal';
-import { Modal } from '../../ui/Modal';
+import { Modal, ModalHeader, ModalBody, ModalFooter } from '../../ui/Modal';
 import Button from '../../ui/Button';
 import Input from '../../ui/Input';
 import Label from '../../ui/Label';
@@ -41,11 +41,11 @@ export default function UserContactCard() {
 
                     <div className='grid grid-cols-1 gap-y-5 sm:grid-cols-2 lg:gap-x-8'>
                         <div className="sm:col-span-1">
-                            <p className='mb-1.5 text-[10px] font-bold uppercase tracking-wider text-gray-400'>Email Address</p>
+                            <p className='mb-1.5 text-[10px] font-bold text-gray-400'>Email Address</p>
                             <p className='text-sm font-semibold text-gray-800 dark:text-white/90'>{user?.email || 'N/A'}</p>
                         </div>
                         <div className="sm:col-span-1">
-                            <p className='mb-1.5 text-[10px] font-bold uppercase tracking-wider text-gray-400'>Phone Number</p>
+                            <p className='mb-1.5 text-[10px] font-bold text-gray-400'>Phone Number</p>
                             <p className='text-sm font-semibold text-gray-800 dark:text-white/90'>{user?.phone || 'N/A'}</p>
                         </div>
                     </div>
@@ -75,23 +75,20 @@ export default function UserContactCard() {
                 </Button>
             </div>
 
-            <Modal isOpen={isOpen} onClose={closeModal} className='max-w-[480px] w-[95%] sm:w-full m-auto'>
-                <div className='no-scrollbar relative w-full overflow-y-auto rounded-xl bg-white p-6 dark:bg-gray-900 sm:p-8'>
-                    <div className='pr-8 sm:pr-12'>
-                        <h4 className='mb-1 text-xl font-bold text-gray-900 dark:text-white'>
-                            Edit Contact Information
-                        </h4>
-                        <p className='mb-6 text-sm text-gray-500 dark:text-gray-400'>
-                            Update your phone number. Your email is managed by the system.
-                        </p>
-                    </div>
-                    <form className='flex flex-col gap-6' onSubmit={handleSave}>
-                        <div className='space-y-6'>
+            <Modal isOpen={isOpen} onClose={closeModal} isBottomSheet={true} className='sm:max-w-[500px] w-full' showCloseButton={false}>
+                <ModalHeader 
+                    title="Edit Contact Information" 
+                    description="Update your phone number below." 
+                    onClose={closeModal} 
+                />
+                <form onSubmit={handleSave} className="flex flex-col flex-1 min-h-0">
+                    <ModalBody>
+                        <div className='space-y-5'>
                             <div>
-                                <Label className="text-[10px] font-bold uppercase tracking-[0.1em] text-gray-400 mb-2 block">Phone Number</Label>
+                                <Label className="text-[13px] sm:text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 block">Phone Number</Label>
                                 <Input 
                                     name="phone"
-                                    className="text-sm font-medium h-12 rounded-lg border-gray-200 focus:border-brand-500 focus:ring-brand-500/10" 
+                                    className="text-[13px] sm:text-sm font-medium h-11 rounded-xl shadow-theme-sm" 
                                     type='text' 
                                     defaultValue={user?.phone || ''} 
                                     placeholder="Enter your phone number"
@@ -99,9 +96,9 @@ export default function UserContactCard() {
                             </div>
 
                             <div>
-                                <Label className="text-[10px] font-bold uppercase tracking-[0.1em] text-gray-400 mb-2 block">Email Address</Label>
+                                <Label className="text-[13px] sm:text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 block">Email Address</Label>
                                 <Input 
-                                    className="text-sm font-medium h-12 rounded-lg bg-gray-50/50 opacity-70 cursor-not-allowed border-gray-200" 
+                                    className="text-[13px] sm:text-sm font-medium h-11 rounded-xl shadow-theme-sm bg-gray-50/50 opacity-70 cursor-not-allowed border-gray-200" 
                                     type='email' 
                                     defaultValue={user?.email || ''} 
                                     readOnly 
@@ -110,17 +107,17 @@ export default function UserContactCard() {
                                 <p className="text-[10px] text-gray-400 mt-2 italic pl-1">Contact your provider to change email.</p>
                             </div>
                         </div>
+                    </ModalBody>
 
-                        <div className='flex items-center gap-3 mt-2 sm:justify-end'>
-                            <Button variant='outline' type="button" onClick={closeModal} className="flex-1 sm:flex-none h-11 px-6 rounded-lg font-bold" disabled={isSaving}>
-                                Cancel
-                            </Button>
-                            <Button type='submit' className="flex-1 sm:flex-none h-11 px-6 rounded-lg font-bold" disabled={isSaving}>
-                                {isSaving ? 'Saving...' : 'Save'}
-                            </Button>
-                        </div>
-                    </form>
-                </div>
+                    <ModalFooter>
+                        <Button variant='outline' type="button" onClick={closeModal} className="flex-1 sm:flex-none h-11 px-6 rounded-xl font-black text-[11px] sm:text-sm" disabled={isSaving}>
+                            Cancel
+                        </Button>
+                        <Button type='submit' className="flex-1 sm:flex-none h-11 px-6 rounded-xl font-black text-[11px] sm:text-sm" disabled={isSaving}>
+                            {isSaving ? 'Saving...' : 'Save Changes'}
+                        </Button>
+                    </ModalFooter>
+                </form>
             </Modal>
         </div>
     );

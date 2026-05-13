@@ -28,7 +28,7 @@ export const requireAuth = async (req, res, next) => {
         // 4. Get the user's profile from our profiles table
         const { data: profile, error: profileError } = await supabaseAdmin
             .from('profiles')
-            .select('id, email, full_name, first_name, last_name, middle_name, suffix, phone, role, avatar_url, date_of_birth')
+            .select('id, email, full_name, first_name, last_name, middle_name, suffix, phone, role, avatar_url, date_of_birth, sex')
             .eq('id', user.id)
             .single();
 
@@ -49,6 +49,7 @@ export const requireAuth = async (req, res, next) => {
             role: profile.role,
             avatar_url: profile.avatar_url,
             date_of_birth: profile.date_of_birth,
+            sex: profile.sex,
         };
 
         // 6. Continue to the next middleware/controller
@@ -90,7 +91,7 @@ export const optionalAuth = async (req, res, next) => {
 
         const { data: profile } = await supabaseAdmin
             .from('profiles')
-            .select('id, email, full_name, first_name, last_name, middle_name, suffix, phone, role, avatar_url, date_of_birth')
+            .select('id, email, full_name, first_name, last_name, middle_name, suffix, phone, role, avatar_url, date_of_birth, sex')
             .eq('id', user.id)
             .single();
 
@@ -108,6 +109,7 @@ export const optionalAuth = async (req, res, next) => {
                   role: profile.role,
                   avatar_url: profile.avatar_url,
                   date_of_birth: profile.date_of_birth,
+                  sex: profile.sex,
               }
             : null;
 
