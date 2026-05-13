@@ -265,20 +265,24 @@ const UserRescheduleWizard = ({ reschedule, appointment }) => {
                             fullWidth
                             onClick={() => {
                                 setShowExpiryModal(false);
-                                goToStep(1);
-                                updateFields({ date: '', time: '' });
+                                reset();
+                                navigate(`/patient/appointments/${appointment.id}`);
                             }}
-                            className="flex-1 h-10 sm:h-12 text-[10px] sm:text-xs font-bold text-gray-400 hover:text-red-500 hover:bg-red-50 dark:text-gray-500 dark:hover:text-red-400 transition-all duration-300"
+                            className="flex-1 h-10 sm:h-12 text-[10px] sm:text-xs font-bold text-gray-400 hover:text-red-500 hover:bg-red-50 dark:text-gray-500 dark:hover:text-red-400 transition-all duration-300 border border-transparent"
                         >
-                            Select New Time
+                            Discard & Exit
                         </Button>
                         <Button
                             variant="primary"
                             fullWidth
-                            onClick={() => setShowExpiryModal(false)}
+                            onClick={() => {
+                                setShowExpiryModal(false);
+                                goToStep(1);
+                                updateFields({ date: '', time: '' });
+                            }}
                             className="flex-[1.5] h-10 sm:h-12 text-[10px] sm:text-sm font-black shadow-lg shadow-brand-500/20"
                         >
-                            Keep Browsing
+                            Select New Time
                         </Button>
                     </div>
                 </div>

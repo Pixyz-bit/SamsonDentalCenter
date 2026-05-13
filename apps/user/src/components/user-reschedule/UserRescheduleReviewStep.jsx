@@ -9,9 +9,28 @@ import {
     RefreshCw,
     Edit2,
     CalendarDays,
-    ShieldCheck
+    ShieldCheck,
+    User
 } from 'lucide-react';
 import { formatDate, formatTime } from '../../hooks/useAppointments';
+
+// Helper to calculate end time based on start time (HH:mm) and duration (minutes)
+const calculateEndTime = (startTime, durationMinutes) => {
+    if (!startTime || !durationMinutes) return null;
+    try {
+        const [hours, minutes] = startTime.split(':').map(Number);
+        const startDate = new Date();
+        startDate.setHours(hours, minutes, 0, 0);
+        
+        const endDate = new Date(startDate.getTime() + durationMinutes * 60000);
+        const endHours = String(endDate.getHours()).padStart(2, '0');
+        const endMinutes = String(endDate.getMinutes()).padStart(2, '0');
+        
+        return `${endHours}:${endMinutes}`;
+    } catch (e) {
+        return null;
+    }
+};
 
 const ReviewSection = ({ title, children, onEditClick, icon: Icon }) => (
     <div className="bg-white dark:bg-white/[0.03] border border-gray-200 dark:border-gray-800 rounded-2xl sm:rounded-3xl shadow-theme-md overflow-hidden mb-6">
@@ -37,13 +56,25 @@ const ReviewSection = ({ title, children, onEditClick, icon: Icon }) => (
 );
 
 const UserRescheduleReviewStep = ({ formData, appointment, onSubmit, onBack, submitting, error }) => {
-    const serviceName = appointment?.service?.name || appointment?.service || '—';
+    const service = appointment?.service;
+    const serviceName = service?.name || appointment?.service || '—';
+    const duration = service?.duration_minutes || 30;
     
     const newDateStr = formatDate(formData.date);
-    const newTimeStr = formatTime(formData.time);
+    const newStartTime = formatTime(formData.time);
+    const newEndTimeRaw = calculateEndTime(formData.time, duration);
+    const newEndTime = newEndTimeRaw ? formatTime(newEndTimeRaw) : null;
     
     const oldDateStr = formatDate(appointment?.appointment_date);
-    const oldTimeStr = formatTime(appointment?.start_time);
+    const oldStartTime = formatTime(appointment?.start_time);
+    const oldEndTimeRaw = calculateEndTime(appointment?.start_time, duration);
+    const oldEndTime = oldEndTimeRaw ? formatTime(oldEndTimeRaw) : null;
+
+    // Dentist labels
+    const newDentistName = formData.dentist_name || 'Any Available Dentist';
+    const oldDentistName = appointment?.dentist?.profile 
+        ? `Dr. ${appointment.dentist.profile.first_name} ${appointment.dentist.profile.last_name}`
+        : appointment?.dentist?.full_name || 'Any Available Dentist';
 
     return (
         <div className="animate-in fade-in slide-in-from-bottom-2 duration-500 pb-[60px] sm:pb-6">
@@ -78,36 +109,94 @@ const UserRescheduleReviewStep = ({ formData, appointment, onSubmit, onBack, sub
 
             <div className="w-full space-y-4 sm:space-y-6">
                 <ReviewSection title="Schedule Comparison" icon={CalendarDays} onEditClick={onBack}>
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-center">
+                    <div className="relative grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-14 items-stretch">
+                        {/* Centered Arrow (Desktop only) */}
+                        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-20 hidden lg:flex">
+                            <div className="w-12 h-12 bg-white dark:bg-gray-900 border-2 border-brand-100 dark:border-brand-800 rounded-full flex items-center justify-center shadow-theme-md">
+                                <ArrowRight size={20} className="text-brand-500" />
+                            </div>
+                        </div>
+
                         {/* Current Schedule */}
-                        <div className="p-5 sm:p-6 bg-gray-50 dark:bg-white/[0.02] rounded-2xl border border-gray-100 dark:border-gray-800 opacity-60">
-                            <h4 className="text-[10px] sm:text-xs font-black text-gray-400 uppercase tracking-widest mb-4">Original Appointment</h4>
-                            <div className="space-y-4">
-                                <div className="flex items-center gap-3">
-                                    <Calendar size={16} className="text-gray-400" />
-                                    <span className="text-[14px] sm:text-base font-bold text-gray-600 dark:text-gray-400">{oldDateStr}</span>
+                        <div className="p-8 sm:p-10 bg-gray-50/50 dark:bg-white/[0.02] rounded-3xl border border-gray-100 dark:border-gray-800 opacity-70 flex flex-col h-full">
+                            <div className="mb-8 flex flex-col gap-1">
+                                <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Current</span>
+                                <h4 className="text-base sm:text-lg font-black text-gray-500 dark:text-gray-400 flex items-center gap-2">
+                                    Original Appointment
+                                </h4>
+                            </div>
+                            <div className="space-y-6">
+                                <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-0">
+                                    <div className="flex items-center gap-3 w-32 shrink-0 text-gray-400">
+                                        <Calendar size={18} />
+                                        <span className="text-sm font-medium">Date</span>
+                                    </div>
+                                    <span className="text-base sm:text-lg font-bold text-gray-600 dark:text-gray-400">{oldDateStr}</span>
                                 </div>
-                                <div className="flex items-center gap-3">
-                                    <Clock size={16} className="text-gray-400" />
-                                    <span className="text-[14px] sm:text-base font-bold text-gray-600 dark:text-gray-400">{oldTimeStr}</span>
+                                <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-0">
+                                    <div className="flex items-center gap-3 w-32 shrink-0 text-gray-400">
+                                        <Clock size={18} />
+                                        <span className="text-sm font-medium">Time</span>
+                                    </div>
+                                    <span className="text-base sm:text-lg font-bold text-gray-600 dark:text-gray-400">
+                                        {oldStartTime} {oldEndTime ? `– ${oldEndTime}` : ''}
+                                    </span>
+                                </div>
+                                <div className="flex flex-col sm:flex-row sm:items-start gap-2 sm:gap-0">
+                                    <div className="flex items-center gap-3 w-32 shrink-0 text-gray-400 mt-0.5">
+                                        <User size={18} />
+                                        <span className="text-sm font-medium">Dentist</span>
+                                    </div>
+                                    <div className="flex flex-col">
+                                        <span className="text-base sm:text-lg font-bold text-gray-600 dark:text-gray-400 leading-tight">
+                                            {oldDentistName}
+                                        </span>
+                                        <span className="text-xs font-medium text-gray-400 mt-1">
+                                            {appointment?.is_dentist_preferred ? 'Preferred Doctor' : 'Assigned by System'}
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
                         {/* New Schedule */}
-                        <div className="p-5 sm:p-6 bg-brand-50/50 dark:bg-brand-500/5 rounded-2xl border border-brand-200 dark:border-brand-500/20 relative shadow-theme-xs">
-                            <div className="absolute -left-3 top-1/2 -translate-y-1/2 w-6 h-6 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-full flex items-center justify-center z-10 hidden lg:flex">
-                                <ArrowRight size={12} className="text-brand-500" />
+                        <div className="p-8 sm:p-10 bg-brand-50/50 dark:bg-brand-500/5 rounded-3xl border-2 border-brand-200 dark:border-brand-500/20 relative shadow-theme-lg flex flex-col h-full">
+                            <div className="mb-8 flex flex-col gap-1">
+                                <span className="text-[10px] font-black text-brand-500 uppercase tracking-widest">Rescheduled</span>
+                                <h4 className="text-base sm:text-lg font-black text-gray-900 dark:text-white flex items-center gap-2">
+                                    New Appointment
+                                </h4>
                             </div>
-                            <h4 className="text-[10px] sm:text-xs font-black text-brand-600 dark:text-brand-400 uppercase tracking-widest mb-4">New Schedule</h4>
-                            <div className="space-y-4">
-                                <div className="flex items-center gap-3">
-                                    <Calendar size={18} className="text-brand-500" />
-                                    <span className="text-[14px] sm:text-base font-bold text-gray-900 dark:text-white">{newDateStr}</span>
+                            <div className="space-y-6">
+                                <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-0">
+                                    <div className="flex items-center gap-3 w-32 shrink-0 text-brand-500">
+                                        <Calendar size={20} />
+                                        <span className="text-sm font-medium">Date</span>
+                                    </div>
+                                    <span className="text-base sm:text-lg font-bold text-gray-900 dark:text-white">{newDateStr}</span>
                                 </div>
-                                <div className="flex items-center gap-3">
-                                    <Clock size={18} className="text-brand-500" />
-                                    <span className="text-[14px] sm:text-base font-bold text-gray-900 dark:text-white">{newTimeStr}</span>
+                                <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-0">
+                                    <div className="flex items-center gap-3 w-32 shrink-0 text-brand-500">
+                                        <Clock size={20} />
+                                        <span className="text-sm font-medium">Time</span>
+                                    </div>
+                                    <span className="text-base sm:text-lg font-bold text-gray-900 dark:text-white">
+                                        {newStartTime} {newEndTime ? `– ${newEndTime}` : ''}
+                                    </span>
+                                </div>
+                                <div className="flex flex-col sm:flex-row sm:items-start gap-2 sm:gap-0">
+                                    <div className="flex items-center gap-3 w-32 shrink-0 text-brand-500 mt-0.5">
+                                        <User size={20} />
+                                        <span className="text-sm font-medium">Dentist</span>
+                                    </div>
+                                    <div className="flex flex-col">
+                                        <span className="text-base sm:text-lg font-bold text-gray-900 dark:text-white leading-tight">
+                                            {newDentistName}
+                                        </span>
+                                        <span className={`text-xs font-bold mt-1 ${formData.dentist_id ? 'text-brand-500' : 'text-gray-400'}`}>
+                                            {formData.dentist_id ? 'Preferred Doctor' : 'Assigned by System'}
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
                         </div>

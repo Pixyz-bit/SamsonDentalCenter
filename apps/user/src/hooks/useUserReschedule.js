@@ -82,9 +82,18 @@ const useUserReschedule = (appointmentId, originalAppointment) => {
         setError(null);
     };
 
-    const nextStep = () => setStep((s) => Math.min(s + 1, steps.length));
-    const prevStep = () => setStep((s) => Math.max(s - 1, 1));
-    const goToStep = (s) => setStep(s);
+    const nextStep = () => {
+        setError(null);
+        setStep((s) => Math.min(s + 1, steps.length));
+    };
+    const prevStep = () => {
+        setError(null);
+        setStep((s) => Math.max(s - 1, 1));
+    };
+    const goToStep = (s) => {
+        setError(null);
+        setStep(s);
+    };
 
     const submit = async () => {
         setSubmitting(true);
