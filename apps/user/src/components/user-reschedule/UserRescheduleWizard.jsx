@@ -62,8 +62,14 @@ const UserRescheduleWizard = ({ reschedule, appointment }) => {
         const checkRecovery = async () => {
             if (slotHold.checkActiveHold) {
                 const hasHold = await slotHold.checkActiveHold();
-                // Only show recovery if we are on step 1 and have a hold
-                if (hasHold && step === 1 && formData.date && formData.time) {
+                
+                // ✅ Safety Margin: Only show recovery if hold has at least 5 seconds left
+                const secondsRemaining = hasHold?.expires_at 
+                    ? Math.floor((new Date(hasHold.expires_at) - new Date()) / 1000)
+                    : 0;
+
+                // Show recovery if we have a valid hold and the user has previously selected a date/time
+                if (hasHold && secondsRemaining > 5 && formData.date && formData.time) {
                     setShowRecoveryModal(true);
                 }
             }
@@ -83,11 +89,17 @@ const UserRescheduleWizard = ({ reschedule, appointment }) => {
         }
 
         // Auto-show expiry modal if hold is lost while on review step
-        // ✅ Added check for !slotHold.isCheckingHold to avoid false positives during hydration
-        if (!slotHold.isCheckingHold && !slotHold.activeHold && !result && currentStep === 'review' && !showExpiryModal) {
+        // ✅ Added slotHold.isInitialized check to prevent false positives on reload
+        if (slotHold.isInitialized && !slotHold.activeHold && !result && currentStep === 'review' && !showExpiryModal) {
             setShowExpiryModal(true);
         }
-    }, [slotHold.activeHold, slotHold.timeRemaining, slotHold.isCheckingHold, toast, result, currentStep, showExpiryModal]);
+
+        // ✅ Auto-close recovery modal if hold expires while it's open
+        if (showRecoveryModal && slotHold.isInitialized && (!slotHold.activeHold || (slotHold.timeRemaining !== null && slotHold.timeRemaining <= 0))) {
+            setShowRecoveryModal(false);
+            toast.info('Your reservation has expired.');
+        }
+    }, [slotHold.activeHold, slotHold.timeRemaining, slotHold.isCheckingHold, slotHold.isInitialized, toast, result, currentStep, showExpiryModal, showRecoveryModal]);
 
     // Auto-scroll to top when step changes
     useEffect(() => {
