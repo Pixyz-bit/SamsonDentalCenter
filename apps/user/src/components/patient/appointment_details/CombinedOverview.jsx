@@ -15,7 +15,7 @@ const CombinedOverview = ({
             {/* Left Column: Assigned Doctor */}
             <div className='w-full lg:w-[40%] space-y-6 sm:px-0'>
                 <div>
-                    <h3 className='text-base sm:text-xl text-gray-900 dark:text-white font-bold tracking-tight mb-4 sm:mb-6'>
+                    <h3 className='text-base sm:text-xl text-gray-900 dark:text-white font-bold tracking-tight mb-6 pb-4 border-b border-gray-100 dark:border-white/5'>
                         Assigned Doctor
                     </h3>
                     <div className='flex items-center gap-4 sm:gap-6'>
@@ -45,7 +45,7 @@ const CombinedOverview = ({
 
             {/* Right Column: Appointment Logistics (Bento Box Style) */}
             <div className='flex-1 w-full sm:px-0'>
-                <h3 className='text-base sm:text-xl text-gray-900 dark:text-white font-bold tracking-tight mb-4 sm:mb-6'>
+                <h3 className='text-base sm:text-xl text-gray-900 dark:text-white font-bold tracking-tight mb-6 pb-4 border-b border-gray-100 dark:border-white/5'>
                     Appointment Overview
                 </h3>
                 
