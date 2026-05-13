@@ -108,6 +108,7 @@ const AppointmentDetails = () => {
           : raw?.patient_id
             ? 'Yourself'
             : '—';
+    const isRepresentativeBooking = !!raw?.booked_for_name;
     const isPending = raw.status === 'PENDING' && (raw.approval_status || '').toLowerCase() !== 'approved' && (raw.approval_status || '').toLowerCase() !== 'rejected';
     const isApproved = ((raw.approval_status || '').toLowerCase() === 'approved' || raw.status === 'CONFIRMED') && !['CANCELLED', 'LATE_CANCEL', 'NO_SHOW', 'RESCHEDULED', 'COMPLETED', 'IN_PROGRESS'].includes(raw.status);
     const isHistory = ['CANCELLED', 'LATE_CANCEL', 'NO_SHOW', 'COMPLETED'].includes(raw.status) || (raw.approval_status || '').toLowerCase() === 'rejected';
