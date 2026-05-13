@@ -8,8 +8,8 @@ const InputGroup = ({ label, icon: Icon, error, children }) => (
     <div className='space-y-1.5 group text-left'>
         <label
             className={cn(
-                'block text-xs font-semibold uppercase tracking-wide transition-colors',
-                error ? 'text-red-500' : 'text-slate-400 group-focus-within:text-blue-600',
+                'block text-[11px] font-bold uppercase tracking-[0.05em] transition-colors',
+                error ? 'text-red-500' : 'text-slate-500 group-focus-within:text-red-600',
             )}
         >
             {label}
@@ -17,11 +17,11 @@ const InputGroup = ({ label, icon: Icon, error, children }) => (
         <div className='relative'>
             <div
                 className={cn(
-                    'absolute left-3.5 top-1/2 -translate-y-1/2 transition-colors',
-                    error ? 'text-red-400' : 'text-slate-400 group-focus-within:text-blue-600',
+                    'absolute left-4 top-1/2 -translate-y-1/2 transition-colors duration-300',
+                    error ? 'text-red-400' : 'text-slate-400 group-focus-within:text-red-600',
                 )}
             >
-                <Icon size={18} />
+                <Icon size={18} strokeWidth={2.5} />
             </div>
             {children}
         </div>
@@ -35,21 +35,20 @@ const InputGroup = ({ label, icon: Icon, error, children }) => (
 
 const inputClassName = (error, value) =>
     cn(
-        'w-full bg-white border rounded-lg pl-10 pr-4 py-2.5 text-sm font-medium outline-none transition-all duration-200',
+        'w-full rounded-xl pl-11 pr-4 py-3 text-sm font-medium outline-none transition-all duration-300',
         error
-            ? 'border-red-300 focus:border-red-500 focus:ring-2 focus:ring-red-500/20 bg-red-50/10'
-            : value && value.length > 0
-              ? 'border-blue-200 focus:border-blue-600 focus:ring-2 focus:ring-blue-600/20'
-              : 'border-slate-200/60 focus:border-blue-600 focus:ring-2 focus:ring-blue-600/20 placeholder:text-slate-400',
+            ? 'bg-red-50/30 border border-red-300 text-red-900 placeholder:text-red-300 focus:bg-white focus:border-red-500 focus:ring-4 focus:ring-red-500/15'
+            : 'bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:bg-white focus:border-red-500 focus:ring-4 focus:ring-red-500/15 hover:border-slate-300',
+        value && !error && 'bg-white border-slate-200',
     );
 
 const LoginForm = ({ onSubmit, loading = false, error = null, showSignUpLink = true, showGuestLink = true }) => {
+    const navigate = useNavigate();
+
     const [email, setEmail] = useState('');
     const [pass, setPass] = useState('');
     const [emailError, setEmailError] = useState('');
     const [passError, setPassError] = useState('');
-
-    const navigate = useNavigate();
 
     const handleFormSubmit = (e) => {
         e.preventDefault();
@@ -74,15 +73,34 @@ const LoginForm = ({ onSubmit, loading = false, error = null, showSignUpLink = t
     return (
         <div className='flex flex-col h-full'>
             <div className='mb-8 text-center flex-shrink-0'>
-                <h2 className='text-2xl md:text-3xl font-bold text-slate-900 mb-2 tracking-tight'>
-                    Welcome Back
+                {/* Mobile Logo - Only visible when Carousel is hidden */}
+                <div className='flex items-center justify-center gap-3 mb-6 md:hidden'>
+                    <div className='w-8 flex-shrink-0 flex items-center justify-center transition-all duration-500'>
+                        <img
+                            src='/images/logo/samson-logo.png'
+                            alt='Samson Dental Logo'
+                            className='w-full h-auto'
+                        />
+                    </div>
+                    <div className='flex flex-col items-start justify-center'>
+                        <span className='font-black text-[20px] tracking-[-0.04em] leading-none text-slate-900 whitespace-nowrap uppercase'>
+                            SAMSON
+                        </span>
+                        <span className='text-[9px] uppercase tracking-[0.28em] font-bold mt-[1px] text-red-600 whitespace-nowrap'>
+                            Dental Center
+                        </span>
+                    </div>
+                </div>
+
+                <h2 className='text-2xl md:text-3xl font-black text-slate-900 mb-2 tracking-tight'>
+                    Welcome Back!
                 </h2>
-                <p className='text-slate-500 text-sm'>Sign in to your account to continue.</p>
+                <p className='text-slate-500 text-sm font-medium'>Sign in to your account to continue.</p>
             </div>
 
             <form
                 onSubmit={handleFormSubmit}
-                className='space-y-6'
+                className='space-y-5'
             >
                 <InputGroup
                     label='Email Address'
@@ -97,7 +115,7 @@ const LoginForm = ({ onSubmit, loading = false, error = null, showSignUpLink = t
                             if (emailError) setEmailError('');
                         }}
                         className={inputClassName(emailError, email)}
-                        placeholder='name@example.com'
+                        placeholder='Enter your email address'
                     />
                 </InputGroup>
 
@@ -114,26 +132,25 @@ const LoginForm = ({ onSubmit, loading = false, error = null, showSignUpLink = t
                             if (passError) setPassError('');
                         }}
                         className={inputClassName(passError, pass)}
-                        placeholder='••••••••'
+                        placeholder='Enter your password'
                     />
                 </InputGroup>
 
                 {error && (
-                    <div className='p-3 rounded-lg bg-red-50 border border-red-100 text-red-600 text-xs font-medium flex items-center justify-between'>
+                    <div className='p-3 rounded-lg bg-red-50 border border-red-100 text-red-600 text-xs font-medium flex items-center justify-between shadow-sm'>
                         <span>{error}</span>
                         <AlertCircle size={14} />
                     </div>
                 )}
 
-                <div className='pt-2'>
+                <div className='pt-3'>
                     <Button
                         type='submit'
                         disabled={loading}
-                        className='w-full'
-                        size='lg'
+                        className='w-full !bg-red-600 hover:!bg-red-700 active:scale-[0.98] transition-all duration-300 shadow-lg shadow-red-600/25 hover:shadow-red-600/40 border-0 font-bold rounded-xl py-3.5'
                     >
                         {loading ? 'Signing in...' : 'Sign In'}
-                        {!loading && <ChevronRight className='ml-2 h-4 w-4' />}
+                        {!loading && <ChevronRight className='ml-2 h-4 w-4' strokeWidth={3} />}
                     </Button>
                 </div>
             </form>
@@ -141,21 +158,21 @@ const LoginForm = ({ onSubmit, loading = false, error = null, showSignUpLink = t
             {(showSignUpLink || showGuestLink) && (
                 <div className='flex-shrink-0 pt-8 border-t border-slate-100 text-center mt-8'>
                     {showSignUpLink && (
-                        <p className='text-slate-500 text-sm'>
+                        <p className='text-slate-500 text-sm font-medium'>
                             Don't have an account?{' '}
                             <button
                                 onClick={() => navigate('/register')}
-                                className='text-blue-600 font-semibold hover:text-blue-700 hover:underline transition-colors'
+                                className='text-red-600 font-bold hover:text-red-700 hover:underline transition-colors'
                             >
                                 Create Account
                             </button>
                         </p>
                     )}
                     {showGuestLink && (
-                        <div className='mt-4'>
+                        <div className='mt-5'>
                             <button
                                 onClick={() => navigate('/book')}
-                                className='text-slate-400 text-xs font-medium hover:text-slate-600 transition-colors'
+                                className='w-full py-3 rounded-xl bg-slate-50 border border-slate-200 text-slate-600 text-sm font-bold hover:bg-slate-100 hover:border-slate-300 hover:text-slate-900 transition-all duration-300 active:scale-[0.98]'
                             >
                                 Continue as Guest
                             </button>

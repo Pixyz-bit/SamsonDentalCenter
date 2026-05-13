@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import Carousel from '../common/Carousel';
 import LoginForm from './components/LoginForm';
@@ -9,10 +9,10 @@ const LoginContainer = ({ onSubmit, loading = false, error = null, showSignUpLin
 
     return (
         <div className='w-full min-h-screen md:h-screen flex flex-col md:flex-row bg-slate-50'>
-            {/* Left â€” Carousel (60%) */}
+            {/* Left — Carousel (60%) */}
             <Carousel className='md:w-[60%] lg:w-[60%]' />
 
-            {/* Right â€” Form (40%) */}
+            {/* Right — Form (40%) */}
             <div className='flex-grow md:w-[40%] lg:w-[40%] flex flex-col relative bg-white shadow-2xl z-10'>
                 {/* Close Button - Floating on Parent */}
                 <button
