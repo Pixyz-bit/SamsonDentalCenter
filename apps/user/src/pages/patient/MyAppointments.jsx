@@ -134,7 +134,7 @@ const MyAppointments = () => {
                             </div>
 
                             {/* Row 2: All Filters */}
-                            <div className='px-4 sm:px-6 py-4 flex flex-nowrap items-center gap-3 sm:gap-4 overflow-x-auto hide-scrollbar pb-2 sm:pb-4'>
+                            <div className='px-4 sm:px-6 py-4 flex flex-nowrap items-center gap-3 overflow-x-auto hide-scrollbar'>
                                 {/* 1. Family Member Dropdown */}
                                 <div className='relative w-full sm:w-auto min-w-[220px]'>
                                     <div className='absolute left-3.5 top-3.5 text-brand-500'>

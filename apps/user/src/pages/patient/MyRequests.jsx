@@ -101,7 +101,7 @@ const MyRequests = () => {
                             </div>
 
                             {/* Dropdown Filters Row */}
-                            <div className='px-4 sm:px-6 py-4 flex flex-nowrap items-center gap-3 sm:gap-4 overflow-x-auto hide-scrollbar pb-2 sm:pb-4'>
+                            <div className='px-4 sm:px-6 py-4 flex flex-nowrap items-center gap-3 overflow-x-auto hide-scrollbar'>
                                 {/* 1. Person Filter */}
                                 <div className='relative w-full sm:w-auto min-w-[200px] shrink-0'>
                                     <div className='absolute left-3.5 top-3.5 text-brand-500'>
