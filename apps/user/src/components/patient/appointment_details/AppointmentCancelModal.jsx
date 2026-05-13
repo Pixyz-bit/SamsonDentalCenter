@@ -149,19 +149,19 @@ const AppointmentCancelModal = ({ show, onClose, cancelReason, setCancelReason, 
                 </div>
             </ModalBody>
 
-            <ModalFooter>
+            <ModalFooter className="flex w-full gap-3 px-6 pb-6">
                 <Button 
                     variant='outline' 
                     onClick={onClose} 
                     disabled={cancelling}
-                    className="flex-1 sm:flex-none h-12 px-6 rounded-xl font-black text-[11px] sm:text-sm"
+                    className="flex-1 h-12 rounded-xl font-black text-[11px] sm:text-sm"
                 >
                     {cancelLabel}
                 </Button>
                 <Button 
                     onClick={handleCancel}
                     disabled={cancelling || !isReady || (showOthers && cancelReason.trim().length < 2)}
-                    className={`flex-1 sm:flex-none h-12 px-8 text-white rounded-xl font-black text-[11px] sm:text-sm shadow-lg transition-all ${
+                    className={`flex-1 h-12 text-white rounded-xl font-black text-[11px] sm:text-sm shadow-lg transition-all ${
                         isPending 
                             ? 'bg-warning-500 hover:bg-warning-600 shadow-warning-500/20' 
                             : isLate
