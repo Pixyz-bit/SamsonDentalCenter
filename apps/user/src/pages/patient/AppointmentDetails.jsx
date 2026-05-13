@@ -172,9 +172,9 @@ const AppointmentDetails = () => {
                                         <h2 className='text-xl sm:text-3xl md:text-4xl font-bold text-gray-900 dark:text-white font-outfit leading-tight tracking-tight'>
                                             {serviceName}
                                         </h2>
-                                        <div className='flex items-center gap-2 text-[9px] sm:text-[11px] text-gray-500 dark:text-gray-400 font-bold'>
-                                            <span className='uppercase tracking-[0.15em] opacity-40'>Appointment ID:</span>
-                                            <span className='font-mono text-gray-900 dark:text-gray-200 px-1.5 py-0.5 bg-gray-100 dark:bg-white/5 rounded'>
+                                        <div className='flex items-center gap-2 text-[10px] sm:text-[12px] font-bold'>
+                                            <span className='uppercase tracking-[0.1em] text-gray-400 dark:text-gray-500'>Appointment ID:</span>
+                                            <span className='font-mono text-brand-600 dark:text-brand-400 px-2 py-0.5 bg-brand-50 dark:bg-brand-500/10 rounded-lg'>
                                                 {raw.id?.slice(0, 8).toUpperCase()}
                                             </span>
                                         </div>
