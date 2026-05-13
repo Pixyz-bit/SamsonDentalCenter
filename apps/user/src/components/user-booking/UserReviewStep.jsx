@@ -72,6 +72,7 @@ const UserReviewStep = ({
         if (validation && validation.success) {
             toast.info('Processing your appointment request...');
             await onSubmit();
+            toast.success('Appointment requested successfully!');
         } else if (validation && validation.error) {
             toast.error(validation.error);
         }
