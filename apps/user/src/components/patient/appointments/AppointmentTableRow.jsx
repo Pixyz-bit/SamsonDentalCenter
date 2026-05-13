@@ -50,7 +50,7 @@ const AppointmentTableRow = ({ appointment, user, onViewDetails }) => {
             </div>
 
             {/* 2. Middle: Content Area */}
-            <div className='flex-grow px-4 py-3 sm:px-8 sm:py-3 flex items-center gap-4 sm:gap-10 min-w-0'>
+            <div className='flex-grow px-4 py-3 sm:px-8 sm:py-3 flex items-center gap-4 sm:gap-6 min-w-0'>
                 <div className='w-10 h-10 sm:w-14 sm:h-14 rounded-xl bg-brand-500 text-white flex items-center justify-center font-black text-sm sm:text-2xl shadow-lg shadow-brand-500/10 shrink-0'>
                     {getInitial(appointment.service)}
                 </div>
@@ -59,7 +59,7 @@ const AppointmentTableRow = ({ appointment, user, onViewDetails }) => {
                     {/* Service Column */}
                     <div className='flex flex-col min-w-0 sm:w-[200px] lg:w-[260px] shrink-0'>
                         <p className='hidden sm:block text-[10px] font-bold text-gray-400 mb-1'>Service</p>
-                        <h3 className='text-[13px] sm:text-[15px] font-bold text-gray-900 dark:text-white truncate leading-tight group-hover:text-brand-500 transition-colors'>
+                        <h3 className='text-[13px] sm:text-[17px] font-bold text-gray-900 dark:text-white truncate leading-tight group-hover:text-brand-500 transition-colors'>
                             {appointment.service}
                         </h3>
                     </div>
