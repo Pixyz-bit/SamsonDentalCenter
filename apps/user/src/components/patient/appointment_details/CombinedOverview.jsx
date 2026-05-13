@@ -41,7 +41,7 @@ const CombinedOverview = ({
             </div>
 
             {/* Divider (Mobile only) */}
-            <div className='block lg:hidden w-full h-px bg-gray-100 dark:bg-white/5'></div>
+            <div className='block lg:hidden w-full h-px bg-gray-200 dark:bg-white/10'></div>
 
             {/* Right Column: Appointment Logistics */}
             <div className='flex-1 grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-8 sm:gap-y-10 w-full sm:px-0'>

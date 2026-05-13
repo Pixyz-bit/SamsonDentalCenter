@@ -7,7 +7,8 @@ const AppointmentDetailFooter = ({ isCancellable, isReschedulable, isPending, is
     const cancelLabel = isPending ? 'Cancel Request' : 'Cancel Appointment';
 
     return (
-        <div className='fixed bottom-0 left-0 right-0 sm:relative z-20 px-6 py-4 border-t border-gray-100 dark:border-gray-800 bg-white/95 dark:bg-gray-900/95 backdrop-blur-md sm:shadow-none'>
+    return (
+        <div className='fixed bottom-0 left-0 right-0 sm:relative z-20 px-6 py-4 border-t border-gray-200 dark:border-gray-800 bg-white/95 dark:bg-gray-900/95 backdrop-blur-md sm:shadow-none'>
             <div className='flex items-center gap-3 w-full justify-between'>
                 <div className='hidden sm:block sm:flex-1'></div>
                 <div className='flex flex-1 sm:flex-none gap-3 sm:justify-end w-full'>
