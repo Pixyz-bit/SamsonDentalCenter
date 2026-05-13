@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useLayoutEffect, useRef } from 'react';
 import { Link, NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { Menu, X, LogOut, Settings, Bell, Calendar } from 'lucide-react';
 import { gsap } from 'gsap';
@@ -98,6 +98,12 @@ const Navbar = () => {
             borderBottom: '1px solid transparent',
         });
 
+        return () => {
+            window.removeEventListener('scroll', handleScroll);
+        };
+    }, [location.pathname]);
+
+    useLayoutEffect(() => {
         let ctx = gsap.context(() => {
             gsap.from('.nav-anim', {
                 y: -20,
@@ -110,10 +116,7 @@ const Navbar = () => {
             });
         }, navRef);
 
-        return () => {
-            window.removeEventListener('scroll', handleScroll);
-            ctx.revert();
-        };
+        return () => ctx.revert();
     }, [location.pathname]);
 
     // Smart Visibility Logic
@@ -202,15 +205,11 @@ const Navbar = () => {
 
                         {/* Section 3: Profile & Notifications */}
                         <div className='flex items-center gap-2 lg:gap-4'>
-                            {loading ? (
-                                <div className='relative nav-anim flex items-center'>
-                                    <div className='flex items-center justify-center bg-gray-200/50 border border-gray-200 rounded-full h-10 w-10 lg:h-11 lg:w-11 dark:bg-white/[0.03] dark:border-gray-800 animate-pulse' />
-                                </div>
-                            ) : user ? (
+                            {user && (
                                 <div className='nav-anim flex items-center'>
                                     <PatientNotification />
                                 </div>
-                            ) : null}
+                            )}
 
                             <div
                                 className='relative nav-anim'
