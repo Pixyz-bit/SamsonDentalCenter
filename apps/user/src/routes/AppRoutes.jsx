@@ -45,6 +45,7 @@ import AppointmentHistory from '../pages/patient/AppointmentHistory';
 import AppointmentDetails from '../pages/patient/AppointmentDetails';
 import PatientProfile from '../pages/patient/PatientProfile';
 import NotificationsPage from '../pages/patient/NotificationsPage';
+import SettingsPage from '../pages/patient/SettingsPage';
 import UserBookingPage from '../pages/patient/UserBookingPage';
 import UserReschedulePage from '../pages/patient/UserReschedulePage';
 import DependentsPage from '../pages/patient/DependentsPage';
@@ -184,6 +185,7 @@ const AppRoutes = () => {
                     <Route path='profile' element={<PatientProfile />} />
                     <Route path='dependents' element={<DependentsPage />} />
                     <Route path='notifications' element={<NotificationsPage />} />
+                    <Route path='settings' element={<SettingsPage />} />
                 </Route>
 
                 {/* ── Patient Booking (standalone — no sidebar layout) ── */}

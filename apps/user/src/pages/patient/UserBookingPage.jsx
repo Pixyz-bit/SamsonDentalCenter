@@ -14,6 +14,7 @@ const UserBookingPage = () => {
     // Deep link awareness
     const serviceId = searchParams.get('service');
     const serviceName = decodeURIComponent(searchParams.get('service_name') || '');
+    const returnTo = searchParams.get('returnTo');
 
     // Pass pre-selected service to hook
     const booking = useUserBooking(serviceId, serviceName);
@@ -48,7 +49,7 @@ const UserBookingPage = () => {
     if (!user) return null;
 
     return (
-        <UserBookingWizard booking={booking} />
+        <UserBookingWizard booking={booking} returnTo={returnTo} />
     );
 };
 

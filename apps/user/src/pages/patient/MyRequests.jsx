@@ -92,7 +92,7 @@ const MyRequests = () => {
                                 </div>
 
                                 <Link
-                                    to='/patient/book'
+                                    to='/patient/book?returnTo=/patient/requests'
                                     className='hidden sm:flex items-center justify-center gap-2 px-6 py-3 bg-brand-500 hover:bg-brand-600 text-white rounded-lg text-sm font-bold transition-all shadow-md shadow-brand-500/20 shrink-0 whitespace-nowrap'
                                 >
                                     <Plus size={18} />

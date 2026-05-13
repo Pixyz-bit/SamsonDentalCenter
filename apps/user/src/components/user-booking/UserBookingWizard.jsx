@@ -34,7 +34,7 @@ const formatTime = (time24) => {
     } catch (e) { return time24; }
 };
 
-const UserBookingWizard = ({ booking }) => {
+const UserBookingWizard = ({ booking, returnTo }) => {
     const navigate = useNavigate();
     const toast = useToast();
     const {
@@ -184,7 +184,7 @@ const UserBookingWizard = ({ booking }) => {
                     </div>
                 </header>
                 <main className="max-w-6xl mx-auto px-8 md:px-12 py-10 md:py-16">
-                    <UserBookingSuccess result={result} onReset={reset} />
+                    <UserBookingSuccess result={result} onReset={reset} returnTo={returnTo} />
                 </main>
             </div>
         );
@@ -396,7 +396,7 @@ const UserBookingWizard = ({ booking }) => {
                             fullWidth
                             onClick={() => {
                                 reset();
-                                navigate('/patient/dashboard');
+                                navigate(returnTo || '/patient/dashboard');
                             }}
                             className="flex-1 h-11 text-[11px] sm:text-xs font-bold text-gray-400 hover:text-red-500 hover:bg-red-50 dark:text-gray-500 dark:hover:text-red-400 transition-colors"
                         >
