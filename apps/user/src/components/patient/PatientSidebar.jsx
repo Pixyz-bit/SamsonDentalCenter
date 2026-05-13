@@ -297,19 +297,6 @@ const PatientSidebar = () => {
                 <nav className='mb-6'>
                     <div className='flex flex-col'>
                         <div>
-                            <h2
-                                className={`mb-4 text-xs uppercase flex items-center leading-[20px] text-gray-400 pl-[13px] transition-all duration-300`}
-                            >
-                                <div className={`flex items-center transition-all duration-300 ${isExpanded || isHovered || isMobileOpen ? 'opacity-0 scale-50 w-0 overflow-hidden' : 'opacity-100 scale-100 w-[24px]'}`}>
-                                    <HorizontalDots className='size-6' />
-                                </div>
-                                <span className={`sidebar-text-base ${isExpanded || isHovered || isMobileOpen
-                                    ? 'opacity-100 max-w-[200px] visible ml-0'
-                                    : 'opacity-0 max-w-0 invisible ml-0 text-transparent'
-                                    }`}>
-                                    Menu
-                                </span>
-                            </h2>
                             <ul className='flex flex-col gap-1'>
                                 {navItems.map((nav) => (
                                     <li key={nav.name}>
