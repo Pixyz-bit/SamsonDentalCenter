@@ -263,13 +263,16 @@ const UserOtherInfoStep = ({ formData, onUpdate, onNext, onBack }) => {
         return p ? `${p.first_name} ${p.last_name} (${p.relationship_to_primary || 'Dependent'})` : 'Select Patient';
     };
 
-    const baseInput = "h-11 w-full rounded-xl border appearance-none px-4 py-2.5 text-[13px] sm:text-sm shadow-theme-sm placeholder:text-gray-400 focus:outline-hidden focus:ring-4 transition-all bg-white dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 font-medium";
+    const baseInput = "h-11 w-full rounded-xl border appearance-none px-4 py-2.5 text-[13px] sm:text-sm shadow-theme-sm placeholder:text-gray-400 focus:outline-hidden focus:ring-4 transition-all dark:placeholder:text-white/30 font-medium";
     
-    const getInputClasses = (fieldError) => {
+    const getInputClasses = (fieldError, isFieldReadOnly = false) => {
         if (fieldError) {
-            return `${baseInput} border-error-500 focus:border-error-300 focus:ring-error-500/20 dark:text-error-400 dark:border-error-500 dark:focus:border-error-800`;
+            return `${baseInput} border-error-500 focus:border-error-300 focus:ring-error-500/20 dark:text-error-400 dark:border-error-500 dark:focus:border-error-800 bg-white dark:bg-gray-900`;
         }
-        return `${baseInput} text-gray-800 border-gray-300 dark:border-gray-700 focus:border-brand-300 focus:ring-brand-500/15 hover:border-gray-400 dark:hover:border-gray-600 dark:text-white/90 dark:focus:border-brand-800 shadow-theme-xs hover:shadow-theme-sm`;
+        if (isFieldReadOnly) {
+            return `${baseInput} bg-gray-50/80 dark:bg-white/[0.02] border-gray-100 dark:border-gray-800/50 text-gray-500 dark:text-white/40 cursor-default ring-0 focus:ring-0 focus:border-gray-100 dark:focus:border-gray-800/50`;
+        }
+        return `${baseInput} text-gray-800 border-gray-300 dark:border-gray-700 focus:border-brand-300 focus:ring-brand-500/15 hover:border-gray-400 dark:hover:border-gray-600 dark:text-white/90 dark:focus:border-brand-800 shadow-theme-xs hover:shadow-theme-sm bg-white dark:bg-gray-900`;
     };
 
     const labelClasses = "mb-2 block text-[13px] sm:text-sm font-semibold text-gray-700 dark:text-gray-300 leading-none";
@@ -445,6 +448,18 @@ const UserOtherInfoStep = ({ formData, onUpdate, onNext, onBack }) => {
                     </div>
 
                     <div className="px-5 py-6 sm:px-10 sm:py-8 space-y-4 sm:space-y-8">
+                        {/* Auto-fill Notice */}
+                        {isReadOnly && (
+                            <div className='flex items-start gap-3 p-4 bg-brand-50/50 dark:bg-brand-500/5 rounded-2xl border border-brand-100 dark:border-brand-500/20 animate-in fade-in slide-in-from-top-2 duration-500'>
+                                <Info size={16} className='text-brand-500 mt-0.5 shrink-0' />
+                                <p className='text-[12px] sm:text-[13px] font-bold text-brand-700 dark:text-brand-400 leading-tight'>
+                                    {isSelf 
+                                        ? "Information auto-filled from your primary account profile." 
+                                        : `Information auto-filled from ${formData.booked_for_first_name}'s saved profile.`}
+                                </p>
+                            </div>
+                        )}
+
                         {/* Row 1: Primary Names */}
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-3 sm:gap-y-6">
                             <div>
@@ -456,7 +471,7 @@ const UserOtherInfoStep = ({ formData, onUpdate, onNext, onBack }) => {
                                     value={nameParts.last}
                                     onChange={(e) => handleNamePartChange('last', e.target.value)}
                                     placeholder='Dela Cruz'
-                                    className={getInputClasses(errors.last)}
+                                    className={getInputClasses(errors.last, isReadOnly)}
                                 />
                                 {errors.last && <p className='text-error-500 text-[10px] font-bold mt-1.5 ml-1'>{errors.last}</p>}
                             </div>
@@ -470,7 +485,7 @@ const UserOtherInfoStep = ({ formData, onUpdate, onNext, onBack }) => {
                                     value={nameParts.first}
                                     onChange={(e) => handleNamePartChange('first', e.target.value)}
                                     placeholder='Juan'
-                                    className={getInputClasses(errors.first)}
+                                    className={getInputClasses(errors.first, isReadOnly)}
                                 />
                                 {errors.first && <p className='text-error-500 text-[10px] font-bold mt-1.5 ml-1'>{errors.first}</p>}
                             </div>
@@ -487,7 +502,7 @@ const UserOtherInfoStep = ({ formData, onUpdate, onNext, onBack }) => {
                                     value={nameParts.middle}
                                     onChange={(e) => handleNamePartChange('middle', e.target.value)}
                                     placeholder='Santos'
-                                    className={getInputClasses(errors.middle)}
+                                    className={getInputClasses(errors.middle, isReadOnly)}
                                 />
                                 {errors.middle && <p className='text-error-500 text-[10px] font-bold mt-1.5 ml-1'>{errors.middle}</p>}
                             </div>
@@ -507,7 +522,7 @@ const UserOtherInfoStep = ({ formData, onUpdate, onNext, onBack }) => {
                                                     handleNamePartChange('suffix', e.target.value);
                                                 }
                                             }}
-                                            className={`${getInputClasses()} cursor-pointer pr-10 ${isReadOnly ? 'cursor-default opacity-100' : ''}`}
+                                            className={`${getInputClasses(null, isReadOnly)} cursor-pointer pr-10 ${isReadOnly ? 'cursor-default opacity-100' : ''}`}
                                         >
                                             <option value="">None</option>
                                             <option value="Jr.">Jr.</option>
@@ -559,7 +574,7 @@ const UserOtherInfoStep = ({ formData, onUpdate, onNext, onBack }) => {
                                         onClick={(e) => {
                                             if (!isReadOnly) try { e.target.showPicker(); } catch (err) {}
                                         }}
-                                        className={`${getInputClasses(errors.birthday)} w-full ${!formData.booked_for_birthday ? 'text-transparent dark:text-transparent' : ''}`}
+                                        className={`${getInputClasses(errors.birthday, isReadOnly)} w-full ${!formData.booked_for_birthday ? 'text-transparent dark:text-transparent' : ''}`}
                                         max={new Date().toISOString().split('T')[0]}
                                     />
                                     {!formData.booked_for_birthday && (
