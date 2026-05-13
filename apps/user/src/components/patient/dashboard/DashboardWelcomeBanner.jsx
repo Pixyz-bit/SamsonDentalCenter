@@ -23,7 +23,7 @@ const DashboardWelcomeBanner = ({ firstName, onBookAppointment, onContactClinic 
                     className="group flex items-center justify-center gap-2 w-full sm:w-auto rounded-xl bg-white px-5 sm:px-6 py-2.5 sm:py-3 text-sm sm:text-[15px] font-semibold text-[#c02424] transition-all hover:bg-gray-50 active:scale-[0.98] shadow-sm hover:shadow"
                 >
                     <CalendarPlus size={18} className="shrink-0 transition-transform group-hover:scale-110" />
-                    <span>Book Appointment</span>
+                    <span>New Appointment</span>
                 </button>
 
                 <button 

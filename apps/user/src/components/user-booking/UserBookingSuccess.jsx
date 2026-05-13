@@ -209,7 +209,7 @@ const UserBookingSuccess = ({ result, onReset, returnTo }) => {
             <div className="fixed bottom-0 left-0 w-full bg-white/90 dark:bg-gray-900/90 backdrop-blur-md border-t border-gray-100 dark:border-gray-800 p-4 sm:relative sm:bg-transparent sm:border-0 sm:p-0 sm:flex sm:flex-row gap-4 sm:mt-8 z-50">
                 <div className="max-w-[600px] mx-auto flex flex-row gap-3 sm:w-full">
                     <button
-                        onClick={() => { onReset(); navigate(returnTo || '/'); }}
+                        onClick={() => { onReset(); navigate(returnTo || '/patient/dashboard'); }}
                         className='flex-1 group flex items-center justify-center gap-2 h-12 sm:h-14 rounded-xl sm:rounded-2xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-all shadow-theme-xs'
                     >
                         <HomeIcon size={18} className="sm:size-[22px]" />

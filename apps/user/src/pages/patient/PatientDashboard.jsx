@@ -40,7 +40,7 @@ const PatientDashboard = () => {
                         {/* Row 0: Welcome Banner */}
                         <DashboardWelcomeBanner 
                             firstName={user?.first_name || 'Guest'}
-                            onBookAppointment={() => navigate('/patient/book')}
+                            onBookAppointment={() => navigate('/patient/book?returnTo=/patient/dashboard')}
                             onContactClinic={() => setIsContactModalOpen(true)}
                         />
 

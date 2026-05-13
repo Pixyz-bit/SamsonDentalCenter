@@ -131,6 +131,13 @@ const MyAppointments = () => {
                                     />
                                 </div>
 
+                                <Link
+                                    to='/patient/book?returnTo=/patient/appointments'
+                                    className='hidden sm:flex items-center justify-center gap-2 px-6 py-3 bg-brand-500 hover:bg-brand-600 text-white rounded-lg text-sm font-bold transition-all shadow-md shadow-brand-500/20 shrink-0 whitespace-nowrap'
+                                >
+                                    <PlusIcon className="w-4 h-4" />
+                                    <span>New Appointment</span>
+                                </Link>
                             </div>
 
                             {/* Row 2: All Filters */}
@@ -224,6 +231,16 @@ const MyAppointments = () => {
                 )}
             </div>
 
+            {/* Floating Action Button - Mobile Only */}
+            {!isMobileOpen && (
+                <Link
+                    to='/patient/book?returnTo=/patient/appointments'
+                    className='fixed bottom-16 right-5 sm:hidden z-50 flex items-center gap-2 px-4 py-2.5 bg-brand-500 text-white rounded-lg shadow-2xl shadow-brand-500/40 active:scale-95 transition-all outline-none'
+                >
+                    <PlusIcon className="w-4 h-4" />
+                    <span className='text-xs font-bold'>New Appointment</span>
+                </Link>
+            )}
         </>
     );
 };
