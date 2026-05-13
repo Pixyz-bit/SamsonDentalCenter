@@ -68,7 +68,6 @@ const AppointmentTableRow = ({ appointment, user, onViewDetails }) => {
                     <div className='flex flex-col min-w-0 flex-grow sm:pl-8 sm:border-l sm:border-gray-100 sm:dark:border-white/5'>
                         <p className='hidden sm:block text-[10px] font-bold text-gray-400 mb-1'>Patient</p>
                         <div className='flex items-center gap-1.5 text-gray-500 dark:text-gray-400'>
-                            <User size={12} className='sm:hidden shrink-0' />
                             <span className='text-[11px] sm:text-[14px] font-bold truncate'>
                                 {patientName} {isSelf && <span className='text-brand-500 opacity-70 ml-1 font-bold'>(You)</span>}
                             </span>
