@@ -38,10 +38,10 @@ const AppointmentCancelModal = ({ show, onClose, cancelReason, setCancelReason, 
     const isReady = reasonType !== "" && (!showOthers || (showOthers && cancelReason.trim().length > 0));
 
     // Conditional Content
-    const title = isPending ? "Withdraw Booking Request?" : "Cancel Approved Appointment?";
+    const title = isPending ? "Withdraw Request?" : "Cancel Appointment?";
     const description = isPending 
-        ? `Are you sure you want to cancel your pending request for ${serviceName}? This will remove your submission from our verification queue.`
-        : `Are you sure you want to cancel your upcoming ${serviceName}?`;
+        ? `Stop your request for ${serviceName}? This removes it from our queue.`
+        : `Are you sure you want to cancel your ${serviceName}?`;
     
     const confirmLabel = isPending ? "Confirm Withdrawal" : "Confirm Cancellation";
     const cancelLabel = isPending ? "Keep Request" : "Keep Appointment";
@@ -56,7 +56,6 @@ const AppointmentCancelModal = ({ show, onClose, cancelReason, setCancelReason, 
 
             <ModalBody>
                 <div className='space-y-6'>
-
                     {/* Policy Notice Box */}
                     {isPending ? (
                         <div className='bg-warning-50 dark:bg-warning-500/10 border border-warning-100 dark:border-warning-500/20 rounded-xl p-4 space-y-2'>
@@ -65,17 +64,17 @@ const AppointmentCancelModal = ({ show, onClose, cancelReason, setCancelReason, 
                                 Fair Use Notice
                             </div>
                             <p className='text-[12px] font-semibold text-warning-600 dark:text-warning-300 leading-relaxed'>
-                                Repeatedly creating and withdrawing requests holds up slots for other patients. Frequent withdrawals will restrict your online booking access, forcing manual phone verification for future appointments.
+                                Frequent withdrawals may limit your online booking access. Please only request slots you intend to keep.
                             </p>
                         </div>
                     ) : isLate ? (
                         <div className='bg-error-50 dark:bg-error-500/10 border border-error-100 dark:border-error-500/20 rounded-xl p-4 space-y-2'>
                             <div className='flex items-center gap-2 text-error-700 dark:text-error-400 font-black text-[11px] uppercase tracking-wider'>
                                 <AlertCircle size={14} />
-                                Late Cancellation Policy
+                                Late Policy
                             </div>
                             <p className='text-[12px] font-semibold text-error-600 dark:text-error-300 leading-relaxed'>
-                                This slot was locked exclusively for you. To maintain fair scheduling, canceling approved sessions on short notice will restrict your account from booking online, requiring you to visit or call the clinic manually.
+                                Late cancellations may restrict your account from booking online. Please visit or call the clinic manually for future appointments.
                             </p>
                         </div>
                     ) : (
@@ -85,7 +84,7 @@ const AppointmentCancelModal = ({ show, onClose, cancelReason, setCancelReason, 
                                 Advance Notice
                             </div>
                             <p className='text-[12px] font-semibold text-info-600 dark:text-info-300 leading-relaxed'>
-                                Thank you for notifying us in advance. Canceling your appointment now allows other patients to use this slot. We hope to see you again soon!
+                                Thank you for notifying us in advance. This allows other patients to utilize this slot. We hope to see you soon!
                             </p>
                         </div>
                     )}
