@@ -103,7 +103,7 @@ const MyRequests = () => {
                             {/* Dropdown Filters Row */}
                             <div className='px-4 sm:px-6 py-4 flex flex-nowrap items-center gap-3 overflow-x-auto hide-scrollbar'>
                                 {/* 1. Person Filter */}
-                                <div className='relative w-full sm:w-auto min-w-[200px] shrink-0'>
+                                <div className='relative w-auto min-w-[180px] shrink-0'>
                                     <div className='absolute left-3.5 top-3.5 text-brand-500'>
                                         <Users size={16} />
                                     </div>
@@ -124,7 +124,7 @@ const MyRequests = () => {
                                  </div>
 
                                  {/* 2. Status Filter */}
-                                 <div className='relative w-full sm:w-auto min-w-[200px] shrink-0'>
+                                 <div className='relative w-auto min-w-[160px] shrink-0'>
                                      <div className='absolute left-3.5 top-3.5 text-brand-500'>
                                          <ListFilter size={16} />
                                      </div>

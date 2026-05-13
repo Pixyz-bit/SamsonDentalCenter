@@ -136,7 +136,7 @@ const MyAppointments = () => {
                             {/* Row 2: All Filters */}
                             <div className='px-4 sm:px-6 py-4 flex flex-nowrap items-center gap-3 overflow-x-auto hide-scrollbar'>
                                 {/* 1. Family Member Dropdown */}
-                                <div className='relative w-full sm:w-auto min-w-[220px]'>
+                                <div className='relative w-auto min-w-[220px] shrink-0'>
                                     <div className='absolute left-3.5 top-3.5 text-brand-500'>
                                         <Users size={16} />
                                     </div>
@@ -157,7 +157,7 @@ const MyAppointments = () => {
                                 </div>
 
                                 {/* 2. Timeframe Dropdown */}
-                                <div className='relative w-full sm:w-auto min-w-[160px]'>
+                                <div className='relative w-auto min-w-[160px] shrink-0'>
                                     <div className='absolute left-3.5 top-3.5 text-gray-400'>
                                         <Clock size={16} />
                                     </div>
@@ -175,7 +175,7 @@ const MyAppointments = () => {
                                 </div>
 
                                 {/* 3. Date Picker Filter */}
-                                <div className='relative w-full sm:w-auto min-w-[180px]'>
+                                <div className='relative w-auto min-w-[180px] shrink-0'>
                                     <div className='absolute left-3.5 top-3.5 text-gray-400'>
                                         <Calendar size={16} />
                                     </div>
