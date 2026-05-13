@@ -268,26 +268,26 @@ const PatientSidebar = () => {
             onMouseEnter={() => !isExpanded && setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
         >
-            <div className={`py-8 flex w-full transition-all duration-300 pl-[13px]`}>
+            <div className={`pt-5 pb-6 flex w-full transition-all duration-300 pl-[13px]`}>
                 <Link to='/patient' className="flex items-center min-h-[40px]">
                     <div className='flex items-center gap-3 transition-all duration-300 group flex-shrink-0'>
-                        <div className='w-8 flex-shrink-0 flex items-center justify-center transition-all duration-500 group-hover:scale-110'>
+                        <div className='w-[24px] flex-shrink-0 flex items-center justify-center transition-all duration-500 group-hover:scale-110'>
                             <img
                                 src='/images/logo/samson-logo.png'
                                 alt='Samson Dental Logo'
-                                className='w-full h-auto'
+                                className='w-10 h-auto min-w-[40px]'
                             />
                         </div>
                         <div className={`flex flex-col items-start justify-center flex-shrink-0 transition-all duration-300 ${
                             isExpanded || isHovered || isMobileOpen 
-                            ? 'opacity-100 max-w-[200px] visible ml-0' 
+                            ? 'opacity-100 max-w-[200px] visible ml-1' 
                             : 'opacity-0 max-w-0 invisible ml-0'
                         }`}>
-                            <span className='font-black text-[18px] tracking-[-0.04em] leading-none text-gray-900 dark:text-white whitespace-nowrap font-outfit'>
+                            <span className='font-black text-[24px] tracking-[-0.03em] leading-[0.8] text-black dark:text-white whitespace-nowrap font-serif'>
                                 SAMSON
                             </span>
-                            <span className='text-[8px] uppercase tracking-[0.28em] font-bold mt-[1px] text-red-600 whitespace-nowrap font-outfit'>
-                                Dental Center
+                            <span className='text-[10px] uppercase tracking-[0.16em] font-black mt-0 text-gray-400 dark:text-gray-500 whitespace-nowrap font-serif block w-full text-center'>
+                                DENTAL CENTER
                             </span>
                         </div>
                     </div>

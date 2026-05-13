@@ -142,8 +142,8 @@ const SettingsPage = () => {
                     </h1>
                 </div>
 
-                <div className="flex-grow flex flex-col h-full bg-white dark:bg-white/[0.03] sm:rounded-xl border-t sm:border border-gray-200 dark:border-gray-700/60 overflow-hidden">
-                    <div className="p-5 sm:p-10 space-y-10 sm:space-y-12 w-full">
+                <div className="flex-grow flex flex-col h-full sm:bg-white dark:sm:bg-white/[0.03] sm:rounded-xl sm:border border-gray-200 dark:border-gray-700/60 overflow-hidden">
+                    <div className="p-4 sm:p-10 space-y-8 sm:space-y-12 w-full">
                         {/* 1. Notifications Section */}
                         <SettingsCard 
                             title="Notifications" 
