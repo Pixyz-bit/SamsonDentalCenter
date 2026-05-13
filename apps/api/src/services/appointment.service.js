@@ -433,23 +433,9 @@ export const bookAppointment = async (
 
         const endTime = addMinutesToTime(time, service.duration_minutes);
 
-        // ── 1.5. Check for Patient's Own Schedule Conflicts (LATER: Currently disabled for dev testing) ──
-        // Prevent the same patient from booking overlapping slots with different doctors.
-        /*
-        const { data: conflicts } = await supabaseAdmin
-            .from('appointments')
-            .select('id, start_time, end_time, service:services(name)')
-            .eq('patient_id', patientId)
-            .eq('appointment_date', date)
-            .not('status', 'in', '("CANCELLED","LATE_CANCEL","RESCHEDULED")')
-            .lt('start_time', endTime)
-            .gt('end_time', time)
-            .limit(1);
-    
-        if (conflicts && conflicts.length > 0) {
-            throw new AppError(`You already have a "${conflicts[0].service?.name}" appointment during this time range (${conflicts[0].start_time.slice(0,5)} - ${conflicts[0].end_time.slice(0,5)}). Please choose a different time.`, 409);
-        }
-        */
+        // ── 1.5. Run Anti-Abuse and Overlap Guards ──
+        // This checks for: dependent limits, active appointment quotas, overlapping slots, and same-day/same-service abuse.
+        await checkUserBookingAbuse(patientId, serviceId, date, time, patientProfileId);
 
         const isSpecialized = service.tier === SERVICE_TIER.SPECIALIZED;
 
@@ -1825,5 +1811,77 @@ export const bookAppointment = async (
             },
         };
     };
+
+// ── Anti-Abuse Guards ──
+
+/**
+ * Validate booking rules to prevent abuse (User Flow).
+ * Checks: Dependent limits, Overlapping slots, Same-day/service guard, and Account/Individual quotas.
+ */
+export const checkUserBookingAbuse = async (patientId, serviceId, date, time, patientProfileId = null) => {
+    // 1. Dependent Count Check
+    // If patientProfileId is null, it means they are creating a NEW dependent during this booking
+    if (!patientProfileId) {
+        const { count: dependentCount } = await supabaseAdmin
+            .from('profiles')
+            .select('*', { count: 'exact', head: true })
+            .eq('primary_profile_id', patientId);
+
+        if (dependentCount >= CLINIC_CONFIG.MAX_DEPENDENTS_PER_USER) {
+            throw new AppError(`You have reached the limit of ${CLINIC_CONFIG.MAX_DEPENDENTS_PER_USER} family members.`, 403);
+        }
+    }
+
+    // Target individual ID (either the existing dependent or the primary user themselves)
+    const targetIndividualId = patientProfileId || patientId;
+
+    // 2. Active Appointment Limits (Per Individual)
+    // Each individual (primary or dependent) is limited to 3 active appointments.
+    const { count: individualTotal } = await supabaseAdmin
+        .from('appointments')
+        .select('*', { count: 'exact', head: true })
+        .eq('patient_id', targetIndividualId)
+        .in('status', [APPOINTMENT_STATUS.PENDING, APPOINTMENT_STATUS.CONFIRMED]);
+
+    if (individualTotal >= CLINIC_CONFIG.MAX_ACTIVE_APPOINTMENTS_PER_INDIVIDUAL) {
+        throw new AppError(`This individual already has ${CLINIC_CONFIG.MAX_ACTIVE_APPOINTMENTS_PER_INDIVIDUAL} active appointments.`, 403);
+    }
+
+    // 3. Overlap Check
+    const { data: service } = await supabaseAdmin.from('services').select('duration_minutes').eq('id', serviceId).single();
+    if (!service) throw new AppError('Service not found.', 404);
+    
+    const endTime = addMinutesToTime(time, service.duration_minutes);
+
+    const { data: overlaps } = await supabaseAdmin
+        .from('appointments')
+        .select('id, start_time, end_time, service:services(name)')
+        .eq('patient_id', targetIndividualId)
+        .eq('appointment_date', date)
+        .in('status', [APPOINTMENT_STATUS.PENDING, APPOINTMENT_STATUS.CONFIRMED, APPOINTMENT_STATUS.IN_PROGRESS])
+        .lt('start_time', endTime)
+        .gt('end_time', time)
+        .limit(1);
+
+    if (overlaps && overlaps.length > 0) {
+        throw new AppError(`Conflict: This individual already has a "${overlaps[0].service?.name || 'appointment'}" during this time range (${overlaps[0].start_time.slice(0,5)} - ${overlaps[0].end_time.slice(0,5)}).`, 409);
+    }
+
+    // 4. Same Service Same Day Check
+    const { data: sameService } = await supabaseAdmin
+        .from('appointments')
+        .select('id')
+        .eq('patient_id', targetIndividualId)
+        .eq('appointment_date', date)
+        .eq('service_id', serviceId)
+        .in('status', [APPOINTMENT_STATUS.PENDING, APPOINTMENT_STATUS.CONFIRMED])
+        .limit(1);
+
+    if (sameService && sameService.length > 0) {
+        throw new AppError(`This individual is already booked for this service on this date.`, 409);
+    }
+
+    return { success: true };
+};
 
 // ── End of Service ──

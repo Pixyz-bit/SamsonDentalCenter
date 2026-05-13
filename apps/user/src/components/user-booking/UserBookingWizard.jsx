@@ -43,6 +43,7 @@ const UserBookingWizard = ({ booking }) => {
         currentStep,
         formData,
         submitting,
+        isVerifying,
         error,
         result,
         slotHold,
@@ -51,6 +52,7 @@ const UserBookingWizard = ({ booking }) => {
         nextStep,
         prevStep,
         goToStep,
+        validateAbuse,
         submit,
         reset,
         book_for_others,
@@ -88,22 +90,29 @@ const UserBookingWizard = ({ booking }) => {
     useEffect(() => {
         const verifySession = async () => {
             if (!result && !hasCheckedRecovery) {
+                console.log('[UserBooking DEBUG] verifySession starting...', { sessionId, step, formData });
                 setIsCheckingRecovery(true);
                 try {
                     const hold = await slotHold.checkActiveHold();
+                    console.log('[UserBooking DEBUG] checkActiveHold result:', hold);
+                    
                     if (hold) {
                         setWasRecovered(true);
+                        // If we are at Step 0 but have a hold, we might want to jump to Info (Step 2)
+                        // but let's just let the Resume modal handle it.
                     } else if (step >= 1) {
-                        // If we are on a later step but hold is gone, clean up
-                        if (step > 1) {
+                        console.warn('[UserBooking DEBUG] No hold found for session, cleaning up state');
+                        // If we are at Step 1 (Schedule), just clear the time but stay on the page
+                        if (step === 1) {
+                            updateFields({ date: '', time: '' });
+                        } else {
+                            // If we were deeper (Step 2+), session is genuinely dead
                             reset();
                             toast.error('Session expired. Please start again.');
-                        } else {
-                            goToStep(0);
                         }
                     }
                 } catch (err) {
-                    console.error('Recovery check failed:', err);
+                    console.error('[UserBooking DEBUG] Recovery check failed:', err);
                 } finally {
                     setIsCheckingRecovery(false);
                     setHasCheckedRecovery(true);
@@ -111,7 +120,7 @@ const UserBookingWizard = ({ booking }) => {
             }
         };
         verifySession();
-    }, [step, result, hasCheckedRecovery, slotHold, reset, toast, goToStep]);
+    }, [step, result, hasCheckedRecovery, slotHold, reset, toast, updateFields, sessionId]);
 
     // ✅ Release hold on page exit (close browser, navigate away, refresh)
     useEffect(() => {
@@ -189,6 +198,7 @@ const UserBookingWizard = ({ booking }) => {
                         currentStep={step + 1}
                         labels={breadcrumbLabels}
                         onStepClick={(index) => goToStep(index)}
+                        isLocked={step >= 3}
                     />
 
                     {slotHold.activeHold && (
@@ -196,7 +206,7 @@ const UserBookingWizard = ({ booking }) => {
                             <Clock className="text-amber-600 dark:text-amber-400 animate-pulse hidden sm:block" size={18} />
                             <div className="flex flex-col items-center sm:items-start justify-center">
                                 <span className="order-2 sm:order-1 text-[6px] sm:text-[9px] font-black text-amber-600/70 dark:text-amber-400/50 leading-none tracking-wider uppercase">
-                                    Hold
+                                    <span className="hidden sm:inline">Slot </span>Hold
                                 </span>
                                 <span className="order-1 sm:order-2 text-[10px] sm:text-[13px] font-mono font-black text-amber-700 dark:text-amber-300 leading-none">
                                     {slotHold.formattedTime}
@@ -435,9 +445,11 @@ const UserBookingWizard = ({ booking }) => {
                             formData={formData}
                             book_for_others={book_for_others}
                             onSubmit={submit}
-                            onUpdate={updateFields} // Added
+                            onUpdate={updateFields}
                             onBack={prevStep}
                             onEdit={goToStep}
+                            onValidate={validateAbuse}
+                            isVerifying={isVerifying}
                             submitting={submitting}
                             error={error}
                         />

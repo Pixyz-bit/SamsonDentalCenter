@@ -161,22 +161,17 @@ const UserOtherInfoStep = ({ formData, onUpdate, onNext, onBack }) => {
             newErrors.middle = 'Invalid characters in middle name.';
         }
 
-        if (!formData.booked_for_birthday) newErrors.birthday = 'Date of birth is required.';
-        if (!formData.booked_for_sex) newErrors.sex = 'Sex is required.';
-
-        if (formData.patient_profile_id === 'new' && !formData.booked_for_relationship) {
-            newErrors.relationship = 'Relationship is required.';
+        // Strict enforcement for birthday and sex
+        if (!formData.booked_for_birthday) {
+            newErrors.birthday = 'Date of birth is required for medical records.';
+        }
+        
+        if (!formData.booked_for_sex) {
+            newErrors.sex = 'Biological sex is required for clinical history.';
         }
 
-        if (!formData.booked_for_phone?.trim()) {
-            newErrors.phone = 'Phone number is required.';
-        } else {
-            const sanitizedPhone = formData.booked_for_phone.replace(/\D/g, '');
-            if (sanitizedPhone.length !== 11) {
-                newErrors.phone = 'Philippine mobile numbers must be exactly 11 digits.';
-            } else if (!sanitizedPhone.startsWith('09')) {
-                newErrors.phone = 'Philippine mobile numbers must start with 09.';
-            }
+        if (formData.patient_profile_id === 'new' && !formData.booked_for_relationship) {
+            newErrors.relationship = 'Relationship is required for family accounts.';
         }
 
         setErrors(newErrors);
@@ -541,7 +536,7 @@ const UserOtherInfoStep = ({ formData, onUpdate, onNext, onBack }) => {
                         {/* Row 3: DOB & Sex */}
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-3 sm:gap-y-6 pt-4 sm:pt-0 sm:border-t-0 border-t border-gray-50 dark:border-gray-800/50 mt-2 sm:mt-0">
                             <div>
-                                <label className={labelClasses}>Date of Birth <span className='text-brand-500'>*</span></label>
+                                <label className={labelClasses}>Date of Birth <span className='text-red-500'>*</span></label>
                                 <div className="relative group">
                                     <input
                                         id="field-birthday"
@@ -565,7 +560,7 @@ const UserOtherInfoStep = ({ formData, onUpdate, onNext, onBack }) => {
                             </div>
 
                             <div>
-                                <label className={labelClasses}>Sex <span className='text-brand-500'>*</span></label>
+                                <label className={labelClasses}>Biological Sex <span className='text-red-500'>*</span></label>
                                 <div className="grid grid-cols-2 gap-3">
                                     {['M', 'F'].map((s) => (
                                         <button
@@ -649,22 +644,19 @@ const UserOtherInfoStep = ({ formData, onUpdate, onNext, onBack }) => {
 
                             {/* Phone Number */}
                             <div>
-                                <label className={labelClasses}>Phone Number <span className='text-brand-500'>*</span></label>
+                                <label className={labelClasses}>Phone Number</label>
                                 <div className="relative">
                                     <input
                                         id="field-phone"
                                         type='tel'
-                                        value={formData.booked_for_phone}
-                                        onChange={(e) => handleFieldChange('booked_for_phone', e.target.value)}
-                                        placeholder='09XX XXXX XXXX'
-                                        maxLength={13}
-                                        className={`${getInputClasses(errors.phone)} pr-20`}
+                                        readOnly
+                                        value={user?.phone || ''}
+                                        className={`${baseInput} bg-gray-50/50 dark:bg-white/[0.02] border-gray-100 dark:border-gray-800 text-gray-500 dark:text-white/40 cursor-not-allowed pr-20`}
                                     />
                                     <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
                                         <span className="text-[10px] font-black text-gray-400">PH (+63)</span>
                                     </div>
                                 </div>
-                                {errors.phone && <p className='text-error-500 text-[10px] font-bold mt-1.5 ml-1'>{errors.phone}</p>}
                             </div>
                         </div>
                     </div>
@@ -729,12 +721,14 @@ const UserOtherInfoStep = ({ formData, onUpdate, onNext, onBack }) => {
             <div className='fixed bottom-0 left-0 right-0 sm:relative z-40 px-6 py-4 sm:px-0 sm:py-0 sm:mt-8 sm:pt-4 bg-white/95 dark:bg-gray-900/95 sm:bg-transparent backdrop-blur-md sm:backdrop-blur-none border-t border-gray-100 dark:border-gray-800 sm:border-t-0 shadow-[0_-8px_20px_rgba(0,0,0,0.05)] sm:shadow-none transition-all'>
                 <div className='flex items-center gap-3 w-full sm:justify-between'>
                     <button
+                        type="button"
                         onClick={onBack}
                         className='flex-1 sm:flex-none sm:min-w-[120px] text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white font-black text-[11px] sm:text-sm px-2 py-3.5 sm:px-8 transition-colors bg-gray-50 dark:bg-gray-800 sm:bg-transparent rounded-2xl border border-transparent shadow-theme-xs'
                     >
                         Back
                     </button>
                     <button
+                        type="button"
                         onClick={handleNext}
                         disabled={!formData.agreed_to_terms}
                         className={`flex-[2] sm:flex-none sm:min-w-[280px] font-black px-6 py-3.5 sm:px-10 sm:py-4 rounded-2xl transition-all shadow-theme-md flex items-center justify-center gap-1 sm:gap-2.5 text-[12px] sm:text-base ${formData.agreed_to_terms
