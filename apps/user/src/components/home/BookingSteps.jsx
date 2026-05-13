@@ -40,34 +40,40 @@ const BookingSteps = () => {
         stagger: 0.2,
         ease: 'power3.out',
         scrollTrigger: {
-          trigger: containerRef.current,
-          start: 'top 80%',
+          trigger: '.step-header',
+          start: 'top 85%',
         }
       });
 
-      // Animate lines drawing
-      gsap.from('.step-line', {
-        scaleY: 0,
-        duration: 0.6,
-        stagger: 0.3,
-        ease: 'power2.inOut',
-        scrollTrigger: {
-          trigger: containerRef.current,
-          start: 'top 70%',
-        }
+      // Reveal step items individually
+      const items = gsap.utils.toArray('.step-item');
+      items.forEach((item) => {
+        gsap.from(item, {
+          x: -30,
+          opacity: 0,
+          duration: 0.8,
+          ease: 'power3.out',
+          scrollTrigger: {
+            trigger: item,
+            start: 'top 85%',
+            toggleActions: 'play none none none'
+          }
+        });
       });
 
-      // Reveal step items
-      gsap.from('.step-item', {
-        x: -20,
-        opacity: 0,
-        duration: 0.6,
-        stagger: 0.3,
-        ease: 'power3.out',
-        scrollTrigger: {
-          trigger: containerRef.current,
-          start: 'top 70%',
-        }
+      // Animate lines drawing individually
+      const lines = gsap.utils.toArray('.step-line');
+      lines.forEach((line) => {
+        gsap.from(line, {
+          scaleY: 0,
+          duration: 1,
+          ease: 'power2.inOut',
+          scrollTrigger: {
+            trigger: line,
+            start: 'top 80%',
+            toggleActions: 'play none none none'
+          }
+        });
       });
     }, containerRef);
 

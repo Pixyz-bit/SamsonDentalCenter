@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useLayoutEffect, useRef } from 'react';
 import { Link, NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { Menu, X, LogOut, Settings, Bell, Calendar } from 'lucide-react';
 import { gsap } from 'gsap';
@@ -98,23 +98,22 @@ const Navbar = () => {
             borderBottom: '1px solid transparent',
         });
 
-        let ctx = gsap.context(() => {
-            gsap.from('.nav-anim', {
-                y: -30,
-                opacity: 0,
-                duration: 1.2,
-                stagger: 0.08,
-                ease: 'expo.out',
-                delay: 0.2,
-                clearProps: 'transform,opacity',
-            });
-        }, navRef);
-
         return () => {
             window.removeEventListener('scroll', handleScroll);
-            ctx.revert();
         };
     }, [location.pathname]);
+
+    useLayoutEffect(() => {
+        let ctx = gsap.context(() => {
+            const tl = gsap.timeline({ defaults: { ease: 'power3.out', duration: 0.8, clearProps: 'all' } });
+            
+            tl.from('.nav-logo', { y: -20, opacity: 0 })
+              .from('.nav-link-item', { y: -20, opacity: 0, stagger: 0.08 }, '-=0.6')
+              .from('.nav-actions', { y: -20, opacity: 0 }, '-=0.6');
+        }, navRef);
+
+        return () => ctx.revert();
+    }, []);
 
     // Smart Visibility Logic
     useEffect(() => {
@@ -158,7 +157,7 @@ const Navbar = () => {
                             {/* Logo Container (Hidden on mobile, flex on desktop) */}
                             <Link
                                 to='/'
-                                className='hidden lg:flex items-center gap-3 transition-all duration-300 group flex-shrink-0'
+                                className='hidden lg:flex items-center gap-3 transition-all duration-300 group flex-shrink-0 nav-logo'
                             >
                                 <div className='w-8 flex-shrink-0 flex items-center justify-center transition-all duration-500 group-hover:scale-110'>
                                     <img src="/images/logo/samson-logo.png" alt="Samson Dental Logo" className="w-full h-auto" />
@@ -182,7 +181,7 @@ const Navbar = () => {
                                 {navLinks.map((link, index) => (
                                     <li
                                         key={index}
-                                        className='relative'
+                                        className='relative nav-link-item'
                                     >
                                         <NavLink
                                             to={link.path}
@@ -201,9 +200,11 @@ const Navbar = () => {
                         </div>
 
                         {/* Section 3: Profile & Notifications */}
-                        <div className='flex items-center gap-2 lg:gap-4'>
+                        <div className='flex items-center gap-2 lg:gap-4 nav-actions'>
                             {user && (
-                                <PatientNotification />
+                                <div className='flex items-center'>
+                                    <PatientNotification />
+                                </div>
                             )}
 
                             <div
