@@ -405,7 +405,12 @@ const UserReviewStep = ({
                             <div className="min-w-0">
                                 <p className="text-[11px] sm:text-xs font-black text-gray-400 mb-1 leading-none">Sex</p>
                                 <p className="text-[14px] sm:text-base font-bold text-gray-900 dark:text-white">
-                                    {(formData.booked_for_sex === 'M' || user?.sex === 'M') ? 'Male' : (formData.booked_for_sex === 'F' || user?.sex === 'F') ? 'Female' : '—'}
+                                    {(() => {
+                                        const s = (formData.booked_for_sex || user?.sex || '').toString().toUpperCase();
+                                        if (s === 'M' || s === 'MALE') return 'Male';
+                                        if (s === 'F' || s === 'FEMALE') return 'Female';
+                                        return '—';
+                                    })()}
                                 </p>
                             </div>
                         </div>

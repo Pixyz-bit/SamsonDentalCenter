@@ -92,8 +92,9 @@ const UserOtherInfoStep = ({ formData, onUpdate, onNext, onBack }) => {
         // Helper to normalize sex values to 'Male'/'Female'
         const normalizeSex = (val) => {
             if (!val) return '';
-            if (val === 'M' || val === 'Male') return 'Male';
-            if (val === 'F' || val === 'Female') return 'Female';
+            const v = val.toString().toUpperCase();
+            if (v === 'M' || v === 'MALE') return 'Male';
+            if (v === 'F' || v === 'FEMALE') return 'Female';
             return val;
         };
 
