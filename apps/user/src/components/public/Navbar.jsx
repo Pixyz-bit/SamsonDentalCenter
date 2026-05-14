@@ -294,81 +294,67 @@ const Navbar = () => {
                                         </button>
         
                                         {isProfileMenuOpen && (
-                                            <div className='absolute right-0 mt-3 w-[280px] rounded-3xl shadow-2xl z-50 p-4 border bg-white dark:bg-gray-900 border-gray-100 dark:border-gray-800 animate-in fade-in zoom-in-95 duration-200'>
-                                                <div className='px-4 py-3 mb-3 bg-gray-50 dark:bg-white/5 rounded-2xl'>
-                                                    <p className='truncate text-[15px] font-black text-gray-900 dark:text-white leading-tight'>
-                                                        {user ? (user.first_name ? `${user.last_name}, ${user.first_name}` : 'Authorized User') : 'Guest User'}
+                                            <div className='absolute right-0 mt-3 w-[260px] rounded-2xl shadow-2xl z-50 p-3 border bg-white dark:bg-gray-900 border-gray-100 dark:border-gray-800 animate-in fade-in zoom-in-95 duration-200'>
+                                                <div className='px-3 py-2.5 mb-2 bg-gray-50/50 dark:bg-white/5 rounded-xl'>
+                                                    <p className='truncate text-[14px] font-medium text-gray-900 dark:text-white leading-tight'>
+                                                        {user ? (user.first_name ? `${user.first_name} ${user.last_name}` : 'Authorized User') : 'Guest User'}
                                                     </p>
-                                                    <span className='mt-1 block text-xs truncate text-gray-500 dark:text-gray-400 font-medium'>
+                                                    <span className='mt-0.5 block text-[11px] truncate text-gray-500 dark:text-gray-400 font-medium'>
                                                         {user ? user.email : 'Welcome to Primera Dental'}
                                                     </span>
                                                 </div>
         
                                                 {!user ? (
-                                                    <div className='grid grid-cols-1 gap-1 pt-2 border-t border-gray-100'>
+                                                    <div className='grid grid-cols-1 gap-1 pt-2 border-t border-gray-100 dark:border-gray-800'>
                                                         <Link
                                                             to='/login'
                                                             state={{ from: location.pathname }}
-                                                            className='flex items-center gap-3 px-4 py-3 font-semibold rounded-xl text-[14px] transition-all text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/10'
+                                                            className='flex items-center gap-2.5 px-3 py-2 font-medium rounded-lg text-[13px] transition-all text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/10'
                                                             onClick={() => setIsProfileMenuOpen(false)}
                                                         >
-                                                            <LogOut
-                                                                size={18}
-                                                                className='text-gray-400'
-                                                            />
+                                                            <LogOut size={16} className='text-gray-400' />
                                                             Sign In
                                                         </Link>
                                                         <Link
                                                             to='/register'
-                                                            className='flex items-center gap-3 px-4 py-3 font-semibold rounded-xl text-[14px] transition-all text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/10'
+                                                            className='flex items-center gap-2.5 px-3 py-2 font-medium rounded-lg text-[13px] transition-all text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/10'
                                                             onClick={() => setIsProfileMenuOpen(false)}
                                                         >
-                                                            <Settings
-                                                                size={18}
-                                                                className='text-gray-400'
-                                                            />
+                                                            <Settings size={16} className='text-gray-400' />
                                                             Sign Up
                                                         </Link>
                                                         <Link
                                                             to='/book'
-                                                            className='flex items-center justify-center gap-3 px-4 py-3.5 mt-2 font-black rounded-xl text-sm transition-all bg-red-600 text-white hover:bg-red-700 shadow-lg shadow-red-500/20 active:scale-95'
+                                                            className='flex items-center justify-center gap-2.5 px-4 py-2.5 mt-2 font-semibold rounded-xl text-[13px] transition-all bg-red-600 text-white hover:bg-red-700 shadow-lg shadow-red-500/20 active:scale-95'
                                                             onClick={() => setIsProfileMenuOpen(false)}
                                                         >
+                                                            <Calendar size={16} className="text-white/80" />
                                                             Book as a Guest
                                                         </Link>
                                                     </div>
                                                 ) : (
                                                     <>
-                                                        <ul className='flex flex-col gap-1 pt-2 pb-2 border-t border-b border-gray-100'>
+                                                        <ul className='flex flex-col gap-0.5 pt-1.5 pb-1.5 border-t border-b border-gray-100 dark:border-gray-800'>
                                                             <li>
                                                                 <Link
                                                                     to='/patient'
-                                                                    className='flex items-center gap-3 px-3 py-2 font-medium rounded-lg group text-sm transition-colors text-gray-700 hover:bg-gray-100'
+                                                                    className='flex items-center gap-2.5 px-3 py-2 font-medium rounded-lg group text-[13px] transition-colors text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/5'
                                                                     onClick={() => setIsProfileMenuOpen(false)}
                                                                 >
-                                                                    <Settings size={18} />
+                                                                    <Settings size={16} className="text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-200" />
                                                                     Dashboard
                                                                 </Link>
                                                             </li>
                                                             <li>
                                                                 <Link
                                                                     to='/book'
-                                                                    className='flex items-center gap-3 px-3 py-2 mt-1 font-medium rounded-lg text-sm transition-colors bg-red-600 text-white hover:bg-red-700'
+                                                                    className='flex items-center gap-2.5 px-3 py-2 mt-1 font-medium rounded-lg text-[13px] transition-colors bg-red-600 text-white hover:bg-red-700'
                                                                     onClick={() => setIsProfileMenuOpen(false)}
                                                                 >
-                                                                    <Calendar size={18} className='text-white/80' />
+                                                                    <Calendar size={16} className='text-white/80' />
                                                                     Book Appointment
                                                                 </Link>
                                                             </li>
-                                                            {/* <li>
-                                                            <Link
-                                                                to='/patient/profile'
-                                                                className='flex items-center gap-3 px-3 py-2 font-medium rounded-lg group text-sm transition-colors text-gray-700 hover:bg-gray-100'
-                                                                onClick={() => setIsProfileMenuOpen(false)}
-                                                            >
-                                                                Edit Profile
-                                                            </Link>
-                                                        </li> */}
                                                         </ul>
                                                         <button
                                                             onClick={() => {
@@ -376,9 +362,9 @@ const Navbar = () => {
                                                                 setIsProfileMenuOpen(false);
                                                                 navigate('/');
                                                             }}
-                                                            className='w-full text-left px-3 py-2 mt-2 text-sm flex items-center gap-3 rounded-lg transition-colors font-medium border border-transparent text-red-600 hover:bg-red-50 hover:border-red-100'
+                                                            className='w-full text-left px-3 py-2 mt-1.5 text-[13px] flex items-center gap-2.5 rounded-lg transition-colors font-medium text-red-600 hover:bg-red-50 dark:hover:bg-red-500/10'
                                                         >
-                                                            <LogOut size={18} />
+                                                            <LogOut size={16} />
                                                             Logout
                                                         </button>
                                                     </>

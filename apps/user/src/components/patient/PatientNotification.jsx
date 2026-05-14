@@ -52,7 +52,7 @@ const PatientNotification = () => {
             </button>
 
             {isOpen && (
-                <div className='absolute right-[-52px] sm:right-0 mt-3 flex h-auto max-h-[480px] w-[300px] sm:w-[350px] flex-col rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-white/[0.03] p-2 shadow-theme-lg z-50 backdrop-blur-sm'>
+                <div className='absolute right-[-52px] sm:right-0 mt-3 flex h-auto max-h-[480px] w-[300px] sm:w-[350px] flex-col rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-2 shadow-theme-lg z-50'>
                     <div className='flex items-center justify-between px-3 py-3 border-b border-gray-100 dark:border-gray-800 mb-1'>
                         <h5 className='text-sm sm:text-base font-bold text-gray-800 dark:text-white font-outfit uppercase tracking-tight'>
                             Notifications
@@ -69,9 +69,9 @@ const PatientNotification = () => {
                                     <Link 
                                         to={`/patient/notifications?id=${n.id}`}
                                         onClick={(e) => handleRead(n.id, e)}
-                                        className={`flex gap-3 rounded-xl p-3 hover:bg-gray-100 dark:hover:bg-white/5 transition-colors ${!n.is_read ? 'bg-brand-50/20 dark:bg-brand-500/5' : ''}`}
+                                        className={`flex gap-3 rounded-xl p-3 hover:bg-gray-100 dark:hover:bg-white/5 transition-colors ${!n.is_read ? 'bg-gray-100/50 dark:bg-white/[0.04]' : ''}`}
                                     >
-                                        <div className={`flex items-center justify-center w-9 h-9 rounded-full flex-shrink-0 ${!n.is_read ? 'bg-brand-100 dark:bg-brand-500/20 text-brand-600 dark:text-brand-400' : 'bg-gray-100 dark:bg-white/5 text-gray-400 dark:text-gray-600'}`}>
+                                        <div className={`flex items-center justify-center w-9 h-9 rounded-full flex-shrink-0 ${!n.is_read ? 'bg-brand-50 dark:bg-brand-500/10 text-brand-600 dark:text-brand-400' : 'bg-gray-100 dark:bg-white/5 text-gray-400 dark:text-gray-600'}`}>
                                             <svg className="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path strokeLinecap="round" strokeLinejoin='round' strokeWidth="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
                                             </svg>
