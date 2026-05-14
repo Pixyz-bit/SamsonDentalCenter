@@ -207,11 +207,11 @@ const PatientDetailView = ({ patientId, onBack, activeTab }) => {
                             </button>
                         </div>
                         <div>
-                            <h3 className='text-[clamp(14px,1.5vw,18px)] font-black text-gray-900 dark:text-white uppercase tracking-tight font-outfit leading-tight'>
+                            <h3 className='text-base sm:text-lg font-bold text-[#0B1120] dark:text-white font-outfit truncate'>
                                 {patient.full_name}
                             </h3>
-                            <p className='text-[clamp(9px,1vw,10px)] font-black text-brand-500 dark:text-brand-400 uppercase tracking-[0.15em] mt-1'>
-                                Patient Directory <span className='mx-1 text-gray-300'>/</span> {activeTabLabel} Registry
+                            <p className='text-[clamp(10px,1vw,12px)] text-gray-500 dark:text-gray-400 font-medium'>
+                                Patient Directory <span className='mx-1 text-gray-300 dark:text-gray-700'>/</span> {activeTabLabel} Registry
                             </p>
                         </div>
                     </div>

@@ -11,10 +11,10 @@ const PatientProfileCard = ({ patient, stats }) => {
                     {patient?.full_name?.charAt(0)}
                 </div>
                 <div>
-                    <h3 className='text-sm font-black text-gray-900 dark:text-white uppercase tracking-tight'>
+                    <h3 className='text-sm font-bold text-gray-900 dark:text-white tracking-tight'>
                         {patient?.full_name}
                     </h3>
-                    <div className={`mt-1 inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider ${
+                    <div className={`mt-1 inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider ${
                         isCredible ? 'bg-success-50 text-success-600' : 'bg-error-50 text-error-600'
                     }`}>
                         {isCredible ? <ShieldCheck size={10} /> : <ShieldAlert size={10} />}
@@ -27,15 +27,15 @@ const PatientProfileCard = ({ patient, stats }) => {
                 <div className='grid grid-cols-3 gap-2'>
                     <div className='p-3 rounded-xl bg-gray-50 dark:bg-white/[0.02] text-center border border-gray-50 dark:border-gray-800'>
                         <span className='block text-[10px] font-bold text-gray-400 uppercase tracking-widest'>Visits</span>
-                        <span className='text-sm font-black text-gray-900 dark:text-white'>{stats.completed}</span>
+                        <span className='text-sm font-bold text-gray-900 dark:text-white'>{stats.completed}</span>
                     </div>
                     <div className='p-3 rounded-xl bg-gray-50 dark:bg-white/[0.02] text-center border border-gray-50 dark:border-gray-800'>
                         <span className='block text-[10px] font-bold text-gray-400 uppercase tracking-widest'>No-Show</span>
-                        <span className={`text-sm font-black ${stats.noShow > 0 ? 'text-error-600' : 'text-gray-900 dark:text-white'}`}>{stats.noShow}</span>
+                        <span className={`text-sm font-bold ${stats.noShow > 0 ? 'text-error-600' : 'text-gray-900 dark:text-white'}`}>{stats.noShow}</span>
                     </div>
                     <div className='p-3 rounded-xl bg-gray-50 dark:bg-white/[0.02] text-center border border-gray-50 dark:border-gray-800'>
                         <span className='block text-[10px] font-bold text-gray-400 uppercase tracking-widest'>Cancel</span>
-                        <span className='text-sm font-black text-gray-900 dark:text-white'>{stats.cancelled}</span>
+                        <span className='text-sm font-bold text-gray-900 dark:text-white'>{stats.cancelled}</span>
                     </div>
                 </div>
 
