@@ -1,12 +1,21 @@
+import { useEffect } from 'react';
 import { SidebarProvider, useSidebar } from '../context/SidebarContext';
 import { ServicesProvider } from '../context/ServicesContext';
 import { Outlet } from 'react-router-dom';
 import SecretaryHeader from '../components/secretary/SecretaryHeader';
+import { useTheme } from '../context/ThemeContext';
 import Backdrop from '../components/secretary/Backdrop';
 import SecretarySidebar from '../components/secretary/SecretarySidebar';
 
 const LayoutContent = () => {
     const { isExpanded, isHovered, isMobileOpen } = useSidebar();
+    const { setIsDarkModeAllowed } = useTheme();
+
+    // Theme Guard: Allow dark mode while portal is mounted
+    useEffect(() => {
+        setIsDarkModeAllowed(true);
+        return () => setIsDarkModeAllowed(false);
+    }, [setIsDarkModeAllowed]);
 
     return (
         <div className='min-h-screen xl:flex bg-white sm:bg-transparent dark:bg-gray-900 dark:sm:bg-transparent'>

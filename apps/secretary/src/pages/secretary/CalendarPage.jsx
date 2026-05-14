@@ -6,11 +6,8 @@ import { useDoctors } from '../../hooks/useDoctors';
 // Components
 import DoctorCard from '../../components/secretary/calendar/DoctorCard';
 import DoctorProfileHeader from '../../components/secretary/calendar/DoctorProfileHeader';
-import WeeklyRoutine from '../../components/secretary/calendar/WeeklyRoutine';
-import UpcomingSchedule from '../../components/secretary/calendar/UpcomingSchedule';
-import BlockDateModal from '../../components/secretary/calendar/BlockDateModal';
-import BlockTimeModal from '../../components/secretary/calendar/BlockTimeModal';
-import WeeklyScheduleModal from '../../components/secretary/calendar/WeeklyScheduleModal';
+import DoctorScheduleDetail from '../../components/secretary/calendar/DoctorScheduleDetail';
+
 
 const CalendarPage = () => {
     const { tab, id } = useParams();
@@ -18,47 +15,15 @@ const CalendarPage = () => {
     const activeView = tab || 'day';
     const selectedDoctorId = id;
 
-    const { doctors, loading, error, fetchDoctorAppointments, fetchDoctorBlocks, fetchDoctorSchedule } = useDoctors();
+    const { doctors, loading, error } = useDoctors();
     const [searchQuery, setSearchQuery] = useState('');
     const [activeFilter, setActiveFilter] = useState('all');
     const [specialtyFilter, setSpecialtyFilter] = useState('all');
-    const [appointments, setAppointments] = useState([]);
-    const [blocks, setBlocks] = useState([]);
-    const [schedule, setSchedule] = useState([]);
-    const [isLoadingDetails, setIsLoadingDetails] = useState(false);
-
-    // Modal states
-    const [isBlockDateOpen, setIsBlockDateOpen] = useState(false);
-    const [isBlockTimeOpen, setIsBlockTimeOpen] = useState(false);
-    const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
 
     const selectedDoctor = doctors.find(d => d.id === selectedDoctorId);
 
-    const loadDetails = async () => {
-        if (selectedDoctorId) {
-            try {
-                setIsLoadingDetails(true);
-                const [appData, blockData, scheduleData] = await Promise.all([
-                    fetchDoctorAppointments(selectedDoctorId),
-                    fetchDoctorBlocks(selectedDoctorId),
-                    fetchDoctorSchedule(selectedDoctorId)
-                ]);
-                setAppointments(appData || []);
-                setBlocks(blockData || []);
-                setSchedule(scheduleData || []);
-            } catch (err) {
-                console.error('Failed to load clinician details:', err);
-            } finally {
-                setIsLoadingDetails(false);
-            }
-        }
-    };
-
-    React.useEffect(() => {
-        loadDetails();
-    }, [selectedDoctorId]);
-
     const filteredDoctors = doctors.filter(d => {
+
         const name = d.full_name || '';
         const matchesSearch = name.toLowerCase().includes(searchQuery.toLowerCase());
         if (!matchesSearch) return false;
@@ -91,37 +56,10 @@ const CalendarPage = () => {
                                     onBack={() => navigate('/calendar')} 
                                 />
                                 
-                                {(() => {
-                                    const viewSwitcher = (
-                                        <div className="flex bg-gray-50 dark:bg-white/5 rounded-xl p-1 border border-gray-100 dark:border-gray-800">
-                                            {['day', 'week'].map(v => (
-                                                <button 
-                                                    key={v}
-                                                    onClick={() => navigate(`/calendar/${v}/${selectedDoctorId}`)}
-                                                    className={`px-4 py-2 text-xs font-bold rounded-lg uppercase transition-all ${activeView === v ? 'bg-white dark:bg-white/10 text-brand-500 shadow-sm' : 'text-gray-400'}`}
-                                                >
-                                                    {v}
-                                                </button>
-                                            ))}
-                                        </div>
-                                    );
+                                <DoctorScheduleDetail 
+                                    doctor={selectedDoctor} 
+                                />
 
-                                    return activeView === 'week' ? (
-                                        <WeeklyRoutine 
-                                            schedule={schedule} 
-                                            blocks={blocks} 
-                                            onBlockDate={() => setIsBlockDateOpen(true)}
-                                            onEditSchedule={() => setIsScheduleModalOpen(true)}
-                                            viewSwitcher={viewSwitcher}
-                                        />
-                                    ) : (
-                                        <UpcomingSchedule 
-                                            appointments={appointments} 
-                                            onBlockTime={() => setIsBlockTimeOpen(true)}
-                                            viewSwitcher={viewSwitcher}
-                                        />
-                                    );
-                                })()}
                             </div>
                         </div>
                     </div>
@@ -192,10 +130,8 @@ const CalendarPage = () => {
                 )}
             </div>
 
-            <BlockDateModal isOpen={isBlockDateOpen} onClose={() => setIsBlockDateOpen(false)} doctor={selectedDoctor} blocks={blocks} onSave={loadDetails} />
-            <BlockTimeModal isOpen={isBlockTimeOpen} onClose={() => setIsBlockTimeOpen(false)} doctor={selectedDoctor} blocks={blocks} onSave={loadDetails} />
-            <WeeklyScheduleModal isOpen={isScheduleModalOpen} onClose={() => setIsScheduleModalOpen(false)} doctor={selectedDoctor} schedule={schedule} onSave={loadDetails} />
         </div>
+
     );
 };
 

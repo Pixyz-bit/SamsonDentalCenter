@@ -2,6 +2,27 @@
 
 @import 'tailwindcss';
 
+@custom-variant dark (&:where(.dark, .dark *));
+
+.dark {
+    /* Facebook-inspired "Deep Slate" Palette - Readability Optimized */
+    --gray-900: #18191a !important; /* FB Main Background */
+    --gray-800: #242526 !important; /* FB Card / Surface background */
+    --gray-700: #3a3b3c !important; /* FB Hover / Secondary areas */
+    --gray-600: #8a8d91 !important; /* Boosted for readability */
+    --gray-500: #b0b3b8 !important; /* Standard secondary text - Boosted */
+    --gray-400: #ced0d4 !important; /* Tertiary / Captions - Boosted */
+    --gray-300: #e4e6eb !important;
+    --gray-200: #f0f2f5 !important;
+    --gray-100: #ffffff !important; /* Pure White for primary text */
+    --gray-50: #ffffff !important;
+
+    /* Soften shadows for Deep Slate */
+    --shadow-theme-sm: 0px 1px 2px rgba(0, 0, 0, 0.4);
+    --shadow-theme-md: 0px 4px 12px rgba(0, 0, 0, 0.5);
+    --shadow-theme-lg: 0px 12px 24px rgba(0, 0, 0, 0.6);
+}
+
 /* 
   ─── GLOBAL THEME CONFIGURATION ───
   Edit the variables below to change the look and feel of the entire website.
@@ -160,7 +181,19 @@
 
 /* ── Sidebar Menu Utilities ── */
 @utility menu-item {
-    @apply relative flex items-center w-full gap-3 px-3 py-2 font-medium rounded-lg text-theme-sm;
+    @apply relative flex items-center w-full py-2 pl-[13px] pr-3 font-medium rounded-lg text-theme-sm transition-all duration-300;
+}
+
+@utility sidebar-text-expanded {
+    @apply opacity-100 max-w-[200px] ml-4 translate-x-0 visible;
+}
+
+@utility sidebar-text-collapsed {
+    @apply opacity-0 max-w-0 ml-0 -translate-x-2 invisible;
+}
+
+@utility sidebar-text-base {
+    @apply transition-all duration-300 ease-in-out whitespace-nowrap overflow-hidden;
 }
 
 @utility menu-item-active {
@@ -201,4 +234,11 @@
 
     -ms-overflow-style: none;
     scrollbar-width: none;
+}
+
+/* Global Transition Guard for Theme Toggling */
+.theme-toggling,
+.theme-toggling * {
+    transition: none !important;
+    animation: none !important;
 }
