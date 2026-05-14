@@ -20,6 +20,7 @@ const useSlotHold = (sessionId) => {
     const [holdError, setHoldError] = useState(null);
     const [timeRemaining, setTimeRemaining] = useState(null); // seconds
     const [isCheckingHold, setIsCheckingHold] = useState(false);
+    const [isInitialized, setIsInitialized] = useState(false);
     const holdIntervalRef = useRef(null);
     const countdownIntervalRef = useRef(null);
 
@@ -164,6 +165,7 @@ const useSlotHold = (sessionId) => {
                 return null;
             } finally {
                 setHoldLoading(false);
+                setIsInitialized(true);
             }
         },
         [sessionId],
@@ -230,6 +232,7 @@ const useSlotHold = (sessionId) => {
             return null;
         } finally {
             setIsCheckingHold(false);
+            setIsInitialized(true);
         }
     }, [sessionId]);
 
@@ -255,6 +258,7 @@ const useSlotHold = (sessionId) => {
         holdError,
         setHoldError, // Added for UI control
         isCheckingHold,
+        isInitialized,
         timeRemaining,
         formattedTime: formatTimeRemaining(),
 
@@ -269,6 +273,7 @@ const useSlotHold = (sessionId) => {
         holdLoading, 
         holdError, 
         isCheckingHold, 
+        isInitialized,
         timeRemaining, 
         formatTimeRemaining,
         holdSlot, 

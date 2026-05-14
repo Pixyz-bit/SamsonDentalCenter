@@ -42,19 +42,19 @@ export const Carousel = ({ className }) => {
             <div className='relative z-20 w-full p-8 lg:p-12 flex flex-col h-full justify-between text-left'>
                 {/* Brand */}
                 <div className='flex items-center gap-3 transition-all duration-300 group flex-shrink-0'>
-                    <div className='w-8 flex-shrink-0 flex items-center justify-center transition-all duration-500 group-hover:scale-110'>
+                    <div className='w-[24px] flex-shrink-0 flex items-center justify-center transition-all duration-500 group-hover:scale-110'>
                         <img
                             src='/images/logo/samson-logo.png'
                             alt='Samson Dental Logo'
-                            className='w-full h-auto'
+                            className='w-10 h-auto min-w-[40px]'
                         />
                     </div>
-                    <div className='flex flex-col items-start justify-center flex-shrink-0'>
-                        <span className='font-black text-[22px] tracking-[-0.04em] leading-none text-white whitespace-nowrap'>
+                    <div className='flex flex-col items-start justify-center flex-shrink-0 ml-1'>
+                        <span className='font-black text-[24px] tracking-[-0.01em] leading-[0.8] text-white whitespace-nowrap font-serif'>
                             SAMSON
                         </span>
-                        <span className='text-[10px] uppercase tracking-[0.28em] font-bold mt-[1px] text-red-600 whitespace-nowrap drop-shadow-[0_0_12px_rgba(203,0,16,0.5)]'>
-                            Dental Center
+                        <span className='text-[10px] uppercase tracking-[0.16em] font-black mt-0 text-gray-400 whitespace-nowrap font-serif block w-full text-center'>
+                            DENTAL CENTER
                         </span>
                     </div>
                 </div>

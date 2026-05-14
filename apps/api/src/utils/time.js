@@ -82,18 +82,19 @@ export function formatTimePretty(timeStr) {
     if (!timeStr) return '';
     const [hours, minutes] = timeStr.split(':');
     const h = parseInt(hours, 10);
-    const ampm = h >= 12 ? 'pm' : 'am';
+    const ampm = h >= 12 ? 'PM' : 'AM';
     const displayH = h % 12 || 12;
-    return `${displayH}:${minutes}${ampm}`;
+    return `${displayH}:${minutes} ${ampm}`;
 }
 
 /**
  * Format a date and time range nicely.
- * Result: "April 16, 2026 at 10:00am - 11:00am"
+ * Result: "May 20, 2026 from 10:00 AM to 11:00 AM"
  */
 export function formatDateTimeRange(date, startTime, endTime) {
     const d = formatDateLong(date);
     const s = formatTimePretty(startTime);
+    if (!endTime) return `${d} at ${s}`;
     const e = formatTimePretty(endTime);
-    return `${d} at ${s} - ${e}`;
+    return `${d} from ${s} to ${e}`;
 }

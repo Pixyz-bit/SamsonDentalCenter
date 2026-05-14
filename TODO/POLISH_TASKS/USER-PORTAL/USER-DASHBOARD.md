@@ -1,0 +1,1 @@
+on the user dashboard i plan to improve tis mobile and cards and analytics and the upcoming Upcoming Schedule calendar there if the appoitnment is still pending its yellow the color and if green is approved,

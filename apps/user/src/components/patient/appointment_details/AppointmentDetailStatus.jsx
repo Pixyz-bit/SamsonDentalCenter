@@ -136,10 +136,10 @@ const AppointmentDetailStatus = ({
     }));
 
     const getIcon = (status) => {
-        if (status === 'completed') return <Check size={18} strokeWidth={3} />;
-        if (status === 'error') return <X size={18} strokeWidth={3} />;
-        if (status === 'active' || status === 'pending-active') return <CircleDot size={18} strokeWidth={3} />;
-        return <div className='w-2.5 h-2.5 rounded-full bg-current opacity-30' />;
+        if (status === 'completed') return <Check size={16} strokeWidth={3} />;
+        if (status === 'error') return <X size={16} strokeWidth={3} />;
+        if (status === 'active' || status === 'pending-active') return <CircleDot size={16} strokeWidth={3} />;
+        return <div className='w-2 h-2 rounded-full bg-current opacity-30' />;
     };
 
     return (
@@ -159,28 +159,28 @@ const AppointmentDetailStatus = ({
                                 {!isLast && (
                                     <>
                                         {/* Desktop Connector */}
-                                        <div className='hidden sm:block absolute top-6 left-1/2 w-full h-[2px] bg-gray-100 dark:bg-white/5'>
+                                        <div className='hidden sm:block absolute top-5 left-1/2 w-full h-[1.5px] bg-gray-100 dark:bg-white/5'>
                                             <div className={`h-full transition-all duration-700 ${isCompletedStep ? 'bg-brand-500 w-full' : 'w-0'}`} />
                                         </div>
                                         {/* Mobile Connector */}
-                                        <div className='block sm:hidden absolute left-[1.125rem] top-9 w-[2px] h-full bg-gray-100 dark:bg-white/5'>
+                                        <div className='block sm:hidden absolute left-[1rem] top-8 w-[1.5px] h-full bg-gray-100 dark:bg-white/5'>
                                             <div className={`w-full transition-all duration-700 ${isCompletedStep ? 'bg-brand-500 h-full' : 'h-0'}`} />
                                         </div>
                                     </>
                                 )}
 
                                 {/* Step Icon/Dot */}
-                                <div className='relative z-10 sm:mb-6 shrink-0'>
-                                    <div className={`w-9 h-9 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all duration-500 ${
+                                <div className='relative z-10 sm:mb-5 shrink-0'>
+                                    <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center transition-all duration-500 ${
                                         isCompletedStep 
-                                            ? 'bg-brand-500 text-white' 
+                                            ? 'bg-brand-500 text-white shadow-brand-500/20' 
                                             : isErrorStep 
-                                                ? 'bg-red-500 text-white'
+                                                ? 'bg-red-500 text-white shadow-red-500/20'
                                                 : isActiveStep
-                                                    ? 'bg-white dark:bg-gray-800 border-2 border-brand-500 text-brand-500'
+                                                    ? 'bg-white dark:bg-gray-800 border-2 border-brand-500 text-brand-500 shadow-brand-500/10'
                                                     : 'bg-white dark:bg-gray-800 border-2 border-gray-100 dark:border-gray-800 text-gray-300'
                                     }`}>
-                                        <div className='scale-[0.8] sm:scale-100'>
+                                        <div className='scale-[0.7] sm:scale-[0.85]'>
                                             {getIcon(step.status)}
                                         </div>
                                     </div>

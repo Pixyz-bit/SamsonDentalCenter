@@ -1414,7 +1414,7 @@ export const adminCancelAppointment = async (appointmentId, reason = null) => {
 
     if (updateErr) throw { status: 500, message: updateErr.message };
 
-    return { appointment: updated };
+    return { appointment: updated, oldStatus: appointment.status };
 };
 
 /**

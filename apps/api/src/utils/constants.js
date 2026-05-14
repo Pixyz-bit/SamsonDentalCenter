@@ -12,6 +12,7 @@ export const APPOINTMENT_STATUS = {
     COMPLETED: 'COMPLETED', // Treatment done (dentist marks this) [Patient, Secretary and Admin]
     NO_SHOW: 'NO_SHOW', // Patient didn't show up, automatically triggers once the time has passed [Patient, Secretary and Admin]
     DISPLACED: 'DISPLACED', // Displaced appointment (e.g., due to doctor unavailability)
+    RESCHEDULED: 'RESCHEDULED', // Replaced by a new appointment
 };
 
 // Waitlist status values

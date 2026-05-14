@@ -7,7 +7,14 @@ import {
     APPOINTMENT_SOURCE,
 } from '../utils/constants.js';
 import { AppError } from '../utils/errors.js';
-import { sendWaitlistOffer, sendApprovalNotice, sendNotification } from './notification.service.js';
+import { 
+    sendWaitlistOffer, 
+    sendWaitlistJoined,
+    sendWaitlistCancelled,
+    sendWaitlistClaimed,
+    sendWaitlistVoided,
+    sendNotification 
+} from './notification.service.js';
 // import { sendWaitlistOfferEmail } from './email-confirmation.service.js';
 
 /**
@@ -175,16 +182,13 @@ export const joinWaitlist = async (
     const timeStr = time ? ` at ${time}` : '';
     const hasBackup = !!backup_appointment_id;
 
-    await sendNotification(
-        patientId,
-        'WAITLIST',
-        'Waitlist Request Received',
+    await sendWaitlistJoined(patientId, {
+        service: serviceName,
+        date,
+        start_time: time,
+        patient_name: bookedForName,
         hasBackup
-            ? `We've added you to the waitlist for ${serviceName} on ${date}${timeStr}. You also have a Primary Appointment secured for your preferred slot.`
-            : `We've added you to the waitlist for ${serviceName} on ${date}${timeStr}. We'll notify you if an earlier slot becomes available!`,
-        'in_app',
-        { service: serviceName, date, time, action: 'waitlist_joined', has_backup: hasBackup }
-    );
+    });
 
     return {
         success: true,
@@ -320,16 +324,10 @@ export const cancelWaitlistEntry = async (waitlistId, patientId, removeBackup = 
 
     // ── In-app notification for manual cancellation ──
     const hasPrimary = !!entry.backup_appointment_id;
-    await sendNotification(
-        patientId,
-        'WAITLIST',
-        'Waitlist Request Cancelled',
-        removeBackup && hasPrimary
-            ? `You've been removed from the waitlist and your associated Primary Appointment has also been cancelled.`
-            : `You've been removed from the waitlist as requested.`,
-        'in_app',
-        { waitlist_id: waitlistId, action: 'waitlist_cancelled', primary_cancelled: removeBackup && hasPrimary }
-    );
+    await sendWaitlistCancelled(patientId, {
+        patient_name: entry.booked_for_name,
+        primary_cancelled: removeBackup && hasPrimary
+    });
 
 
     // If patient chose to also cancel the backup appointment
@@ -388,14 +386,12 @@ export const voidWaitlistForApprovedAppointment = async (backupAppointmentId, ap
         const notifyPatientId = entry.patient_id || patient_id;
         if (!notifyPatientId) continue;
 
-        await sendNotification(
-            notifyPatientId,
-            'CONFIRMATION',
-            'Primary Appointment Approved — Waitlist Removed',
-            `Your Primary Appointment for ${service} on ${date} at ${start_time} is approved! We've automatically removed you from the waitlist for this slot.`,
-            'in_app',
-            { service, date, start_time, action: 'waitlist_voided_on_approval' }
-        );
+        await sendWaitlistVoided(notifyPatientId, {
+            service,
+            date,
+            start_time,
+            patient_name: entry.booked_for_name
+        });
 
         console.log(`✅ [WAITLIST] Voided entry for patient ${notifyPatientId} — Primary Appointment approved.`);
     }
@@ -512,7 +508,8 @@ export const notifyWaitlist = async (freedSlot) => {
         date,
         start_time,
         service: service?.name,
-        timeout_minutes: CLINIC_CONFIG.WAITLIST_TIMEOUT_MINUTES
+        timeout_minutes: CLINIC_CONFIG.WAITLIST_TIMEOUT_MINUTES,
+        patient_name: firstInLine.booked_for_name
     });
 
 /* 
@@ -642,14 +639,13 @@ export const confirmWaitlistOffer = async (waitlistId, patientId) => {
     }
 
     // ── In-app notification for successful claim ──
-    await sendNotification(
-        patientId,
-        'WAITLIST',
-        'Waitlist Slot Secured',
-        `Success! You've claimed the earlier slot for ${entry.service?.name} on ${entry.preferred_date} at ${entry.preferred_time}. ${existingAppointment ? 'Your previous Primary Appointment has been cancelled.' : ''}`,
-        'in_app',
-        { waitlist_id: waitlistId, action: 'waitlist_claimed', date: entry.preferred_date, time: entry.preferred_time }
-    );
+    await sendWaitlistClaimed(patientId, {
+        date: entry.preferred_date,
+        start_time: entry.preferred_time,
+        service: entry.service?.name,
+        patient_name: entry.booked_for_name,
+        swapped: !!existingAppointment
+    });
 
 
     // ── 6. Mark waitlist entry as confirmed and CLAIMED ──

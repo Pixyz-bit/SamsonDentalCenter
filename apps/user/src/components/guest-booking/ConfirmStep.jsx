@@ -38,9 +38,8 @@ const ConfirmStep = ({ formData, onSubmit, onBack, onEdit, onReset, submitting, 
 
     const handleFinalSubmit = async () => {
         if (submitting) return;
-        toast.info('Processing your booking request...');
+        toast.info('Verifying details and sending code...');
         await onSubmit();
-        toast.success('Booking request submitted successfully!');
     };
 
     // ✅ Phase 1: Robust Auto-scroll to top on error

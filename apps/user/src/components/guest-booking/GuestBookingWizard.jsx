@@ -697,7 +697,9 @@ const GuestBookingWizard = ({ booking, settings }) => {
                                     onVerify={async (code) => {
                                         const res = await booking.verifyGuestOTP(code);
                                         if (res.success) {
+                                            toast.info('Finalizing your appointment...');
                                             await submit(res.token);
+                                            toast.success('Booking request submitted successfully!');
                                         }
                                     }}
                                     onResend={async () => {

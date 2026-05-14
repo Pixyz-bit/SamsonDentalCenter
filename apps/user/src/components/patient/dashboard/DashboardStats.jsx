@@ -1,5 +1,5 @@
 import React from 'react';
-import { Clock, CheckCircle2, AlertCircle, Calendar } from 'lucide-react';
+import { Clock, CheckCircle2, AlertCircle, Calendar, ArrowUpRight } from 'lucide-react';
 import StatCard from './StatCard';
 import { formatDate, formatTime } from '../../../hooks/useAppointments';
 import { Link } from 'react-router-dom';
@@ -30,83 +30,68 @@ const DashboardStats = ({ appointments = [], totalAppointments = 0, loading = fa
     const serviceName = loading ? '…' : (latestAppt ? latestAppt.service?.name || latestAppt.service : null);
 
     return (
-        <div className='flex flex-col lg:grid lg:grid-cols-5 gap-4 min-w-0'>
-            {/* ── Card 1: Latest Appointment ── */}
-            <div className='lg:col-span-2 relative rounded-xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03] min-h-[100px] sm:min-h-[110px]'>
-                <div className='flex items-center h-full px-4 sm:px-5 py-3.5 sm:py-4'>
-                    <div className='flex items-center gap-3 sm:gap-4 min-w-0 grow'>
-                        {loading ? (
-                            <>
-                                <div className='w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-gray-100 dark:bg-gray-800 shrink-0 animate-pulse' />
-                                <div className='space-y-1.5 sm:space-y-2 grow'>
-                                    <div className='h-4.5 sm:h-5 w-3/4 bg-gray-100 dark:bg-gray-800 rounded animate-pulse' />
-                                    <div className='h-3.5 sm:h-4 w-1/2 bg-gray-50 dark:bg-gray-800/50 rounded animate-pulse' />
-                                </div>
-                            </>
-                        ) : (
-                            <>
-                                <div className='flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-brand-50 text-brand-600 dark:bg-brand-500/10 dark:text-brand-400 shrink-0'>
-                                    <Clock size={18} className="sm:w-[20px] sm:h-[20px]" />
-                                </div>
-                                
-                                <div className='min-w-0 grow'>
-                                    <p className='text-[10px] sm:text-[11px] lg:text-xs font-bold text-gray-500 dark:text-gray-400 mb-0.5 tracking-wider'>
-                                        Next Appointment
-                                    </p>
-                                    <h3 className='text-base sm:text-lg lg:text-xl font-bold text-gray-900 dark:text-white truncate tracking-tight'>
-                                        {serviceName || 'No appointments'}
-                                    </h3>
-                                    {latestAppt && (
-                                        <div className='flex items-center gap-1.5 sm:gap-2 mt-1.5 flex-wrap'>
-                                            <span className='inline-flex items-center gap-1 px-1.5 sm:px-2 py-0.5 rounded border border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-800 text-[9px] sm:text-[10px] lg:text-[11px] font-bold text-gray-600 dark:text-gray-300 tracking-tight'>
-                                                <Calendar size={10} className="sm:w-[12px] sm:h-[12px]" />
-                                                {formatDate(latestAppt.date)}
-                                            </span>
-                                            <span className='inline-flex items-center gap-1 px-1.5 sm:px-2 py-0.5 rounded border border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-800 text-[9px] sm:text-[10px] lg:text-[11px] font-bold text-gray-600 dark:text-gray-300 tracking-tight'>
-                                                <Clock size={10} className="sm:w-[12px] sm:h-[12px]" />
-                                                {formatTime(latestAppt.start_time)}
-                                            </span>
-                                        </div>
-                                    )}
-                                </div>
-                            </>
+        <div className='flex flex-col lg:grid lg:grid-cols-5 gap-4 sm:gap-5 min-w-0'>
+            {/* ── Card 1: Latest Appointment (Compact & High-Hierarchy) ── */}
+            <div className='lg:col-span-3 group relative rounded-2xl border border-gray-100 bg-white dark:border-gray-800 dark:bg-white/[0.02] transition-all duration-300 hover:shadow-lg hover:border-brand-500/30 overflow-hidden'>
+                <div className='relative flex items-center w-full px-5 sm:px-6 py-4 sm:py-4.5 gap-4 sm:gap-6'>
+                    {/* Compact Icon */}
+                    <div className='shrink-0'>
+                        <div className='flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-brand-500 text-white shadow-md shadow-brand-500/10 group-hover:scale-105 transition-transform'>
+                            <Calendar size={24} strokeWidth={2.5} />
+                        </div>
+                    </div>
+
+                    {/* Hierarchy-focused Content */}
+                    <div className='flex-grow min-w-0'>
+                        <p className='text-[11px] sm:text-[12px] font-medium text-gray-700 dark:text-gray-400 mb-0.5'>
+                            Upcoming Session
+                        </p>
+                        <h3 className='text-[17px] sm:text-[22px] font-medium text-gray-900 dark:text-white truncate leading-tight group-hover:text-brand-500 transition-colors'>
+                            {loading ? 'Loading...' : (serviceName || 'No Scheduled Visit')}
+                        </h3>
+                        
+                        {latestAppt && !loading && (
+                            <div className='flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 mt-1.5 font-medium'>
+                                <span className='text-[12px] sm:text-[14px] text-gray-900 dark:text-gray-100'>{formatDate(latestAppt.date)}</span>
+                                <div className='hidden sm:block w-1 h-1 rounded-full bg-gray-300 dark:bg-white/20 shrink-0' />
+                                <span className='text-[12px] sm:text-[14px] text-brand-500 dark:text-brand-400'>
+                                    {formatTime(latestAppt.start_time)} - {formatTime(latestAppt.end_time)}
+                                </span>
+                            </div>
                         )}
                     </div>
 
-                    {/* External Link */}
+                    {/* View Action - Discreet but visible */}
                     {latestAppt && !loading && (
-                        <Link to={`/patient/appointments/${latestAppt.id}`} className='absolute inset-0 z-10' aria-label='View appointment' />
+                        <div className="shrink-0 text-gray-300 group-hover:text-brand-500 transition-all transform group-hover:translate-x-1">
+                            <ArrowUpRight size={22} strokeWidth={2.5} />
+                        </div>
                     )}
                 </div>
+
+                {/* Overlay Link */}
+                {latestAppt && !loading && (
+                    <Link to={`/patient/appointments/${latestAppt.id}`} className='absolute inset-0 z-10' />
+                )}
             </div>
 
-            {/* ── Cards 2-4: Stats (2-Card Carousel) ── */}
-            <div 
-                ref={scrollRef}
-                onScroll={handleScroll}
-                className='flex overflow-x-auto lg:contents gap-4 pb-1 lg:pb-0 no-scrollbar snap-x snap-mandatory'
-            >
-                <div className='min-w-[calc(50%-8px)] lg:min-w-0 lg:col-span-1 snap-start'>
-                    <StatCard
-                        title='Pending'
-                        value={pendingCount.toString()}
-                        icon={AlertCircle}
-                        color='warning'
-                        loading={loading}
-                    />
-                </div>
-                <div className='min-w-[calc(50%-8px)] lg:min-w-0 lg:col-span-1 snap-start'>
-                    <StatCard
-                        title='Approved'
-                        value={approvedCount.toString()}
-                        icon={CheckCircle2}
-                        color='success'
-                        loading={loading}
-                    />
-                </div>
+            {/* ── Cards 2-3: Secondary Stats (Balanced Compactness) ── */}
+            <div className='lg:col-span-2 grid grid-cols-2 gap-4 sm:gap-5'>
+                <StatCard
+                    title='Pending'
+                    value={pendingCount.toString()}
+                    icon={AlertCircle}
+                    color='warning'
+                    loading={loading}
+                />
+                <StatCard
+                    title='Approved'
+                    value={approvedCount.toString()}
+                    icon={CheckCircle2}
+                    color='success'
+                    loading={loading}
+                />
             </div>
-
-            {/* Mobile Pagination (Not needed for 2 cards) */}
         </div>
     );
 };

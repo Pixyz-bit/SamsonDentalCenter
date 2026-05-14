@@ -76,15 +76,17 @@ export const sendNotification = async (
  * Appointment confirmed notification.
  */
 export const sendConfirmation = async (userId, appointmentDetails) => {
-    const { date, start_time, end_time, service } = appointmentDetails;
+    const { date, start_time, end_time, service, patient_name } = appointmentDetails;
     const formattedRange = formatDateTimeRange(date, start_time, end_time);
+    const pName = patient_name || 'you';
+
     return sendNotification(
         userId,
         'CONFIRMATION',
         'Appointment Confirmed!',
-        `Your ${service} appointment is confirmed for ${formattedRange}.`,
+        `The ${service} appointment for ${pName} has been confirmed for ${formattedRange}.`,
         'in_app',
-        { service, date, start_time, end_time },
+        { service, date, start_time, end_time, patient_name: pName },
     );
 };
 
@@ -92,15 +94,17 @@ export const sendConfirmation = async (userId, appointmentDetails) => {
  * Appointment request received.
  */
 export const sendRequestReceived = async (userId, appointmentDetails) => {
-    const { date, start_time, end_time, service } = appointmentDetails;
+    const { date, start_time, end_time, service, patient_name } = appointmentDetails;
     const formattedRange = formatDateTimeRange(date, start_time, end_time);
+    const pName = patient_name || 'you';
+
     return sendNotification(
         userId,
         'GENERAL',
         'Request Received & Under Review',
-        `Your request for ${service} on ${formattedRange} has been received. Our team is currently reviewing your schedule to ensure a dentist is available. We will notify you once it is officially confirmed.`,
+        `We have received your request for a ${service} appointment for ${pName} on ${formattedRange}. Our team is currently reviewing the schedule to ensure a dentist is available. We will notify you as soon as your appointment is officially confirmed.`,
         'in_app',
-        { service, date, start_time, end_time, status: 'review' },
+        { service, date, start_time, end_time, status: 'review', patient_name: pName },
     );
 };
 
@@ -108,10 +112,11 @@ export const sendRequestReceived = async (userId, appointmentDetails) => {
  * Appointment approved.
  */
 export const sendApprovalNotice = async (userId, appointmentDetails, phone = null) => {
-    const { date, start_time, end_time, service } = appointmentDetails;
+    const { date, start_time, end_time, service, patient_name } = appointmentDetails;
     const formattedRange = formatDateTimeRange(date, start_time, end_time);
+    const pName = patient_name || 'you';
 
-    const message = `Good news! Your ${service} appointment on ${formattedRange} has been approved. See you at the clinic!`;
+    const message = `Good news! Your ${service} appointment for ${pName} on ${formattedRange} has been approved. We look forward to seeing you at the clinic!`;
 
     // 1. In-App Notification
     const inAppResult = await sendNotification(
@@ -120,40 +125,27 @@ export const sendApprovalNotice = async (userId, appointmentDetails, phone = nul
         'Appointment Approved!',
         message,
         'in_app',
-        { service, date, start_time, end_time, action: 'approved' },
+        { service, date, start_time, end_time, action: 'approved', patient_name: pName },
     );
 
-    /* 
-    // 2. SMS Notification (if phone provided)
-    let smsResult = null;
-    if (phone) {
-        smsResult = await sendNotification(
-            userId,
-            'CONFIRMATION',
-            'Appointment Approved!',
-            message,
-            'sms',
-            { phone, service, date, start_time, end_time }
-        );
-    }
-    */
-
-    return { inAppResult, smsResult };
+    return { inAppResult, smsResult: null };
 };
 
 /**
  * Appointment rejected.
  */
 export const sendRejectionNotice = async (userId, appointmentDetails, reason) => {
-    const { date, start_time, end_time, service } = appointmentDetails;
+    const { date, start_time, end_time, service, patient_name } = appointmentDetails;
     const formattedRange = formatDateTimeRange(date, start_time, end_time);
+    const pName = patient_name || 'you';
+
     return sendNotification(
         userId,
         'CANCELLATION',
         'Appointment Declined',
-        `Your request for ${service} on ${formattedRange} was declined. Reason: ${reason}`,
+        `Your request for a ${service} appointment for ${pName} on ${formattedRange} was declined. Reason: ${reason}. If you have questions, please contact our clinic.`,
         'in_app',
-        { service, date, start_time, end_time, reason, action: 'rejected' },
+        { service, date, start_time, end_time, reason, action: 'rejected', patient_name: pName },
     );
 };
 
@@ -161,123 +153,229 @@ export const sendRejectionNotice = async (userId, appointmentDetails, reason) =>
  * Appointment reminder (24h or 48h before).
  */
 export const sendReminder = async (userId, appointmentDetails, hoursUntil) => {
-    const { date, start_time, end_time, service } = appointmentDetails;
+    const { date, start_time, end_time, service, patient_name } = appointmentDetails;
     const formattedRange = formatDateTimeRange(date, start_time, end_time);
+    const pName = patient_name || 'you';
+
     return sendNotification(
         userId,
         'REMINDER',
-        `Reminder: Appointment in ${hoursUntil} hours`,
-        `Don't forget! Your ${service} appointment is on ${formattedRange}.`,
+        'Reminder: Upcoming Appointment',
+        `Don't forget! ${pName} has a ${service} appointment scheduled for ${formattedRange}. Please arrive 15 minutes early.`,
         'in_app',
-        { service, date, start_time, end_time, hoursUntil, action: 'reminder' },
+        { service, date, start_time, end_time, hoursUntil, action: 'reminder', patient_name: pName },
     );
 };
 
 /**
- * 48h confirmation reminder — asks patient to confirm they will attend.
- * If no response, supervisor can flag for follow-up.
+ * 48h confirmation reminder.
  */
 export const send48hConfirmReminder = async (userId, appointmentDetails) => {
-    const { date, start_time, end_time, service } = appointmentDetails;
+    const { date, start_time, end_time, service, patient_name } = appointmentDetails;
     const formattedRange = formatDateTimeRange(date, start_time, end_time);
+    const pName = patient_name || 'you';
+
     return sendNotification(
         userId,
         'REMINDER_48H',
-        'Please Confirm Your Appointment (48h)',
-        `Your ${service} appointment is in 2 days (${formattedRange}). Please confirm you will attend.`,
+        'Please Confirm Your Attendance',
+        `This is a reminder for ${pName}'s ${service} appointment on ${formattedRange}. Please confirm your attendance through the portal or contact us if you need to reschedule.`,
         'in_app',
-        { service, date, start_time, end_time, action: 'reminder_48h' },
+        { service, date, start_time, end_time, action: 'reminder_48h', patient_name: pName },
     );
 };
 
 /**
- * Waitlist offer notification — a slot has become available.
+ * Waitlist offer notification.
  */
 export const sendWaitlistOffer = async (userId, waitlistDetails) => {
-    const { date, start_time, service, timeout_minutes } = waitlistDetails;
+    const { date, start_time, end_time, service, timeout_minutes, patient_name } = waitlistDetails;
+    const formattedRange = formatDateTimeRange(date, start_time, end_time);
+    const pName = patient_name || 'you';
+
     return sendNotification(
         userId,
         'WAITLIST',
-        'A slot is available!',
-        `A slot opened up on ${date} at ${start_time}${service ? ' for ' + service : ''}. You have ${timeout_minutes} minutes to confirm.`,
+        'Priority Slot Available!',
+        `A slot has opened up on ${formattedRange} for ${service}. As you are on our waitlist, we are offering this to you first! You have ${timeout_minutes} minutes to claim this slot for ${pName} before it is offered to the next person.`,
         'in_app',
-        { date, start_time, service, timeout_minutes, action: 'waitlist_offer' },
+        { date, start_time, end_time, service, timeout_minutes, action: 'waitlist_offer', patient_name: pName },
+    );
+};
+
+/**
+ * Waitlist request received.
+ */
+export const sendWaitlistJoined = async (userId, waitlistDetails) => {
+    const { date, start_time, service, patient_name, hasBackup } = waitlistDetails;
+    const pName = patient_name || 'you';
+    const timeStr = start_time ? ` at ${formatTimePretty(start_time)}` : '';
+    const dateStr = formatDateLong(date);
+
+    const message = hasBackup
+        ? `We've added ${pName} to the waitlist for ${service} on ${dateStr}${timeStr}. You also have a Primary Appointment secured for your preferred slot.`
+        : `We've added ${pName} to the waitlist for ${service} on ${dateStr}${timeStr}. We'll notify you if an earlier slot becomes available!`;
+
+    return sendNotification(
+        userId,
+        'WAITLIST',
+        'Waitlist Request Received',
+        message,
+        'in_app',
+        { service, date, start_time, action: 'waitlist_joined', has_backup: hasBackup, patient_name: pName }
+    );
+};
+
+/**
+ * Waitlist entry cancelled.
+ */
+export const sendWaitlistCancelled = async (userId, waitlistDetails) => {
+    const { patient_name, primary_cancelled } = waitlistDetails;
+    const pName = patient_name || 'you';
+
+    const message = primary_cancelled
+        ? `You've been removed from the waitlist for ${pName} and the associated Primary Appointment has also been cancelled.`
+        : `You've been removed from the waitlist for ${pName} as requested.`;
+
+    return sendNotification(
+        userId,
+        'WAITLIST',
+        'Waitlist Request Cancelled',
+        message,
+        'in_app',
+        { action: 'waitlist_cancelled', primary_cancelled, patient_name: pName }
+    );
+};
+
+/**
+ * Waitlist offer claimed successfully.
+ */
+export const sendWaitlistClaimed = async (userId, waitlistDetails) => {
+    const { date, start_time, service, patient_name, swapped } = waitlistDetails;
+    const pName = patient_name || 'you';
+    const timePretty = formatTimePretty(start_time);
+    const dateStr = formatDateLong(date);
+
+    const message = `Success! You've claimed the earlier slot for ${service} for ${pName} on ${dateStr} at ${timePretty}. ${swapped ? 'Your previous Primary Appointment has been cancelled.' : ''}`;
+
+    return sendNotification(
+        userId,
+        'WAITLIST',
+        'Waitlist Slot Secured',
+        message,
+        'in_app',
+        { action: 'waitlist_claimed', date, time: start_time, patient_name: pName }
+    );
+};
+
+/**
+ * Waitlist voided on approval.
+ */
+export const sendWaitlistVoided = async (userId, waitlistDetails) => {
+    const { date, start_time, service, patient_name } = waitlistDetails;
+    const pName = patient_name || 'you';
+    const timePretty = formatTimePretty(start_time);
+    const dateStr = formatDateLong(date);
+
+    return sendNotification(
+        userId,
+        'CONFIRMATION',
+        'Primary Appointment Approved — Waitlist Removed',
+        `The Primary Appointment for ${pName} for ${service} on ${dateStr} at ${timePretty} is approved! We've automatically removed you from the waitlist for this slot.`,
+        'in_app',
+        { service, date, start_time, action: 'waitlist_voided_on_approval', patient_name: pName }
     );
 };
 
 /**
  * Cancellation notification.
  */
-export const sendCancellationNotice = async (userId, appointmentDetails) => {
-    const { date, start_time, end_time, service } = appointmentDetails;
+export const sendCancellationNotice = async (userId, appointmentDetails, isRequest = false) => {
+    const { date, start_time, end_time, service, patient_name } = appointmentDetails;
     const formattedRange = formatDateTimeRange(date, start_time, end_time);
+    const pName = patient_name || 'you';
+
+    const title = isRequest ? 'Appointment Request Cancelled' : 'Appointment Cancelled';
+    const message = isRequest 
+        ? `The request for a ${service} appointment for ${pName} on ${formattedRange} has been cancelled.`
+        : `The ${service} appointment for ${pName} on ${formattedRange} has been cancelled. If this was not intentional, please contact the clinic immediately.`;
+
     return sendNotification(
         userId,
         'CANCELLATION',
-        'Appointment Cancelled',
-        `Your ${service} appointment on ${formattedRange} has been cancelled.`,
+        title,
+        message,
         'in_app',
-        { service, date, start_time, end_time, action: 'cancelled' },
+        { service, date, start_time, end_time, action: 'cancelled', patient_name: pName, is_request: isRequest },
     );
 };
 
 /**
- * No-show notification — patient missed their appointment.
+ * No-show notification.
  */
 export const sendNoShowNotice = async (userId, appointmentDetails) => {
-    const { date, start_time, service } = appointmentDetails;
+    const { date, start_time, end_time, service, patient_name } = appointmentDetails;
+    const formattedRange = formatDateTimeRange(date, start_time, end_time);
+    const pName = patient_name || 'you';
+
     return sendNotification(
         userId,
         'NO_SHOW',
-        'Missed Appointment',
-        `You missed your appointment on ${date} at ${start_time}${service ? ' for ' + service : ''}. Would you like to reschedule?`,
+        'Missed Appointment Notice',
+        `${pName} was unable to attend the ${service} appointment on ${formattedRange}. We missed you! You can reschedule your visit through the dashboard or by calling us.`,
         'in_app',
-        { date, start_time, service, action: 'no_show' },
+        { date, start_time, end_time, service, action: 'no_show', patient_name: pName },
     );
 };
 
 /**
- * Restriction notification — patient reached no-show threshold.
+ * Restriction notification.
  */
 export const sendRestrictionNotice = async (userId, restrictionDetails) => {
-    const { noShowCount, maxAdvanceDays } = restrictionDetails;
+    const { noShowCount, maxAdvanceDays, patient_name } = restrictionDetails;
+    const pName = patient_name || 'you';
+
     return sendNotification(
         userId,
         'RESTRICTION',
-        'Booking Restrictions Applied',
-        `Due to ${noShowCount} missed appointments, your booking has been restricted. You can only book up to ${maxAdvanceDays} days in advance and a deposit may be required. Please contact the clinic for more information.`,
+        'Account Booking Restricted',
+        `Due to ${noShowCount} missed appointments for ${pName}, your booking privileges have been restricted. For future visits, you can only book up to ${maxAdvanceDays} days in advance, and a security deposit may be required. Please contact our front desk to resolve this.`,
         'in_app',
-        { noShowCount, maxAdvanceDays, action: 'restricted' },
+        { noShowCount, maxAdvanceDays, action: 'restricted', patient_name: pName },
     );
 };
 
 /**
- * Delay notification — dentist is running late.
+ * Delay notification.
  */
 export const sendDelayNotification = async (userId, delayDetails) => {
-    const { dentist_name, estimated_delay_minutes, original_time } = delayDetails;
+    const { dentist_name, estimated_delay_minutes, original_time, service, date, patient_name } = delayDetails;
+    const pName = patient_name || 'you';
+
     return sendNotification(
         userId,
         'DELAY',
-        `Appointment Delayed — ${estimated_delay_minutes} min`,
-        `Dr. ${dentist_name} is running approximately ${estimated_delay_minutes} minutes behind schedule. Your appointment at ${original_time} may start late. We apologize for the inconvenience.`,
+        'Appointment Delay Alert',
+        `Dr. ${dentist_name} is currently running approximately ${estimated_delay_minutes} minutes behind schedule. The ${service || 'dental'} appointment for ${pName}, originally scheduled for ${original_time}${date ? ' on ' + formatDateLong(date) : ''}, may start late. We apologize for the inconvenience.`,
         'in_app',
-        { dentist_name, estimated_delay_minutes, original_time, action: 'delay' },
+        { dentist_name, estimated_delay_minutes, original_time, action: 'delay', patient_name: pName },
     );
 };
 
 /**
- * Follow-up visit reminder — dentist recommended a follow-up.
+ * Follow-up visit reminder.
  */
 export const sendFollowUpReminder = async (userId, followUpDetails) => {
-    const { dentist_name, reason, recommended_date, service_name } = followUpDetails;
+    const { dentist_name, reason, recommended_date, service_name, patient_name } = followUpDetails;
+    const pName = patient_name || 'you';
+
     return sendNotification(
         userId,
         'FOLLOW_UP',
-        'Follow-Up Visit Recommended',
-        `Dr. ${dentist_name} has recommended a follow-up ${service_name ? service_name + ' ' : ''}appointment${recommended_date ? ' around ' + recommended_date : ''}. Reason: ${reason}. Please book your follow-up at your convenience.`,
+        'Recommended Follow-Up',
+        `Following your recent visit, Dr. ${dentist_name} has recommended a follow-up ${service_name ? service_name + ' ' : ''}appointment for ${pName}${recommended_date ? ' around ' + formatDateLong(recommended_date) : ''}. Reason: ${reason}. You can book this through your portal at your convenience.`,
         'in_app',
-        { dentist_name, reason, recommended_date, service_name, action: 'follow_up' },
+        { dentist_name, reason, recommended_date, service_name, action: 'follow_up', patient_name: pName },
     );
 };
 
@@ -285,17 +383,18 @@ export const sendFollowUpReminder = async (userId, followUpDetails) => {
  * Appointment rescheduled notification.
  */
 export const sendRescheduleNotice = async (userId, oldDetails, newDetails) => {
-    const { service } = oldDetails;
+    const { service, patient_name } = oldDetails;
     const oldRange = formatDateTimeRange(oldDetails.date, oldDetails.start_time, oldDetails.end_time);
     const newRange = formatDateTimeRange(newDetails.date, newDetails.start_time, newDetails.end_time);
+    const pName = patient_name || 'you';
 
     return sendNotification(
         userId,
         'RESCHEDULE',
         'Appointment Rescheduled',
-        `Your ${service} appointment has been moved from ${oldRange} to ${newRange}.`,
+        `The ${service} appointment for ${pName} has been rescheduled. It was moved from ${oldRange} to ${newRange}.`,
         'in_app',
-        { service, oldDetails, newDetails, action: 'rescheduled' },
+        { service, oldDetails, newDetails, action: 'rescheduled', patient_name: pName },
     );
 };
 

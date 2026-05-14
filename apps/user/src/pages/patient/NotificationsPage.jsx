@@ -136,12 +136,16 @@ const NotificationsPage = () => {
                 <PageBreadcrumb pageTitle={breadcrumbTitle} />
                 
                 <div className='flex flex-col grow'>
-                    {/* Inbox Skeleton */}
-                    <div className='mx-4 sm:mx-6 flex flex-col grow bg-white dark:bg-gray-900 sm:rounded-xl border border-gray-100 dark:border-gray-800 overflow-hidden'>
-                        <div className='p-6 border-b border-gray-100 dark:border-gray-800'>
-                            <div className='h-10 w-full bg-gray-50 dark:bg-gray-800 rounded-lg animate-pulse' />
+                    <div className='flex-grow flex flex-col h-full bg-white dark:bg-white/[0.03] sm:rounded-xl border-t sm:border border-gray-100 dark:border-gray-800 overflow-hidden'>
+                        <div className='px-4 sm:px-6 py-5 border-b border-gray-100 dark:border-gray-800 space-y-4 animate-pulse'>
+                             <div className='h-10 w-full bg-gray-50 dark:bg-gray-800/50 rounded-lg' />
+                             <div className='flex gap-2 overflow-hidden pb-1'>
+                                 {[1,2,3,4].map(i => (
+                                     <div key={i} className='h-8 w-24 bg-gray-50 dark:bg-gray-800/30 rounded-lg shrink-0' />
+                                 ))}
+                             </div>
                         </div>
-                        <NotificationSkeleton rows={6} />
+                        <NotificationSkeleton rows={8} />
                     </div>
                 </div>
             </div>

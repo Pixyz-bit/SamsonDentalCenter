@@ -218,7 +218,9 @@ export const approveAppointment = async (appointmentId, adminId, dentistId = nul
         await sendApprovalNotice(updated.patient_id, {
             date: updated.appointment_date,
             start_time: updated.start_time,
-            service: updated.service?.name
+            end_time: updated.end_time,
+            service: updated.service?.name,
+            patient_name: updated.patient?.full_name || updated.guest_name
         }, updated.patient?.phone || updated.guest_phone);
 
         await voidWaitlistForApprovedAppointment(appointmentId, {
@@ -283,7 +285,10 @@ export const rejectAppointment = async (appointmentId, adminId, reason) => {
         if (updated.patient_id) {
             await sendRejectionNotice(updated.patient_id, {
                 date: updated.appointment_date,
-                service: updated.service?.name
+                start_time: updated.start_time,
+                end_time: updated.end_time,
+                service: updated.service?.name,
+                patient_name: updated.patient?.full_name || updated.guest_name
             }, reason);
         }
 

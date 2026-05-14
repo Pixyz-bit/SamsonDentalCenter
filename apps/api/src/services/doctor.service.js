@@ -415,7 +415,10 @@ export const createFollowUp = async (dentistId, followUpData) => {
     // Verify the appointment belongs to this dentist
     const { data: appt } = await supabaseAdmin
         .from('appointments')
-        .select('id, dentist_id, patient_id')
+        .select(`
+            id, dentist_id, patient_id, booked_for_name,
+            patient:profiles!appointments_patient_id_fkey(full_name, first_name, last_name)
+        `)
         .eq('id', followUpData.appointment_id)
         .eq('dentist_id', dentistId)
         .single();
@@ -447,10 +450,13 @@ export const createFollowUp = async (dentistId, followUpData) => {
     // Notify patient about follow-up
     try {
         const dentistName = followUp.dentist?.profile?.first_name ? `${followUp.dentist.profile.last_name}, ${followUp.dentist.profile.first_name}` : followUp.dentist?.profile?.full_name;
+        const patientName = appt.booked_for_name || (appt.patient?.first_name ? `${appt.patient.first_name} ${appt.patient.last_name}` : appt.patient?.full_name);
+        
         await sendFollowUpReminder(appt.patient_id, {
             ...followUp,
             dentist_name: dentistName,
-            service_name: followUp.service?.name
+            service_name: followUp.service?.name,
+            patient_name: patientName
         });
     } catch (e) {
         // Non-critical
@@ -467,8 +473,10 @@ export const reportDelay = async (dentistId, appointmentId, delayMinutes, reason
     const { data: appt } = await supabaseAdmin
         .from('appointments')
         .select(`
-            id, dentist_id, patient_id, start_time, appointment_date,
-            dentist:dentists(profile:profiles(full_name, first_name, last_name, middle_name, suffix))
+            id, dentist_id, patient_id, start_time, appointment_date, booked_for_name,
+            patient:profiles!appointments_patient_id_fkey(full_name, first_name, last_name),
+            dentist:dentists(profile:profiles(full_name, first_name, last_name, middle_name, suffix)),
+            service:services(name)
         `)
         .eq('id', appointmentId)
         .eq('dentist_id', dentistId)
@@ -491,13 +499,17 @@ export const reportDelay = async (dentistId, appointmentId, delayMinutes, reason
     // Notify the patient
     try {
         const dentistName = appt.dentist?.profile?.first_name ? `${appt.dentist.profile.last_name}, ${appt.dentist.profile.first_name}` : appt.dentist?.profile?.full_name;
+        const patientName = appt.booked_for_name || (appt.patient?.first_name ? `${appt.patient.first_name} ${appt.patient.last_name}` : appt.patient?.full_name);
+        
         await sendDelayNotification(appt.patient_id, {
             appointment_id: appointmentId,
             estimated_delay_minutes: delayMinutes,
             reason: reason || 'Your dentist is running behind schedule.',
             original_time: appt.start_time,
             date: appt.appointment_date,
-            dentist_name: dentistName
+            dentist_name: dentistName,
+            service: appt.service?.name,
+            patient_name: patientName
         });
     } catch (e) {
         // Non-critical

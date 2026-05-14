@@ -55,19 +55,30 @@ const UserReschedulePage = () => {
         );
     }
     
-    // Validate that it CAN be rescheduled (not cancelled/completed)
-    const canReschedule = !['CANCELLED', 'LATE_CANCEL', 'COMPLETED', 'NO_SHOW'].includes(appointment.status);
+    // Validate that it CAN be rescheduled (not cancelled/completed and not already rescheduled)
+    const canReschedule = !['CANCELLED', 'LATE_CANCEL', 'COMPLETED', 'NO_SHOW', 'RESCHEDULED'].includes(appointment.status) && (appointment.reschedule_count || 0) < 1;
     if (!canReschedule) {
+        const isLimitReached = (appointment.reschedule_count || 0) >= 1;
         return (
-            <div className='min-h-screen bg-slate-50 dark:bg-gray-900 flex items-center justify-center p-4'>
-                <div className='bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-theme-sm text-center max-w-md w-full'>
-                    <h2 className='text-amber-500 text-xl font-bold mb-2'>Cannot Reschedule</h2>
-                    <p className='text-slate-500 dark:text-slate-400 mb-6'>This appointment cannot be rescheduled because its current status is {appointment.status}.</p>
+            <div className='flex flex-col items-center justify-center min-h-[60vh] p-8 text-center'>
+                <div className='bg-white dark:bg-gray-800 p-8 rounded-3xl shadow-theme-sm border border-gray-100 dark:border-gray-800 max-w-md w-full'>
+                    <div className='w-16 h-16 bg-amber-100 dark:bg-amber-900/30 rounded-2xl flex items-center justify-center mx-auto mb-6'>
+                        <AlertCircle className='text-amber-600 dark:text-amber-400' size={32} />
+                    </div>
+                    <h2 className='text-amber-500 text-xl font-bold mb-2'>
+                        {isLimitReached ? 'Reschedule Limit Reached' : 'Cannot Reschedule'}
+                    </h2>
+                    <p className='text-slate-500 dark:text-slate-400 mb-6'>
+                        {isLimitReached 
+                            ? "This appointment has already been rescheduled once and cannot be changed again through the portal."
+                            : `This appointment cannot be rescheduled because its current status is ${appointment.status}.`
+                        }
+                    </p>
                     <button 
                         onClick={() => navigate(`/patient/appointments/${id}`)}
-                        className='bg-brand-500 hover:bg-brand-600 text-white px-6 py-2 rounded-xl font-medium w-full transition-colors'
+                        className='w-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold py-3 px-6 rounded-xl transition-all'
                     >
-                        Return to Appointment
+                        Back to Details
                     </button>
                 </div>
             </div>

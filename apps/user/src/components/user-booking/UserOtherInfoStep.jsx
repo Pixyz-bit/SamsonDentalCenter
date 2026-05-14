@@ -63,7 +63,7 @@ const UserOtherInfoStep = ({ formData, onUpdate, onNext, onBack }) => {
     // ✅ Auto-fill "Myself" as default if no selection exists
     useEffect(() => {
         if (user && !formData.patient_profile_id && !formData.booked_for_relationship) {
-            handleSelect('myself');
+            handleSelect('myself', false); // Don't toast on initial auto-fill
         }
     }, [user, formData.patient_profile_id, formData.booked_for_relationship]);
 
@@ -86,7 +86,7 @@ const UserOtherInfoStep = ({ formData, onUpdate, onNext, onBack }) => {
         return allowDots ? /^[a-zA-Z\s.-]*$/.test(name) : /^[a-zA-Z\s-]*$/.test(name);
     };
 
-    const handleSelect = (profileId) => {
+    const handleSelect = (profileId, shouldToast = true) => {
         setIsOpen(false);
         setErrors({});
 
@@ -112,7 +112,7 @@ const UserOtherInfoStep = ({ formData, onUpdate, onNext, onBack }) => {
                 booked_for_sex: normalizeSex(user?.sex),
                 booked_for_phone: user?.phone || ''
             };
-            toast.info('Profile selected! Information auto-filled from your account.');
+            if (shouldToast) toast.info('Profile selected! Information auto-filled from your account.');
         } else if (profileId === 'new') {
             newData = {
                 patient_profile_id: 'new',
@@ -139,7 +139,7 @@ const UserOtherInfoStep = ({ formData, onUpdate, onNext, onBack }) => {
                     booked_for_sex: normalizeSex(profile.sex),
                     booked_for_phone: user?.phone || ''
                 };
-                toast.info(`Profile selected! Information auto-filled for ${profile.first_name}.`);
+                if (shouldToast) toast.info(`Profile selected! Information auto-filled for ${profile.first_name}.`);
             }
         }
 

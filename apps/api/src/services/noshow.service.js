@@ -14,7 +14,11 @@ export const markNoShow = async (appointmentId) => {
     // ── 1. Get the appointment ──
     const { data: appointment, error } = await supabaseAdmin
         .from('appointments')
-        .select('*')
+        .select(`
+            *,
+            patient:profiles!appointments_patient_id_fkey(full_name, first_name, last_name, email),
+            service:services(name)
+        `)
         .eq('id', appointmentId)
         .single();
 
@@ -58,9 +62,14 @@ export const markNoShow = async (appointmentId) => {
     });
 
     // ── 4. Create in-app notification & Email for the patient ──
+    const patientName = appointment.booked_for_name || (appointment.patient?.first_name ? `${appointment.patient.first_name} ${appointment.patient.last_name}` : appointment.patient?.full_name);
+    
     await sendNoShowNotice(appointment.patient_id, {
         date: appointment.appointment_date,
         start_time: appointment.start_time,
+        end_time: appointment.end_time,
+        service: appointment.service?.name,
+        patient_name: patientName
     });
 
     // Fetch patient profile for email and name
@@ -111,7 +120,8 @@ export const markNoShow = async (appointmentId) => {
         // Notify patient about the restriction
         await sendRestrictionNotice(appointment.patient_id, {
             noShowCount,
-            maxAdvanceDays: CLINIC_CONFIG.NO_SHOW_RESTRICT_ADVANCE_DAYS
+            maxAdvanceDays: CLINIC_CONFIG.NO_SHOW_RESTRICT_ADVANCE_DAYS,
+            patient_name: patientName
         });
     }
 

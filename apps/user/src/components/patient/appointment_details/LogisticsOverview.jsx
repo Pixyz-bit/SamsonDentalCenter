@@ -9,7 +9,7 @@ const LogisticsOverview = ({
 }) => {
     return (
         <div className='w-full'>
-            <h3 className='text-[14px] sm:text-xl text-gray-900 dark:text-white font-bold tracking-tight mb-4 sm:mb-6 pb-3 sm:pb-4 border-b border-gray-100 dark:border-white/5'>
+            <h3 className='text-[11px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-4 sm:mb-6 pb-3 sm:pb-4 border-b border-gray-100 dark:border-white/5'>
                 Appointment Overview
             </h3>
             
@@ -20,7 +20,7 @@ const LogisticsOverview = ({
                         <Calendar className='w-3.5 h-3.5 sm:w-4 sm:h-4 text-brand-500' />
                         Date
                     </div>
-                    <div className='text-[13px] sm:text-[17px] font-bold text-gray-900 dark:text-white mt-auto'>
+                    <div className='text-[14px] sm:text-[15px] font-bold text-gray-900 dark:text-white mt-auto'>
                         {dateFormatted}
                     </div>
                 </div>
@@ -31,7 +31,7 @@ const LogisticsOverview = ({
                         <Clock className='w-3.5 h-3.5 sm:w-4 sm:h-4 text-brand-500' />
                         Time
                     </div>
-                    <div className='text-[13px] sm:text-[17px] font-bold text-gray-900 dark:text-white mt-auto'>
+                    <div className='text-[14px] sm:text-[15px] font-bold text-gray-900 dark:text-white mt-auto'>
                         {timeFormatted}
                     </div>
                 </div>
@@ -42,7 +42,7 @@ const LogisticsOverview = ({
                         <Timer className='w-3.5 h-3.5 sm:w-4 sm:h-4 text-brand-500' />
                         Duration
                     </div>
-                    <div className='text-[13px] sm:text-[17px] font-bold text-gray-900 dark:text-white mt-auto'>
+                    <div className='text-[14px] sm:text-[15px] font-bold text-gray-900 dark:text-white mt-auto'>
                         {duration || '30 - 60 mins'}
                     </div>
                 </div>
@@ -53,7 +53,7 @@ const LogisticsOverview = ({
                         <User className='w-3.5 h-3.5 sm:w-4 sm:h-4 text-brand-500' />
                         Patient
                     </div>
-                    <div className='text-[13px] sm:text-[17px] font-bold text-gray-900 dark:text-white mt-auto'>
+                    <div className='text-[14px] sm:text-[15px] font-bold text-gray-900 dark:text-white mt-auto'>
                         {patientLabel}
                     </div>
                 </div>

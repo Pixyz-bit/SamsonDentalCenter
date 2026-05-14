@@ -3,7 +3,7 @@ import { ChevronLeft } from 'lucide-react';
 
 const AppointmentDetailActionBar = ({ onBack }) => {
     return (
-        <div className='px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between bg-white dark:bg-gray-900 sticky top-0 z-30 sm:relative'>
+        <div className='px-4 sm:px-8 py-3 sm:py-4 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between bg-white dark:bg-gray-900 sticky top-0 z-30 sm:relative'>
             <div className='flex items-center gap-3'>
                 <button 
                     onClick={onBack}

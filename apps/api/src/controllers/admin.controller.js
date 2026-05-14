@@ -250,11 +250,12 @@ export const adminCancel = async (req, res, next) => {
         // 1. In-app notification for the patient
         if (result.appointment.patient_id) {
             try {
+                const isRequest = result.oldStatus === APPOINTMENT_STATUS.PENDING;
                 await sendCancellationNotice(result.appointment.patient_id, {
                     date: result.appointment.appointment_date,
                     start_time: result.appointment.start_time,
                     service: result.appointment.service?.name || 'Dental appointment',
-                });
+                }, isRequest);
             } catch (err) {
                 console.warn('[Realtime] Failed to notify patient of admin cancellation:', err.message);
             }

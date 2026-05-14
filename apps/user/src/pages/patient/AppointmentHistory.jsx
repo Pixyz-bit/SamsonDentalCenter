@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import PageBreadcrumb from '../../components/common/PageBreadcrumb';
 import { useSidebar } from '../../context/SidebarContext';
@@ -12,22 +12,37 @@ import { useDependents } from '../../hooks/useDependents';
 import AppointmentTable from '../../components/patient/appointments/AppointmentTable';
 import AppointmentPagination from '../../components/patient/appointments/AppointmentPagination';
 import ErrorState from '../../components/common/ErrorState';
-import { Search, History, CheckCircle2, XCircle, AlertCircle, Users, ListFilter } from 'lucide-react';
+import { Search, History, CheckCircle2, XCircle, AlertCircle, Users, ListFilter, Plus as PlusIcon, ArrowUpDown } from 'lucide-react';
 
 const AppointmentHistory = () => {
     const { user } = useAuth();
     const navigate = useNavigate();
+    const { isMobileOpen } = useSidebar();
     const { dependents } = useDependents();
     const [openDropdown, setOpenDropdown] = useState(null);
     const [search, setSearch] = useState('');
     const [statusFilter, setStatusFilter] = useState('history');
     const [selectedPersonId, setSelectedPersonId] = useState('all');
+    const [sortOrder, setSortOrder] = useState('newest');
+
+    // Parse sortOrder into useAppointments parameters
+    const getSortParams = (order) => {
+        switch (order) {
+            case 'newest': return { sortBy: 'created_at', sort: 'desc' };
+            case 'oldest': return { sortBy: 'created_at', sort: 'asc' };
+            case 'appointment': return { sortBy: 'appointment', sort: 'desc' };
+            default: return { sortBy: 'created_at', sort: 'desc' };
+        }
+    };
+
+    const { sortBy, sort } = getSortParams(sortOrder);
 
     // Use the history status and person filter
     const { appointments, total, counts, page, totalPages, loading, error, goToPage } =
         useAppointments({ 
             status: statusFilter, 
-            sort: 'desc', 
+            sort, 
+            sortBy,
             limit: 10,
             patientId: selectedPersonId
         });
@@ -84,47 +99,66 @@ const AppointmentHistory = () => {
                             </div>
 
                             {/* Dropdown Filters Row */}
-                            <div className='px-4 sm:px-6 py-4 flex flex-nowrap items-center gap-3 overflow-x-auto hide-scrollbar'>
-                                {/* 1. Person Filter */}
-                                <div className='relative w-auto min-w-[180px] shrink-0'>
-                                    <div className='absolute left-3.5 top-3.5 text-brand-500'>
+                            <div className='px-4 sm:px-6 pb-5 pt-2'>
+                                <div className='flex flex-nowrap items-center gap-3 overflow-x-auto no-scrollbar py-2'>
+                                    {/* 1. Person Filter */}
+                                    <div className='relative w-[170px] sm:w-[190px] shrink-0'>
+                                    <div className='absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none'>
                                         <Users size={16} />
                                     </div>
-                                    <select
-                                         value={selectedPersonId}
-                                         onChange={(e) => setSelectedPersonId(e.target.value)}
-                                         className='w-full pl-10 pr-10 py-3 bg-brand-50/50 dark:bg-brand-500/10 border border-brand-100 dark:border-brand-900/50 rounded-lg text-xs font-bold text-brand-700 dark:text-brand-300 appearance-none outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-all cursor-pointer'
-                                     >
-                                         <option value='all' className='dark:bg-gray-900'>All Family Members</option>
-                                         <option value={user?.id} className='dark:bg-gray-900'>Me ({user?.full_name})</option>
-                                         {dependents.map(dep => (
-                                             <option key={dep.id} value={dep.id} className='dark:bg-gray-900'>
-                                                 {dep.full_name} ({dep.relationship_to_primary})
-                                             </option>
-                                         ))}
-                                     </select>
-                                     <div className='absolute right-4 top-4.5 w-0 h-0 border-l-[4px] border-l-transparent border-r-[4px] border-r-transparent border-t-[5px] border-t-brand-500 pointer-events-none' />
-                                 </div>
+                                        <select
+                                            value={selectedPersonId}
+                                            onChange={(e) => setSelectedPersonId(e.target.value)}
+                                            className='w-full pl-10 pr-10 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-gray-800 rounded-lg text-xs font-bold text-gray-700 dark:text-gray-300 appearance-none outline-none focus:ring-2 focus:ring-brand-500 transition-all cursor-pointer truncate'
+                                        >
+                                            <option value='all' className='dark:bg-gray-900'>All Relationships</option>
+                                            <option value={user?.id} className='dark:bg-gray-900'>Me ({user?.full_name})</option>
+                                            {dependents.map(dep => (
+                                                <option key={dep.id} value={dep.id} className='dark:bg-gray-900'>
+                                                    {dep.full_name} ({dep.relationship_to_primary})
+                                                </option>
+                                            ))}
+                                        </select>
+                                        <div className='absolute right-4 top-4.5 w-0 h-0 border-l-[4px] border-l-transparent border-r-[4px] border-r-transparent border-t-[5px] border-t-gray-400 pointer-events-none' />
+                                    </div>
 
-                                 {/* 2. Status Filter */}
-                                 <div className='relative w-auto min-w-[160px] shrink-0'>
-                                     <div className='absolute left-3.5 top-3.5 text-brand-500'>
-                                         <ListFilter size={16} />
-                                     </div>
-                                     <select
-                                         value={statusFilter}
-                                         onChange={(e) => setStatusFilter(e.target.value)}
-                                         className='w-full pl-10 pr-10 py-3 bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-gray-800 rounded-lg text-xs font-bold text-gray-600 dark:text-gray-400 appearance-none outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-all cursor-pointer'
-                                     >
-                                         <option value='history' className='dark:bg-gray-900'>All History</option>
-                                         <option value='completed' className='dark:bg-gray-900'>Completed</option>
-                                         <option value='cancel' className='dark:bg-gray-900'>Cancelled / No Show</option>
-                                     </select>
-                                     <div className='absolute right-4 top-4.5 w-0 h-0 border-l-[4px] border-l-transparent border-r-[4px] border-r-transparent border-t-[5px] border-t-gray-400 pointer-events-none' />
-                                 </div>
-                                
-                                <div className='hidden sm:block ml-auto text-[10px] font-bold text-gray-400 uppercase tracking-wider'>
-                                    Records Found: {counts[statusFilter] || 0}
+                                    {/* 2. Status Filter */}
+                                    <div className='relative w-[150px] sm:w-[170px] shrink-0'>
+                                    <div className='absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none'>
+                                        <ListFilter size={16} />
+                                    </div>
+                                        <select
+                                            value={statusFilter}
+                                            onChange={(e) => setStatusFilter(e.target.value)}
+                                            className='w-full pl-10 pr-10 py-3 bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-gray-800 rounded-lg text-xs font-bold text-gray-600 dark:text-gray-400 appearance-none outline-none focus:ring-2 focus:ring-brand-500 transition-all cursor-pointer truncate'
+                                        >
+                                            <option value='history' className='dark:bg-gray-900'>All History</option>
+                                            <option value='completed' className='dark:bg-gray-900'>Completed</option>
+                                            <option value='cancel' className='dark:bg-gray-900'>Cancelled / No Show</option>
+                                        </select>
+                                        <div className='absolute right-4 top-4.5 w-0 h-0 border-l-[4px] border-l-transparent border-r-[4px] border-r-transparent border-t-[5px] border-t-gray-400 pointer-events-none' />
+                                    </div>
+
+                                    {/* 3. Sort Filter */}
+                                    <div className='relative w-[150px] sm:w-[170px] shrink-0'>
+                                    <div className='absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none'>
+                                        <ArrowUpDown size={16} />
+                                    </div>
+                                        <select
+                                            value={sortOrder}
+                                            onChange={(e) => setSortOrder(e.target.value)}
+                                            className='w-full pl-10 pr-10 py-3 bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-gray-800 rounded-lg text-xs font-bold text-gray-600 dark:text-gray-400 appearance-none outline-none focus:ring-2 focus:ring-brand-500 transition-all cursor-pointer truncate'
+                                        >
+                                            <option value='newest' className='dark:bg-gray-900'>Newest Added</option>
+                                            <option value='oldest' className='dark:bg-gray-900'>Oldest Added</option>
+                                            <option value='appointment' className='dark:bg-gray-900'>Appointment Date</option>
+                                        </select>
+                                        <div className='absolute right-4 top-4.5 w-0 h-0 border-l-[4px] border-l-transparent border-r-[4px] border-r-transparent border-t-[5px] border-t-gray-400 pointer-events-none' />
+                                    </div>
+                                    
+                                    <div className='hidden sm:block ml-auto text-[10px] font-bold text-gray-400 uppercase tracking-wider'>
+                                        Records Found: {counts[statusFilter] || 0}
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -147,6 +181,17 @@ const AppointmentHistory = () => {
                     </>
                 )}
             </div>
+
+            {/* Floating Action Button - Mobile Only */}
+            {!isMobileOpen && (
+                <Link
+                    to='/patient/book?returnTo=/patient/history'
+                    className={`fixed ${totalPages > 1 ? 'bottom-20' : 'bottom-8'} right-5 sm:hidden z-50 flex items-center gap-2 px-4 py-2.5 bg-brand-500 text-white rounded-lg shadow-2xl shadow-brand-500/40 active:scale-95 transition-all outline-none`}
+                >
+                    <PlusIcon className="w-4 h-4" />
+                    <span className='text-xs font-bold'>New Appointment</span>
+                </Link>
+            )}
         </>
     );
 };

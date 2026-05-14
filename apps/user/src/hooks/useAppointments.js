@@ -117,7 +117,13 @@ export const formatDateTime = formatFullDateTime;
 /**
  * Hook to manage and filter appointments with strict upcoming vs history logic.
  */
-export const useAppointments = ({ status = 'all', sort = 'desc', limit = 10, patientId = 'all' } = {}) => {
+export const useAppointments = ({ 
+    status = 'all', 
+    sort = 'desc', 
+    sortBy = 'appointment', // 'appointment' or 'created_at'
+    limit = 10, 
+    patientId = 'all' 
+} = {}) => {
     const { 
         appointments: allAppointments = [], 
         loading, 
@@ -184,8 +190,8 @@ export const useAppointments = ({ status = 'all', sort = 'desc', limit = 10, pat
                 result = result.filter(a => isApproved(a) && !isOutdated(a));
             }
             else if (status === 'requests') {
-                // Requests are pending or rejected
-                result = result.filter(a => isPending(a) || isRejected(a));
+                // Requests are pending, rejected, or active approved
+                result = result.filter(a => isPending(a) || isRejected(a) || (isApproved(a) && !isOutdated(a)));
             }
             else if (status === 'history') {
                 result = result.filter(isHistoryStatus);
@@ -196,12 +202,22 @@ export const useAppointments = ({ status = 'all', sort = 'desc', limit = 10, pat
             else if (status === 'completed') result = result.filter(a => (a.status || '').toUpperCase() === 'COMPLETED');
             else if (status === 'cancel') result = result.filter(a => ['CANCELLED', 'LATE_CANCEL', 'NO_SHOW'].includes((a.status || '').toUpperCase()) && (a.approval_status || '').toLowerCase() !== 'rejected');
         }
+
         return [...result].sort((a, b) => {
-            const dateA = new Date(`${a.date}T${a.start_time}`);
-            const dateB = new Date(`${b.date}T${b.start_time}`);
-            return sort === 'asc' ? dateA - dateB : dateB - dateA;
+            let valA, valB;
+            
+            if (sortBy === 'created_at') {
+                valA = new Date(a.created_at || 0).getTime();
+                valB = new Date(b.created_at || 0).getTime();
+            } else {
+                // Default: appointment date
+                valA = new Date(`${a.date}T${a.start_time}`).getTime();
+                valB = new Date(`${b.date}T${b.start_time}`).getTime();
+            }
+
+            return sort === 'asc' ? valA - valB : valB - valA;
         });
-    }, [allAppointments, status, sort, isApproved, isPending, isRejected, isHistoryStatus, isOutdated, patientId]);
+    }, [allAppointments, status, sort, sortBy, isApproved, isPending, isRejected, isHistoryStatus, isOutdated, patientId]);
 
     const totalPages = Math.max(1, Math.ceil(filtered.length / limit));
     const paginated = useMemo(() => {
@@ -217,7 +233,7 @@ export const useAppointments = ({ status = 'all', sort = 'desc', limit = 10, pat
         return {
             all: base.filter(a => !['CANCELLED', 'LATE_CANCEL', 'NO_SHOW', 'RESCHEDULED'].includes((a.status || '').toUpperCase())).length,
             upcoming: base.filter(a => isApproved(a) && !isOutdated(a)).length,
-            requests: base.filter(a => isPending(a) || isRejected(a)).length,
+            requests: base.filter(a => isPending(a) || isRejected(a) || (isApproved(a) && !isOutdated(a))).length,
             approved: base.filter(isApproved).length,
             pending: base.filter(isPending).length,
             decline: base.filter(isRejected).length,
