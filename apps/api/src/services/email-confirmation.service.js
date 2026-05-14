@@ -45,6 +45,42 @@ export const sendOTPEmail = async (email, name, otpCode) => {
     }
 };
 
+/**
+ * Send an OTP code for new user registration.
+ *
+ * @param {string} email - Recipient email
+ * @param {string} name - Recipient name
+ * @param {string} otpCode - 6-digit code
+ */
+export const sendRegistrationOTPEmail = async (email, name, otpCode) => {
+    try {
+        const { html, subject } = await compileTemplate('registration-otp', {
+            name,
+            otpCode,
+        });
+
+        const result = await resend.emails.send({
+            from: process.env.EMAIL_FROM || 'Samson Dental Center <noreply@mail.chrbuilds.dev>',
+            to: email,
+            subject: subject || `${otpCode} is your registration verification code`,
+            html,
+        });
+
+        await logCommunication({
+            recipient: email,
+            channel: 'email',
+            purpose: 'REGISTRATION_OTP',
+            status: 'sent',
+            provider_id: result.data?.id
+        });
+
+        console.log(`📧 Registration OTP email sent to ${email}`);
+    } catch (err) {
+        console.error('Failed to send registration OTP email:', err.message);
+        throw err;
+    }
+};
+
 
 
 /**

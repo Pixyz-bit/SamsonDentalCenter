@@ -1,6 +1,7 @@
 import { supabaseAdmin, supabasePublic } from '../config/supabase.js';
 import { humanizeError } from '../utils/errorMapper.js';
 import * as guestAuthService from '../services/guest-auth.service.js';
+import * as registrationService from '../services/registration.service.js';
 import { mergePatientRecords } from '../services/admin.service.js';
 
 const COOKIE_OPTIONS = {
@@ -100,6 +101,33 @@ export const register = async (req, res, next) => {
                 suffix
             },
         });
+    } catch (err) {
+        next(err);
+    }
+};
+
+/**
+ * POST /api/auth/register/initiate
+ * Step 1 & 2: Start the custom 3-step registration flow.
+ */
+export const initiateRegistration = async (req, res, next) => {
+    try {
+        const result = await registrationService.initiateRegistration(req.body);
+        res.status(200).json(result);
+    } catch (err) {
+        next(err);
+    }
+};
+
+/**
+ * POST /api/auth/register/verify
+ * Step 3: Verify OTP and create the account.
+ */
+export const verifyRegistrationOTP = async (req, res, next) => {
+    try {
+        const { email, otp_code } = req.body;
+        const result = await registrationService.verifyAndFinalize(email, otp_code);
+        res.status(201).json(result);
     } catch (err) {
         next(err);
     }

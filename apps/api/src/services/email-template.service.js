@@ -5,7 +5,7 @@ import path from 'path';
 import jwt from 'jsonwebtoken';
 import { getSettings } from './settings.service.js';
 
-const TEMPLATES_DIR = path.join(process.cwd(), '..', '..', '..', 'EmailTemplates');
+const TEMPLATES_DIR = path.join(process.cwd(), '..', '..', 'EmailTemplates');
 
 /**
  * Maps template keys to their corresponding file names in EmailTemplates/
@@ -23,7 +23,8 @@ const FILE_MAP = {
     'appointment-displaced': 'appointment-displaced.html',
     'account-setup-invite': 'account-setup-invite.html',
     'missed-appointment': 'missed-appointment.html',
-    'post-visit-feedback': 'post-visit-feedback.html'
+    'post-visit-feedback': 'post-visit-feedback.html',
+    'registration-otp': 'registration-otp.html'
 };
 
 /**
@@ -260,7 +261,8 @@ const getDefaultSubject = (key) => {
         'appointment-reminder-48h': 'Upcoming Appointment Reminder (48h) — Samson Dental Center',
         'appointment-displaced': 'Important Update: Your Appointment has Changed — Samson Dental Center',
         'missed-appointment': 'We Missed You Today — Samson Dental Center',
-        'post-visit-feedback': 'How was your visit to Samson Dental Center?'
+        'post-visit-feedback': 'How was your visit to Samson Dental Center?',
+        'registration-otp': 'Verify your registration — Samson Dental Center'
     };
     return subjects[key] || 'Notification from Samson Dental Center';
 };
