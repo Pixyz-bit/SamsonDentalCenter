@@ -1,6 +1,5 @@
-import { Search, Calendar, Clock, CheckCircle2, XCircle, RotateCcw } from 'lucide-react';
-import { PlusIcon } from './AppointmentIcons';
-import { Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Search, Calendar, Clock, CheckCircle2, XCircle, RotateCcw, CalendarDays } from 'lucide-react';
 
 const CATEGORIES = [
     { id: '', label: 'All', icon: Calendar },
@@ -10,11 +9,25 @@ const CATEGORIES = [
     { id: 'completed', label: 'Completed', icon: CheckCircle2 },
 ];
 
+const formatTodayDate = () => {
+    const now = new Date();
+    return now.toLocaleDateString('en-US', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
+};
+
 const AppointmentFilters = ({ search, onSearchChange, statusFilter, onStatusChange }) => {
+    const [currentTime, setCurrentTime] = useState(new Date());
+
+    useEffect(() => {
+        const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+        return () => clearInterval(timer);
+    }, []);
+
+    const timeString = currentTime.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', second: '2-digit', hour12: true });
+
     return (
         <div className='px-4 sm:px-6 py-5 border-b border-gray-100 dark:border-gray-800 space-y-4'>
-            {/* Search and Action */}
-            <div className='flex gap-2 sm:gap-4'>
+            {/* Search + Clock + Date */}
+            <div className='flex gap-2 sm:gap-3 items-center'>
                 <div className='relative flex-grow'>
                     <span className='absolute inset-y-0 left-0 flex items-center pl-4 text-gray-400'>
                         <Search size={18} />
@@ -23,17 +36,22 @@ const AppointmentFilters = ({ search, onSearchChange, statusFilter, onStatusChan
                         type='text'
                         value={search}
                         onChange={(e) => onSearchChange(e.target.value)}
-                        placeholder='Search service, dentist...'
+                        placeholder='Search patient, service...'
                         className='w-full pl-11 pr-4 py-3 bg-gray-50 dark:bg-white/[0.03] border-none rounded-2xl text-sm focus:ring-2 focus:ring-brand-500 focus:bg-white dark:focus:bg-gray-800 transition-all outline-none'
                     />
                 </div>
-                <Link
-                    to='/patient/book'
-                    className='hidden sm:inline-flex shrink-0 items-center justify-center gap-2 px-4 sm:px-5 py-3 text-sm font-bold text-white bg-brand-500 rounded-2xl hover:bg-brand-600 transition-colors shadow-lg shadow-brand-500/20'
-                >
-                    <PlusIcon size={16} />
-                    <span className='whitespace-nowrap'>New Appointment</span>
-                </Link>
+
+                {/* Live Clock */}
+                <div className='flex items-center gap-2 px-3 py-2.5 bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 text-gray-700 dark:text-gray-300 font-medium text-xs sm:text-sm shadow-sm shrink-0'>
+                    <Clock size={14} className='text-brand-500 shrink-0 animate-pulse' aria-hidden='true' />
+                    <span className='font-outfit tabular-nums tracking-tight'>{timeString}</span>
+                </div>
+
+                {/* Today's Date */}
+                <div className='hidden sm:flex items-center gap-2 px-3 py-2.5 bg-white dark:bg-gray-800/80 rounded-2xl border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 font-medium text-xs sm:text-sm shadow-sm shrink-0'>
+                    <CalendarDays size={14} className='text-gray-400 dark:text-gray-500 shrink-0' aria-hidden='true' />
+                    <span className='truncate font-outfit'>{formatTodayDate()}</span>
+                </div>
             </div>
 
             {/* Categories */}

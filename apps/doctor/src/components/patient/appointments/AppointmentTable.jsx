@@ -37,7 +37,7 @@ const AppointmentTable = ({
             )}
 
             {/* Data rows */}
-            <div className='overflow-y-auto grow pb-14 sm:pb-0'>
+            <div className='overflow-y-auto grow pb-14 sm:pb-0 flex flex-col'>
                 {!loading && !error && appointments.map((app) => (
                     <AppointmentTableRow 
                         key={app.id} 
