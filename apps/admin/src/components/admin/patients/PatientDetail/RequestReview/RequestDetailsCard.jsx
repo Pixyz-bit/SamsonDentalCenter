@@ -17,12 +17,12 @@ const RequestDetailsCard = ({ appointment }) => {
             <div className='p-6 rounded-2xl bg-brand-500/5 border border-brand-500/10 flex items-start justify-between'>
                 <div className='space-y-1'>
                     <span className='block text-[10px] font-black text-brand-600 uppercase tracking-widest'>Requested Service</span>
-                    <h3 className='text-xl font-black text-gray-900 dark:text-white uppercase tracking-tight'>{appointment.service?.name}</h3>
+                    <h3 className='text-xl font-bold text-gray-900 dark:text-white tracking-tight'>{appointment.service?.name}</h3>
                 </div>
                 <div className='text-right flex flex-col items-end gap-1'>
                     <div className='flex items-center gap-2 px-3 py-1.5 bg-brand-500 text-white rounded-xl shadow-lg shadow-brand-500/20'>
                         <Clock size={14} />
-                        <span className='text-[11px] font-black uppercase tracking-tight'>
+                        <span className='text-[11px] font-bold uppercase tracking-tight'>
                             {formatTime12h(appointment.start_time)} - {formatTime12h(appointment.end_time)}
                         </span>
                     </div>
@@ -40,7 +40,7 @@ const RequestDetailsCard = ({ appointment }) => {
                     </div>
                     <div>
                         <span className='block text-[9px] font-black text-gray-400 uppercase tracking-[0.2em] mb-0.5'>Assigned Specialist</span>
-                        <h4 className='text-sm font-black text-gray-900 dark:text-white uppercase tracking-tight'>
+                        <h4 className='text-sm font-bold text-gray-900 dark:text-white tracking-tight'>
                             {appointment.dentist?.profile?.full_name || 'Unassigned'}
                         </h4>
                     </div>

@@ -101,6 +101,36 @@ const AppointmentsTab = ({ patient, dependents = [], token, filterMode = 'reques
         return true;
     });
 
+    const getSourceBadge = (source) => {
+        const s = source?.toLowerCase() || '';
+        if (s.includes('guest')) {
+            return (
+                <span className="px-1.5 py-0.5 rounded-md bg-purple-50 dark:bg-purple-500/10 text-[9px] font-black text-purple-600 dark:text-purple-400 border border-purple-100 dark:border-purple-500/20 uppercase tracking-tighter">
+                    Guest
+                </span>
+            );
+        }
+        if (s.includes('user')) {
+            return (
+                <span className="px-1.5 py-0.5 rounded-md bg-blue-50 dark:bg-blue-500/10 text-[9px] font-black text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-500/20 uppercase tracking-tighter">
+                    Patient
+                </span>
+            );
+        }
+        if (s.includes('admin')) {
+            return (
+                <span className="px-1.5 py-0.5 rounded-md bg-gray-50 dark:bg-gray-500/10 text-[9px] font-black text-gray-600 dark:text-gray-400 border border-gray-100 dark:border-gray-500/20 uppercase tracking-tighter">
+                    Admin
+                </span>
+            );
+        }
+        return (
+            <span className="px-1.5 py-0.5 rounded-md bg-blue-50 dark:bg-blue-500/10 text-[9px] font-black text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-500/20 uppercase tracking-tighter">
+                Patient
+            </span>
+        );
+    };
+
     const getStatusStyle = (status) => {
         switch (status?.toUpperCase()) {
             case 'CONFIRMED':
@@ -270,89 +300,107 @@ const AppointmentsTab = ({ patient, dependents = [], token, filterMode = 'reques
                         {filteredAppointments.map((app) => (
                             <div 
                                 key={app.id} 
-                                className='group relative cursor-pointer hover:bg-gray-50/50 dark:hover:bg-white/[0.02] transition-all p-0 border border-gray-300 dark:border-gray-700 rounded-2xl bg-white dark:bg-white/[0.01] shadow-sm hover:shadow-md'
+                                className='relative z-[1] flex flex-col sm:flex-row bg-white dark:bg-[#111827] border border-gray-200 dark:border-gray-800 rounded-xl shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden group cursor-pointer'
                                 onClick={() => handleRowClick(app)}
                             >
-                                <div className='flex flex-row w-full overflow-hidden'>
-                                    {/* Left Side: Date & Time */}
-                                    <div className="flex flex-col justify-center w-24 sm:w-40 bg-gray-50/50 dark:bg-gray-800/30 border-r border-gray-300 dark:border-gray-700 shrink-0 text-center sm:text-left">
-                                        <div className="px-2 sm:px-4 py-2 sm:py-3">
-                                            <p className="text-[7px] sm:text-[8px] font-black text-gray-400 uppercase tracking-widest mb-1">Date</p>
-                                            <p className="text-[9px] sm:text-[11px] font-black text-gray-900 dark:text-white leading-none uppercase tracking-tighter">
-                                                {formatDate(app.appointment_date)}
-                                            </p>
-                                        </div>
-                                        <div className="h-[1px] w-full bg-gray-200 dark:bg-gray-700" />
-                                        <div className="px-2 sm:px-4 py-2 sm:py-3">
-                                            <p className="text-[7px] sm:text-[8px] font-black text-gray-400 uppercase tracking-widest mb-1">Time Slot</p>
-                                            <p className="text-[9px] sm:text-[11px] font-black text-brand-500 leading-none">
-                                                {formatTime(app.start_time)} - {formatTime(app.end_time)}
-                                            </p>
-                                        </div>
+                                {/* Sidebar: Schedule & Time Slot */}
+                                <div className='flex flex-row sm:flex-col w-full sm:w-[140px] bg-gray-50/50 dark:bg-gray-800/30 border-b sm:border-b-0 sm:border-r border-gray-200 dark:border-gray-800 shrink-0'>
+                                    <div className='flex-1 flex flex-col justify-center px-4 py-3 border-r sm:border-r-0 sm:border-b border-gray-200 dark:border-gray-800'>
+                                        <span className='text-[10px] font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-1'>
+                                            Schedule
+                                        </span>
+                                        <span className='text-xs sm:text-xs font-bold text-[#0B1120] dark:text-white font-outfit truncate'>
+                                            {formatDate(app.appointment_date)}
+                                        </span>
                                     </div>
+                                    <div className='flex-1 flex flex-col justify-center px-4 py-3'>
+                                        <span className='text-[10px] font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-1'>
+                                            Time Slot
+                                        </span>
+                                        <span className='text-xs sm:text-xs font-bold text-brand-600 dark:text-brand-400 font-outfit truncate'>
+                                            {formatTime(app.start_time)} - {formatTime(app.end_time)}
+                                        </span>
+                                    </div>
+                                </div>
 
-                                    {/* Main Content Area */}
-                                    <div className="flex-grow p-3 sm:p-5 flex items-center gap-3 sm:gap-4 min-w-0">
-                                        {/* Avatar */}
-                                        <div className="relative shrink-0">
-                                            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-brand-500 text-white flex items-center justify-center text-[10px] sm:text-sm font-black shadow-lg shadow-brand-500/20 border-2 border-white dark:border-gray-900">
+                                {/* Main Content Area */}
+                                <div className='flex-1 flex flex-col lg:flex-row items-start lg:items-center justify-between p-4 sm:p-5 lg:px-6 gap-6 min-w-0 w-full'>
+                                    {/* Patient Info */}
+                                    <div className='flex items-center gap-4 w-full lg:w-[240px] xl:w-[280px] shrink-0'>
+                                        <div className='relative shrink-0'>
+                                            <div className='w-12 h-12 sm:w-14 sm:h-14 rounded-full border border-gray-200 dark:border-gray-700 shadow-sm flex items-center justify-center bg-brand-500 text-white overflow-hidden'>
                                                 {app.patient?.avatar_url ? (
-                                                    <img src={app.patient.avatar_url} alt={app.patient.full_name} className='w-full h-full object-cover rounded-full' />
+                                                    <img src={app.patient.avatar_url} alt='' className='w-full h-full object-cover' />
                                                 ) : (
-                                                    getInitials(app.patient?.full_name)
+                                                    <span className='text-sm font-black'>{getInitials(app.patient?.full_name)}</span>
                                                 )}
                                             </div>
-                                            <div className="absolute bottom-0 right-0 w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 bg-green-500 border-2 border-white dark:border-gray-900 rounded-full shadow-sm" />
+                                            <div className='absolute bottom-0.5 right-0.5 w-3.5 h-3.5 border-2 border-white dark:border-[#111827] rounded-full shadow-sm bg-emerald-500'></div>
                                         </div>
-
-                                        <div className="flex-grow min-w-0">
-                                            <p className="text-xs sm:text-base font-black text-gray-900 dark:text-white leading-tight mb-0.5 sm:mb-1 truncate">{app.patient?.full_name}</p>
-                                            <div className="flex flex-col gap-0.5 sm:gap-1">
-                                                <div className="flex items-center gap-1.5 sm:gap-2">
-                                                    <p className="text-[8px] sm:text-[11px] font-black text-gray-900 dark:text-white uppercase tracking-tighter truncate">
-                                                        {app.service?.name}
-                                                    </p>
-                                                    <span className="text-gray-300 dark:text-gray-600 hidden sm:inline">•</span>
-                                                    <p className="text-[8px] sm:text-[11px] font-bold text-gray-500 dark:text-gray-400 truncate">
-                                                        {app.dentist?.profile?.last_name || 'Unassigned'}
-                                                    </p>
-                                                </div>
-                                                <p className="text-[8px] sm:text-[11px] font-medium text-gray-500 flex items-center gap-1.5 sm:gap-2">
-                                                    <Phone size={8} className="text-green-500 sm:w-[10px]" />
-                                                    <span className="text-gray-800 dark:text-gray-200">{app.patient?.phone || 'No Phone'}</span>
-                                                </p>
+                                        <div className='flex flex-col min-w-0'>
+                                            <span className='font-bold text-[#0B1120] dark:text-white text-base sm:text-lg font-outfit truncate'>
+                                                {app.patient?.full_name}
+                                            </span>
+                                            <div className='flex items-center gap-2 mt-1'>
+                                                {getSourceBadge(app.source)}
                                             </div>
                                         </div>
                                     </div>
 
-                                    {/* Mobile Only: Floating View Indicator */}
-                                    <div className='absolute bottom-3 right-3 sm:hidden flex items-center gap-1 bg-brand-50/50 dark:bg-brand-500/10 px-2 py-1 rounded-lg border border-brand-100 dark:border-brand-500/20'>
-                                        <span className='text-[7px] font-black text-brand-500 uppercase tracking-widest'>View</span>
-                                        <ChevronRight size={10} className='text-brand-500' />
-                                    </div>
-
-                                    {/* Right Side: Status & Source Badges */}
-                                    <div className="hidden sm:flex flex-col items-stretch justify-center border-l border-gray-300 dark:border-gray-700 bg-gray-50/20 dark:bg-white/[0.01] shrink-0 w-[200px]">
-                                        {/* Source */}
-                                        <div className="px-5 py-4 flex flex-col items-start gap-2">
-                                            <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest leading-none">Source</p>
-                                            <span className={`px-2 py-0.5 text-[9px] font-black uppercase tracking-widest rounded border shadow-sm bg-blue-50 text-blue-600 border-blue-100 dark:bg-blue-500/10 dark:text-blue-400 dark:border-blue-500/20 truncate w-full text-left`}>
-                                                {app.source || 'Portal Booking'}
+                                    {/* Details Columns */}
+                                    <div className='grid grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-x-4 sm:gap-x-8 gap-y-4 w-full flex-1 min-w-0'>
+                                        {/* Service */}
+                                        <div className='flex flex-col min-w-0'>
+                                            <span className='text-[10px] font-bold uppercase tracking-wider mb-1 text-gray-400 dark:text-gray-500'>
+                                                Service
+                                            </span>
+                                            <span className='text-xs sm:text-sm font-bold text-[#0B1120] dark:text-white truncate' title={app.service?.name}>
+                                                {app.service?.name || 'General clinical service'}
                                             </span>
                                         </div>
 
-                                        <div className="h-[1px] w-full bg-gray-200 dark:bg-gray-700" />
+                                        {/* Doctor */}
+                                        <div className='flex flex-col min-w-0'>
+                                            <span className='text-[10px] font-bold uppercase tracking-wider mb-1 text-gray-400 dark:text-gray-500'>
+                                                Doctor
+                                            </span>
+                                            <span className='text-xs sm:text-sm font-bold text-[#0B1120] dark:text-white truncate' title={app.dentist?.profile?.last_name}>
+                                                {app.dentist?.profile?.last_name ? `Dr. ${app.dentist.profile.last_name}` : 'Unassigned'}
+                                            </span>
+                                        </div>
+
+                                        {/* Contact */}
+                                        <div className='flex flex-col min-w-0'>
+                                            <span className='text-[10px] font-bold uppercase tracking-wider mb-1 text-gray-400 dark:text-gray-500'>
+                                                Contact
+                                            </span>
+                                            <div className='flex items-center gap-1.5 min-w-0'>
+                                                <Phone size={12} className='text-emerald-500 shrink-0' />
+                                                <span className='text-xs sm:text-sm font-bold text-[#0B1120] dark:text-white truncate'>
+                                                    {app.patient?.phone || 'No Phone'}
+                                                </span>
+                                            </div>
+                                        </div>
 
                                         {/* Status */}
-                                        <div className="px-5 py-4 flex flex-col items-start gap-2">
-                                            <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest leading-none">Status</p>
-                                            <span className={`px-2 py-1 text-[9px] font-black uppercase tracking-widest rounded shadow-sm border ${
-                                                app.status === 'CONFIRMED' ? 'bg-green-50 text-green-600 border-green-100 dark:bg-green-500/10 dark:text-green-400 dark:border-green-500/20' :
-                                                app.status === 'CANCELLED' ? 'bg-red-50 text-red-600 border-red-100 dark:bg-red-500/10 dark:text-red-400 dark:border-red-500/20' :
-                                                'bg-amber-50 text-amber-600 border-amber-100 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20'
-                                            } truncate w-full text-left`}>
-                                                {app.status === 'CONFIRMED' ? 'APPROVED' : app.status}
+                                        <div className='flex flex-col min-w-0'>
+                                            <span className='text-[10px] font-bold uppercase tracking-wider mb-1 text-gray-400 dark:text-gray-500'>
+                                                Status
                                             </span>
+                                            <div className='flex items-center gap-1.5'>
+                                                <div className={`w-2 h-2 rounded-full shrink-0 ${
+                                                    app.status === 'CONFIRMED' || app.status === 'CHECKED_IN' ? 'bg-emerald-500' :
+                                                    app.status === 'CANCELLED' || app.status === 'LATE_CANCEL' || app.status === 'REJECTED' ? 'bg-red-500' :
+                                                    'bg-amber-500'
+                                                }`} />
+                                                <span className={`text-[10px] sm:text-[11px] font-bold uppercase tracking-wider ${
+                                                    app.status === 'CONFIRMED' || app.status === 'CHECKED_IN' ? 'text-emerald-600 dark:text-emerald-500' :
+                                                    app.status === 'CANCELLED' || app.status === 'LATE_CANCEL' || app.status === 'REJECTED' ? 'text-red-600 dark:text-red-500' :
+                                                    'text-amber-600 dark:text-amber-500'
+                                                }`}>
+                                                    {app.status === 'CONFIRMED' ? 'APPROVED' : app.status}
+                                                </span>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>

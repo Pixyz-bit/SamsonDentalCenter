@@ -185,7 +185,7 @@ const UnifiedRegistryDetailViewer = ({ appointmentId, mode, onBack, onStatusChan
                     <h4 className="text-sm sm:text-lg font-black text-gray-900 dark:text-white uppercase tracking-tight">
                         {getTitle()}
                     </h4>
-                    <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">
+                    <p className="text-[9px] font-bold text-gray-400 tracking-widest">
                         {getSubtitle()}
                     </p>
                 </div>
@@ -243,7 +243,7 @@ const UnifiedRegistryDetailViewer = ({ appointmentId, mode, onBack, onStatusChan
                 <div className="pt-10 flex items-center justify-between">
                     <button 
                         onClick={onBack}
-                        className="h-12 px-8 rounded-2xl text-[11px] font-black uppercase tracking-widest text-gray-400 hover:text-gray-900 dark:hover:text-white transition-all bg-white dark:bg-white/5 border border-gray-100 dark:border-gray-800"
+                        className="h-12 px-8 rounded-2xl text-[11px] font-black tracking-widest text-gray-400 hover:text-gray-900 dark:hover:text-white transition-all bg-white dark:bg-white/5 border border-gray-100 dark:border-gray-800"
                     >
                         Return
                     </button>
@@ -254,14 +254,14 @@ const UnifiedRegistryDetailViewer = ({ appointmentId, mode, onBack, onStatusChan
                                 <button 
                                     onClick={handleReject}
                                     disabled={actionLoading}
-                                    className="h-12 px-8 rounded-2xl text-[11px] font-black uppercase tracking-widest text-error-600 hover:bg-error-50 transition-all"
+                                    className="h-12 px-8 rounded-2xl text-[11px] font-black tracking-widest text-error-600 hover:bg-error-50 transition-all"
                                 >
                                     Reject
                                 </button>
                                 <button 
                                     onClick={handleApprove}
                                     disabled={actionLoading}
-                                    className="h-12 px-12 rounded-2xl bg-brand-500 text-white text-[11px] font-black uppercase tracking-widest shadow-xl shadow-brand-500/20"
+                                    className="h-12 px-12 rounded-2xl bg-brand-500 text-white text-[11px] font-black tracking-widest shadow-xl shadow-brand-500/20"
                                 >
                                     Approve
                                 </button>
@@ -272,13 +272,13 @@ const UnifiedRegistryDetailViewer = ({ appointmentId, mode, onBack, onStatusChan
                             <>
                                 <button 
                                     onClick={() => setConfirmAction({ isOpen: true, type: 'cancel', label: 'Cancel Appointment', icon: <X /> })}
-                                    className="h-12 px-8 rounded-2xl text-[11px] font-black uppercase tracking-widest text-red-500 hover:bg-red-50 transition-all"
+                                    className="h-12 px-8 rounded-2xl text-[11px] font-black tracking-widest text-red-500 hover:bg-red-50 transition-all"
                                 >
                                     Cancel
                                 </button>
                                 <button 
                                     onClick={() => setIsRescheduleOpen(true)}
-                                    className="h-12 px-12 rounded-2xl bg-brand-500 text-white text-[11px] font-black uppercase tracking-widest shadow-xl shadow-brand-500/20"
+                                    className="h-12 px-12 rounded-2xl bg-brand-500 text-white text-[11px] font-black tracking-widest shadow-xl shadow-brand-500/20"
                                 >
                                     Reschedule
                                 </button>
@@ -289,13 +289,13 @@ const UnifiedRegistryDetailViewer = ({ appointmentId, mode, onBack, onStatusChan
                             <>
                                 <button 
                                     onClick={() => setConfirmAction({ isOpen: true, type: 'noshow', label: 'Mark as No-Show', icon: <AlertTriangle /> })}
-                                    className="h-12 px-8 rounded-2xl text-[11px] font-black uppercase tracking-widest text-amber-600 hover:bg-amber-50 transition-all"
+                                    className="h-12 px-8 rounded-2xl text-[11px] font-black tracking-widest text-amber-600 hover:bg-amber-50 transition-all"
                                 >
                                     No Show
                                 </button>
                                 <button 
                                     onClick={() => setConfirmAction({ isOpen: true, type: 'checkin', label: 'Check In Patient', icon: <CheckCircle2 /> })}
-                                    className="h-12 px-12 rounded-2xl bg-success-500 text-white text-[11px] font-black uppercase tracking-widest shadow-xl shadow-success-500/20"
+                                    className="h-12 px-12 rounded-2xl bg-success-500 text-white text-[11px] font-black tracking-widest shadow-xl shadow-success-500/20"
                                 >
                                     Check In
                                 </button>
@@ -328,7 +328,7 @@ const UnifiedRegistryDetailViewer = ({ appointmentId, mode, onBack, onStatusChan
                         }`}>
                             {confirmAction.icon}
                         </div>
-                        <h3 className="text-xl font-black text-gray-900 dark:text-white uppercase tracking-tight mb-4">
+                        <h3 className="text-xl font-black text-gray-900 dark:text-white tracking-tight mb-4">
                             {confirmAction.label}?
                         </h3>
                         <p className="text-sm text-gray-500 dark:text-gray-400 mb-10 leading-relaxed font-medium">
@@ -342,7 +342,7 @@ const UnifiedRegistryDetailViewer = ({ appointmentId, mode, onBack, onStatusChan
                                     if (confirmAction.type === 'checkin') handleCheckIn();
                                 }}
                                 disabled={actionLoading}
-                                className={`w-full py-4 rounded-2xl text-white text-[10px] font-black uppercase tracking-[0.2em] shadow-lg transition-all active:scale-95 ${
+                                className={`w-full py-4 rounded-2xl text-white text-[10px] font-black tracking-[0.2em] shadow-lg transition-all active:scale-95 ${
                                     confirmAction.type === 'cancel' ? 'bg-red-500 hover:bg-red-600 shadow-red-500/20' : 
                                     confirmAction.type === 'noshow' ? 'bg-amber-500 hover:bg-amber-600 shadow-amber-500/20' : 'bg-success-500 hover:bg-success-600 shadow-success-500/20'
                                 }`}
@@ -351,7 +351,7 @@ const UnifiedRegistryDetailViewer = ({ appointmentId, mode, onBack, onStatusChan
                             </button>
                             <button
                                 onClick={() => setConfirmAction({ isOpen: false, type: null })}
-                                className="w-full py-4 rounded-2xl border border-gray-200 dark:border-gray-700 text-[10px] font-black text-gray-600 dark:text-gray-300 uppercase tracking-[0.2em] hover:bg-gray-50 dark:hover:bg-gray-800 transition-all active:scale-95"
+                                className="w-full py-4 rounded-2xl border border-gray-200 dark:border-gray-700 text-[10px] font-black text-gray-600 dark:text-gray-300 tracking-[0.2em] hover:bg-gray-50 dark:hover:bg-gray-800 transition-all active:scale-95"
                             >
                                 Cancel
                             </button>

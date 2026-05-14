@@ -26,19 +26,9 @@ const PatientRow = ({ patient, onClick, activeTab }) => {
         // Default 'profile'
         return (
             <div className='flex items-center gap-6 shrink-0 min-w-[120px] justify-end sm:justify-start flex-grow sm:flex-grow-0'>
-                <span className={`group-hover:hidden ${isMobile ? 'text-[10px]' : 'text-xs'} text-gray-400 dark:text-gray-500 font-medium flex items-center gap-1`}>
+                <span className={`${isMobile ? 'text-[10px]' : 'text-xs'} text-gray-400 dark:text-gray-500 font-medium flex items-center gap-1`}>
                     Ref: {patient.id.substring(0, 8)}
                 </span>
-                {!isMobile && (
-                    <div className='hidden group-hover:flex items-center gap-2'>
-                        <button
-                            className='p-1.5 rounded-lg hover:bg-white dark:hover:bg-gray-700 text-gray-400 hover:text-brand-500 transition-colors bg-gray-50 dark:bg-transparent'
-                            title='View Records'
-                        >
-                            <ChevronRight size={16} />
-                        </button>
-                    </div>
-                )}
             </div>
         );
     };
@@ -75,9 +65,6 @@ const PatientRow = ({ patient, onClick, activeTab }) => {
                     <div className='flex flex-col min-w-0'>
                         <span className={`text-[11px] font-black uppercase tracking-tight truncate ${is_booking_restricted ? 'text-red-600 dark:text-red-400' : 'text-gray-900 dark:text-white'}`}>
                             {full_name}
-                        </span>
-                        <span className='text-[8px] font-black text-gray-400 uppercase tracking-widest leading-none mt-1.5'>
-                            REF: {patient.id.substring(0, 8)}
                         </span>
                     </div>
                 </div>
