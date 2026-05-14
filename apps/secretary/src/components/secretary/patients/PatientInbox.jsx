@@ -1,6 +1,7 @@
 import React from 'react';
 import { Search, UserPlus, Users, GitMerge } from 'lucide-react';
 import PatientRow from './PatientRow';
+import Button from '../../ui/Button';
 
 const FILTERS = [
     { id: 'all', label: 'All Patients' },
@@ -22,8 +23,7 @@ const PatientInbox = ({
     loading,
     error
 }) => {
-    // Filter logic (Note: Actual filtering should happen in the parent or via API, 
-    // but we keep this for resilience with current local-first approach if needed)
+    // Filter logic
     const filteredPatients = patients.filter(patient => {
         const matchesSearch = 
             patient.full_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -35,7 +35,6 @@ const PatientInbox = ({
         if (activeFilter === 'verified') matchesFilter = patient.is_registered === true;
         if (activeFilter === 'stub') matchesFilter = patient.is_registered === false;
         if (activeFilter === 'restricted') matchesFilter = patient.is_booking_restricted === true;
-        // Legacy support for secretary filters if needed
         if (activeFilter === 'active') matchesFilter = patient.is_active;
         if (activeFilter === 'inactive') matchesFilter = !patient.is_active;
 
@@ -56,26 +55,27 @@ const PatientInbox = ({
                         <input
                             type='text'
                             placeholder='Search patients by name, email or phone...'
-                            className='w-full pl-11 pr-4 py-3 bg-gray-50 dark:bg-white/[0.03] border-none rounded-lg text-sm focus:ring-2 focus:ring-brand-500 focus:bg-white dark:focus:bg-white/10 transition-all outline-none font-medium'
+                            className='w-full pl-11 pr-4 py-3 bg-gray-50 dark:bg-white/[0.03] border-none rounded-xl text-sm focus:ring-2 focus:ring-brand-500 focus:bg-white dark:focus:bg-white/10 transition-all outline-none font-medium'
                             value={searchQuery}
                             onChange={(e) => onSearchChange(e.target.value)}
                         />
                     </div>
                     <div className='flex items-center gap-2'>
-                        <button 
+                        <Button 
+                            variant="outline"
                             onClick={onMergeClick}
-                            className='hidden md:flex items-center gap-2 px-4 py-3 bg-white dark:bg-white/5 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-800 rounded-lg text-xs font-bold hover:bg-gray-50 dark:hover:bg-white/10 transition-all active:scale-95 shrink-0'
+                            className='hidden md:flex'
                         >
-                            <GitMerge size={16} />
-                            <span>Merge Records</span>
-                        </button>
-                        <button 
+                            <GitMerge size={16} className="mr-2" />
+                            Merge Records
+                        </Button>
+                        <Button 
                             onClick={onAddClick}
-                            className='hidden sm:flex items-center gap-2 px-4 py-3 bg-brand-500 text-white rounded-lg text-xs font-bold hover:bg-brand-600 transition-all active:scale-95 shrink-0'
+                            className='hidden sm:flex'
                         >
-                            <UserPlus size={16} />
-                            <span>Register Patient</span>
-                        </button>
+                            <UserPlus size={16} className="mr-2" />
+                            Register Patient
+                        </Button>
                     </div>
                 </div>
 
@@ -88,7 +88,7 @@ const PatientInbox = ({
                             onClick={() => onFilterChange(filter.id)}
                             className={`px-4 py-2 rounded-lg text-xs font-bold flex items-center gap-2 whitespace-nowrap transition-all ${
                                 activeFilter === filter.id
-                                    ? 'bg-brand-500 text-white'
+                                    ? 'bg-brand-500 text-white shadow-lg shadow-brand-500/20'
                                     : 'bg-gray-100 dark:bg-white/5 text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-white/10'
                             }`}
                         >
@@ -134,7 +134,7 @@ const PatientInbox = ({
                 )}
             </div>
             
-            {/* Footer Area */}
+            {/* Pagination Placeholder */}
             <div className='fixed bottom-0 left-0 right-0 sm:relative z-30 bg-white/95 dark:bg-gray-900/95 backdrop-blur-md px-4 sm:px-6 py-2 sm:py-5 border-t border-gray-100 dark:border-gray-800 sm:shadow-none'>
                 <div className='flex flex-col items-center justify-center w-full max-w-md mx-auto'>
                     <div className='flex items-center justify-center w-full'>
@@ -151,4 +151,3 @@ const PatientInbox = ({
 };
 
 export default PatientInbox;
-
