@@ -52,9 +52,9 @@ const DashboardStats = ({ appointments = [], totalAppointments = 0, loading = fa
                         
                         {latestAppt && !loading && (
                             <div className='flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 mt-1.5 font-medium'>
-                                <span className='text-[12px] sm:text-[14px] text-gray-900 dark:text-white'>{formatDate(latestAppt.date)}</span>
+                                <span className='text-[12px] sm:text-[14px] text-gray-900 dark:text-gray-100'>{formatDate(latestAppt.date)}</span>
                                 <div className='hidden sm:block w-1 h-1 rounded-full bg-gray-300 dark:bg-white/20 shrink-0' />
-                                <span className='text-[12px] sm:text-[14px] text-brand-500'>
+                                <span className='text-[12px] sm:text-[14px] text-brand-500 dark:text-brand-400'>
                                     {formatTime(latestAppt.start_time)} - {formatTime(latestAppt.end_time)}
                                 </span>
                             </div>

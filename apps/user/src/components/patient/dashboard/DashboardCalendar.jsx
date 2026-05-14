@@ -62,37 +62,33 @@ export default function DashboardCalendar({ appointments = [], loading = false }
 
         if (isBlocked) {
             return {
-                card: 'border-l-red-500 dark:border-l-red-400 border-red-100 dark:border-red-900/30 bg-red-50 dark:bg-red-950/40 hover:shadow-red-500/10 dark:hover:bg-red-900/20',
-                title: 'text-red-700 dark:text-red-300 group-hover:text-red-600 dark:group-hover:text-red-200',
+                card: 'border-l-red-500 border-y border-r border-red-200/30 dark:border-red-500/20 bg-red-50/80 dark:bg-red-500/10 hover:bg-red-100 dark:hover:bg-red-500/20 shadow-sm',
+                title: 'text-red-700 dark:text-red-300',
                 time: 'text-red-600/80 dark:text-red-400/80',
-                duration: 'text-red-500/70 dark:text-red-500/70'
             };
         }
 
         if (isPending) {
             return {
-                card: 'border-l-amber-500 dark:border-l-amber-400 border-amber-100 dark:border-amber-900/30 bg-amber-50 dark:bg-amber-950/40 hover:shadow-amber-500/10 dark:hover:bg-amber-900/20',
-                title: 'text-amber-700 dark:text-amber-300 group-hover:text-amber-600 dark:group-hover:text-amber-200',
+                card: 'border-l-amber-500 border-y border-r border-amber-200/30 dark:border-amber-500/20 bg-amber-50/80 dark:bg-amber-500/10 hover:bg-amber-100 dark:hover:bg-amber-500/20 shadow-sm',
+                title: 'text-amber-700 dark:text-amber-300',
                 time: 'text-amber-600/80 dark:text-amber-400/80',
-                duration: 'text-amber-500/70 dark:text-amber-500/70'
             };
         }
 
         if (isApproved) {
             return {
-                card: 'border-l-success-500 dark:border-l-success-400 border-success-100 dark:border-success-900/30 bg-success-50 dark:bg-success-950/40 hover:shadow-success-500/10 dark:hover:bg-success-900/20',
-                title: 'text-success-700 dark:text-success-300 group-hover:text-success-600 dark:group-hover:text-success-200',
+                card: 'border-l-success-500 border-y border-r border-success-200/30 dark:border-success-500/20 bg-success-50/80 dark:bg-success-500/10 hover:bg-success-100 dark:hover:bg-success-500/20 shadow-sm',
+                title: 'text-success-700 dark:text-success-300',
                 time: 'text-success-600/80 dark:text-success-400/80',
-                duration: 'text-success-500/70 dark:text-success-500/70'
             };
         }
         
-        // Default: Brand color (Blue)
+        // Default: Brand color
         return {
-            card: 'border-l-brand-500 dark:border-l-brand-400 border-brand-100 dark:border-gray-700 bg-brand-50/50 dark:bg-white/[0.08] hover:shadow-brand-500/10 dark:hover:bg-white/[0.12]',
-            title: 'text-brand-700 dark:text-brand-300 group-hover:text-brand-600 dark:group-hover:text-brand-200',
+            card: 'border-l-brand-500 border-y border-r border-brand-200/30 dark:border-brand-500/20 bg-brand-50/80 dark:bg-brand-500/10 hover:bg-brand-100 dark:hover:bg-brand-500/20 shadow-sm',
+            title: 'text-brand-700 dark:text-brand-300',
             time: 'text-brand-600/80 dark:text-brand-400/80',
-            duration: 'text-brand-500/70 dark:text-brand-500/70'
         };
     };
 
@@ -166,15 +162,15 @@ export default function DashboardCalendar({ appointments = [], loading = false }
                 <div style={{ minWidth: `${CALENDAR_MIN_WIDTH}px`, transform: 'rotateX(180deg)' }} className='h-full flex flex-col'>
                     
                     {/* Time Scale Header (Absolute Positioning for perfect alignment) */}
-                    <div className='grid border-b border-gray-300 dark:border-gray-700 bg-gray-50/20 dark:bg-white/[0.03] sticky top-0 z-30' style={{ gridTemplateColumns: `${dayColWidth}px ${timelinePadding}px 1fr` }}>
-                        <div className='p-2.5 border-r border-gray-300 dark:border-gray-700 sticky left-0 bg-white dark:bg-gray-900 z-40 text-[9px] font-medium text-gray-400 dark:text-gray-500 text-center flex items-center justify-center'>Day / Time</div>
-                        <div className='border-r border-gray-300 dark:border-gray-700 bg-gray-50/10 dark:bg-white/[0.01]' />
+                    <div className='grid border-b border-gray-200 dark:border-white/10 bg-gray-50/20 dark:bg-white/[0.02] sticky top-0 z-30' style={{ gridTemplateColumns: `${dayColWidth}px ${timelinePadding}px 1fr` }}>
+                        <div className='p-2.5 border-r border-gray-200 dark:border-white/10 sticky left-0 bg-white dark:bg-gray-900 z-40 text-[9px] font-medium text-gray-400 dark:text-gray-500 text-center flex items-center justify-center'>Day / Time</div>
+                        <div className='border-r border-gray-200 dark:border-white/10 bg-gray-50/10 dark:bg-white/[0.01]' />
                         
                         <div className='relative h-11 w-full'>
                             {/* Header Grid Lines (Ticks) */}
                             <div className='absolute inset-0 grid pointer-events-none' style={{ gridTemplateColumns: `repeat(${TIME_SLOTS.length - 1}, 1fr)` }}>
                                 {TIME_SLOTS.slice(0, -1).map((_, i) => (
-                                    <div key={i} className='border-r border-gray-200 dark:border-gray-700 h-full' />
+                                    <div key={i} className='border-r border-gray-100 dark:border-white/5 h-full' />
                                 ))}
                             </div>
 
@@ -207,16 +203,16 @@ export default function DashboardCalendar({ appointments = [], loading = false }
                             return (
                                 <div 
                                     key={dayIdx} 
-                                    className={`grid border-b last:border-b-0 border-gray-300 dark:border-gray-700 transition-all ${active ? 'bg-brand-50/20 dark:bg-white/[0.04]' : 'hover:bg-gray-50/30 dark:hover:bg-white/[0.01]'}`}
+                                    className={`grid border-b last:border-b-0 border-gray-200 dark:border-white/10 transition-all ${active ? 'bg-brand-50/20 dark:bg-brand-500/5' : 'hover:bg-gray-50/30 dark:hover:bg-white/[0.01]'}`}
                                     style={{ gridTemplateColumns, minHeight: `${rowHeight}px` }}
                                 >
                                     {/* Sticky Date Label (Opaque to prevent overlap visibility) */}
-                                    <div className={`p-2.5 border-r border-gray-300 dark:border-gray-700 sticky left-0 z-20 flex flex-col items-center justify-center shadow-[4px_0_10px_rgba(0,0,0,0.05)] dark:shadow-[4px_0_10px_rgba(0,0,0,0.3)] ${active ? 'bg-brand-50 dark:bg-gray-800' : 'bg-white dark:bg-gray-900'}`}>
+                                    <div className={`p-2.5 border-r border-gray-200 dark:border-white/10 sticky left-0 z-20 flex flex-col items-center justify-center shadow-[4px_0_10px_rgba(0,0,0,0.02)] dark:shadow-[4px_0_15px_rgba(0,0,0,0.4)] ${active ? 'bg-brand-50 dark:bg-gray-800' : 'bg-white dark:bg-gray-900'}`}>
                                         <span className={`text-[20px] sm:text-[24px] font-medium leading-none ${active ? 'text-brand-500 dark:text-brand-400' : 'text-gray-900 dark:text-gray-100'}`}>{format(day, 'd')}</span>
                                         <span className={`text-[10px] font-medium mt-0.5 ${active ? 'text-brand-500 dark:text-brand-400 opacity-80' : 'text-gray-400 dark:text-gray-500'}`}>{format(day, 'EEE')}</span>
                                     </div>
                                     
-                                    <div className='border-r border-gray-300 dark:border-gray-700 bg-gray-50/10 dark:bg-white/[0.01]' />
+                                    <div className='border-r border-gray-200 dark:border-white/10 bg-gray-50/10 dark:bg-white/[0.01]' />
 
                                     {/* Appointment Container */}
                                     <div className='relative overflow-hidden'>
