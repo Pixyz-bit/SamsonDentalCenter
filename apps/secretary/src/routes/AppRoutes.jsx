@@ -20,7 +20,7 @@ import PatientsPage from "../pages/secretary/PatientsPage";
 import DisplacedQueuePage from "../pages/secretary/DisplacedQueuePage";
 import UpcomingAppointmentsPage from "../pages/secretary/UpcomingAppointmentsPage";
 import AppointmentHistoryPage from "../pages/secretary/AppointmentHistoryPage";
-import AuditLogs from "../pages/secretary/AuditLogs";
+// import AuditLogs from "../pages/secretary/AuditLogs";
 
 
 const AppRoutes = () => {
@@ -53,7 +53,7 @@ const AppRoutes = () => {
           </Route>
           <Route path="displaced" element={<DisplacedQueuePage />} />
           <Route path="appointments" element={<UpcomingAppointmentsPage />} />
-          <Route path="audit-logs" element={<AuditLogs />} />
+{/* <Route path="audit-logs" element={<AuditLogs />} /> */}
 
         </Route>
 

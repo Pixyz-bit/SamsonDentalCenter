@@ -132,11 +132,13 @@ const navItems = [
         name: 'Displaced',
         path: '/displaced',
     },
+/*
     {
         icon: <ShieldIcon />,
         name: 'Audit Logs',
         path: '/audit-logs',
     },
+*/
 ];
 
 
