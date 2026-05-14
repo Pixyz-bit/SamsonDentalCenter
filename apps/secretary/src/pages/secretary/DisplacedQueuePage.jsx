@@ -54,7 +54,7 @@ const DisplacedQueuePage = () => {
                         <p className="text-sm text-gray-500 mt-1">There are no displaced appointments pending action.</p>
                     </div>
                 ) : (
-                    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         {appointments.map(appt => (
                             <div key={appt.id} className="bg-white dark:bg-gray-900 border border-red-200 dark:border-red-900/30 shadow-theme-xs rounded-2xl overflow-hidden flex flex-col">
                                 <div className="bg-red-50 dark:bg-red-500/10 p-4 border-b border-red-100 dark:border-red-900/20 flex flex-col gap-1">

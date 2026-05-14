@@ -1701,8 +1701,8 @@ export const getAllAppointmentsFiltered = async (filters = {}, page = 1, limit =
                     `,
             { count: 'exact' },
         )
-        .order('appointment_date', { ascending: true })
-        .order('start_time', { ascending: true });
+        .order('appointment_date', { ascending: filters.sort !== 'desc' })
+        .order('start_time', { ascending: filters.sort !== 'desc' });
 
     // Apply filters
     if (filters.date) {
@@ -1726,6 +1726,16 @@ export const getAllAppointmentsFiltered = async (filters = {}, page = 1, limit =
     if (filters.status) {
         if (filters.status === 'DISPLACED') {
             query = query.or(`status.ilike.${APPOINTMENT_STATUS.DISPLACED},and(status.ilike.${APPOINTMENT_STATUS.CANCELLED},cancellation_reason.ilike.SYSTEM_DISPLACED%)`);
+        } else if (filters.status === 'history') {
+            // History = Terminal and non-active statuses
+            query = query.in('status', [
+                APPOINTMENT_STATUS.COMPLETED,
+                APPOINTMENT_STATUS.CANCELLED,
+                APPOINTMENT_STATUS.LATE_CANCEL,
+                APPOINTMENT_STATUS.NO_SHOW,
+                APPOINTMENT_STATUS.DISPLACED,
+                APPOINTMENT_STATUS.RESCHEDULED
+            ]);
         } else if (filters.status.includes(',')) {
             const statusList = filters.status.split(',').map(s => s.trim());
             // Use case-insensitive matching for each status in the list

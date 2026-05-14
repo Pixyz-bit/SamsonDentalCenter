@@ -169,6 +169,21 @@ const RescheduleReviewStep = ({ appointment, formData, result, dentists }) => {
 
 const AdminRescheduleWizard = ({ isOpen, onClose, appointment, token, onSuccess }) => {
     const reschedule = useAdminReschedule(appointment, token);
+    const {
+        step,
+        currentStep,
+        sessionId,
+        formData,
+        submitting,
+        error,
+        result,
+        updateFields,
+        nextStep,
+        prevStep,
+        submit,
+        reset,
+    } = reschedule;
+
     const contentRef = useRef(null);
 
     // ✅ Robust Auto-scroll to top on error
@@ -184,21 +199,6 @@ const AdminRescheduleWizard = ({ isOpen, onClose, appointment, token, onSuccess 
             return () => clearTimeout(timer);
         }
     }, [error]);
-
-    const {
-        step,
-        currentStep,
-        sessionId,
-        formData,
-        submitting,
-        error,
-        result,
-        updateFields,
-        nextStep,
-        prevStep,
-        submit,
-        reset,
-    } = reschedule;
 
     // ✅ Error Detail Parsing (Parity with User Booking)
     const getErrorDetails = () => {

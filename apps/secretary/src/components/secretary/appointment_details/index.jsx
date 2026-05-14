@@ -7,7 +7,7 @@ import AppointmentLogistics from '../approval_details/AppointmentLogistics';
 import { X, CheckCircle2, RotateCcw } from 'lucide-react';
 import { formatDate } from '../../../hooks/useAppointments';
 
-const AppointmentDetailView = ({ appointment, onBack, onCancel, onReschedule, onComplete, isProcessing }) => {
+const AppointmentDetailView = ({ appointment, onBack, onCancel, onReschedule, onComplete, isProcessing, readOnly = false }) => {
     if (!appointment) return null;
 
     // Derive display status color mapping matching user portal
@@ -20,6 +20,8 @@ const AppointmentDetailView = ({ appointment, onBack, onCancel, onReschedule, on
             case 'APPROVED': return { label: 'Approved', color: 'info' };
             case 'IN_PROGRESS': return { label: 'In Progress', color: 'warning' };
             case 'CANCELLED': return { label: 'Cancelled', color: 'error' };
+            case 'DISPLACED': return { label: 'Displaced', color: 'secondary' };
+            case 'RESCHEDULED': return { label: 'Rescheduled', color: 'secondary' };
             default: return { label: status, color: 'info' };
         }
     };
@@ -33,7 +35,7 @@ const AppointmentDetailView = ({ appointment, onBack, onCancel, onReschedule, on
                 <AppointmentDetailActionBar onBack={onBack} />
 
                 {/* Content Area - Minimalist Secretary View */}
-                <div className='px-0 py-6 sm:p-8 md:p-10 overflow-y-auto grow no-scrollbar pb-28 sm:pb-8 md:pb-10 bg-white/50 dark:bg-transparent'>
+                <div className={`px-0 py-6 sm:p-8 md:p-10 overflow-y-auto grow no-scrollbar bg-white/50 dark:bg-transparent ${readOnly ? 'pb-8 sm:pb-8 md:pb-10' : 'pb-28 sm:pb-8 md:pb-10'}`}>
                     <div className='w-full space-y-3 sm:space-y-8'>
                         
                         {/* 1. Header Section: Service Name & Status */}
@@ -60,7 +62,9 @@ const AppointmentDetailView = ({ appointment, onBack, onCancel, onReschedule, on
                                                   ? 'bg-warning-50 text-warning-600 dark:bg-warning-500/10 dark:text-warning-400 shadow-warning-500/5'
                                                   : badgeColor === 'error'
                                                     ? 'bg-error-50 text-error-600 dark:bg-error-500/10 dark:text-error-400 shadow-error-500/5'
-                                                    : 'bg-info-50 text-info-600 dark:bg-info-500/10 dark:text-info-400 shadow-info-500/5'
+                                                    : badgeColor === 'secondary'
+                                                      ? 'bg-gray-50 text-gray-600 dark:bg-white/5 dark:text-gray-400 shadow-gray-500/5'
+                                                      : 'bg-info-50 text-info-600 dark:bg-info-500/10 dark:text-info-400 shadow-info-500/5'
                                         }`}
                                     >
                                         {displayStatus}
@@ -109,26 +113,28 @@ const AppointmentDetailView = ({ appointment, onBack, onCancel, onReschedule, on
                 </div>
 
                 {/* Footer Actions - Matched to User Portal side-by-side mobile layout */}
-                <div className='fixed bottom-0 left-0 right-0 sm:relative z-20 border-t border-gray-100 dark:border-gray-800 bg-white/95 dark:bg-gray-900/95 backdrop-blur-md sm:shadow-none py-5 sm:py-6'>
-                    <div className='px-4 sm:px-8 md:px-10 flex items-center justify-end gap-2 sm:gap-3 w-full'>
-                        <button 
-                            onClick={onCancel}
-                            disabled={isProcessing}
-                            className={`flex-1 sm:flex-none sm:min-w-[160px] inline-flex items-center justify-center gap-1.5 px-2 py-2.5 sm:py-3 bg-white dark:bg-gray-800 text-error-600 font-bold text-[10px] sm:text-[14px] rounded-xl border border-error-100 dark:border-error-500/20 transition-all hover:bg-error-50 active:scale-95 ${isProcessing ? 'opacity-50 cursor-not-allowed' : ''}`}
-                        >
-                            <X size={16} className="sm:w-[18px] sm:h-[18px]" strokeWidth={2.5} />
-                            {isProcessing ? 'Processing...' : 'Cancel Appointment'}
-                        </button>
-                        <button 
-                            onClick={onReschedule}
-                            disabled={isProcessing}
-                            className={`flex-1 sm:flex-none sm:min-w-[160px] inline-flex items-center justify-center gap-1.5 px-2 py-2.5 sm:py-3 bg-brand-500 text-white font-bold text-[10px] sm:text-[14px] rounded-xl shadow-theme-lg active:scale-95 hover:bg-brand-600 transition-all ${isProcessing ? 'opacity-50 cursor-not-allowed' : ''}`}
-                        >
-                            <RotateCcw size={16} className="sm:w-[18px] sm:h-[18px]" strokeWidth={2.5} />
-                            Reschedule Appointment
-                        </button>
+                {!readOnly && (
+                    <div className='fixed bottom-0 left-0 right-0 sm:relative z-20 border-t border-gray-100 dark:border-gray-800 bg-white/95 dark:bg-gray-900/95 backdrop-blur-md sm:shadow-none py-5 sm:py-6'>
+                        <div className='px-4 sm:px-8 md:px-10 flex items-center justify-end gap-2 sm:gap-3 w-full'>
+                            <button 
+                                onClick={onCancel}
+                                disabled={isProcessing}
+                                className={`flex-1 sm:flex-none sm:min-w-[160px] inline-flex items-center justify-center gap-1.5 px-2 py-2.5 sm:py-3 bg-white dark:bg-gray-800 text-error-600 font-bold text-[10px] sm:text-[14px] rounded-xl border border-error-100 dark:border-error-500/20 transition-all hover:bg-error-50 active:scale-95 ${isProcessing ? 'opacity-50 cursor-not-allowed' : ''}`}
+                            >
+                                <X size={16} className="sm:w-[18px] sm:h-[18px]" strokeWidth={2.5} />
+                                {isProcessing ? 'Processing...' : 'Cancel Appointment'}
+                            </button>
+                            <button 
+                                onClick={onReschedule}
+                                disabled={isProcessing}
+                                className={`flex-1 sm:flex-none sm:min-w-[160px] inline-flex items-center justify-center gap-1.5 px-2 py-2.5 sm:py-3 bg-brand-500 text-white font-bold text-[10px] sm:text-[14px] rounded-xl shadow-theme-lg active:scale-95 hover:bg-brand-600 transition-all ${isProcessing ? 'opacity-50 cursor-not-allowed' : ''}`}
+                            >
+                                <RotateCcw size={16} className="sm:w-[18px] sm:h-[18px]" strokeWidth={2.5} />
+                                Reschedule Appointment
+                            </button>
+                        </div>
                     </div>
-                </div>
+                )}
             </div>
         </div>
     );

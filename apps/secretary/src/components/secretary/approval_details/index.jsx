@@ -140,7 +140,7 @@ const ApprovalDetailView = ({
                                     <div className='flex items-center gap-2 text-[10px] sm:text-[12px] font-bold'>
                                         <span className='uppercase tracking-[0.1em] text-gray-400 dark:text-gray-500'>Request ID:</span>
                                         <span className='font-mono text-brand-600 dark:text-brand-400 px-2 py-0.5 bg-brand-50 dark:bg-brand-500/10 rounded-lg'>
-                                            {request.id?.toString().padStart(8, '0')}
+                                            {request.id?.toString().substring(0, 8).toUpperCase()}
                                         </span>
                                     </div>
                                 </div>

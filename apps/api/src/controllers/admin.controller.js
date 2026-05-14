@@ -138,7 +138,7 @@ const formatDoctorResponse = (d) => {
  */
 export const getAllAppointments = async (req, res, next) => {
     try {
-        const { date, date_from, date_to, status, dentist_id, patient_id, tier, search, created_at, page = 1, limit = 50 } = req.query;
+        const { date, date_from, date_to, status, dentist_id, patient_id, tier, search, created_at, sort = 'asc', page = 1, limit = 50 } = req.query;
  
         const filters = {
             date: date || null,
@@ -150,6 +150,7 @@ export const getAllAppointments = async (req, res, next) => {
             tier: tier || null,
             search: search || null,
             created_at: created_at || null,
+            sort: sort || 'asc',
         };
 
         const result = await getAllAppointmentsFiltered(filters, parseInt(page), parseInt(limit));

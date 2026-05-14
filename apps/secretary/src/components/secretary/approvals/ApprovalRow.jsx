@@ -115,7 +115,12 @@ const ApprovalRow = ({ request, onClick }) => {
                             <h3 className='text-[20px] font-medium text-gray-900 dark:text-white truncate leading-tight group-hover:text-brand-500 transition-colors'>
                                 {patient.name}
                             </h3>
-                            <p className='text-[13px] font-medium text-gray-700 dark:text-gray-400'>Patient Request</p>
+                            <div className='flex items-center gap-2 mt-0.5'>
+                                <span className='text-[10px] font-bold text-gray-400 uppercase tracking-widest'>ID:</span>
+                                <span className='text-[11px] font-mono font-bold text-brand-600 dark:text-brand-400 bg-brand-50 dark:bg-brand-500/10 px-1.5 py-0.5 rounded'>
+                                    {id.toString().substring(0, 8).toUpperCase()}
+                                </span>
+                            </div>
                         </div>
 
                         <div className='flex flex-col min-w-0 w-[260px] shrink-0 px-8 border-l border-gray-100 dark:border-white/5'>
