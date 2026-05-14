@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import PageBreadcrumb from '../../components/common/PageBreadcrumb';
 import Badge from '../../components/ui/Badge';
+import AppointmentDetailView from '../../components/secretary/appointment_details';
 import { 
     Search, 
     Calendar, 
@@ -17,30 +19,6 @@ import {
     SearchX
 } from 'lucide-react';
 
-const DOCTORS = [
-    'All Doctors',
-    'Dr. James Thompson',
-    'Dr. Emily Chen',
-    'Dr. Sarah Smith',
-    'Dr. John Doe',
-];
-
-const SERVICES = [
-    'All Services',
-    'Routine Cleaning',
-    'Orthodontic Checkup',
-    'Root Canal',
-    'Consultation',
-    'Tooth Extraction',
-    'Cavity Filling',
-    'Teeth Whitening',
-    'Dental Implants'
-];
-
-const STATUSES = ['All Statuses', 'Upcoming', 'In Progress', 'Completed', 'Pending', 'Cancelled', 'Displaced'];
-
-const ITEMS_PER_PAGE = 8;
-
 const APPOINTMENTS_DATA = [
     {
         id: 1,
@@ -49,14 +27,14 @@ const APPOINTMENTS_DATA = [
         patient: { name: 'Sarah Mitchell', avatar: 'https://i.pravatar.cc/150?u=sarah' },
         doctor: { name: 'Dr. James Thompson', avatar: 'https://i.pravatar.cc/150?u=james' },
         service: { name: 'Routine Cleaning', type: 'General' },
-        status: 'Completed',
+        status: 'Upcoming',
         source: 'Account Booking'
     },
     {
         id: 2,
-        time: '11:00 AM',
+        time: '11:30 AM',
         date: '2026-05-14',
-        patient: { name: 'James Wilson', avatar: 'https://i.pravatar.cc/150?u=jamesw' },
+        patient: { name: 'Jason Burn', avatar: 'https://i.pravatar.cc/150?u=jason' },
         doctor: { name: 'Dr. Emily Chen', avatar: 'https://i.pravatar.cc/150?u=emily' },
         service: { name: 'Orthodontic Checkup', type: 'Specialized' },
         status: 'Completed',
@@ -124,13 +102,30 @@ const APPOINTMENTS_DATA = [
     }
 ];
 
+const ITEMS_PER_PAGE = 8;
+
 const AppointmentsPage = () => {
+    const availableDoctors = useMemo(() => {
+        return ['All Doctors', ...new Set(APPOINTMENTS_DATA.map(apt => apt.doctor.name))].sort();
+    }, []);
+
+    const availableServices = useMemo(() => {
+        return ['All Services', ...new Set(APPOINTMENTS_DATA.map(apt => apt.service.name))].sort();
+    }, []);
+
+    const availableStatuses = ['All Statuses', 'Upcoming', 'In Progress', 'Completed', 'Pending', 'Cancelled', 'Displaced'];
+
     const [search, setSearch] = useState('');
     const [selectedDoctor, setSelectedDoctor] = useState('All Doctors');
     const [selectedService, setSelectedService] = useState('All Services');
     const [selectedStatus, setSelectedStatus] = useState('All Statuses');
     const [specificDate, setSpecificDate] = useState('2026-05-14');
     const [currentPage, setCurrentPage] = useState(1);
+    const [searchParams, setSearchParams] = useSearchParams();
+    const selectedId = searchParams.get('id') ? parseInt(searchParams.get('id')) : null;
+
+    const handleRowClick = (id) => setSearchParams({ id: id.toString() });
+    const handleBack = () => setSearchParams({});
 
     const filtered = useMemo(() => {
         return APPOINTMENTS_DATA.filter(apt => {
@@ -168,13 +163,30 @@ const AppointmentsPage = () => {
         return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
     };
 
-    return (
-        <div className="flex flex-col h-full w-full overflow-x-hidden pb-8">
-            <PageBreadcrumb 
-                pageTitle="Appointments" 
-            />
+    const selectedAppointment = useMemo(() => {
+        if (!selectedId) return null;
+        return APPOINTMENTS_DATA.find(a => Number(a.id) === Number(selectedId));
+    }, [selectedId]);
 
-            <div className="flex-1 min-h-0 flex flex-col sm:mb-6">
+    const breadcrumbTitle = selectedAppointment ? "Appointment Details" : "Appointments";
+
+    return (
+        <div className="flex flex-col min-h-[calc(100vh-140px)] w-full overflow-x-hidden pb-8">
+            <PageBreadcrumb 
+                pageTitle={breadcrumbTitle} 
+                parentName={selectedAppointment ? "Appointments" : null}
+                parentPath={selectedAppointment ? "/appointments" : null}
+            />
+            <div className="flex-1 min-h-[600px] flex flex-col sm:mb-6">
+                {selectedAppointment ? (
+                    <AppointmentDetailView 
+                        appointment={selectedAppointment}
+                        onBack={handleBack}
+                        onCancel={() => alert('Cancel Appointment')}
+                        onReschedule={() => alert('Reschedule Appointment')}
+                        onComplete={() => alert('Mark as Completed')}
+                    />
+                ) : (
                 <div className='flex-grow flex flex-col h-full bg-white dark:bg-white/[0.03] sm:rounded-xl border-t sm:border border-gray-200 dark:border-gray-700/60 overflow-hidden shadow-sm'>
                         
                         {/* Aligned Toolbar - One to One with User Portal MyAppointments */}
@@ -217,7 +229,7 @@ const AppointmentsPage = () => {
                                             onChange={(e) => setSelectedDoctor(e.target.value)}
                                             className='w-full pl-10 pr-10 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-gray-800 rounded-lg text-xs font-bold text-gray-700 dark:text-gray-300 appearance-none outline-none focus:ring-2 focus:ring-brand-500 transition-all cursor-pointer truncate'
                                         >
-                                            {DOCTORS.map(doc => <option key={doc} value={doc} className='dark:bg-gray-900'>{doc}</option>)}
+                                            {availableDoctors.map(doc => <option key={doc} value={doc} className='dark:bg-gray-900'>{doc}</option>)}
                                         </select>
                                         <div className='absolute right-4 top-4.5 w-0 h-0 border-l-[4px] border-l-transparent border-r-[4px] border-r-transparent border-t-[5px] border-t-gray-400 pointer-events-none' />
                                     </div>
@@ -232,7 +244,7 @@ const AppointmentsPage = () => {
                                             onChange={(e) => setSelectedService(e.target.value)}
                                             className='w-full pl-10 pr-10 py-3 bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-gray-800 rounded-lg text-xs font-bold text-gray-600 dark:text-gray-400 appearance-none outline-none focus:ring-2 focus:ring-brand-500 transition-all cursor-pointer truncate'
                                         >
-                                            {SERVICES.map(s => <option key={s} value={s} className='dark:bg-gray-900'>{s}</option>)}
+                                            {availableServices.map(s => <option key={s} value={s} className='dark:bg-gray-900'>{s}</option>)}
                                         </select>
                                         <div className='absolute right-4 top-4.5 w-0 h-0 border-l-[4px] border-l-transparent border-r-[4px] border-r-transparent border-t-[5px] border-t-gray-400 pointer-events-none' />
                                     </div>
@@ -247,48 +259,28 @@ const AppointmentsPage = () => {
                                             onChange={(e) => setSelectedStatus(e.target.value)}
                                             className='w-full pl-10 pr-10 py-3 bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-gray-800 rounded-lg text-xs font-bold text-gray-600 dark:text-gray-400 appearance-none outline-none focus:ring-2 focus:ring-brand-500 transition-all cursor-pointer truncate'
                                         >
-                                            {STATUSES.map(st => <option key={st} value={st} className='dark:bg-gray-900'>{st}</option>)}
+                                            {availableStatuses.map(st => <option key={st} value={st} className='dark:bg-gray-900'>{st}</option>)}
                                         </select>
                                         <div className='absolute right-4 top-4.5 w-0 h-0 border-l-[4px] border-l-transparent border-r-[4px] border-r-transparent border-t-[5px] border-t-gray-400 pointer-events-none' />
                                     </div>
 
-                                    {/* 4. Date Picker */}
-                                    <div className='relative w-[150px] sm:w-[190px] shrink-0'>
-                                        <div className='absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none'>
-                                            <Calendar size={16} />
-                                        </div>
-                                        <input
-                                            type='date'
-                                            value={specificDate}
-                                            onChange={(e) => setSpecificDate(e.target.value)}
-                                            onClick={(e) => e.target.showPicker?.()}
-                                            className='w-full pl-10 pr-10 py-3 bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-gray-800 rounded-lg text-xs font-bold text-gray-600 dark:text-gray-400 outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-all cursor-pointer color-scheme-dark'
-                                        />
-                                        {specificDate && (
-                                            <button
-                                                onClick={() => setSpecificDate('')}
-                                                className='absolute inset-y-0 right-3 flex items-center text-gray-400 hover:text-brand-500 transition-colors'
-                                            >
-                                                <span className='text-[10px] font-black bg-gray-100 dark:bg-white/10 w-5 h-5 flex items-center justify-center rounded-full'>✕</span>
-                                            </button>
-                                        )}
-                                    </div>
-
                                     <div className='hidden lg:block ml-auto text-[10px] font-black text-gray-400 uppercase tracking-widest opacity-60'>
-                                        Total: {filtered.length}
+                                        Total Found: {filtered.length}
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        {/* Appointment List - Matched to AppointmentTable */}
+                        {/* List Body */}
                         <div className='overflow-y-auto grow pb-24 sm:pb-8 flex flex-col gap-0 sm:gap-4 p-0 sm:p-6 no-scrollbar'>
                             {paginated.length > 0 ? (
                                 paginated.map((apt) => {
                                     const { color: badgeColor, label: displayStatus } = getStatusStyle(apt.status);
+                                    
                                     return (
                                         <div 
                                             key={apt.id}
+                                            onClick={() => handleRowClick(apt.id)}
                                             className='group relative bg-white dark:bg-white/[0.03] sm:rounded-xl border-b sm:border border-gray-100 dark:border-gray-800 sm:shadow-sm hover:shadow-md sm:hover:z-10 transition-all duration-300 cursor-pointer overflow-hidden flex flex-row items-center'
                                         >
                                             {/* 1. Left Side: Schedule Block (Desktop Only) */}
@@ -395,16 +387,16 @@ const AppointmentsPage = () => {
                                     <div className='w-20 h-20 bg-gray-50 dark:bg-white/[0.03] rounded-[32px] flex items-center justify-center mb-6'>
                                         <SearchX className='text-gray-300 dark:text-gray-700' size={32} />
                                     </div>
-                                    <h3 className='text-lg font-black text-gray-900 dark:text-white mb-2 uppercase tracking-tight'>No appointments found</h3>
+                                    <h3 className='text-lg font-black text-gray-900 dark:text-white mb-2 uppercase tracking-tight'>No matching appointments</h3>
                                     <p className='text-sm text-gray-400 max-w-[280px] font-medium leading-relaxed'>
-                                        Refine your filters or search query to find specific clinic bookings.
+                                        Refine your search or filters to locate specific entries.
                                     </p>
                                 </div>
                             )}
                         </div>
 
-                        {/* Pagination matched to User Portal style */}
-                        {(totalPages > 1 || filtered.length > 0) && (
+                        {/* Pagination */}
+                        {totalPages > 1 && (
                             <div className='relative z-30 bg-white dark:bg-gray-900 px-4 sm:px-6 py-4 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between shrink-0'>
                                 <div className='flex flex-row items-center justify-between w-full'>
                                     <div className='hidden sm:block text-[10px] font-black text-gray-400 uppercase tracking-widest'>
@@ -413,30 +405,26 @@ const AppointmentsPage = () => {
 
                                     <div className='flex items-center gap-2 mx-auto sm:mx-0'>
                                         <button 
-                                            onClick={() => currentPage > 1 && setCurrentPage(currentPage - 1)}
+                                            onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
                                             className='w-10 h-10 flex items-center justify-center rounded-xl bg-gray-100 dark:bg-white/5 text-gray-500 hover:bg-gray-200 dark:hover:bg-white/10 disabled:opacity-30 transition-all'
                                             disabled={currentPage === 1}
                                         >
                                             <ChevronLeft size={20} />
                                         </button>
                                         
-                                        {[...Array(totalPages)].map((_, i) => {
-                                            const pageNum = i + 1;
-                                            if (totalPages > 5 && pageNum !== 1 && pageNum !== totalPages && Math.abs(pageNum - currentPage) > 1) return null;
-                                            return (
-                                                <button 
-                                                    key={pageNum}
-                                                    onClick={() => setCurrentPage(pageNum)}
-                                                    className={`w-10 h-10 flex items-center justify-center text-sm font-bold rounded-xl transition-all ${
-                                                        currentPage === pageNum 
-                                                        ? 'bg-brand-500 text-white shadow-lg shadow-brand-500/20' 
-                                                        : 'text-gray-500 hover:bg-gray-100 dark:hover:bg-white/5'
-                                                    }`}
-                                                >
-                                                    {pageNum}
-                                                </button>
-                                            );
-                                        })}
+                                        {[...Array(totalPages)].map((_, i) => (
+                                            <button 
+                                                key={i + 1}
+                                                onClick={() => setCurrentPage(i + 1)}
+                                                className={`w-10 h-10 flex items-center justify-center text-sm font-bold rounded-xl transition-all ${
+                                                    currentPage === i + 1 
+                                                    ? 'bg-brand-500 text-white shadow-lg shadow-brand-500/20' 
+                                                    : 'text-gray-500 hover:bg-gray-100 dark:hover:bg-white/5'
+                                                }`}
+                                            >
+                                                {i + 1}
+                                            </button>
+                                        ))}
 
                                         <button 
                                             onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
@@ -452,9 +440,10 @@ const AppointmentsPage = () => {
                             </div>
                         )}
                     </div>
+                )}
                 </div>
             </div>
-        );
-    };
+    );
+};
 
 export default AppointmentsPage;

@@ -1,30 +1,13 @@
 import React from 'react';
-import { Search, ListFilter, SearchX, Clock, Calendar, Users, ChevronLeft, ChevronRight, Zap, ArrowUpDown } from 'lucide-react';
+import { Search, ListFilter, SearchX, Clock, Calendar, Users, ChevronLeft, ChevronRight, Zap } from 'lucide-react';
 import { useSidebar } from '../../../context/SidebarContext';
 import ApprovalRow from './ApprovalRow';
-import Pagination from '../../common/Pagination';
 
 const CATEGORIES = [
     { id: 'all', label: 'All Requests', icon: ListFilter },
     { id: 'urgent', label: 'Urgent', icon: Zap },
     { id: 'stale', label: 'Needs Attention', icon: Clock },
     { id: 'recent', label: 'Recent Request', icon: Calendar },
-];
-
-const SERVICES = [
-    'All Services',
-    'Dental Implants',
-    'Surgical Extraction',
-    'Orthodontic Consultation',
-    'Teeth Whitening',
-    'Routine Checkup'
-];
-
-const DOCTORS = [
-    'All Doctors',
-    'Dr. Alice Smith',
-    'Dr. Bob Johnson',
-    'Dr. Charlie Davis'
 ];
 
 const ITEMS_PER_PAGE = 8;
@@ -38,10 +21,10 @@ const ApprovalInbox = ({
     onSearchChange,
     selectedService,
     onServiceChange,
+    availableServices = [],
     selectedDoctor,
     onDoctorChange,
-    selectedDate,
-    onDateChange,
+    availableDoctors = [],
     onRowClick,
     currentPage,
     onPageChange
@@ -90,7 +73,7 @@ const ApprovalInbox = ({
                                 onChange={(e) => onServiceChange(e.target.value)}
                                 className='w-full pl-10 pr-10 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-gray-800 rounded-lg text-xs font-bold text-gray-700 dark:text-gray-300 appearance-none outline-none focus:ring-2 focus:ring-brand-500 transition-all cursor-pointer truncate'
                             >
-                                {SERVICES.map(s => <option key={s} value={s} className='dark:bg-gray-900'>{s}</option>)}
+                                {availableServices.map(s => <option key={s} value={s} className='dark:bg-gray-900'>{s}</option>)}
                             </select>
                             <div className='absolute right-4 top-4.5 w-0 h-0 border-l-[4px] border-l-transparent border-r-[4px] border-r-transparent border-t-[5px] border-t-gray-400 pointer-events-none' />
                         </div>
@@ -105,7 +88,7 @@ const ApprovalInbox = ({
                                 onChange={(e) => onDoctorChange(e.target.value)}
                                 className='w-full pl-10 pr-10 py-3 bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-gray-800 rounded-lg text-xs font-bold text-gray-600 dark:text-gray-400 appearance-none outline-none focus:ring-2 focus:ring-brand-500 transition-all cursor-pointer truncate'
                             >
-                                {DOCTORS.map(d => <option key={d} value={d} className='dark:bg-gray-900'>{d}</option>)}
+                                {availableDoctors.map(d => <option key={d} value={d} className='dark:bg-gray-900'>{d}</option>)}
                             </select>
                             <div className='absolute right-4 top-4.5 w-0 h-0 border-l-[4px] border-l-transparent border-r-[4px] border-r-transparent border-t-[5px] border-t-gray-400 pointer-events-none' />
                         </div>
@@ -156,7 +139,7 @@ const ApprovalInbox = ({
             </div>
 
             {/* Pagination matched to AppointmentPagination style */}
-            {(totalPages > 1 || requests.length > 0) && (
+            {totalPages > 1 && (
                 <div className='relative z-30 bg-white dark:bg-gray-900 px-4 sm:px-6 py-4 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between shrink-0'>
                     <div className='flex flex-row items-center justify-between w-full'>
                         <div className='hidden sm:block text-[10px] font-black text-gray-400 uppercase tracking-widest'>

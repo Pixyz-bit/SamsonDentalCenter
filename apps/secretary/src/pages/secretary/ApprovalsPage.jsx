@@ -9,6 +9,8 @@ import { formatTime } from '../../hooks/useAppointments';
 
 const ApprovalsPage = () => {
     const [searchParams, setSearchParams] = useSearchParams();
+    const selectedId = searchParams.get('id') ? parseInt(searchParams.get('id')) : null;
+
     const { 
         requests: rawRequests, 
         loading, 
@@ -26,15 +28,9 @@ const ApprovalsPage = () => {
     const [selectedService, setSelectedService] = useState('All Services');
     const [selectedDoctor, setSelectedDoctor] = useState('All Doctors');
     const [currentPage, setCurrentPage] = useState(1);
-    const [selectedId, setSelectedId] = useState(null);
-
-    // Sync with URL params
-    useEffect(() => {
-        const id = searchParams.get('id');
-        setSelectedId(id || null);
-    }, [searchParams]);
 
     const requests = useMemo(() => {
+        if (!rawRequests) return [];
         return rawRequests.map(req => ({
             id: req.id,
             patient: { 
@@ -49,7 +45,8 @@ const ApprovalsPage = () => {
                 noShowCount: req.patient?.no_show_count || 0, 
                 cancellationCount: req.patient?.cancellation_count || 0,
                 isBookingRestricted: req.patient?.is_booking_restricted || false,
-                source: req.source
+                source: req.source,
+                patientNote: req.patient?.notes || null
             },
             service: req.service?.name || "Unknown Service",
             serviceTier: req.service_tier,
@@ -69,6 +66,18 @@ const ApprovalsPage = () => {
             approvalStatus: req.approval_status
         }));
     }, [rawRequests]);
+
+    // Dynamically calculate unique services and doctors from ALL requests
+    const availableServices = React.useMemo(() => {
+        const unique = new Set(requests.map(r => r.service).filter(Boolean));
+        return ['All Services', ...Array.from(unique)].sort();
+    }, [requests]);
+
+    const availableDoctors = React.useMemo(() => {
+        const unique = new Set(requests.map(r => r.dentist).filter(d => d && d !== 'Unassigned'));
+        const sorted = Array.from(unique).sort();
+        return ['All Doctors', ...sorted];
+    }, [requests]);
 
     const filteredRequests = requests.filter(r => {
         const matchesSearch = r.patient.name.toLowerCase().includes(searchQuery.toLowerCase());
@@ -132,7 +141,16 @@ const ApprovalsPage = () => {
     const handleRowClick = (id) => setSearchParams({ id: id.toString() });
     const handleBack = () => setSearchParams({});
 
-    const selectedRequest = requests.find(r => r.id === selectedId);
+    const selectedRequest = useMemo(() => {
+        const idFromUrl = searchParams.get('id');
+        if (!idFromUrl) return null;
+        
+        // Try finding by numeric comparison first, then string
+        return requests.find(r => 
+            r.id?.toString() === idFromUrl || 
+            Number(r.id) === Number(idFromUrl)
+        );
+    }, [requests, searchParams]);
 
     if (loading && requests.length === 0) {
         return (
@@ -147,7 +165,7 @@ const ApprovalsPage = () => {
     const parentPath = selectedId ? '/approvals' : null;
 
     return (
-        <div className="flex flex-col h-full w-full overflow-x-hidden pb-8">
+        <div className="flex flex-col min-h-[calc(100vh-140px)] w-full overflow-x-hidden pb-8">
             <PageBreadcrumb 
                 pageTitle={breadcrumbTitle} 
                 parentName={parentName} 
@@ -163,14 +181,23 @@ const ApprovalsPage = () => {
                 />
             )}
 
-            <div className="flex-1 min-h-0 flex flex-col sm:mb-6">
+            <div className="flex-1 min-h-[600px] flex flex-col sm:mb-6">
                 {selectedId ? (
-                    <ApprovalDetailView 
-                        request={selectedRequest}
-                        onApprove={() => handleApprove(selectedId)}
-                        onReject={(reason) => handleReject(selectedId, reason)}
-                        onBack={handleBack}
-                    />
+                    selectedRequest ? (
+                        <ApprovalDetailView 
+                            request={selectedRequest}
+                            onApprove={() => handleApprove(selectedId)}
+                            onReject={(reason) => handleReject(selectedId, reason)}
+                            onBack={handleBack}
+                            fetchDentistSchedule={fetchDentistSchedule}
+                            fetchPatientStats={fetchPatientStats}
+                        />
+                    ) : (
+                        <div className="flex flex-col items-center justify-center p-20 text-center">
+                            <p className="text-gray-500">Request not found.</p>
+                            <button onClick={handleBack} className="mt-4 px-6 py-2 bg-brand-500 text-white rounded-lg">Go Back</button>
+                        </div>
+                    )
                 ) : (
                     <ApprovalInbox 
                         requests={filteredRequests}
@@ -181,8 +208,10 @@ const ApprovalsPage = () => {
                         onSearchChange={setSearchQuery}
                         selectedService={selectedService}
                         onServiceChange={setSelectedService}
+                        availableServices={availableServices}
                         selectedDoctor={selectedDoctor}
                         onDoctorChange={setSelectedDoctor}
+                        availableDoctors={availableDoctors}
                         onRowClick={handleRowClick}
                         currentPage={currentPage}
                         onPageChange={setCurrentPage}

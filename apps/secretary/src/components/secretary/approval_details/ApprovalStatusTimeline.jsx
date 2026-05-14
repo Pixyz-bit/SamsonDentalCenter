@@ -1,87 +1,139 @@
 import React from 'react';
 import { formatFullDateTime } from '../../../hooks/useAppointments';
-import { Check, X, CircleDot } from 'lucide-react';
-
-const formatDisplayTime = (dateStr) => {
-    if (!dateStr) return '—';
-    return new Date(dateStr).toLocaleString('en-US', { 
-        month: 'short', 
-        day: 'numeric', 
-        hour: 'numeric', 
-        minute: 'numeric' 
-    });
-};
+import { Check, Clock, X, CircleDot } from 'lucide-react';
 
 const ApprovalStatusTimeline = ({
+    status: originalStatus,
     createdAt,
     updatedAt,
-    status,
+    cancellationReason,
+    rejectionReason,
     approvalStatus,
-    rejectionReason
+    rawId,
 }) => {
-    const isApproved = (approvalStatus || '').toLowerCase() === 'approved';
+    const isCancelled =
+        originalStatus === 'CANCELLED' ||
+        originalStatus === 'LATE_CANCEL' ||
+        originalStatus === 'NO_SHOW';
+    const isApproved = (approvalStatus || '').toLowerCase() === 'approved' || originalStatus === 'CONFIRMED' || originalStatus === 'COMPLETED';
     const isRejected = (approvalStatus || '').toLowerCase() === 'rejected';
-    const isPending = !isApproved && !isRejected;
+    const isPending = originalStatus === 'PENDING' && !isApproved && !isRejected;
+    const isCompleted = originalStatus === 'COMPLETED';
 
     const getSteps = () => {
         // Step 1: Request (Always same)
         const step1 = {
             id: 'requested',
             title: 'Request Submitted',
-            desc: 'Patient submitted an appointment request.',
-            time: formatDisplayTime(createdAt),
+            desc: 'Your appointment request was submitted.',
+            time: formatFullDateTime(createdAt),
             status: 'completed',
         };
 
         // Step 2: Response/Action
         let step2 = { id: 'status' };
         
+        // REJECTED BRANCH: Clean 2-step flow
         if (isRejected) {
             step2 = {
                 ...step2,
                 title: 'Request Declined',
                 desc: rejectionReason 
-                    ? `Reason: ${rejectionReason}`
-                    : "The request has been rejected.",
-                time: formatDisplayTime(updatedAt),
+                    ? `Rejection Reason: ${rejectionReason}`
+                    : "Unfortunately, the Doctor cannot accommodate this time.",
+                time: formatFullDateTime(updatedAt),
                 status: 'error',
                 color: 'red',
             };
             return [step1, step2];
         }
 
+        // CANCELLED BEFORE APPROVAL: Clean 2-step flow
+        if (isCancelled && !isApproved) {
+            step2 = {
+                ...step2,
+                title: 'Request Cancelled',
+                desc: cancellationReason 
+                    ? `Cancellation Reason: ${cancellationReason}`
+                    : 'User cancelled the appointment.',
+                time: formatFullDateTime(updatedAt),
+                status: 'error',
+                color: 'red',
+            };
+            return [step1, step2];
+        }
+
+        // APPROVED STATE
         if (isApproved) {
             step2 = {
                 ...step2,
-                title: 'Request Approved',
-                desc: 'A clinical schedule has been confirmed for this patient.',
-                time: formatDisplayTime(updatedAt),
+                title: 'Appointment Confirmed',
+                desc: 'Our Doctor has approved your requested schedule.',
+                time: formatFullDateTime(updatedAt),
                 status: 'completed',
                 color: 'brand',
             };
         } 
+        // STILL PENDING
         else {
             step2 = {
                 ...step2,
-                title: 'Awaiting Review',
-                desc: 'Request is pending administrative and clinical approval.',
+                title: 'Reviewing Request',
+                desc: 'Awaiting review and approval from our Doctor.',
                 status: 'active',
                 color: 'amber',
             };
         }
 
-        // Step 3: Visit/Outcome
-        let step3 = { 
-            id: 'visit',
-            title: 'Awaiting Visit',
-            desc: 'Appointment will be marked as complete after the visit.',
-            status: isApproved ? 'pending-active' : 'pending',
-        };
+        // Step 3: Visit/Outcome (Only if Approved or Pending)
+        // Note: For pending, it stays "Awaiting Visit" until approved.
+        let step3 = { id: 'visit' };
         
+        if (isCompleted) {
+            step3 = {
+                ...step3,
+                title: 'Visit Completed',
+                desc: 'Thank you for visiting us! Your treatment is complete.',
+                status: 'completed',
+            };
+        } 
+        else if (isCancelled && isApproved) {
+            // Cancelled after it was already approved
+            step3 = {
+                ...step3,
+                title: 'Appointment Cancelled',
+                desc: cancellationReason 
+                    ? `Cancellation Reason: ${cancellationReason}`
+                    : 'User cancelled the appointment.',
+                time: formatFullDateTime(updatedAt),
+                status: 'error',
+                color: 'red',
+            };
+        }
+        else if (isApproved) {
+            step3 = {
+                ...step3,
+                title: 'Awaiting Visit',
+                desc: "We'll notify you for your upcoming visit. marked completed after visit.",
+                status: 'pending-active',
+            };
+        }
+        else {
+            step3 = {
+                ...step3,
+                title: 'Awaiting Visit',
+                desc: 'Your appointment will be marked complete after your visit.',
+                status: 'pending',
+            };
+        }
+
         return [step1, step2, step3];
     };
 
-    const steps = getSteps();
+    const steps = getSteps().map(step => ({
+        ...step,
+        time: step.time ? step.time.replace(/, \d{4},/, ',') : null
+    }));
 
     const getIcon = (status) => {
         if (status === 'completed') return <Check size={16} strokeWidth={3} />;

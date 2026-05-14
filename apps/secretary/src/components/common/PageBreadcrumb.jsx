@@ -2,31 +2,23 @@ import { Link } from "react-router-dom";
 
 const PageBreadcrumb = ({
   pageTitle,
-  subtitle,
   parentName,
   parentPath,
   className = "mb-6",
 }) => {
   return (
     <div
-      className={`flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${className}`}
+      className={`hidden sm:flex flex-wrap items-center justify-between gap-3 ${className}`}
     >
-      <div>
-        <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white tracking-tight font-outfit">
-          {pageTitle}
-        </h1>
-        {subtitle && (
-          <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 font-medium mt-1">
-            {subtitle}
-          </p>
-        )}
-      </div>
+      <h2 className="text-xl font-semibold text-gray-800 dark:text-white/90 hidden sm:block">
+        {pageTitle}
+      </h2>
       <nav className="hidden sm:block">
         <ol className="flex items-center gap-1.5">
           <li>
             <Link
               className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors"
-              to="/patient"
+              to="/secretary"
             >
               Home
               <svg

@@ -1,35 +1,32 @@
 import React from 'react';
-import { UserCheck } from 'lucide-react';
 
-const DoctorOverview = ({
-    dentistName,
-    specialization
-}) => {
+const DoctorOverview = ({ dentistName, specialization }) => {
     return (
-        <div className="flex items-center gap-4 sm:gap-8 animate-[fadeIn_0.2s_ease-out] group">
-            {/* Avatar Placeholder/Icon */}
-            <div className="w-16 h-16 sm:w-24 sm:h-24 rounded-2xl bg-gray-50 dark:bg-gray-800/50 flex items-center justify-center shrink-0 border border-gray-100 dark:border-gray-800 group-hover:scale-105 transition-transform duration-300 relative overflow-hidden">
-                <UserCheck className="text-gray-300 dark:text-gray-600" size={40} strokeWidth={1.5} />
-                <div className="absolute inset-0 bg-gradient-to-tr from-brand-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-            </div>
-
-            <div className="space-y-1 sm:space-y-3">
-                <div className="flex items-center gap-2">
-                    <span className="text-[10px] sm:text-[12px] font-black uppercase tracking-widest text-brand-500 dark:text-brand-400">
-                        Assigned Clinician
-                    </span>
-                    <div className="w-2 h-2 rounded-full bg-success-500 animate-pulse" />
-                </div>
-                
-                <div className="space-y-0.5 sm:space-y-1">
-                    <h3 className="text-lg sm:text-2xl md:text-3xl font-bold text-gray-900 dark:text-white font-outfit tracking-tight leading-tight">
-                        {dentistName}
-                    </h3>
-                    <p className="text-xs sm:text-sm font-bold text-gray-500 dark:text-gray-400 opacity-80 uppercase tracking-widest">
-                        {specialization}
-                    </p>
+        <div className='w-full space-y-5 sm:space-y-6'>
+            <div>
+                <h3 className='text-[11px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-4 sm:mb-6 pb-3 sm:pb-4 border-b border-gray-100 dark:border-white/5'>
+                    Assigned Doctor
+                </h3>
+                <div className='flex items-center gap-4 sm:gap-6'>
+                    <div className='w-9 h-9 sm:w-11 sm:h-11 rounded-xl bg-brand-500/10 text-brand-500 flex items-center justify-center font-bold text-[14px] sm:text-lg border border-brand-500/20 shrink-0 shadow-sm'>
+                        {dentistName
+                            .replace(/^Dr\.\s*/i, '')
+                            .charAt(0)
+                            .toUpperCase()}
+                    </div>
+                    <div className='space-y-0.5 sm:space-y-1 overflow-hidden'>
+                        <h4 className='text-[14px] sm:text-base font-bold text-gray-900 dark:text-white truncate leading-tight'>
+                            {dentistName}
+                        </h4>
+                        <p className='text-[11px] sm:text-xs text-brand-600 dark:text-brand-400 font-bold'>
+                            {specialization || 'General Dentistry'}
+                        </p>
+                    </div>
                 </div>
             </div>
+            <p className='text-[12px] sm:text-[13px] text-gray-500 dark:text-gray-400 font-medium leading-relaxed w-full'>
+                Experience exceptional care with your assigned doctor, dedicated to ensuring a comfortable and professional environment throughout your visit.
+            </p>
         </div>
     );
 };

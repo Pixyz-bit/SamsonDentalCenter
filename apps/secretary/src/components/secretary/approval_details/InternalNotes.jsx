@@ -4,13 +4,15 @@ import { StickyNote } from 'lucide-react';
 const InternalNotes = ({ internalNote, setInternalNote, handleSaveNote, isSavingNote, saveSuccess }) => {
     return (
         <div className='bg-white dark:bg-gray-800/40 border border-gray-200 dark:border-gray-800 rounded-2xl mx-4 sm:mx-0 p-4 sm:p-8 shadow-theme-xs'>
-            <div className="flex items-center justify-between px-2 mb-4">
-                <h3 className="text-[10px] font-black uppercase tracking-widest text-gray-400 flex items-center gap-2">
-                    <StickyNote size={14} className="text-amber-500" /> Internal Staff Notes
-                </h3>
-                <span className={`text-[9px] font-bold uppercase tracking-wider transition-opacity duration-300 ${isSavingNote ? 'text-brand-500 opacity-100' : saveSuccess ? 'text-success-500 opacity-100' : 'opacity-0'}`}>
-                    {isSavingNote ? 'Saving...' : 'Saved'}
-                </span>
+            <div className='w-full'>
+                <div className='flex items-center justify-between mb-4 sm:mb-6 pb-3 sm:pb-4 border-b border-gray-100 dark:border-white/5'>
+                    <h3 className="text-[11px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest flex items-center gap-2">
+                        <StickyNote size={14} className="text-amber-500" /> Internal Staff Notes
+                    </h3>
+                    <span className={`text-[9px] font-bold uppercase tracking-wider transition-opacity duration-300 ${isSavingNote ? 'text-brand-500 opacity-100' : saveSuccess ? 'text-success-500 opacity-100' : 'opacity-0'}`}>
+                        {isSavingNote ? 'Saving...' : 'Saved'}
+                    </span>
+                </div>
             </div>
             <div className="relative group">
                 <textarea 
