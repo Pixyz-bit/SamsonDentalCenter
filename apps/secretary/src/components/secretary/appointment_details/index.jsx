@@ -7,16 +7,19 @@ import AppointmentLogistics from '../approval_details/AppointmentLogistics';
 import { X, CheckCircle2, RotateCcw } from 'lucide-react';
 import { formatDate } from '../../../hooks/useAppointments';
 
-const AppointmentDetailView = ({ appointment, onBack, onCancel, onReschedule, onComplete }) => {
+const AppointmentDetailView = ({ appointment, onBack, onCancel, onReschedule, onComplete, isProcessing }) => {
     if (!appointment) return null;
 
     // Derive display status color mapping matching user portal
     const getStatusStyles = (status) => {
-        switch (status) {
-            case 'Completed': return { label: 'Completed', color: 'success' };
-            case 'Upcoming': return { label: 'Upcoming', color: 'info' };
-            case 'In Progress': return { label: 'In Progress', color: 'warning' };
-            case 'Cancelled': return { label: 'Cancelled', color: 'error' };
+        const s = status?.toUpperCase();
+        switch (s) {
+            case 'COMPLETED': return { label: 'Completed', color: 'success' };
+            case 'CONFIRMED': 
+            case 'UPCOMING': 
+            case 'APPROVED': return { label: 'Approved', color: 'info' };
+            case 'IN_PROGRESS': return { label: 'In Progress', color: 'warning' };
+            case 'CANCELLED': return { label: 'Cancelled', color: 'error' };
             default: return { label: status, color: 'info' };
         }
     };
@@ -43,7 +46,7 @@ const AppointmentDetailView = ({ appointment, onBack, onCancel, onReschedule, on
                                     <div className='flex items-center gap-2 text-[10px] sm:text-[12px] font-bold'>
                                         <span className='uppercase tracking-[0.1em] text-gray-400 dark:text-gray-500'>Appointment ID:</span>
                                         <span className='font-mono text-brand-600 dark:text-brand-400 px-2 py-0.5 bg-brand-50 dark:bg-brand-500/10 rounded-lg'>
-                                            {appointment.id?.toString().padStart(8, '0')}
+                                            {appointment.id?.toString().substring(0, 8).toUpperCase()}
                                         </span>
                                     </div>
                                 </div>
@@ -110,24 +113,19 @@ const AppointmentDetailView = ({ appointment, onBack, onCancel, onReschedule, on
                     <div className='px-4 sm:px-8 md:px-10 flex items-center justify-end gap-2 sm:gap-3 w-full'>
                         <button 
                             onClick={onCancel}
-                            className="flex-1 sm:flex-none sm:min-w-[160px] inline-flex items-center justify-center gap-1.5 px-2 py-2.5 sm:py-3 bg-white dark:bg-gray-800 text-error-600 font-bold text-[10px] sm:text-[14px] rounded-xl border border-error-100 dark:border-error-500/20 transition-all hover:bg-error-50 active:scale-95"
+                            disabled={isProcessing}
+                            className={`flex-1 sm:flex-none sm:min-w-[160px] inline-flex items-center justify-center gap-1.5 px-2 py-2.5 sm:py-3 bg-white dark:bg-gray-800 text-error-600 font-bold text-[10px] sm:text-[14px] rounded-xl border border-error-100 dark:border-error-500/20 transition-all hover:bg-error-50 active:scale-95 ${isProcessing ? 'opacity-50 cursor-not-allowed' : ''}`}
                         >
                             <X size={16} className="sm:w-[18px] sm:h-[18px]" strokeWidth={2.5} />
-                            Cancel
+                            {isProcessing ? 'Processing...' : 'Cancel Appointment'}
                         </button>
                         <button 
                             onClick={onReschedule}
-                            className="flex-1 sm:flex-none sm:min-w-[160px] inline-flex items-center justify-center gap-1.5 px-2 py-2.5 sm:py-3 bg-white dark:bg-gray-800 text-brand-600 font-bold text-[10px] sm:text-[14px] rounded-xl border border-brand-100 dark:border-brand-500/20 transition-all hover:bg-brand-50 active:scale-95"
+                            disabled={isProcessing}
+                            className={`flex-1 sm:flex-none sm:min-w-[160px] inline-flex items-center justify-center gap-1.5 px-2 py-2.5 sm:py-3 bg-brand-500 text-white font-bold text-[10px] sm:text-[14px] rounded-xl shadow-theme-lg active:scale-95 hover:bg-brand-600 transition-all ${isProcessing ? 'opacity-50 cursor-not-allowed' : ''}`}
                         >
                             <RotateCcw size={16} className="sm:w-[18px] sm:h-[18px]" strokeWidth={2.5} />
-                            Reschedule
-                        </button>
-                        <button 
-                            onClick={onComplete}
-                            className="flex-1 sm:flex-none sm:min-w-[160px] inline-flex items-center justify-center gap-1.5 px-2 py-2.5 sm:py-3 bg-success-500 text-white font-bold text-[10px] sm:text-[14px] rounded-xl shadow-theme-lg active:scale-95 hover:bg-success-600 transition-all"
-                        >
-                            <CheckCircle2 size={16} className="sm:w-[18px] sm:h-[18px]" strokeWidth={2.5} />
-                            Complete
+                            Reschedule Appointment
                         </button>
                     </div>
                 </div>

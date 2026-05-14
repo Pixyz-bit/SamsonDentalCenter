@@ -18,7 +18,7 @@ import ApprovalsPage from "../pages/secretary/ApprovalsPage";
 import BookingPage from "../pages/secretary/BookingPage";
 import PatientsPage from "../pages/secretary/PatientsPage";
 import DisplacedQueuePage from "../pages/secretary/DisplacedQueuePage";
-import AppointmentsPage from "../pages/secretary/AppointmentsPage";
+import UpcomingAppointmentsPage from "../pages/secretary/UpcomingAppointmentsPage";
 import AuditLogs from "../pages/secretary/AuditLogs";
 
 
@@ -51,7 +51,7 @@ const AppRoutes = () => {
             <Route path=":tab/:id?" element={<PatientsPage />} />
           </Route>
           <Route path="displaced" element={<DisplacedQueuePage />} />
-          <Route path="appointments" element={<AppointmentsPage />} />
+          <Route path="appointments" element={<UpcomingAppointmentsPage />} />
           <Route path="audit-logs" element={<AuditLogs />} />
 
         </Route>

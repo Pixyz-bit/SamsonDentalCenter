@@ -20,7 +20,7 @@ import { useAuth } from '../context/AuthContext';
 // --- Utility helpers ---
 
 export const STATUS_LABEL = {
-    CONFIRMED: 'Upcoming',
+    CONFIRMED: 'Approved',
     PENDING: 'Pending',
     CANCELLED: 'Cancelled',
     LATE_CANCEL: 'Cancelled',
@@ -88,7 +88,15 @@ export const formatFullDateTime = (isoStr) => {
 
 const DEFAULT_LIMIT = 5;
 
-const useAppointments = ({ status = '', sort = 'desc', limit = DEFAULT_LIMIT } = {}) => {
+const useAppointments = ({ 
+    status = '', 
+    dentistId = '', 
+    serviceTier = '',
+    search = '',
+    date = '',
+    sort = 'desc', 
+    limit = 20 
+} = {}) => {
     const { token } = useAuth();
     const [appointments, setAppointments] = useState([]);
     const [total, setTotal] = useState(0);
@@ -107,22 +115,47 @@ const useAppointments = ({ status = '', sort = 'desc', limit = DEFAULT_LIMIT } =
         setError(null);
         try {
             const params = new URLSearchParams({ page, limit, sort });
-            if (status) params.set('status', status);
+            if (status && status !== 'All Statuses') {
+                // Map frontend labels to backend constants if needed
+                // But typically we pass the internal key
+                params.set('status', status);
+            }
+            if (dentistId && dentistId !== 'All Doctors') params.set('dentist_id', dentistId);
+            if (serviceTier && serviceTier !== 'All Services') params.set('tier', serviceTier);
+            if (search) params.set('search', search);
+            if (date) params.set('date', date);
 
-            const data = await api.get(`/appointments/my?${params}`, token);
+            const data = await api.get(`/admin/appointments?${params}`, token);
 
             setAppointments(data.appointments || []);
-            setTotal(data.total || 0);
+            // Backend returns pagination.total
+            setTotal(data.pagination?.total || data.total || 0);
         } catch (err) {
             setError(err.message || 'Failed to load appointments.');
         } finally {
             setLoading(false);
         }
-    }, [token, status, sort, page, limit]);
+    }, [token, status, dentistId, serviceTier, search, date, sort, page, limit]);
 
     useEffect(() => {
         fetch();
     }, [fetch]);
+
+    const [actionLoading, setActionLoading] = useState(false);
+
+    const updateAppointment = useCallback(async (id, updates) => {
+        if (!token) return { success: false, error: 'Not authenticated' };
+        setActionLoading(true);
+        try {
+            const data = await api.patch(`/admin/appointments/${id}`, updates, token);
+            await fetch(); // Refresh the list
+            return { success: true, data };
+        } catch (err) {
+            return { success: false, error: err.message || 'Failed to update appointment' };
+        } finally {
+            setActionLoading(false);
+        }
+    }, [token, fetch]);
 
     const goToPage = useCallback((p) => setPage(p), []);
     const prevPage = useCallback(() => setPage((p) => Math.max(1, p - 1)), []);
@@ -135,10 +168,12 @@ const useAppointments = ({ status = '', sort = 'desc', limit = DEFAULT_LIMIT } =
         page,
         totalPages,
         loading,
+        actionLoading,
         error,
         goToPage,
         prevPage,
         nextPage,
+        updateAppointment,
         refresh,
     };
 };

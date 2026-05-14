@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import PageBreadcrumb from '../../components/common/PageBreadcrumb';
 import Badge from '../../components/ui/Badge';
 import AppointmentDetailView from '../../components/secretary/appointment_details';
@@ -19,143 +19,102 @@ import {
     SearchX
 } from 'lucide-react';
 
-const APPOINTMENTS_DATA = [
-    {
-        id: 1,
-        time: '9:00 AM',
-        date: '2026-05-14',
-        patient: { name: 'Sarah Mitchell', avatar: 'https://i.pravatar.cc/150?u=sarah' },
-        doctor: { name: 'Dr. James Thompson', avatar: 'https://i.pravatar.cc/150?u=james' },
-        service: { name: 'Routine Cleaning', type: 'General' },
-        status: 'Upcoming',
-        source: 'Account Booking'
-    },
-    {
-        id: 2,
-        time: '11:30 AM',
-        date: '2026-05-14',
-        patient: { name: 'Jason Burn', avatar: 'https://i.pravatar.cc/150?u=jason' },
-        doctor: { name: 'Dr. Emily Chen', avatar: 'https://i.pravatar.cc/150?u=emily' },
-        service: { name: 'Orthodontic Checkup', type: 'Specialized' },
-        status: 'Completed',
-        source: 'Guest Booking'
-    },
-    {
-        id: 3,
-        time: '2:30 PM',
-        date: '2026-05-14',
-        patient: { name: 'Elena Rodriguez', avatar: 'https://i.pravatar.cc/150?u=elena' },
-        doctor: { name: 'Dr. Sarah Smith', avatar: 'https://i.pravatar.cc/150?u=sarah2' },
-        service: { name: 'Root Canal', type: 'Specialized' },
-        status: 'In Progress',
-        source: 'Walk-in'
-    },
-    {
-        id: 4,
-        time: '4:00 PM',
-        date: '2026-05-14',
-        patient: { name: 'Michael Chang', avatar: 'https://i.pravatar.cc/150?u=michael' },
-        doctor: { name: 'Dr. John Doe', avatar: 'https://i.pravatar.cc/150?u=john' },
-        service: { name: 'Consultation', type: 'General' },
-        status: 'Upcoming',
-        source: 'Account Booking'
-    },
-    {
-        id: 5,
-        time: '9:00 AM',
-        date: '2026-05-15',
-        patient: { name: 'Sophia Martinez', avatar: 'https://i.pravatar.cc/150?u=sophia' },
-        doctor: { name: 'Dr. James Thompson', avatar: 'https://i.pravatar.cc/150?u=james' },
-        service: { name: 'Tooth Extraction', type: 'Specialized' },
-        status: 'Upcoming',
-        source: 'Guest Booking'
-    },
-    {
-        id: 6,
-        time: '10:30 AM',
-        date: '2026-05-15',
-        patient: { name: 'David Miller', avatar: 'https://i.pravatar.cc/150?u=david' },
-        doctor: { name: 'Dr. Emily Chen', avatar: 'https://i.pravatar.cc/150?u=emily' },
-        service: { name: 'Cavity Filling', type: 'General' },
-        status: 'Pending',
-        source: 'Walk-in'
-    },
-    {
-        id: 7,
-        time: '1:00 PM',
-        date: '2026-05-15',
-        patient: { name: 'Isabella Garcia', avatar: 'https://i.pravatar.cc/150?u=isabella' },
-        doctor: { name: 'Dr. John Doe', avatar: 'https://i.pravatar.cc/150?u=john' },
-        service: { name: 'Teeth Whitening', type: 'General' },
-        status: 'Cancelled',
-        source: 'Account Booking'
-    },
-    {
-        id: 8,
-        time: '3:30 PM',
-        date: '2026-05-15',
-        patient: { name: 'Robert Taylor', avatar: 'https://i.pravatar.cc/150?u=robert' },
-        doctor: { name: 'Dr. Sarah Smith', avatar: 'https://i.pravatar.cc/150?u=sarah2' },
-        service: { name: 'Dental Implants', type: 'Specialized' },
-        status: 'Displaced',
-        source: 'Guest Booking'
-    }
-];
+import useAppointments, { formatTime } from '../../hooks/useAppointments';
+import { useDoctors } from '../../hooks/useDoctors';
+import useServices from '../../hooks/useServices';
+import { useToast } from '../../context/ToastContext';
+
 
 const ITEMS_PER_PAGE = 8;
 
-const AppointmentsPage = () => {
-    const availableDoctors = useMemo(() => {
-        return ['All Doctors', ...new Set(APPOINTMENTS_DATA.map(apt => apt.doctor.name))].sort();
-    }, []);
+const UpcomingAppointmentsPage = () => {
+    // 1. Hooks & Data
+    const { doctors } = useDoctors();
+    const { services } = useServices();
+    
+    const navigate = useNavigate();
+    const [search, setSearch] = useState('');
+    const [debouncedSearch, setDebouncedSearch] = useState('');
+    const [selectedDoctorId, setSelectedDoctorId] = useState('All Doctors');
+    const [specificDate, setSpecificDate] = useState('');
+    const [sortOrder, setSortOrder] = useState('desc');
 
-    const availableServices = useMemo(() => {
-        return ['All Services', ...new Set(APPOINTMENTS_DATA.map(apt => apt.service.name))].sort();
-    }, []);
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setDebouncedSearch(search);
+        }, 300);
+        return () => clearTimeout(timer);
+    }, [search]);
+    
+    const [searchParams, setSearchParams] = useSearchParams();
+    const selectedId = searchParams.get('id') || null;
+
+    // Map frontend statuses to backend keys
+    const STATUS_MAP = {
+        'Upcoming': 'CONFIRMED',
+        'In Progress': 'IN_PROGRESS',
+        'Completed': 'COMPLETED',
+        'Pending': 'PENDING',
+        'Cancelled': 'CANCELLED',
+        'Displaced': 'DISPLACED'
+    };
+
+    const { 
+        appointments, 
+        total,
+        loading, 
+        actionLoading,
+        page, 
+        totalPages, 
+        goToPage,
+        updateAppointment,
+        refresh 
+    } = useAppointments({
+        status: 'CONFIRMED',
+        dentistId: selectedDoctorId,
+        search: debouncedSearch,
+        date: specificDate,
+        sort: sortOrder,
+        limit: 8
+    });
 
     const availableStatuses = ['All Statuses', 'Upcoming', 'In Progress', 'Completed', 'Pending', 'Cancelled', 'Displaced'];
 
-    const [search, setSearch] = useState('');
-    const [selectedDoctor, setSelectedDoctor] = useState('All Doctors');
-    const [selectedService, setSelectedService] = useState('All Services');
-    const [selectedStatus, setSelectedStatus] = useState('All Statuses');
-    const [specificDate, setSpecificDate] = useState('2026-05-14');
-    const [currentPage, setCurrentPage] = useState(1);
-    const [searchParams, setSearchParams] = useSearchParams();
-    const selectedId = searchParams.get('id') || null;
+    const toast = useToast();
 
     const handleRowClick = (id) => setSearchParams({ id: id.toString() });
     const handleBack = () => setSearchParams({});
 
-    const filtered = useMemo(() => {
-        return APPOINTMENTS_DATA.filter(apt => {
-            const matchesSearch = apt.patient.name.toLowerCase().includes(search.toLowerCase()) || 
-                                apt.service.name.toLowerCase().includes(search.toLowerCase());
-            const matchesDoctor = selectedDoctor === 'All Doctors' || apt.doctor.name === selectedDoctor;
-            const matchesService = selectedService === 'All Services' || apt.service.name === selectedService;
-            const matchesStatus = selectedStatus === 'All Statuses' || apt.status === selectedStatus;
-            const matchesDate = !specificDate || apt.date === specificDate;
+    const handleCancel = async (id) => {
+        if (!window.confirm('Are you sure you want to cancel this appointment?')) return;
+        const res = await updateAppointment(id, { status: 'CANCELLED' });
+        if (res.success) {
+            toast.success('Appointment cancelled successfully.');
+            handleBack();
+        } else {
+            toast.error(res.error || 'Failed to cancel appointment.');
+        }
+    };
 
-            return matchesSearch && matchesDoctor && matchesService && matchesStatus && matchesDate;
-        });
-    }, [search, selectedDoctor, selectedService, selectedStatus, specificDate]);
-
-    const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE) || 1;
-    const paginated = filtered.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
+    const handleReschedule = (id) => {
+        // Redirect to booking with appointment ID for context
+        navigate(`/booking?reschedule=${id}`);
+    };
 
     const getStatusStyle = (status) => {
-        switch (status) {
-            case 'Completed': return { color: 'success', label: 'Completed' };
-            case 'In Progress': return { color: 'warning', label: 'In Progress' };
-            case 'Upcoming': return { color: 'info', label: 'Upcoming' };
-            case 'Pending': return { color: 'warning', label: 'Pending' };
-            case 'Cancelled': return { color: 'error', label: 'Cancelled' };
-            case 'Displaced': return { color: 'secondary', label: 'Displaced' };
+        const s = status?.toUpperCase();
+        switch (s) {
+            case 'COMPLETED': return { color: 'success', label: 'Completed' };
+            case 'IN_PROGRESS': return { color: 'warning', label: 'In Progress' };
+            case 'CONFIRMED': return { color: 'info', label: 'Approved' };
+            case 'PENDING': return { color: 'warning', label: 'Pending' };
+            case 'CANCELLED': return { color: 'error', label: 'Cancelled' };
+            case 'DISPLACED': return { color: 'secondary', label: 'Displaced' };
             default: return { color: 'info', label: status };
         }
     };
 
-    const getInitial = (name = '') => name.charAt(0).toUpperCase();
+    const getInitial = (name = '') => name?.charAt(0).toUpperCase() || '?';
 
     const formatDateStr = (dateStr) => {
         if (!dateStr) return '';
@@ -165,16 +124,36 @@ const AppointmentsPage = () => {
 
     const selectedAppointment = useMemo(() => {
         if (!selectedId) return null;
-        return APPOINTMENTS_DATA.find(a => a.id?.toString() === selectedId.toString());
-    }, [selectedId]);
+        const apt = appointments.find(a => a.id?.toString() === selectedId.toString());
+        if (!apt) return null;
 
-    const breadcrumbTitle = selectedAppointment ? "Appointment Details" : "Appointments";
+        // Normalize for sub-components which expect the legacy/mock structure
+        return {
+            ...apt,
+            service: { name: apt.service || 'General Service' },
+            doctor: { name: apt.dentist?.profile?.full_name || apt.dentist?.full_name || 'Unassigned' },
+            patient: {
+                name: apt.patient?.full_name || apt.patient?.name || 'Unknown Patient',
+                email: apt.patient?.email,
+                phone: apt.patient?.phone,
+                noShowCount: apt.patient?.no_show_count || 0,
+                cancellationCount: apt.patient?.cancellation_count || 0,
+                isBookingRestricted: apt.patient?.is_booking_restricted || false,
+                source: apt.source // Backend might return this
+            },
+            time: apt.start_time && apt.end_time 
+                ? `${formatTime(apt.start_time)} - ${formatTime(apt.end_time)}`
+                : apt.start_time ? formatTime(apt.start_time) : ''
+        };
+    }, [selectedId, appointments]);
+
+    const breadcrumbTitle = selectedAppointment ? "Appointment Details" : "Upcoming Appointments";
 
     return (
         <div className="flex flex-col min-h-[calc(100vh-140px)] w-full overflow-x-hidden pb-8">
             <PageBreadcrumb 
                 pageTitle={breadcrumbTitle} 
-                parentName={selectedAppointment ? "Appointments" : null}
+                parentName={selectedAppointment ? "Upcoming Appointments" : null}
                 parentPath={selectedAppointment ? "/appointments" : null}
             />
             <div className="flex-1 min-h-[600px] flex flex-col sm:mb-6">
@@ -182,9 +161,9 @@ const AppointmentsPage = () => {
                     <AppointmentDetailView 
                         appointment={selectedAppointment}
                         onBack={handleBack}
-                        onCancel={() => alert('Cancel Appointment')}
-                        onReschedule={() => alert('Reschedule Appointment')}
-                        onComplete={() => alert('Mark as Completed')}
+                        onCancel={() => handleCancel(selectedAppointment.id)}
+                        onReschedule={() => handleReschedule(selectedAppointment.id)}
+                        isProcessing={actionLoading}
                     />
                 ) : (
                 <div className='flex-grow flex flex-col h-full bg-white dark:bg-white/[0.03] sm:rounded-xl border-t sm:border border-gray-200 dark:border-gray-700/60 overflow-hidden shadow-sm'>
@@ -200,7 +179,7 @@ const AppointmentsPage = () => {
                                     </span>
                                     <input
                                         type='text'
-                                        placeholder='Search by patient or service...'
+                                        placeholder='Search upcoming appointments...'
                                         value={search}
                                         onChange={(e) => setSearch(e.target.value)}
                                         className='w-full pl-11 pr-4 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-gray-800 rounded-lg text-sm focus:ring-2 focus:ring-brand-500 focus:border-brand-500 focus:bg-white dark:focus:bg-white/10 transition-all outline-none font-medium dark:text-white'
@@ -208,6 +187,7 @@ const AppointmentsPage = () => {
                                 </div>
 
                                 <button
+                                    onClick={() => navigate('/booking')}
                                     className='hidden sm:flex items-center justify-center gap-2 px-6 py-3 bg-brand-500 hover:bg-brand-600 text-white rounded-lg text-sm font-bold transition-all shadow-md shadow-brand-500/20 shrink-0 whitespace-nowrap active:scale-95'
                                 >
                                     <Plus size={18} />
@@ -225,47 +205,51 @@ const AppointmentsPage = () => {
                                             <Users size={16} />
                                         </div>
                                         <select
-                                            value={selectedDoctor}
-                                            onChange={(e) => setSelectedDoctor(e.target.value)}
+                                            value={selectedDoctorId}
+                                            onChange={(e) => setSelectedDoctorId(e.target.value)}
                                             className='w-full pl-10 pr-10 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-gray-800 rounded-lg text-xs font-bold text-gray-700 dark:text-gray-300 appearance-none outline-none focus:ring-2 focus:ring-brand-500 transition-all cursor-pointer truncate'
                                         >
-                                            {availableDoctors.map(doc => <option key={doc} value={doc} className='dark:bg-gray-900'>{doc}</option>)}
+                                            <option value="All Doctors">All Doctors</option>
+                                            {doctors.map(doc => (
+                                                <option key={doc.id} value={doc.id} className='dark:bg-gray-900'>
+                                                    {doc.full_name}
+                                                </option>
+                                            ))}
                                         </select>
                                         <div className='absolute right-4 top-4.5 w-0 h-0 border-l-[4px] border-l-transparent border-r-[4px] border-r-transparent border-t-[5px] border-t-gray-400 pointer-events-none' />
                                     </div>
 
-                                    {/* 2. Service Filter */}
-                                    <div className='relative w-[150px] sm:w-[190px] shrink-0'>
+                                    {/* 2. Date Filter */}
+                                    <div className='relative w-[150px] sm:w-[180px] shrink-0'>
                                         <div className='absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none'>
-                                            <Tag size={16} />
+                                            <Calendar size={16} />
                                         </div>
-                                        <select
-                                            value={selectedService}
-                                            onChange={(e) => setSelectedService(e.target.value)}
-                                            className='w-full pl-10 pr-10 py-3 bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-gray-800 rounded-lg text-xs font-bold text-gray-600 dark:text-gray-400 appearance-none outline-none focus:ring-2 focus:ring-brand-500 transition-all cursor-pointer truncate'
-                                        >
-                                            {availableServices.map(s => <option key={s} value={s} className='dark:bg-gray-900'>{s}</option>)}
-                                        </select>
-                                        <div className='absolute right-4 top-4.5 w-0 h-0 border-l-[4px] border-l-transparent border-r-[4px] border-r-transparent border-t-[5px] border-t-gray-400 pointer-events-none' />
+                                        <input
+                                            type='date'
+                                            value={specificDate}
+                                            onChange={(e) => setSpecificDate(e.target.value)}
+                                            className='w-full pl-10 pr-4 py-3 bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-gray-800 rounded-lg text-xs font-bold text-gray-600 dark:text-gray-400 outline-none focus:ring-2 focus:ring-brand-500 transition-all cursor-pointer'
+                                        />
                                     </div>
 
-                                    {/* 3. Status Filter */}
-                                    <div className='relative w-[150px] sm:w-[170px] shrink-0'>
+                                    {/* 3. Sort Filter */}
+                                    <div className='relative w-[150px] sm:w-[180px] shrink-0'>
                                         <div className='absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none'>
-                                            <ShieldCheck size={16} />
+                                            <ArrowUpDown size={16} />
                                         </div>
                                         <select
-                                            value={selectedStatus}
-                                            onChange={(e) => setSelectedStatus(e.target.value)}
+                                            value={sortOrder}
+                                            onChange={(e) => setSortOrder(e.target.value)}
                                             className='w-full pl-10 pr-10 py-3 bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-gray-800 rounded-lg text-xs font-bold text-gray-600 dark:text-gray-400 appearance-none outline-none focus:ring-2 focus:ring-brand-500 transition-all cursor-pointer truncate'
                                         >
-                                            {availableStatuses.map(st => <option key={st} value={st} className='dark:bg-gray-900'>{st}</option>)}
+                                            <option value="desc">Newest First</option>
+                                            <option value="asc">Oldest First</option>
                                         </select>
                                         <div className='absolute right-4 top-4.5 w-0 h-0 border-l-[4px] border-l-transparent border-r-[4px] border-r-transparent border-t-[5px] border-t-gray-400 pointer-events-none' />
                                     </div>
 
                                     <div className='hidden lg:block ml-auto text-[10px] font-black text-gray-400 uppercase tracking-widest opacity-60'>
-                                        Total Found: {filtered.length}
+                                        Total Found: {total}
                                     </div>
                                 </div>
                             </div>
@@ -273,9 +257,17 @@ const AppointmentsPage = () => {
 
                         {/* List Body */}
                         <div className='overflow-y-auto grow pb-24 sm:pb-8 flex flex-col gap-0 sm:gap-4 p-0 sm:p-6 no-scrollbar'>
-                            {paginated.length > 0 ? (
-                                paginated.map((apt) => {
+                            {loading ? (
+                                <div className='flex flex-col items-center justify-center py-20 gap-4'>
+                                    <div className='w-12 h-12 border-4 border-brand-500/20 border-t-brand-500 rounded-full animate-spin' />
+                                    <p className='text-sm font-bold text-gray-500 animate-pulse'>Loading appointments...</p>
+                                </div>
+                            ) : appointments.length > 0 ? (
+                                appointments.map((apt) => {
                                     const { color: badgeColor, label: displayStatus } = getStatusStyle(apt.status);
+                                    const patientName = apt.patient?.full_name || apt.patient?.name || 'Unknown Patient';
+                                    const doctorName = apt.dentist?.profile?.full_name || apt.dentist?.full_name || 'Unassigned';
+                                    const serviceName = apt.service || 'General Service';
                                     
                                     return (
                                         <div 
@@ -286,7 +278,7 @@ const AppointmentsPage = () => {
                                             {/* 1. Left Side: Schedule Block (Desktop Only) */}
                                             <div className='hidden sm:flex w-48 bg-gray-50/50 dark:bg-gray-800/20 border-r border-gray-200 dark:border-white/10 shrink-0 flex-col text-left py-1'>
                                                 <div className='px-6 py-3 flex-1 flex flex-col justify-center'>
-                                                    <p className='text-[12px] font-medium text-gray-700 dark:text-gray-400 mb-0.5 tracking-wide'>Date</p>
+                                                    <p className='text-[12px] font-medium text-gray-700 dark:text-gray-400 mb-0.5 tracking-wide'>Appointment Date</p>
                                                     <p className='text-[16px] font-medium text-gray-900 dark:text-white leading-tight'>
                                                         {formatDateStr(apt.date)}
                                                     </p>
@@ -294,8 +286,8 @@ const AppointmentsPage = () => {
                                                 <div className='h-px w-full bg-gray-200 dark:bg-white/5' />
                                                 <div className='px-6 py-3 flex-1 flex flex-col justify-center'>
                                                     <p className='text-[12px] font-medium text-gray-700 dark:text-gray-400 mb-0.5 tracking-wide'>Time</p>
-                                                    <p className='text-[15px] font-medium text-brand-500 leading-tight'>
-                                                        {apt.time.split('-')[0].trim()}
+                                                    <p className='text-[14px] font-medium text-brand-500 leading-tight'>
+                                                        {formatTime(apt.start_time)} - {formatTime(apt.end_time)}
                                                     </p>
                                                 </div>
                                             </div>
@@ -305,14 +297,14 @@ const AppointmentsPage = () => {
                                                 {/* Mobile View */}
                                                 <div className='flex sm:hidden gap-4 w-full pl-6 pr-4 py-4 items-center'>
                                                     <div className='shrink-0'>
-                                                        <div className='w-12 h-12 rounded-full bg-brand-500 flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-brand-500/20'>
-                                                            {getInitial(apt.patient.name)}
+                                                        <div className={`w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-lg ${badgeColor === 'error' ? 'bg-error-500 shadow-error-500/20' : badgeColor === 'warning' ? 'bg-warning-500 shadow-warning-500/20' : 'bg-brand-500 shadow-brand-500/20'}`}>
+                                                            {getInitial(patientName)}
                                                         </div>
                                                     </div>
                                                     <div className='flex-grow min-w-0 flex flex-col gap-0.5'>
                                                         <div className='flex justify-between items-center min-w-0'>
                                                             <span className='text-[17px] font-medium text-gray-900 dark:text-white tracking-tight truncate flex-grow min-w-0'>
-                                                                {apt.patient.name}
+                                                                {patientName}
                                                             </span>
                                                             <div className='shrink-0 ml-2'>
                                                                 <Badge size='sm' color={badgeColor} className='font-medium text-[10px] px-2.5 py-0.5 rounded-md'>
@@ -321,13 +313,15 @@ const AppointmentsPage = () => {
                                                             </div>
                                                         </div>
                                                         <div className='text-[13px] truncate text-gray-500 dark:text-gray-400 font-medium leading-tight'>
-                                                            {apt.service.name}
+                                                            {serviceName}
                                                         </div>
                                                         <div className='flex justify-between items-end mt-0.5'>
                                                             <div className='text-[11px] text-gray-700 dark:text-gray-400 font-medium truncate pr-4 flex items-center gap-1.5'>
                                                                 <span>{apt.date}</span>
                                                                 <span className='text-gray-400'>•</span>
-                                                                <span className='text-gray-500/80'>{apt.time.split('-')[0].trim()}</span>
+                                                                <span className='text-gray-500/80'>
+                                                                    {formatTime(apt.start_time)} - {formatTime(apt.end_time)}
+                                                                </span>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -339,25 +333,27 @@ const AppointmentsPage = () => {
                                                 {/* Desktop View */}
                                                 <div className='hidden sm:flex flex-grow px-8 py-5 items-center gap-8 min-w-0'>
                                                     <div className='shrink-0'>
-                                                        <img src={apt.patient.avatar} className='w-14 h-14 rounded-full border border-gray-100 shadow-sm object-cover' alt="" />
+                                                        <div className={`w-14 h-14 rounded-full flex items-center justify-center text-white font-bold text-xl shadow-lg ${badgeColor === 'error' ? 'bg-error-500 shadow-error-500/10' : badgeColor === 'warning' ? 'bg-warning-500 shadow-warning-500/10' : 'bg-brand-500 shadow-brand-500/10'}`}>
+                                                            {getInitial(patientName)}
+                                                        </div>
                                                     </div>
                                                     
                                                     <div className='flex flex-grow items-center min-w-0'>
-                                                        <div className='flex flex-col min-w-0 w-[220px] shrink-0'>
+                                                        <div className='flex flex-col min-w-0 w-[240px] shrink-0'>
                                                             <h3 className='text-[20px] font-medium text-gray-900 dark:text-white truncate leading-tight group-hover:text-brand-500 transition-colors'>
-                                                                {apt.patient.name}
+                                                                {patientName}
                                                             </h3>
-                                                            <p className='text-[13px] font-medium text-gray-700 dark:text-gray-400'>Source: {apt.source}</p>
+                                                            <p className='text-[13px] font-medium text-gray-700 dark:text-gray-400'>Approved Appointment</p>
                                                         </div>
 
-                                                        <div className='flex flex-col min-w-0 w-[240px] shrink-0 px-8 border-l border-gray-100 dark:border-white/5'>
+                                                        <div className='flex flex-col min-w-0 w-[260px] shrink-0 px-8 border-l border-gray-100 dark:border-white/5'>
                                                             <p className='text-[12px] font-medium text-gray-700 dark:text-gray-400 mb-1'>Service & Doctor</p>
                                                             <div className='flex flex-col min-w-0'>
-                                                                <span className='text-[16px] font-medium truncate text-gray-900 dark:text-white'>
-                                                                    {apt.service.name}
+                                                                <span className='text-[17px] font-medium truncate text-gray-900 dark:text-white'>
+                                                                    {serviceName}
                                                                 </span>
                                                                 <span className='text-[13px] font-medium text-gray-500 truncate italic'>
-                                                                    with {apt.doctor.name}
+                                                                    with {doctorName}
                                                                 </span>
                                                             </div>
                                                         </div>
@@ -373,8 +369,8 @@ const AppointmentsPage = () => {
 
                                                         <div className='flex-grow' />
 
-                                                        <div className='shrink-0 ml-4 flex items-center justify-center p-3 bg-gray-50/80 dark:bg-white/[0.03] text-gray-400 hover:text-brand-500 rounded-xl border border-gray-100 dark:border-gray-800 transition-all active:scale-95'>
-                                                            <Eye size={20} />
+                                                        <div className='shrink-0 ml-4 flex items-center justify-center text-brand-500 transition-all transform group-hover:translate-x-1'>
+                                                            <ChevronRight size={24} strokeWidth={3} />
                                                         </div>
                                                     </div>
                                                 </div>
@@ -400,14 +396,14 @@ const AppointmentsPage = () => {
                             <div className='relative z-30 bg-white dark:bg-gray-900 px-4 sm:px-6 py-4 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between shrink-0'>
                                 <div className='flex flex-row items-center justify-between w-full'>
                                     <div className='hidden sm:block text-[10px] font-black text-gray-400 uppercase tracking-widest'>
-                                        Page {currentPage} of {totalPages}
+                                        Page {page} of {totalPages}
                                     </div>
 
                                     <div className='flex items-center gap-2 mx-auto sm:mx-0'>
                                         <button 
-                                            onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                                            onClick={() => goToPage(Math.max(1, page - 1))}
                                             className='w-10 h-10 flex items-center justify-center rounded-xl bg-gray-100 dark:bg-white/5 text-gray-500 hover:bg-gray-200 dark:hover:bg-white/10 disabled:opacity-30 transition-all'
-                                            disabled={currentPage === 1}
+                                            disabled={page === 1}
                                         >
                                             <ChevronLeft size={20} />
                                         </button>
@@ -415,9 +411,9 @@ const AppointmentsPage = () => {
                                         {[...Array(totalPages)].map((_, i) => (
                                             <button 
                                                 key={i + 1}
-                                                onClick={() => setCurrentPage(i + 1)}
+                                                onClick={() => goToPage(i + 1)}
                                                 className={`w-10 h-10 flex items-center justify-center text-sm font-bold rounded-xl transition-all ${
-                                                    currentPage === i + 1 
+                                                    page === i + 1 
                                                     ? 'bg-brand-500 text-white shadow-lg shadow-brand-500/20' 
                                                     : 'text-gray-500 hover:bg-gray-100 dark:hover:bg-white/5'
                                                 }`}
@@ -427,9 +423,9 @@ const AppointmentsPage = () => {
                                         ))}
 
                                         <button 
-                                            onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                                            onClick={() => goToPage(Math.min(totalPages, page + 1))}
                                             className='w-10 h-10 flex items-center justify-center rounded-xl bg-gray-100 dark:bg-white/5 text-gray-500 hover:bg-gray-200 dark:hover:bg-white/10 disabled:opacity-30 transition-all'
-                                            disabled={currentPage === totalPages}
+                                            disabled={page === totalPages}
                                         >
                                             <ChevronRight size={20} />
                                         </button>
@@ -446,4 +442,4 @@ const AppointmentsPage = () => {
     );
 };
 
-export default AppointmentsPage;
+export default UpcomingAppointmentsPage;

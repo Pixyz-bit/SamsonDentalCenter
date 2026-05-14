@@ -1,4 +1,5 @@
 import { SidebarProvider, useSidebar } from '../context/SidebarContext';
+import { ServicesProvider } from '../context/ServicesContext';
 import { Outlet } from 'react-router-dom';
 import SecretaryHeader from '../components/secretary/SecretaryHeader';
 import Backdrop from '../components/secretary/Backdrop';
@@ -32,7 +33,9 @@ const LayoutContent = () => {
 const SecretaryPortalLayout = () => {
     return (
         <SidebarProvider>
-            <LayoutContent />
+            <ServicesProvider>
+                <LayoutContent />
+            </ServicesProvider>
         </SidebarProvider>
     );
 };
