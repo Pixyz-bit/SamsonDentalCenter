@@ -5,6 +5,7 @@ import AppointmentTable from '../../components/patient/appointments/AppointmentT
 import AppointmentFilters from '../../components/patient/appointments/AppointmentFilters';
 import useDoctorAppointments from '../../hooks/useDoctorAppointments';
 import InvoiceModal from '../../components/doctor/appointments/InvoiceModal';
+import ConfirmStartModal from '../../components/doctor/appointments/ConfirmStartModal';
 import AppointmentDetailView from '../../components/doctor/appointments/AppointmentDetailView';
 import { useToast } from '../../context/ToastContext';
 import { useAuth } from '../../context/AuthContext';
@@ -71,6 +72,8 @@ const AppointmentsPage = () => {
     const [openDropdown, setOpenDropdown] = useState(null);
     const [selectedAppointment, setSelectedAppointment] = useState(null);
     const [isInvoiceModalOpen, setIsInvoiceModalOpen] = useState(false);
+    const [isStartModalOpen, setIsStartModalOpen] = useState(false);
+    const [appointmentToStart, setAppointmentToStart] = useState(null);
 
     // Sync selectedAppointment with URL id
     useEffect(() => {
@@ -94,9 +97,18 @@ const AppointmentsPage = () => {
         setSearchParams({});
     };
 
-    const handleStartAppointment = async (id) => {
+    const handleStartAppointment = (id) => {
+        const app = MOCK_APPOINTMENTS.find(a => a.id === id);
+        if (app) {
+            setAppointmentToStart(app);
+            setIsStartModalOpen(true);
+        }
+    };
+
+    const handleConfirmStart = async (id) => {
         console.log('Simulation: Starting appointment:', id);
         showToast('Appointment started (Simulated)!', 'success');
+        setIsStartModalOpen(false);
     };
 
     const handleOpenInvoiceModal = (appointment) => {
@@ -104,6 +116,25 @@ const AppointmentsPage = () => {
         setIsInvoiceModalOpen(true);
         setOpenDropdown(null);
     };
+
+    const filteredAppointments = MOCK_APPOINTMENTS.filter(app => {
+        let matchesStatus = true;
+        if (filters.status === 'upcoming') {
+            matchesStatus = app.status === 'CONFIRMED';
+        } else if (filters.status === 'pending') {
+            matchesStatus = app.status === 'PENDING' || app.status === 'IN_PROGRESS';
+        } else if (filters.status === 'completed') {
+            matchesStatus = app.status === 'COMPLETED';
+        } else if (filters.status === 'cancel') {
+            matchesStatus = app.status === 'CANCELLED';
+        }
+
+        const matchesSearch = !filters.search || 
+            app.patient.name.toLowerCase().includes(filters.search.toLowerCase()) ||
+            app.service.toLowerCase().includes(filters.search.toLowerCase());
+        
+        return matchesStatus && matchesSearch;
+    });
 
     const breadcrumbTitle = selectedId ? 'Appointment Detail' : 'Patient Appointments';
     const parentName = selectedId ? 'Appointments' : null;
@@ -141,13 +172,15 @@ const AppointmentsPage = () => {
 
                     <div className='rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] shadow-theme-sm overflow-hidden'>
                         <AppointmentFilters 
-                            filters={filters} 
-                            setFilters={setFilters} 
+                            search={filters.search || ''}
+                            onSearchChange={(val) => setFilters(prev => ({ ...prev, search: val }))}
+                            statusFilter={filters.status || ''}
+                            onStatusChange={(val) => setFilters(prev => ({ ...prev, status: val }))}
                         />
                         
                         <div className='mt-6'>
                             <AppointmentTable 
-                                appointments={MOCK_APPOINTMENTS}
+                                appointments={filteredAppointments}
                                 loading={false}
                                 error={null}
                                 user={user}
@@ -173,6 +206,13 @@ const AppointmentsPage = () => {
                     }}
                 />
             )}
+
+            <ConfirmStartModal 
+                isOpen={isStartModalOpen}
+                onClose={() => setIsStartModalOpen(false)}
+                onConfirm={handleConfirmStart}
+                appointment={appointmentToStart}
+            />
         </>
     );
 };

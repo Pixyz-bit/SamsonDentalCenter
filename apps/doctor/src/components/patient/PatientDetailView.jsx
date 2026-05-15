@@ -16,9 +16,8 @@ const PatientDetailView = ({ patientId, onBack, activeTab }) => {
     
     const fetchPatient = async () => {
         try {
-            // Using the same endpoint as admin if authorized, 
-            // otherwise we'll need a doctor-specific one.
-            const data = await api.get(`/admin/patients/${patientId}`, token);
+            // Using doctor-specific endpoint
+            const data = await api.get(`/doctor/patients/${patientId}`, token);
             setPatient(data);
         } catch (err) {
             console.error('Failed to fetch patient:', err);
@@ -79,7 +78,7 @@ const PatientDetailView = ({ patientId, onBack, activeTab }) => {
                         </div>
                         <div>
                             <h3 className='text-base sm:text-lg font-bold text-[#0B1120] dark:text-white font-outfit truncate'>
-                                {patient.full_name || `${patient.lastName}, ${patient.firstName}`}
+                                {patient.full_name || `${patient.last_name}, ${patient.first_name}`}
                             </h3>
                             <p className='text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 font-medium'>
                                 Patient Directory <span className='mx-1 text-gray-300 dark:text-gray-700'>/</span> {activeTabLabel} Registry

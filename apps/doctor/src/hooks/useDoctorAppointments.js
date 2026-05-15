@@ -7,7 +7,9 @@ import { useState, useCallback } from 'react';
 export const useDoctorAppointments = () => {
     const [filters, setFilters] = useState({
         date: new Date().toISOString().split('T')[0],
-        view: 'day'
+        view: 'day',
+        status: '',
+        search: ''
     });
 
     const mockData = [

@@ -19,6 +19,8 @@ import {
     getScheduleRequests,
     getDoctorFeedback,
 } from '../services/doctor.service.js';
+import { getPatientProfile } from '../services/admin.service.js';
+import { getPatientAppointments } from '../services/appointment.service.js';
 
 // ── Schedule ──
 
@@ -148,10 +150,46 @@ export const getNotes = async (req, res, next) => {
 /**
  * GET /api/doctor/patients/:patientId/history
  */
+/**
+ * GET /api/v1/doctor/patients/:id
+ * 👤 Get full patient profile details.
+ */
+export const getPatientDetail = async (req, res, next) => {
+    try {
+        const patient = await getPatientProfile(req.params.patientId);
+        res.json(patient);
+    } catch (err) {
+        next(err);
+    }
+};
+
+/**
+ * GET /api/v1/doctor/patients/:id/history
+ */
 export const patientHistory = async (req, res, next) => {
     try {
         const history = await getPatientHistory(req.params.patientId);
         res.json({ treatment_history: history });
+    } catch (err) {
+        next(err);
+    }
+};
+
+/**
+ * GET /api/v1/doctor/patients/:id/appointments
+ * 📅 Get all appointments for a patient.
+ */
+export const getPatientAppointmentsHandler = async (req, res, next) => {
+    try {
+        const { status, sort, page, limit } = req.query;
+        const appointments = await getPatientAppointments(
+            req.params.patientId,
+            status,
+            sort,
+            page,
+            limit
+        );
+        res.json(appointments);
     } catch (err) {
         next(err);
     }

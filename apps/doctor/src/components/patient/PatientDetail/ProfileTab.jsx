@@ -55,7 +55,7 @@ const ProfileTab = ({ patient }) => {
                                 </span>
                                 <span className="text-gray-300 dark:text-gray-700 hidden sm:block">•</span>
                                 <p className='text-[9px] text-brand-600 dark:text-brand-400 font-black uppercase tracking-widest'>
-                                    ID: {patient.id?.slice(0, 8).toUpperCase()}
+                                    ID: {patient.id?.slice(0, 8)?.toUpperCase()}
                                 </p>
                             </div>
                         </div>

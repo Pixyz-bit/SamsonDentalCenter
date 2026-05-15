@@ -11,7 +11,9 @@ import {
     // Patient Care
     addNote,
     getNotes,
+    getPatientDetail,
     patientHistory,
+    getPatientAppointmentsHandler,
     // Appointment Actions
     markComplete,
     startAppointmentHandler,
@@ -43,7 +45,9 @@ router.post('/request-block', requestDayOff);
 // ── Patient Care ──
 router.post('/treatment-notes', addNote);
 router.get('/treatment-notes/:appointmentId', getNotes);
+router.get('/patients/:patientId', getPatientDetail);
 router.get('/patients/:patientId/history', patientHistory);
+router.get('/patients/:patientId/appointments', getPatientAppointmentsHandler);
 
 // ── Appointment Actions ──
 router.patch('/appointments/:id/start', startAppointmentHandler);

@@ -1,12 +1,10 @@
 import { useState, useEffect } from 'react';
-import { Search, Calendar, Clock, CheckCircle2, XCircle, RotateCcw, CalendarDays } from 'lucide-react';
+import { Search, Calendar, Clock, RotateCcw, CalendarDays } from 'lucide-react';
 
 const CATEGORIES = [
     { id: '', label: 'All', icon: Calendar },
     { id: 'upcoming', label: 'Upcoming', icon: Clock },
     { id: 'pending', label: 'Pending', icon: RotateCcw },
-    { id: 'cancel', label: 'Cancelled', icon: XCircle },
-    { id: 'completed', label: 'Completed', icon: CheckCircle2 },
 ];
 
 const formatTodayDate = () => {
